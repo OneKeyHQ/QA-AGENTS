@@ -1,0 +1,2625 @@
+{
+  "info": {
+    "name": "5.19.0 Borrow 接口测试用例集合",
+    "description": "Earn 模块 Borrow 功能完整接口测试用例\n\n参数说明：\n- 固定参数直接硬编码在请求中\n- 动态数据（如 marketAddress、reserveAddress）通过环境变量传递\n- 执行时自动提取响应数据写入环境变量",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01-市场与数据查询",
+      "description": "市场列表、储备金、健康因子等查询接口",
+      "item": [
+        {
+          "name": "01-获取 Market 列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取 Market 列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data.markets 是数组且不为空', function() {",
+                  "    pm.expect(jsonData.data.markets).to.be.an('array');",
+                  "    pm.expect(jsonData.data.markets.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test('Market 包含必要字段', function() {",
+                  "    const market = jsonData.data.markets[0];",
+                  "    pm.expect(market).to.have.property('provider');",
+                  "    pm.expect(market).to.have.property('networkId');",
+                  "    pm.expect(market).to.have.property('name');",
+                  "    pm.expect(market).to.have.property('address');",
+                  "});",
+                  "",
+                  "// ★ 提取 marketAddress 到环境变量供后续接口使用",
+                  "if (jsonData.data.markets && jsonData.data.markets.length > 0) {",
+                  "    const market = jsonData.data.markets[0];",
+                  "    pm.environment.set('marketAddress', market.address);",
+                  "    pm.environment.set('provider', market.provider);",
+                  "    pm.environment.set('networkId', market.networkId);",
+                  "    console.log('★ 已写入环境变量:');",
+                  "    console.log('  - marketAddress:', market.address);",
+                  "    console.log('  - provider:', market.provider);",
+                  "    console.log('  - networkId:', market.networkId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/markets",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "markets"
+              ]
+            }
+          }
+        },
+        {
+          "name": "02-获取健康因子",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "// 检查环境变量是否已设置",
+                  "const marketAddress = pm.environment.get('marketAddress');",
+                  "if (!marketAddress) {",
+                  "    console.warn('⚠️ marketAddress 未设置，请先执行「01-获取 Market 列表」');",
+                  "}",
+                  "console.log('开始测试: 获取健康因子');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('healthFactor 字段存在', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('healthFactor');",
+                  "});",
+                  "",
+                  "pm.test('healthFactor.text 包含数值', function() {",
+                  "    pm.expect(jsonData.data.healthFactor.text.text).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/health-factor?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "health-factor"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "03-获取 Reserve 列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取 Reserve 列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 data 包含 overview', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('overview');",
+                  "});",
+                  "",
+                  "pm.test('返回 data 包含 supply 列表', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('supply');",
+                  "    pm.expect(jsonData.data.supply.items).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('返回 data 包含 borrow 列表', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('borrow');",
+                  "    pm.expect(jsonData.data.borrow.items).to.be.an('array');",
+                  "});",
+                  "",
+                  "// ★ 提取 reserveAddress 到环境变量供后续接口使用",
+                  "if (jsonData.data.supply && jsonData.data.supply.items.length > 0) {",
+                  "    const reserve = jsonData.data.supply.items[0];",
+                  "    pm.environment.set('reserveAddress', reserve.reserveAddress);",
+                  "    console.log('★ 已写入环境变量 reserveAddress:', reserve.reserveAddress);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/reserves?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "reserves"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "04-获取 Reserve 详情",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const reserveAddress = pm.environment.get('reserveAddress');",
+                  "if (!reserveAddress) {",
+                  "    console.warn('⚠️ reserveAddress 未设置，请先执行「03-获取 Reserve 列表」');",
+                  "}",
+                  "console.log('开始测试: 获取 Reserve 详情');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 token 信息', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('token');",
+                  "    pm.expect(jsonData.data.token).to.have.property('symbol');",
+                  "});",
+                  "",
+                  "pm.test('返回 supplyInfo', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('supplyInfo');",
+                  "});",
+                  "",
+                  "pm.test('返回 borrowInfo', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('borrowInfo');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/reserve-detail?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&reserveAddress={{reserveAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "reserve-detail"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "reserveAddress",
+                  "value": "{{reserveAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "05-获取历史记录",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 05-获取历史记录');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('histories 是数组', function() {",
+                  "    pm.expect(jsonData.data.histories).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/histories?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x&type=all",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "histories"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                },
+                {
+                  "key": "type",
+                  "value": "all"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "06-获取 APY 历史",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 06-获取 APY 历史');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('history 是数组', function() {",
+                  "    pm.expect(jsonData.data.history).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/apy/history?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&reserveAddress={{reserveAddress}}&action=supply&days=week",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "apy",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "reserveAddress",
+                  "value": "{{reserveAddress}}"
+                },
+                {
+                  "key": "action",
+                  "value": "supply"
+                },
+                {
+                  "key": "days",
+                  "value": "week"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "07-获取利率曲线",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 07-获取利率曲线');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/interest-rate/curve?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&reserveAddress={{reserveAddress}}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "interest-rate",
+                "curve"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "reserveAddress",
+                  "value": "{{reserveAddress}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-页面与辅助接口",
+      "item": [
+        {
+          "name": "08-仓位管理面板",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 08-仓位管理面板');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('包含 availableSupply', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('availableSupply');",
+                  "});",
+                  "",
+                  "pm.test('包含 availableBorrow', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('availableBorrow');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/manage-page?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&reserveAddress={{reserveAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x&type=supply",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "manage-page"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "reserveAddress",
+                  "value": "{{reserveAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                },
+                {
+                  "key": "type",
+                  "value": "supply"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "09-获取资产列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 09-获取资产列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('assets 是数组且不为空', function() {",
+                  "    pm.expect(jsonData.data.assets).to.be.an('array');",
+                  "    pm.expect(jsonData.data.assets.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test('资产包含必要字段', function() {",
+                  "    const asset = jsonData.data.assets[0];",
+                  "    pm.expect(asset).to.have.property('reserveAddress');",
+                  "    pm.expect(asset).to.have.property('token');",
+                  "    pm.expect(asset).to.have.property('apyDetail');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/asset-list?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x&action=supply",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "asset-list"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                },
+                {
+                  "key": "action",
+                  "value": "supply"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "10-获取奖励数据",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 10-获取奖励数据');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('返回有效响应', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/rewards?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "rewards"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "11-获取 FAQ 列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 11-获取 FAQ 列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/faq/list?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&reserveAddress={{reserveAddress}}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "faq",
+                "list"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "reserveAddress",
+                  "value": "{{reserveAddress}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03-交易辅助接口",
+      "item": [
+        {
+          "name": "12-金额校验-Supply",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 12-金额校验-Supply');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('result 是布尔值', function() {",
+                  "    pm.expect(jsonData.data.result).to.be.a('boolean');",
+                  "});",
+                  "",
+                  "pm.test('alerts 是数组', function() {",
+                  "    pm.expect(jsonData.data.alerts).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/check-amount?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&reserveAddress={{reserveAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x&action=supply&amount=0.01",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "check-amount"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "reserveAddress",
+                  "value": "{{reserveAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                },
+                {
+                  "key": "action",
+                  "value": "supply"
+                },
+                {
+                  "key": "amount",
+                  "value": "0.01"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "13-交易损耗预估",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 13-交易损耗预估');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 feeFiatValue', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('feeFiatValue');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/estimate-fee?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&reserveAddress={{reserveAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x&action=supply&amount=1",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "estimate-fee"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "reserveAddress",
+                  "value": "{{reserveAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                },
+                {
+                  "key": "action",
+                  "value": "supply"
+                },
+                {
+                  "key": "amount",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04-交易构建接口",
+      "item": [
+        {
+          "name": "14-构建 Supply 交易",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 14-构建 Supply 交易');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 tx 交易数据', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data.tx).to.be.a('string');",
+                  "});",
+                  "",
+                  "pm.test('返回 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "",
+                  "// ★ 提取 orderId 到环境变量",
+                  "if (jsonData.data && jsonData.data.orderId) {",
+                  "    pm.environment.set('orderId', jsonData.data.orderId);",
+                  "    console.log('★ 已写入环境变量 orderId:', jsonData.data.orderId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"networkId\": \"sol--101\",\n  \"provider\": \"kamino\",\n  \"marketAddress\": \"{{marketAddress}}\",\n  \"reserveAddress\": \"{{reserveAddress}}\",\n  \"accountAddress\": \"AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x\",\n  \"amount\": \"0.01\"\n}"
+            },
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/build-supply-transaction",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "build-supply-transaction"
+              ]
+            }
+          }
+        },
+        {
+          "name": "15-构建 Withdraw 交易",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 15-构建 Withdraw 交易');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"networkId\": \"sol--101\",\n  \"provider\": \"kamino\",\n  \"marketAddress\": \"{{marketAddress}}\",\n  \"reserveAddress\": \"{{reserveAddress}}\",\n  \"accountAddress\": \"AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x\",\n  \"amount\": \"0.01\"\n}"
+            },
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/build-withdraw-transaction",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "build-withdraw-transaction"
+              ]
+            }
+          }
+        },
+        {
+          "name": "16-构建 Borrow 交易",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 16-构建 Borrow 交易');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"networkId\": \"sol--101\",\n  \"provider\": \"kamino\",\n  \"marketAddress\": \"{{marketAddress}}\",\n  \"reserveAddress\": \"{{reserveAddress}}\",\n  \"accountAddress\": \"AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x\",\n  \"amount\": \"0.01\"\n}"
+            },
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/build-borrow-transaction",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "build-borrow-transaction"
+              ]
+            }
+          }
+        },
+        {
+          "name": "17-构建 Repay 交易",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 17-构建 Repay 交易');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"networkId\": \"sol--101\",\n  \"provider\": \"kamino\",\n  \"marketAddress\": \"{{marketAddress}}\",\n  \"reserveAddress\": \"{{reserveAddress}}\",\n  \"accountAddress\": \"AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x\",\n  \"amount\": \"0.01\"\n}"
+            },
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/build-repay-transaction",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "build-repay-transaction"
+              ]
+            }
+          }
+        },
+        {
+          "name": "18-构建 Claim 交易",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 18-构建 Claim 交易');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('返回有效响应', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0) {",
+                  "    pm.test('成功时返回 tx 和 orderId', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('tx');",
+                  "        pm.expect(jsonData.data).to.have.property('orderId');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"networkId\": \"sol--101\",\n  \"provider\": \"kamino\",\n  \"marketAddress\": \"{{marketAddress}}\",\n  \"accountAddress\": \"AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x\",\n  \"ids\": []\n}"
+            },
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/build-claim-transaction",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "build-claim-transaction"
+              ]
+            }
+          }
+        },
+        {
+          "name": "19-交易确认页",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const orderId = pm.environment.get('orderId');",
+                  "if (!orderId) {",
+                  "    console.warn('⚠️ orderId 未设置，请先执行交易构建接口（如「14-构建 Supply 交易」）');",
+                  "}",
+                  "console.log('开始测试: 19-交易确认页');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回交易确认数据', function() {",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/transaction-confirmation?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&orderId={{orderId}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "transaction-confirmation"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "orderId",
+                  "value": "{{orderId}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05-边界与异常测试",
+      "item": [
+        {
+          "name": "E01-缺少必填参数 networkId",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: E01-缺少必填参数 networkId');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('缺少 networkId 应返回错误', function() {",
+                  "    const isError = pm.response.code === 400 || jsonData.code !== 0;",
+                  "    pm.expect(isError).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/reserves?provider=kamino&marketAddress={{marketAddress}}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "reserves"
+              ],
+              "query": [
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "E02-无效的 networkId",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: E02-无效的 networkId');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('无效 networkId 应返回错误或空数据', function() {",
+                  "    const isError = jsonData.code !== 0 || !jsonData.data;",
+                  "    pm.expect(isError).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/reserves?networkId=invalid-network&provider=kamino&marketAddress={{marketAddress}}",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "reserves"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "invalid-network"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "E03-金额为负数",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: E03-金额为负数');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('负数金额应校验失败', function() {",
+                  "    pm.expect(jsonData.data.result).to.be.false;",
+                  "});",
+                  "",
+                  "pm.test('应返回告警信息', function() {",
+                  "    pm.expect(jsonData.data.alerts.length).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/check-amount?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&reserveAddress={{reserveAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x&action=supply&amount=-1",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "check-amount"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "reserveAddress",
+                  "value": "{{reserveAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                },
+                {
+                  "key": "action",
+                  "value": "supply"
+                },
+                {
+                  "key": "amount",
+                  "value": "-1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "E04-超大金额",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: E04-超大金额');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('超大金额应校验失败', function() {",
+                  "    pm.expect(jsonData.data.result).to.be.false;",
+                  "});",
+                  "",
+                  "pm.test('应返回余额不足告警', function() {",
+                  "    pm.expect(jsonData.data.alerts.length).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/check-amount?networkId=sol--101&provider=kamino&marketAddress={{marketAddress}}&reserveAddress={{reserveAddress}}&accountAddress=AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x&action=supply&amount=999999999999",
+              "protocol": "https",
+              "host": [
+                "api",
+                "onekey",
+                "so"
+              ],
+              "path": [
+                "earn",
+                "v1",
+                "borrow",
+                "check-amount"
+              ],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "provider",
+                  "value": "kamino"
+                },
+                {
+                  "key": "marketAddress",
+                  "value": "{{marketAddress}}"
+                },
+                {
+                  "key": "reserveAddress",
+                  "value": "{{reserveAddress}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "AaNEipfe2usS1cpH5HAmUTtbTivDLQDxzpfzYrcwef3x"
+                },
+                {
+                  "key": "action",
+                  "value": "supply"
+                },
+                {
+                  "key": "amount",
+                  "value": "999999999999"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
