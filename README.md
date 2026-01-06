@@ -43,7 +43,13 @@ brew install node@20  # 或使用 nvm: nvm install 20
     },
     "apifox": {
       "command": "npx",
-      "args": ["-y", "@apifox/mcp-server"]
+      "args": [
+        "-y",
+        "apifox-mcp-server@latest",
+        "--project=<项目ID>"
+      ],
+      "env": {
+        "APIFOX_ACCESS_TOKEN": "<用户生成的API>"
     }
   }
 }
@@ -51,7 +57,7 @@ brew install node@20  # 或使用 nvm: nvm install 20
 
 **MCP 服务器说明**：
 - **Chrome DevTools MCP**: 浏览器自动化测试，性能采集和 WebSocket 监听
-- **Apifox MCP**: 用于 API 测试用例生成（需要配置 Apifox 项目信息）
+- **Apifox MCP**: 用于 API 测试用例生成
 
 ### 3. 启动 Chrome 调试模式
 
@@ -120,14 +126,7 @@ ws https://app.onekey.so/perps
 
 # 综合分析（性能 + WS）
 analyze https://app.onekey.so/perps
-```
-
-| 指令 | 功能验证 | 性能采集 | WS 监听 | 适用场景 |
-|------|:---:|:---:|:---:|----------|
-| `smoke` | ✅ | ✅ | ✅（按需） | 完整冒烟测试 |
-| `perf` | ❌ | ✅ | ❌ | 快速检查页面性能 |
-| `ws` | ❌ | ❌ | ✅ | 调试实时数据推送 |
-| `analyze` | ❌ | ✅ | ✅ | 全面诊断页面问题 |
+``
 
 ### API 测试用例生成
 
@@ -314,7 +313,7 @@ KILL_CHROME=1 ./docs/scripts/start-mcp-chrome.sh 12306
 
 本项目已集成 Claude Skills，包含以下辅助技能：
 
-- **上下文工程技能库**：上下文优化、压缩、多智能体模式等（11 个技能）
+- **上下文工程技能库**：上下文优化、压缩、多智能体模式等（28 个技能,部分按需引用）
 - **Apifox 测试用例生成器**：自动生成 API 测试用例
 
 **使用方式**：在对话中提及相关场景，Agent 会自动调用对应的技能。
