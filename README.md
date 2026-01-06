@@ -1,6 +1,9 @@
 # QA Skill - Cursor 自动化测试能力
 
-> 让测试用例生成与规则维护"落在仓库里"。
+> **主要技能**: 让测试用例生成与规则维护"落在仓库里"。  
+> **辅助技能**: 上下文工程与 Agent 架构设计技能库（见下方辅助技能库章节）。  
+> **测试工具**: SLIP39 助记词 OCR 识别工具（见下方测试工具章节）。
+
 ---
 
 ## 🎯 核心能力
@@ -13,6 +16,7 @@
 | 性能分析 | `perf <URL>` | 仅采集性能数据 |
 | WS 监听 | `ws <URL>` | 仅监听 WebSocket 数据 |
 | 综合分析 | `analyze <URL>` | 性能 + WS 综合分析 |
+| API 测试用例生成 | `/api-testcase <collection>` | Postman Collection 格式 + 导入说明 |
 
 ---
 
@@ -21,27 +25,33 @@
 ### 1. 安装依赖
 
 ```bash
-# Node.js（用于 Playwright MCP）
-brew install node
-
-# Chrome 浏览器
-# 手动安装：https://www.google.com/chrome/
+# Node.js（版本要求：20+）
+# 检查版本：node --version
+brew install node@20  # 或使用 nvm: nvm install 20
 ```
 
 ### 2. 配置 Cursor MCP
 
-在 Cursor 设置中添加 Playwright MCP：
+在 Cursor 设置中添加以下 MCP 服务器：
 
 ```json
 {
   "mcpServers": {
-    "playwright": {
+    "chrome-devtools": {
       "command": "npx",
-      "args": ["-y", "@anthropic-ai/mcp-server-playwright", "--cdp-endpoint", "http://127.0.0.1:9222"]
+      "args": ["-y", "@modelcontextprotocol/server-chrome-devtools", "--port", "9222"]
+    },
+    "apifox": {
+      "command": "npx",
+      "args": ["-y", "@apifox/mcp-server"]
     }
   }
 }
 ```
+
+**MCP 服务器说明**：
+- **Chrome DevTools MCP**: 浏览器自动化测试，性能采集和 WebSocket 监听
+- **Apifox MCP**: 用于 API 测试用例生成（需要配置 Apifox 项目信息）
 
 ### 3. 启动 Chrome 调试模式
 
@@ -61,6 +71,9 @@ HEADLESS=1 ./docs/scripts/start-mcp-chrome.sh
 ```bash
 # 在 Cursor 中执行冒烟测试
 smoke https://app.onekey.so/perps
+
+# 生成 API 测试用例
+/api-testcase 5.19.0 Borrow
 ```
 
 ---
@@ -116,6 +129,32 @@ analyze https://app.onekey.so/perps
 | `ws` | ❌ | ❌ | ✅ | 调试实时数据推送 |
 | `analyze` | ❌ | ✅ | ✅ | 全面诊断页面问题 |
 
+### API 测试用例生成
+
+```bash
+# 列出所有可用的 API 接口
+/api-list
+
+# 读取指定接口的详细定义
+/api-read /earn/v1/borrow/markets
+
+# 为指定接口集合生成测试用例
+/api-testcase 5.19.0 Borrow
+
+# 为单个接口生成测试用例
+/api-testcase-single /earn/v1/borrow/markets
+
+# 刷新 API 文档缓存
+/api-refresh
+```
+
+**输出文件**：
+- `docs/testcases/api/{collection}-Apifox-TestCases.json` - Postman Collection 格式
+- `docs/testcases/api/{collection}-Environment.json` - 环境变量配置
+- `docs/testcases/api/{collection}-导入说明.md` - 导入操作指南
+
+**详细文档**：查看 [`docs/skills/apifox-testcase-generator/SKILL.md`](docs/skills/apifox-testcase-generator/SKILL.md)
+
 ---
 
 ## 📂 目录结构
@@ -127,6 +166,7 @@ QA SKILL/
 ├── docs/
 │   ├── qa-rules.md                       # 核心规则（唯一事实来源）
 │   ├── SKILL.md                          # 能力说明
+│   ├── AGENTS.md                         # 辅助技能库（上下文工程）
 │   │
 │   ├── specs/                            # 📦 能力规范（按需读取）
 │   │   ├── smoke-test.md                 # 冒烟测试 + perf/ws/analyze
@@ -146,8 +186,15 @@ QA SKILL/
 │   └── testcases/                        # 用例文件（自动落盘）
 │       ├── README.md
 │       ├── YYYY-MM-DD_<模块>-<主题>.md
-│       └── performance/                  # 冒烟测试报告
-│           └── YYYY-MM-DD_<模块>-冒烟测试.md
+│       ├── performance/                  # 冒烟测试报告
+│       │   └── YYYY-MM-DD_<模块>-冒烟测试.md
+│       ├── api/                          # API 测试用例
+│       │   └── {collection}-Apifox-TestCases.json
+│       └── checklist/                    # Checklist 清单
+│           └── YYYY-MM-DD_<模块>-<主题>-Checklist.md
+│
+└── html-test/                            # 📦 测试工具
+    └── Mnemonic OCR.html                  # SLIP39 助记词 OCR 识别工具
 ```
 
 ---
@@ -226,6 +273,27 @@ KILL_CHROME=1 ./docs/scripts/start-mcp-chrome.sh 12306
 
 ---
 
+## 🛠️ 测试工具
+
+### SLIP39 助记词 OCR 识别工具
+
+**位置**: `html-test/Mnemonic OCR.html`
+
+**功能**: 基于 Tesseract.js 的 OCR 工具，用于识别 SLIP39 助记词卡片。
+
+**使用方式**:
+1. 在浏览器中打开 `html-test/Mnemonic OCR.html`
+2. 上传助记词卡片图片或使用摄像头拍摄
+3. 工具自动识别并提取助记词文本
+4. 支持批量处理和分组验证
+
+**适用场景**:
+- 硬件钱包助记词卡片识别
+- SLIP39 分组助记词验证
+- 批量助记词导入测试
+
+---
+
 ## 📚 文档索引
 
 | 文档 | 用途 | 何时读取 |
@@ -235,3 +303,20 @@ KILL_CHROME=1 ./docs/scripts/start-mcp-chrome.sh 12306
 | `docs/specs/checklist.md` | Checklist 标准 | 生成 checklist 时 |
 | `docs/specs/performance.md` | 性能指标定义 | 需要性能报告时 |
 | `docs/specs/chrome-mcp.md` | MCP 工具规范 | 执行自动化时 |
+| `docs/skills/apifox-testcase-generator/SKILL.md` | API 测试用例生成器 | 生成 API 测试用例时 |
+| `docs/AGENTS.md` | 辅助技能库（上下文工程） | 需要上下文优化时 |
+
+---
+
+## 🔧 辅助技能库（Agents）
+
+> **注意**: 以下技能为辅助技能，用于上下文工程和 Agent 架构设计。主要测试能力请参考上方的 QA Skill 核心能力。
+
+本项目已集成 Claude Skills，包含以下辅助技能：
+
+- **上下文工程技能库**：上下文优化、压缩、多智能体模式等（11 个技能）
+- **Apifox 测试用例生成器**：自动生成 API 测试用例
+
+**使用方式**：在对话中提及相关场景，Agent 会自动调用对应的技能。
+
+**详细文档**: 查看 [`docs/AGENTS.md`](docs/AGENTS.md) 获取完整技能库说明。
