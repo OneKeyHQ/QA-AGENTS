@@ -25,6 +25,8 @@ QA/
 ├── docs/
 │   ├── qa-rules.md           # 用例生成规则（唯一事实来源）
 │   ├── SKILL.md              # 本技能文档
+│   ├── rules/                # 规则文档目录（按模块拆分）
+│   │   └── transfer-chain-rules.md  # 转账链规则（最小转账金额、账户最低余额等）
 │   ├── requirements/         # 需求文档目录
 │   │   └── *.doc / *.docx / *.md / *.pdf
 │   └── testcases/            # 自动落盘的用例文件
@@ -293,10 +295,45 @@ analyze https://app.onekey.so/perps
 
 ## 🔧 规则维护
 
+### 规则文档组织原则
+
+为了便于阅读和维护，规则文档采用模块化拆分：
+
+1. **核心规则**：`docs/qa-rules.md`
+   - 用例生成通用规则
+   - 模块垂直深度映射
+   - 输出格式要求
+
+2. **模块专项规则**：`docs/rules/` 目录
+   - 按模块拆分专项规则文档
+   - 例如：`transfer-chain-rules.md`（转账链规则）
+   - 便于独立维护和更新
+
+3. **需求文档**：`docs/requirements/` 目录
+   - 具体功能需求文档
+   - 包含业务规则和测试要点
+
+### 转账模块规则说明
+
+**钱包类型分组**：
+- 生成转账相关链的测试用例时，必须将软件钱包和硬件钱包分开显示
+- 输出为两篇独立文档：
+  - `YYYY-MM-DD_Wallet-<链名>-软件钱包测试.md`
+  - `YYYY-MM-DD_Wallet-<链名>-硬件钱包测试.md`
+
+**金额转账测试规则**：
+- 必须覆盖最大值、最小值、中间值
+- 最大值：钱包里的余额（用户自己的可用值）
+- 最小值：根据具体链和代币规则（参考 `docs/rules/transfer-chain-rules.md`）
+- 具体规则请查看 `docs/rules/transfer-chain-rules.md`
+
+### 规则更新流程
+
 当引入新需求/新规则时：
-1. 优先把规则固化到 `docs/qa-rules.md`
-2. 或新增 `docs/requirements/<topic>.md`
-3. 生成用例时会自动引用
+1. **通用规则**：更新 `docs/qa-rules.md`
+2. **模块专项规则**：更新或创建 `docs/rules/<module>-rules.md`
+3. **需求文档**：新增或更新 `docs/requirements/<topic>.md`
+4. **生成用例时**：自动引用相关规则文档
 
 ---
 
@@ -308,6 +345,7 @@ analyze https://app.onekey.so/perps
 | --- | --- | --- |
 | `.cursorrules` | Cursor 强制执行的入口规则 | - |
 | `docs/qa-rules.md` | 用例生成规则（唯一事实来源） | ~300 |
+| `docs/rules/transfer-chain-rules.md` | 转账链规则（最小转账金额、账户最低余额等） | - |
 | `docs/testcases/README.md` | 用例文件夹说明 | - |
 
 ### 能力规范（按需读取）
@@ -333,6 +371,8 @@ analyze https://app.onekey.so/perps
 docs/
 ├── qa-rules.md              # 核心规则（0-9节 + 引用索引）
 ├── SKILL.md                 # 能力说明
+├── rules/                   # 模块专项规则（按需拆分）
+│   └── transfer-chain-rules.md  # 转账链规则
 ├── specs/                   # 能力规范（按需读取）
 │   ├── smoke-test.md        # 冒烟测试 + 独立分析
 │   ├── checklist.md         # Checklist 标准

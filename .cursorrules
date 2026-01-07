@@ -7,6 +7,7 @@
 
 ### 规则文档（必须阅读并遵守）
 - `docs/qa-rules.md`：测试用例输出规范、去重合并规则、通用维度、模块垂直映射。
+- `docs/rules/transfer-chain-rules.md`：转账链规则（最小转账金额、账户最低余额等），生成转账测试用例时必须参考。
 - `docs/requirements/`：需求文档目录，生成用例前必须先读取对应需求文档并提取可测试规则。
 
 ### 需求文档规范
@@ -25,6 +26,9 @@
 - 当用户说"生成测试用例"时，必须同时将最终交付写入仓库新文件：
   - 目录：`docs/testcases/`
   - 文件名：`YYYY-MM-DD_<模块>-<测试主题>.md`（若用户给了更明确的文件名/主题，以用户为准）
+  - **转账模块特殊规则**：生成转账相关链的测试用例时，必须将软件钱包和硬件钱包分开输出为两篇文档：
+    - 软件钱包：`YYYY-MM-DD_Wallet-<链名>-软件钱包测试.md`
+    - 硬件钱包：`YYYY-MM-DD_Wallet-<链名>-硬件钱包测试.md`
   - 文件内容：可直接渲染为 Markdown 表格，禁止最外层代码块包裹
 - 当用户执行 `@<用例文件> checklist` 时，必须同时将 Checklist 清单写入仓库新文件：
   - 目录：`docs/testcases/checklist/`
@@ -89,5 +93,9 @@
   - `{collection}-导入说明.md`：导入操作指南
 
 ### 规则维护
-- 当引入新需求/新规则时：优先把规则固化到 `docs/qa-rules.md`（或新增 `docs/requirements/<topic>.md`），并在生成用例时自动引用。
+- 当引入新需求/新规则时：
+  - **通用规则**：优先把规则固化到 `docs/qa-rules.md`
+  - **模块专项规则**：按模块拆分到 `docs/rules/<module>-rules.md`（如转账链规则在 `docs/rules/transfer-chain-rules.md`）
+  - **需求文档**：新增或更新 `docs/requirements/<topic>.md`
+  - 生成用例时会自动引用相关规则文档
 
