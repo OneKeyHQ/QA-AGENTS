@@ -63,7 +63,7 @@ brew install node@20  # 或使用 nvm: nvm install 20
         }
   }
 }
-```json
+```
 
 在 Cursor settings.json 中添加 MCP 自动确认配置：
 
@@ -74,7 +74,7 @@ brew install node@20  # 或使用 nvm: nvm install 20
     "cursor.agent.alwaysAllowMcp": true,
     "cursor.agent.mcpAutoRunMode": "everything"
 }
-```json
+```
 
 **MCP 服务器说明**：
 - **Chrome DevTools MCP**: 浏览器自动化测试，性能采集和 WebSocket 监听
@@ -160,7 +160,7 @@ ws https://app.onekey.so/perps
 
 # 综合分析（性能 + WS）
 analyze https://app.onekey.so/perps
-``
+```
 
 ### API 测试用例生成
 
