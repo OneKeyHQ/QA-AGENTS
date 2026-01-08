@@ -16,3 +16,9 @@ node_modules/
 # 临时文件
 *.log
 *.tmp
+
+# 测试用例（包含敏感/内部数据）
+docs/testcases/
+
+# 需求文档（内部文档）
+docs/requirements/

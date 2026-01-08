@@ -140,7 +140,7 @@ Hyperliquid WS → BBO 订阅 → 买1/卖1 价格
 ## 📎 关联资源
 
 - **原始需求**：`Perps 限价单最优价格需求.doc`
-- **测试用例**：[2026-01-03_Perps-限价单最优价格BBO.md](../testcases/2026-01-03_Perps-限价单最优价格BBO.md)
+- **测试用例**：[2026-01-03_Perps-限价单最优价格BBO.md](../testcases/cases/2026-01-03_Perps-限价单最优价格BBO.md)
 - **冒烟报告**：[performance/2026-01-03_Perps-限价单最优价格BBO-冒烟测试.md](../testcases/performance/2026-01-03_Perps-限价单最优价格BBO-冒烟测试.md)
 
 ---

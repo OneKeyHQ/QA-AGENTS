@@ -12,7 +12,7 @@
 |------|----------|------|
 | 生成测试用例 | `@<需求文档> 生成测试用例` | 结构化用例表格 + 自动落盘 |
 | 冒烟测试清单 | `@<用例文件> checklist` | 精细化步骤 Checkbox 列表 |
-| 冒烟测试执行 | `smoke <URL>` | 功能验证 + 性能采集一体化报告 |
+| 冒烟测试执行 | `smoke <URL>` | chrome 功能验证 + 性能采集一体化报告 |
 | 性能分析 | `perf <URL>` | 仅采集性能数据 |
 | WS 监听 | `ws <URL>` | 仅监听 WebSocket 数据 |
 | 综合分析 | `analyze <URL>` | 性能 + WS 综合分析 |
@@ -37,23 +37,44 @@ brew install node@20  # 或使用 nvm: nvm install 20
 ```json
 {
   "mcpServers": {
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-chrome-devtools", "--port", "9222"]
-    },
-    "apifox": {
+    "chrome-devtools-9222": {
       "command": "npx",
       "args": [
         "-y",
-        "apifox-mcp-server@latest",
-        "--project=<项目ID>"
+        "chrome-devtools-mcp@latest",
+        "--browser-url=http://127.0.0.1:9222"
       ],
       "env": {
-        "APIFOX_ACCESS_TOKEN": "<用户生成的API>"
-    }
+        "HEADLESS": "false",
+        "BROWSER_HEADLESS": "false",
+        "CHROME_HEADLESS": "false"
+      }
+    },
+    "apifoxmcp": {
+      "command": "npx",
+      "args": [
+          "-y",
+           "apifox-mcp-server@latest",
+           "--project=3790406"
+      ],
+      "env": {
+      "APIFOX_ACCESS_TOKEN": "你生成的api"
+          }
+        }
   }
 }
-```
+```json
+
+在 Cursor settings.json 中添加 MCP 自动确认配置：
+
+```json
+{
+    "cursor.mcp.autoApprove": true,
+    "cursor.mcp.allowedTools": ["*"],
+    "cursor.agent.alwaysAllowMcp": true,
+    "cursor.agent.mcpAutoRunMode": "everything"
+}
+```json
 
 **MCP 服务器说明**：
 - **Chrome DevTools MCP**: 浏览器自动化测试，性能采集和 WebSocket 监听
@@ -99,21 +120,34 @@ smoke https://app.onekey.so/perps
 ### 冒烟测试
 
 ```bash
+# 带 checklist 文件执行（推荐）
+@docs/testcases/checklist/2026-01-04_Market-Checklist.md smoke https://app.onekey.so/market
+
 # 带用例文件执行
 @docs/testcases/2026-01-03_Perps-限价单.md smoke https://app.onekey.so/perps
 
 # 直接指令执行（最高优先级）
-smoke https://app.onekey.so/perps 点击「最优价」按钮，选择「对手价1」
-
-# 等待输入
-smoke https://app.onekey.so/perps
+smoke https://app.onekey.so/perps 具体操作描述
 ```
 
-**执行优先级**：
-1. 用户直接指令（最高）→ 直接按指令执行
-2. 用例文件 → 按用例步骤执行
-3. 混合模式 → 用户指令覆盖用例
-4. 无任何输入 → 提示用户提供测试步骤
+#### ⚡ 全自动执行模式（推荐配置）
+
+为实现无中断的全自动执行，建议配置 Cursor MCP 自动确认：
+
+**方法 1: Cursor 设置（推荐）**
+1. 打开 Cursor Settings → Features → MCP
+2. 开启 "Auto-approve tools" 选项
+3. 重启 Cursor
+
+**方法 2: 快速确认**
+- 使用 `Cmd/Ctrl + Enter` 快速确认工具调用
+- 或按住 `Cmd/Ctrl` 点击确认按钮
+
+**执行特性**：
+- ✅ **容错处理**：遇到问题自动跳过，继续执行后续步骤
+- ✅ **错误汇总**：所有步骤执行完成后，统一汇总失败步骤
+- ✅ **失败重试**：自动重试跳过的步骤，仍失败则输出详细错误信息
+
 
 ### 独立分析
 
@@ -131,11 +165,6 @@ analyze https://app.onekey.so/perps
 ### API 测试用例生成
 
 ```bash
-# 列出所有可用的 API 接口
-/api-list
-
-# 读取指定接口的详细定义
-/api-read /earn/v1/borrow/markets
 
 # 为指定接口集合生成测试用例
 /api-testcase 5.19.0 Borrow
@@ -194,25 +223,6 @@ QA SKILL/
 │
 └── html-test/                            # 📦 测试工具
     └── Mnemonic OCR.html                  # SLIP39 助记词 OCR 识别工具
-```
-
----
-
-## 🔧 Chrome 启动脚本参数
-
-```bash
-# 环境变量
-PORT=9222              # 调试端口（默认: 9222）
-PROFILE="Profile 2"    # Chrome Profile 目录名
-HEADLESS=0             # 1=无头模式
-COPY_PROFILE=1         # 1=复制配置
-CDP_CHECK=1            # 1=等待 CDP 就绪
-KILL_CHROME=0          # 1=启动前关闭现有 Chrome
-
-# 使用示例
-PORT=12306 PROFILE="Profile 9" ./docs/scripts/start-mcp-chrome.sh
-HEADLESS=1 ./docs/scripts/start-mcp-chrome.sh
-KILL_CHROME=1 ./docs/scripts/start-mcp-chrome.sh 12306
 ```
 
 ---
@@ -314,7 +324,6 @@ KILL_CHROME=1 ./docs/scripts/start-mcp-chrome.sh 12306
 本项目已集成 Claude Skills，包含以下辅助技能：
 
 - **上下文工程技能库**：上下文优化、压缩、多智能体模式等（28 个技能,部分按需引用）
-- **Apifox 测试用例生成器**：自动生成 API 测试用例
 
 **使用方式**：在对话中提及相关场景，Agent 会自动调用对应的技能。
 

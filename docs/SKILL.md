@@ -10,7 +10,8 @@
 | --- | --- | --- |
 | 生成测试用例 | `生成测试用例` | 结构化用例表格（标题 → 场景 → 表格）+ 自动落盘 |
 | 冒烟测试清单 | `@<用例文件> checklist` | 精细化步骤 Checkbox 列表 + 自动落盘 |
-| 冒烟测试执行 | `smoke <URL>` | 功能验证 + 性能采集一体化报告 |
+| 冒烟测试执行 | `smoke <URL>` | chrome 功能验证 + 性能采集一体化报告 |
+| **E2E 脚本生成** | `@<文件> e2e` | Playwright 测试脚本 + 自动落盘 |
 | **性能分析** | `perf <URL>` | 仅采集性能数据（不执行操作） |
 | **WS 监听** | `ws <URL>` | 仅监听 WebSocket 数据 |
 | **综合分析** | `analyze <URL>` | 性能 + WS 综合分析 |
@@ -53,7 +54,7 @@ QA/
 
 **输出**：
 - 聊天窗口：完整用例（封装在 `markdown` 代码块中，便于一键复制）
-- 自动落盘：`docs/testcases/YYYY-MM-DD_<模块>-<主题>.md`
+- 自动落盘：`docs/testcases/cases/YYYY-MM-DD_<模块>-<主题>.md`
 
 **示例**：
 ```
@@ -136,7 +137,7 @@ QA/
 smoke https://app.onekey.so
 ```
 ```
-@docs/testcases/2025-12-31_Perps-限价单最优价格BBO.md smoke https://app.onekey.so/perps
+@docs/testcases/cases/2025-12-31_Perps-限价单最优价格BBO.md smoke https://app.onekey.so/perps
 ```
 ```
 @docs/testcases/checklist/2026-01-04_Perps-限价单最优价格BBO-Checklist.md smoke https://app.onekey.so/perps
@@ -161,7 +162,43 @@ smoke https://app.onekey.so
 
 ---
 
-### 4. 独立分析指令（性能 / WebSocket）
+### 4. E2E 脚本生成（Playwright）
+
+**输入**：Checklist 文件或测试用例文件
+
+**指令**：
+```
+@<checklist文件> e2e
+```
+或
+```
+@<用例文件> e2e
+```
+
+**输出**：
+- 自动落盘：`e2e/tests/{模块名}-{功能名}.spec.ts`
+
+**可选参数**：
+| 参数 | 说明 |
+| --- | --- |
+| `--full` | 生成完整模式（包含 P0/P1/P2 所有场景） |
+| `--no-perf` | 不生成性能测试 |
+
+**运行生成的脚本**：
+```bash
+cd e2e && npx playwright test {脚本名}.spec.ts
+```
+
+**示例**：
+```
+@docs/testcases/checklist/2026-01-04_Market-Token收藏取消收藏-Checklist.md e2e
+```
+
+**详细文档**：`docs/skills/playwright-generator/SKILL.md`
+
+---
+
+### 5. 独立分析指令（性能 / WebSocket）
 
 > 当你只想分析页面性能或 WebSocket 数据，而不需要执行完整的冒烟测试时，使用以下独立指令。
 
@@ -346,7 +383,14 @@ analyze https://app.onekey.so/perps
 | `.cursorrules` | Cursor 强制执行的入口规则 | - |
 | `docs/qa-rules.md` | 用例生成规则（唯一事实来源） | ~300 |
 | `docs/rules/transfer-chain-rules.md` | 转账链规则（最小转账金额、账户最低余额等） | - |
-| `docs/testcases/README.md` | 用例文件夹说明 | - |
+| `docs/testcases/cases/README.md` | 用例文件夹说明 | - |
+
+### Skill 文件
+
+| 文档 | 用途 | 何时读取 |
+| --- | --- | --- |
+| `docs/skills/apifox-testcase-generator/SKILL.md` | API 测试用例生成器 | 执行 `/api-*` 指令时 |
+| `docs/skills/playwright-generator/SKILL.md` | Playwright E2E 脚本生成器 | 执行 `e2e` 指令时 |
 
 ### 能力规范（按需读取）
 
