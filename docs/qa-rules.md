@@ -243,6 +243,7 @@
 - 风控：高滑点/高 price impact 强提醒；目标合约风险提示；最小收到保护
 - 数据源：路由/报价来源标识、刷新倒计时、WS/轮询策略一致
 - 可观测：失败类型可分类（授权失败/余额不足/滑点/路由不可达/链错误）
+- **核心测试路线**：详见 `docs/rules/swap-rules.md`（报价测试、构建订单测试、手续费测试、历史记录测试）
 
 ### Market
 - 数据一致性：K线/列表/详情价格一致；多源差异策略（取中位/优先源/降级）
@@ -454,6 +455,7 @@ P0 必须围绕：资金 / 安全 / 风控 / 主流程 / 状态切换。
 | 文件 | 内容 | 何时读取 |
 | --- | --- | --- |
 | `docs/rules/transfer-chain-rules.md` | 转账链规则（最小转账金额、账户最低余额等） | 生成转账测试用例时 |
+| `docs/rules/swap-rules.md` | Swap 模块测试规则（报价测试、构建订单测试、手续费测试、历史记录测试） | 生成 Swap 测试用例时 |
 | `docs/specs/smoke-test.md` | 冒烟测试 + 独立分析指令（perf/ws/analyze） | 执行 `smoke`/`perf`/`ws`/`analyze` 指令时 |
 | `docs/specs/checklist.md` | Checklist 精细化步骤清单标准 | 生成 `checklist` 时 |
 | `docs/specs/performance.md` | 性能指标定义 + 报告模板 | 需要性能报告格式时 |
