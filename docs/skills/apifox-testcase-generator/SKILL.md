@@ -106,6 +106,8 @@ docs/testcases/api/
 
 > ⚠️ **不单独生成环境变量文件**：参数直接在用例中传递，仅接口间传递的动态数据通过脚本自动写入环境变量。
 
+> 💡 **不覆盖响应定义**：生成的用例不会覆盖接口的响应定义（返回响应、响应示例、响应字段说明等），这些是给前端看的参数定义，会完整保留。
+
 **测试用例结构**：
 ```json
 {
@@ -121,11 +123,25 @@ docs/testcases/api/
         { "listen": "prerequest", "script": {...} },  // 前置脚本
         { "listen": "test", "script": {...} }         // 测试断言
       ],
-      "request": {...}
+      "request": {
+        "method": "GET/POST",
+        "url": {
+          "query": [
+            {
+              "key": "amount",
+              "value": "0.01"
+              // 注意：只包含 key 和 value，不包含 description、type、required 等元数据
+            }
+          ]
+        }
+      }
     }
   ]
 }
 ```
+
+**重要说明**：
+- 生成的用例不会覆盖接口的响应定义（返回响应、响应示例、响应字段说明等），这些是给前端看的参数定义，会完整保留
 
 ---
 
@@ -280,14 +296,30 @@ pm.test('业务状态码为 0', function() {
           "request": {
             "method": "GET/POST",
             "header": [...],
-            "url": {...},
-            "body": {...}
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/check-amount?amount=0.01",
+              "query": [
+                {
+                  "key": "amount",
+                  "value": "0.01"
+                  // 注意：只包含 key 和 value，不包含 description、type、required 等元数据
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\"amount\": \"0.01\"}"
+            }
           }
         }
       ]
     }
   ]
 }
+```
+
+**响应定义说明**：
+- 生成的用例不包含响应定义（返回响应、响应示例、响应字段说明等），这些是给前端看的参数定义，会完整保留
 ```
 
 ## 🚀 使用示例
