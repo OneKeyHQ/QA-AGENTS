@@ -195,6 +195,7 @@
 - 链上不确定性：数据延迟、RPC 分叉、pending 与到账延迟的用户解释
 - 风控：高风险池提示、最低存入限制、最大额度限制、重复操作保护
 - 可观测：收益计算公式与数据来源可追溯（字段/时间点/快照）
+- **DeFi Borrow 借贷协议规则**：详见 `docs/rules/borrow-defi-rules.md`
 
 ### Perps（合约）
 - 状态机：开仓→加仓→减仓→平仓→反手；挂单/撤单；TP/SL 生效/失效；切币，默认 USDC 法币
@@ -392,6 +393,7 @@ P0 必须围绕：资金 / 安全 / 风控 / 主流程 / 状态切换。
 | --- | --- | --- |
 | `docs/rules/transfer-chain-rules.md` | 转账链规则（金额测试规则、硬件钱包测试规则、各链具体规则等） | 生成转账测试用例时 |
 | `docs/rules/swap-rules.md` | Swap 模块测试规则（报价测试、构建订单测试、手续费测试、历史记录测试） | 生成 Swap 测试用例时 |
+| `docs/rules/borrow-defi-rules.md` | DeFi Borrow 借贷协议规则 | 生成 DeFi Borrow 测试用例时 |
 | `docs/specs/smoke-test.md` | 冒烟测试 + 独立分析指令（perf/ws/analyze） | 执行 `smoke`/`perf`/`ws`/`analyze` 指令时 |
 | `docs/specs/checklist.md` | Checklist 精细化步骤清单标准 | 生成 `checklist` 时 |
 | `docs/specs/performance.md` | 性能指标定义 + 报告模板 | 需要性能报告格式时 |
