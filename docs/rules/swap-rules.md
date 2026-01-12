@@ -518,25 +518,32 @@
 
 #### 4. 网络特定规则测试
 
-**EVM 兼容链**（Ethereum、BSC、Polygon、Arbitrum、Optimism、Base、Avalanche、zkSync Era 等）：
+**重要说明**：详细的网络特性表请参考 `docs/rules/swap-network-features.md`，包含所有支持网络的详细特性（主币信息、授权要求、交易费单位、特殊规则等）。
+
+**EVM 兼容链**（Ethereum、BSC、Polygon、Arbitrum、Optimism、Base、Avalanche、zkSync Era、Linea、Mantle、Scroll、Blast、Sonic 等）：
 - Gas 费计算（wei 单位）
 - ERC20 代币授权流程
 - Native token 无需授权
+- **特殊规则**：Ethereum USDT → ETH 需要二次授权
 
-**Solana**：
-- 使用 Jupiter 作为聚合器
-- 交易费用计算（lamports 单位）
-- 可能涉及多签交易（跨链 CCTP 路径）
+**异构链**（Solana、Tron、TON、SUI、Aptos、Near）：
+- **Tron 网络**：
+  - TRC20 代币需要授权（类似 EVM 的 ERC20 授权流程）
+  - Native token（TRX）不需要授权，可以直接 Swap
+  - 授权方式：Approve+Swap 捆绑提交 或 Approve、Swap 单独提交
+- **其他异构链**（Solana、TON、SUI、Aptos、Near）：
+  - **不需要授权**：所有代币（包括主币和代币）都可以直接 Swap
+- 交易费用计算单位不同（lamports、sun、octas、MIST、yoctoNEAR 等）
+- 各网络使用各自的代币标准（SPL、TRC20、Move 等）
+- **特殊规则**：
+  - Solana 可能涉及多签交易（跨链 CCTP 路径）
+  - Tron TRC20 代币需要授权，Native token（TRX）不需要授权
 
-**BTC/LTC/BCH/DOGE 等 UTXO 链**：
+**UTXO 链**（Bitcoin、Litecoin、Bitcoin Cash、Dogecoin）：
+- **不需要授权**：UTXO 模型不涉及代币授权
 - 使用 ThorChain/MAYAChain/Chainflip 等渠道
-- 交易费用计算方式不同
-- 地址格式验证
-
-**其他链**（Tron、TON、SUI、Aptos、Cardano、Algorand、Polkadot 等）：
-- 使用 SWFT/Changelly/ChangeHero 等第三方服务
-- 链特定规则验证
-- 地址格式和精度处理
+- 交易费用计算方式不同（基于交易大小和费率）
+- 地址格式验证（Legacy、SegWit、Native SegWit 等）
 
 ### 测试用例组织建议
 
