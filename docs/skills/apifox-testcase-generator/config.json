@@ -1,0 +1,111 @@
+{
+  "_comment": "Apifox 测试用例生成器配置文件",
+  "version": "1.0.0",
+  "defaults": {
+    "baseUrl": "https://api.onekey.so",
+    "responseTimeout": 3000,
+    "outputDir": "docs/testcases/api"
+  },
+  "networks": {
+    "solana": {
+      "networkId": "sol--101",
+      "provider": "kamino",
+      "defaultMarket": {
+        "address": "7u3HeHxYDLhnCoErrtycNokbQYbWGzLs6JSDqGAv5PfF",
+        "name": "Kamino Main Market"
+      }
+    },
+    "ethereum": {
+      "networkId": "eth--1",
+      "provider": "aave"
+    },
+    "bsc": {
+      "networkId": "bsc--56",
+      "provider": "venus"
+    }
+  },
+  "headers": {
+    "required": [
+      {
+        "key": "X-Onekey-Request-ID",
+        "value": "{{requestId}}",
+        "description": "请求唯一ID，自动生成"
+      },
+      {
+        "key": "X-Onekey-Request-Currency",
+        "value": "usd",
+        "description": "货币单位"
+      },
+      {
+        "key": "X-Onekey-Request-Locale",
+        "value": "en",
+        "description": "语言"
+      },
+      {
+        "key": "X-Onekey-Request-Theme",
+        "value": "light",
+        "description": "主题"
+      },
+      {
+        "key": "X-Onekey-Request-Platform",
+        "value": "android-apk",
+        "description": "客户端平台"
+      },
+      {
+        "key": "X-Onekey-Request-Version",
+        "value": "5.19.0",
+        "description": "客户端版本"
+      },
+      {
+        "key": "X-Onekey-Request-Build-Number",
+        "value": "2000000000",
+        "description": "Build 号"
+      }
+    ],
+    "optional": [
+      {
+        "key": "X-Onekey-Request-Token",
+        "value": "{{authToken}}",
+        "description": "认证 Token"
+      },
+      {
+        "key": "X-Onekey-Instance-Id",
+        "value": "{{instanceId}}",
+        "description": "实例 ID"
+      }
+    ]
+  },
+  "testCaseRules": {
+    "generateBoundaryTests": true,
+    "generateMissingParamTests": true,
+    "maxBoundaryTestsPerParam": 3,
+    "includePerformanceTests": false
+  },
+  "collectionMappings": {
+    "5.19.0 Borrow": {
+      "pathPrefix": "/earn/v1/borrow",
+      "description": "Earn 模块 Borrow 功能",
+      "tags": ["earn", "borrow", "defi"]
+    },
+    "Swap": {
+      "pathPrefix": "/swap/v1",
+      "description": "代币兑换服务",
+      "tags": ["swap", "exchange"]
+    },
+    "Wallet": {
+      "pathPrefix": "/wallet/v1",
+      "description": "钱包核心服务",
+      "tags": ["wallet", "account"]
+    },
+    "Lightning": {
+      "pathPrefix": "/lightning/v1",
+      "description": "闪电网络服务",
+      "tags": ["lightning", "bitcoin"]
+    }
+  },
+  "mcpTools": {
+    "readOas": "mcp_API__read_project_oas_qpu5ak",
+    "readRef": "mcp_API__read_project_oas_ref_resources_qpu5ak",
+    "refreshOas": "mcp_API__refresh_project_oas_qpu5ak"
+  }
+}

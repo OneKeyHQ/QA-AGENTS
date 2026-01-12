@@ -1,0 +1,119 @@
+{
+  "_comment": "Apifox 测试用例模板 - 参数直接传递，仅动态数据使用环境变量",
+  "rules": {
+    "parameterStyle": "直接传参，不使用集合变量",
+    "environmentVariables": "仅用于接口间动态数据传递",
+    "extractionTiming": "在前一个接口的 Test 脚本中提取并写入环境变量",
+    "usageTiming": "在后续接口中通过 {{variableName}} 引用"
+  },
+  "template": {
+    "name": "{{接口名称}}",
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// ========================================",
+            "// 前置脚本 - {{接口名称}}",
+            "// ========================================",
+            "",
+            "// 生成唯一请求 ID（每次请求自动生成）",
+            "pm.variables.set('requestId', require('uuid').v4());",
+            "",
+            "console.log('开始测试: {{接口名称}}');"
+          ]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            "// ========================================",
+            "// 测试断言 - {{接口名称}}",
+            "// ========================================",
+            "",
+            "// 1. 基础断言",
+            "pm.test('响应状态码为 200', function() {",
+            "    pm.response.to.have.status(200);",
+            "});",
+            "",
+            "pm.test('响应时间小于 3000ms', function() {",
+            "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+            "});",
+            "",
+            "// 2. 解析响应",
+            "const jsonData = pm.response.json();",
+            "",
+            "// 3. 业务状态码断言",
+            "pm.test('业务状态码为 0', function() {",
+            "    pm.expect(jsonData.code).to.eql(0);",
+            "});",
+            "",
+            "// 4. 数据结构断言",
+            "{{assertions}}",
+            "",
+            "// 5. 提取动态数据到环境变量（供后续接口使用）",
+            "{{extractVariables}}"
+          ]
+        }
+      }
+    ],
+    "request": {
+      "method": "{{method}}",
+      "header": [
+        { "key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text" },
+        { "key": "X-Onekey-Request-Currency", "value": "usd", "type": "text" },
+        { "key": "X-Onekey-Request-Locale", "value": "en", "type": "text" },
+        { "key": "X-Onekey-Request-Theme", "value": "light", "type": "text" },
+        { "key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text" },
+        { "key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text" },
+        { "key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text" }
+      ],
+      "url": {
+        "raw": "{{直接写完整URL，参数硬编码}}",
+        "host": ["https://api.onekey.so"],
+        "path": ["..."],
+        "query": [
+          { "key": "networkId", "value": "sol--101" },
+          { "key": "provider", "value": "kamino" }
+        ]
+      }
+    }
+  },
+  "extractionExamples": {
+    "marketAddress": {
+      "description": "从 Market 列表接口提取 marketAddress",
+      "code": [
+        "// 提取 marketAddress 到环境变量",
+        "if (jsonData.data && jsonData.data.markets && jsonData.data.markets.length > 0) {",
+        "    const market = jsonData.data.markets[0];",
+        "    pm.environment.set('marketAddress', market.address);",
+        "    console.log('已保存到环境变量 marketAddress:', market.address);",
+        "}"
+      ]
+    },
+    "reserveAddress": {
+      "description": "从 Reserve 列表接口提取 reserveAddress",
+      "code": [
+        "// 提取 reserveAddress 到环境变量",
+        "if (jsonData.data && jsonData.data.supply && jsonData.data.supply.items.length > 0) {",
+        "    const reserve = jsonData.data.supply.items[0];",
+        "    pm.environment.set('reserveAddress', reserve.reserveAddress);",
+        "    console.log('已保存到环境变量 reserveAddress:', reserve.reserveAddress);",
+        "}"
+      ]
+    },
+    "orderId": {
+      "description": "从交易构建接口提取 orderId",
+      "code": [
+        "// 提取 orderId 到环境变量",
+        "if (jsonData.data && jsonData.data.orderId) {",
+        "    pm.environment.set('orderId', jsonData.data.orderId);",
+        "    console.log('已保存到环境变量 orderId:', jsonData.data.orderId);",
+        "}"
+      ]
+    }
+  }
+}

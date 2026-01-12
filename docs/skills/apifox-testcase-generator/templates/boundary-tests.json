@@ -1,0 +1,133 @@
+{
+  "_comment": "边界测试用例模板 - 自动生成异常场景测试",
+  "boundaryTests": {
+    "missingRequiredParam": {
+      "name": "缺少必填参数 {{paramName}}",
+      "description": "测试缺少必填参数时的错误处理",
+      "event": {
+        "prerequest": [
+          "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+          "console.log('边界测试: 缺少必填参数 {{paramName}}');"
+        ],
+        "test": [
+          "const jsonData = pm.response.json();",
+          "",
+          "pm.test('缺少 {{paramName}} 应返回错误', function() {",
+          "    const isError = pm.response.code === 400 || jsonData.code !== 0;",
+          "    pm.expect(isError).to.be.true;",
+          "});",
+          "",
+          "pm.test('错误信息应指明缺少参数', function() {",
+          "    const message = jsonData.message || '';",
+          "    pm.expect(message.length).to.be.above(0);",
+          "});"
+        ]
+      }
+    },
+    "invalidParamValue": {
+      "name": "无效的 {{paramName}}",
+      "description": "测试传入无效参数值时的错误处理",
+      "invalidValues": {
+        "string": ["", "null", "undefined", "!@#$%^&*()", "' OR '1'='1"],
+        "number": [-1, 0, "NaN", "Infinity", 999999999999],
+        "address": ["invalid-address", "0x0", ""]
+      },
+      "event": {
+        "test": [
+          "const jsonData = pm.response.json();",
+          "",
+          "pm.test('无效 {{paramName}} 应返回错误或空数据', function() {",
+          "    const isError = jsonData.code !== 0 || ",
+          "                   (jsonData.data && Object.keys(jsonData.data).length === 0);",
+          "    pm.expect(isError).to.be.true;",
+          "});"
+        ]
+      }
+    },
+    "amountBoundary": {
+      "negative": {
+        "name": "金额为负数",
+        "value": "-1",
+        "expectedResult": false,
+        "event": {
+          "test": [
+            "const jsonData = pm.response.json();",
+            "",
+            "pm.test('负数金额应校验失败', function() {",
+            "    pm.expect(jsonData.data.result).to.be.false;",
+            "});",
+            "",
+            "pm.test('应返回告警信息', function() {",
+            "    pm.expect(jsonData.data.alerts.length).to.be.above(0);",
+            "});"
+          ]
+        }
+      },
+      "zero": {
+        "name": "金额为 0",
+        "value": "0",
+        "event": {
+          "test": [
+            "const jsonData = pm.response.json();",
+            "",
+            "pm.test('零金额应校验失败或返回告警', function() {",
+            "    const hasIssue = jsonData.data.result === false || ",
+            "                    jsonData.data.alerts.length > 0;",
+            "    pm.expect(hasIssue).to.be.true;",
+            "});"
+          ]
+        }
+      },
+      "exceedBalance": {
+        "name": "超大金额边界测试",
+        "value": "999999999999",
+        "event": {
+          "test": [
+            "const jsonData = pm.response.json();",
+            "",
+            "pm.test('超大金额应校验失败', function() {",
+            "    pm.expect(jsonData.data.result).to.be.false;",
+            "});",
+            "",
+            "pm.test('应返回余额不足等告警', function() {",
+            "    pm.expect(jsonData.data.alerts.length).to.be.above(0);",
+            "});"
+          ]
+        }
+      },
+      "decimal": {
+        "name": "小数精度测试",
+        "value": "0.000000001",
+        "event": {
+          "test": [
+            "const jsonData = pm.response.json();",
+            "",
+            "pm.test('微小金额应正确处理', function() {",
+            "    pm.expect(jsonData.code).to.eql(0);",
+            "});"
+          ]
+        }
+      }
+    },
+    "rateLimiting": {
+      "name": "频率限制测试",
+      "description": "快速连续请求测试限流机制",
+      "event": {
+        "test": [
+          "// 记录响应状态",
+          "const statusCode = pm.response.code;",
+          "",
+          "pm.test('响应状态应为 200 或 429', function() {",
+          "    pm.expect([200, 429]).to.include(statusCode);",
+          "});",
+          "",
+          "if (statusCode === 429) {",
+          "    pm.test('限流响应应包含 Retry-After', function() {",
+          "        pm.expect(pm.response.headers.has('Retry-After')).to.be.true;",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  }
+}
