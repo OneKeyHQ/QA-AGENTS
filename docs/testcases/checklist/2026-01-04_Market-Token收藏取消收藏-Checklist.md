@@ -1,7 +1,7 @@
 # Market - Token 收藏取消收藏 冒烟测试 Checklist
 
 > 生成时间：2026-01-04  
-> 来源用例：`docs/testcases/cases/2026-01-04_Market-Token收藏取消收藏.md`
+> 来源用例：`docs/testcases/cases/market/2026-01-04_Market-Token收藏取消收藏.md`
 > 
 > **执行模式说明**：
 > - `smoke` / `smoke-fast`：只执行 [P0] 标记的核心场景（约 20%）

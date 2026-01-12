@@ -35,7 +35,7 @@
 
 **支持的输入文件类型**：
 1. **Checklist 文件**（推荐）：`docs/testcases/checklist/*.md`
-2. **测试用例文件**：`docs/testcases/cases/*.md`
+2. **测试用例文件**：`docs/testcases/cases/<模块目录>/*.md`
 
 **操作步骤**：
 1. 读取并解析输入文件
@@ -239,7 +239,7 @@ cd e2e && npx playwright test market-watchlist.spec.ts
 ### 示例 2：基于用例文件生成脚本
 
 ```
-用户: e2e docs/testcases/cases/2026-01-04_Market-Token收藏取消收藏.md
+用户: e2e docs/testcases/cases/market/2026-01-04_Market-Token收藏取消收藏.md
 
 AI: 正在基于用例文件生成 Playwright 脚本...
 

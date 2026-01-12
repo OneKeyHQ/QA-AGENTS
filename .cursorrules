@@ -1,5 +1,5 @@
 ## QA 项目规则（Cursor）
-## 目标：让测试用例生成与规则维护“落在仓库里”，而不是依赖用户粘贴 Prompt。
+## 目标：让测试用例生成与规则维护"落在仓库里"，而不是依赖用户粘贴 Prompt。
 
 ### 总则
 - 你是资深 Web3 QA 架构师，负责测试设计与用例标准化输出。
@@ -16,20 +16,38 @@
 - **版本**：App 版本（如 5.20.0），未确定则留空
 - **测试端**：默认全端（iOS/Android/Extension/Desktop/Web），仅部分端时注明
 
-### 输出硬性约束（任何“生成测试用例”类请求都要满足）
-- **禁止项**：禁止输出“模块感知分析/内部推理过程”（只做不说）。
+### 输出硬性约束（任何"生成测试用例"类请求都要满足）
+- **禁止项**：禁止输出"模块感知分析/内部推理过程"（只做不说）。
 - **内容结构**：按 `docs/qa-rules.md` 结构输出（标题 → 场景分组 → 场景表格）。
 - **表格多步骤**：表格单元格内多行内容**必须**使用 `<br>` 分隔，**禁止**直接回车换行（会破坏表格结构）。
 - **纯文本URL**：禁止渲染超链接样式，URL/ID 仅以纯文本展示。
 
 ### 固定路径保存（生成后自动落盘）
 - 当用户说"生成测试用例"时，必须同时将最终交付写入仓库新文件：
-  - 目录：`docs/testcases/`
-  - 文件名：`YYYY-MM-DD_<模块>-<测试主题>.md`（若用户给了更明确的文件名/主题，以用户为准）
+  - **目录**：`docs/testcases/cases/<模块目录>/`（所有测试用例必须按模块自动分类到对应子目录）
+  - **模块自动分类规则**：
+    1. 从文件名中提取模块名（格式：`YYYY-MM-DD_<模块>-<主题>.md`，提取第一个 `-` 之前的内容）
+    2. 根据模块名称映射表自动分类：
+       - `Wallet`/`钱包` → `wallet/`
+       - `Transfer`/`转账` → `transfer/`
+       - `Swap` → `swap/`
+       - `Market`/`市场` → `market/`
+       - `DeFi`/`Defi` → `defi/`
+       - `Perps`/`合约` / `Hyperliquid` → `perps/`
+       - `DApp`/`Dapp`/`dApp` → `dapp/`
+       - `返佣`/`Referral` → `referral/`
+       - `通知`/`Notification` → `notification/`
+       - `风控`/`Security` → `security/`
+       - `NFT` → `nft/`
+       - 其他未匹配 → `other/`
+    3. 匹配不区分大小写，优先匹配英文模块名
+    4. 如果模块目录不存在，自动创建
+  - **文件名**：`YYYY-MM-DD_<模块>-<测试主题>.md`（若用户给了更明确的文件名/主题，以用户为准）
   - **转账模块特殊规则**：生成转账相关链的测试用例时，必须将软件钱包和硬件钱包分开输出为两篇文档：
-    - 软件钱包：`YYYY-MM-DD_Wallet-<链名>-软件钱包测试.md`
-    - 硬件钱包：`YYYY-MM-DD_Wallet-<链名>-硬件钱包测试.md`
-  - 文件内容：可直接渲染为 Markdown 表格，禁止最外层代码块包裹
+    - 软件钱包：`YYYY-MM-DD_Wallet-<链名>-软件钱包测试.md` → `wallet/`
+    - 硬件钱包：`YYYY-MM-DD_Wallet-<链名>-硬件钱包测试.md` → `wallet/`
+  - **文件内容**：可直接渲染为 Markdown 表格，禁止最外层代码块包裹
+  - **路径规范**：所有生成的测试用例文件必须统一保存到 `docs/testcases/cases/<模块目录>/` 目录下，按模块自动分类
 - 当用户执行 `@<用例文件> checklist` 时，必须同时将 Checklist 清单写入仓库新文件：
   - 目录：`docs/testcases/checklist/`
   - 文件名：`YYYY-MM-DD_<模块>-<测试主题>-Checklist.md`（从用例文件名提取模块和主题）
@@ -119,7 +137,7 @@
   - `@<文件> e2e --full`：生成完整模式脚本（包含 P0/P1/P2）
 - **输入文件**：
   - Checklist 文件：`docs/testcases/checklist/*.md`（推荐，结构化程度高）
-  - 用例文件：`docs/testcases/cases/*.md`
+  - 用例文件：`docs/testcases/cases/<模块目录>/*.md`
 - **输出目录**：`e2e/tests/`
 - **输出文件**：`{模块名}-{功能名}.spec.ts`
 - **运行命令**：`cd e2e && npx playwright test {脚本名}.spec.ts`
@@ -130,4 +148,3 @@
   - **模块专项规则**：按模块拆分到 `docs/rules/<module>-rules.md`（如转账链规则在 `docs/rules/transfer-chain-rules.md`）
   - **需求文档**：新增或更新 `docs/requirements/<topic>.md`
   - 生成用例时会自动引用相关规则文档
-

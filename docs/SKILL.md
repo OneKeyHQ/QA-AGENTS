@@ -54,7 +54,7 @@ QA/
 
 **输出**：
 - 聊天窗口：完整用例（封装在 `markdown` 代码块中，便于一键复制）
-- 自动落盘：`docs/testcases/cases/YYYY-MM-DD_<模块>-<主题>.md`
+- 自动落盘：`docs/testcases/cases/<模块目录>/YYYY-MM-DD_<模块>-<主题>.md`（按模块自动分类）
 
 **示例**：
 ```
@@ -137,7 +137,7 @@ QA/
 smoke https://app.onekey.so
 ```
 ```
-@docs/testcases/cases/2025-12-31_Perps-限价单最优价格BBO.md smoke https://app.onekey.so/perps
+@docs/testcases/cases/perps/2026-01-03_Perps-限价单最优价格BBO.md smoke https://app.onekey.so/perps
 ```
 ```
 @docs/testcases/checklist/2026-01-04_Perps-限价单最优价格BBO-Checklist.md smoke https://app.onekey.so/perps

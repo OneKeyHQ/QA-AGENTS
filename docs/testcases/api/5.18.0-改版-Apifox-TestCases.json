@@ -1,0 +1,718 @@
+{
+  "info": {
+    "name": "5.18.0 改版接口测试用例集合",
+    "description": "5.18.0 版本改版相关接口完整测试用例\n\n参数说明：\n- 固定参数直接硬编码在请求中\n- 动态数据（如 marketAddress、reserveAddress）通过环境变量传递\n- 执行时自动提取响应数据写入环境变量",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01-Wallet 模块",
+      "description": "钱包核心服务接口",
+      "item": [
+        {
+          "name": "01-健康检查",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Wallet 健康检查');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回数据为 ok', function() {",
+                  "    pm.expect(jsonData.data).to.eql('ok');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.18.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/wallet/v1/health",
+              "protocol": "https",
+              "host": ["api", "onekey", "so"],
+              "path": ["wallet", "v1", "health"]
+            }
+          }
+        },
+        {
+          "name": "02-获取网络列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取网络列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.18.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/wallet/v1/network/list?onlyEvmNetworks=true",
+              "protocol": "https",
+              "host": ["api", "onekey", "so"],
+              "path": ["wallet", "v1", "network", "list"],
+              "query": [
+                {
+                  "key": "onlyEvmNetworks",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-Swap 模块",
+      "description": "代币兑换服务接口",
+      "item": [
+        {
+          "name": "01-健康检查",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Swap 健康检查');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.18.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/swap/v1/health",
+              "protocol": "https",
+              "host": ["api", "onekey", "so"],
+              "path": ["swap", "v1", "health"]
+            }
+          }
+        },
+        {
+          "name": "02-Swap 跨链询价",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Swap 跨链询价');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 是数组', function() {",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});",
+                  "",
+                  "if (jsonData.data && jsonData.data.length > 0) {",
+                  "    pm.test('询价结果包含必要字段', function() {",
+                  "        const quote = jsonData.data[0];",
+                  "        pm.expect(quote).to.have.property('info');",
+                  "        pm.expect(quote).to.have.property('toAmount');",
+                  "        pm.expect(quote).to.have.property('fee');",
+                  "        pm.expect(quote).to.have.property('instantRate');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.18.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/swap/v1/quote?fromTokenAddress=&toTokenAddress=0x3c499c542cef5e3811e1192ce70d8cc03d5c3359&fromTokenAmount=1&fromNetworkId=evm--137&toNetworkId=evm--137&protocol=swap&userAddress=0x02bA7fd1b0aCdd0E4F8c6DA7C4bA8Fd7F963bA50&slippagePercentage=0.5",
+              "protocol": "https",
+              "host": ["api", "onekey", "so"],
+              "path": ["swap", "v1", "quote"],
+              "query": [
+                {
+                  "key": "fromTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "toTokenAddress",
+                  "value": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359"
+                },
+                {
+                  "key": "fromTokenAmount",
+                  "value": "1"
+                },
+                {
+                  "key": "fromNetworkId",
+                  "value": "evm--137"
+                },
+                {
+                  "key": "toNetworkId",
+                  "value": "evm--137"
+                },
+                {
+                  "key": "protocol",
+                  "value": "swap"
+                },
+                {
+                  "key": "userAddress",
+                  "value": "0x02bA7fd1b0aCdd0E4F8c6DA7C4bA8Fd7F963bA50"
+                },
+                {
+                  "key": "slippagePercentage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03-Utility 模块",
+      "description": "工具服务接口",
+      "item": [
+        {
+          "name": "01-健康检查",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Utility 健康检查');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.18.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/utility/v1/health",
+              "protocol": "https",
+              "host": ["api", "onekey", "so"],
+              "path": ["utility", "v1", "health"]
+            }
+          }
+        },
+        {
+          "name": "02-Token 列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Token 列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data.list 是数组', function() {",
+                  "    pm.expect(jsonData.data.list).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('data.total 是数字', function() {",
+                  "    pm.expect(jsonData.data.total).to.be.a('number');",
+                  "});",
+                  "",
+                  "if (jsonData.data.list && jsonData.data.list.length > 0) {",
+                  "    pm.test('Token 包含必要字段', function() {",
+                  "        const token = jsonData.data.list[0];",
+                  "        pm.expect(token).to.have.property('address');",
+                  "        pm.expect(token).to.have.property('symbol');",
+                  "        pm.expect(token).to.have.property('name');",
+                  "        pm.expect(token).to.have.property('price');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.18.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/utility/v2/market/token/list?networkId=sol--101&sortBy=liquidity&sortType=desc&offset=0&limit=20",
+              "protocol": "https",
+              "host": ["api", "onekey", "so"],
+              "path": ["utility", "v2", "market", "token", "list"],
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "sol--101"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "liquidity"
+                },
+                {
+                  "key": "sortType",
+                  "value": "desc"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04-Earn 模块",
+      "description": "Earn 借贷服务接口",
+      "item": [
+        {
+          "name": "01-获取 Market 列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取 Market 列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data.markets 是数组且不为空', function() {",
+                  "    pm.expect(jsonData.data.markets).to.be.an('array');",
+                  "    pm.expect(jsonData.data.markets.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "pm.test('Market 包含必要字段', function() {",
+                  "    const market = jsonData.data.markets[0];",
+                  "    pm.expect(market).to.have.property('provider');",
+                  "    pm.expect(market).to.have.property('networkId');",
+                  "    pm.expect(market).to.have.property('name');",
+                  "    pm.expect(market).to.have.property('address');",
+                  "});",
+                  "",
+                  "// ★ 提取 marketAddress 到环境变量供后续接口使用",
+                  "if (jsonData.data.markets && jsonData.data.markets.length > 0) {",
+                  "    const market = jsonData.data.markets[0];",
+                  "    pm.environment.set('marketAddress', market.address);",
+                  "    pm.environment.set('provider', market.provider);",
+                  "    pm.environment.set('networkId', market.networkId);",
+                  "    console.log('★ 已写入环境变量:');",
+                  "    console.log('  - marketAddress:', market.address);",
+                  "    console.log('  - provider:', market.provider);",
+                  "    console.log('  - networkId:', market.networkId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.18.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://api.onekey.so/earn/v1/borrow/markets",
+              "protocol": "https",
+              "host": ["api", "onekey", "so"],
+              "path": ["earn", "v1", "borrow", "markets"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

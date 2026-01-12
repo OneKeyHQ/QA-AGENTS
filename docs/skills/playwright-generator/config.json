@@ -73,7 +73,7 @@
     },
     {
       "type": "testcase",
-      "path": "docs/testcases/cases/*.md",
+      "path": "docs/testcases/cases/**/*.md",
       "priority": 2,
       "description": "需要额外解析表格结构"
     }

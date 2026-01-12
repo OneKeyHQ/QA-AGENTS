@@ -17,8 +17,10 @@ node_modules/
 *.log
 *.tmp
 
-# 测试用例（包含敏感/内部数据）
-docs/testcases/
+# 测试用例（部分目录包含敏感/内部数据）
+# 允许上传 cases 和 api 目录到 GitHub
+docs/testcases/checklist/
+docs/testcases/performance/
 
 # 需求文档（内部文档）
 docs/requirements/

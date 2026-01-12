@@ -263,6 +263,66 @@ P0 必须围绕：资金 / 安全 / 风控 / 主流程 / 状态切换。
 ---
 
 ## 7）输出要求（严格）
+
+### 7.0 测试用例文件保存路径规范（强制）
+
+**核心规则**：所有生成的测试用例文件必须统一保存到 `docs/testcases/cases/` 目录下，并按模块自动分类到对应的子目录。
+
+**路径规范**：
+- **测试用例文件**：`docs/testcases/cases/<模块目录>/YYYY-MM-DD_<模块>-<测试主题>.md`
+- **Checklist 文件**：`docs/testcases/checklist/YYYY-MM-DD_<模块>-<测试主题>-Checklist.md`
+- **性能报告文件**：`docs/testcases/performance/YYYY-MM-DD_<模块>-冒烟测试.md`
+- **API 测试用例文件**：`docs/testcases/api/{collection}-Apifox-TestCases.json`
+
+**模块自动分类规则**：
+1. 从文件名中提取模块名（文件名格式：`YYYY-MM-DD_<模块>-<主题>.md`，提取第一个 `-` 之前的内容）
+2. 根据模块名称映射表自动分类到对应子目录
+3. 如果无法识别模块，使用 `other/` 目录作为兜底
+
+**模块名称映射表**：
+| 模块名（文件名中） | 目录名 | 说明 |
+|-----------------|--------|------|
+| `Wallet` / `钱包` | `wallet/` | 钱包模块 |
+| `Transfer` / `转账` | `transfer/` | 转账模块 |
+| `Swap` | `swap/` | Swap 模块 |
+| `Market` / `市场` | `market/` | Market 模块 |
+| `DeFi` / `Defi` | `defi/` | DeFi 模块 |
+| `Perps` / `合约` | `perps/` | Perps 模块 |
+| `DApp` / `Dapp` / `dApp` | `dapp/` | DApp 模块 |
+| `返佣` / `Referral` | `referral/` | 返佣模块 |
+| `通知` / `Notification` | `notification/` | 通知模块 |
+| `风控` / `Security` | `security/` | 风控模块 |
+| `NFT` | `nft/` | NFT 模块 |
+| 其他未匹配 | `other/` | 兜底目录 |
+
+**匹配规则**：
+- 模块名匹配不区分大小写（`Wallet` = `wallet` = `WALLET`）
+- 优先匹配英文模块名，如果匹配不到再匹配中文模块名
+- 中文模块名需要完整匹配（"钱包"匹配，但"钱包管理"不匹配）
+
+**目录结构示例**：
+```
+docs/testcases/cases/
+├── wallet/                    # 钱包模块用例
+├── transfer/                  # 转账模块用例
+├── swap/                      # Swap 模块用例
+├── market/                    # Market 模块用例
+├── defi/                      # DeFi 模块用例
+├── perps/                     # Perps 模块用例
+├── dapp/                      # DApp 模块用例
+├── referral/                  # 返佣模块用例
+├── notification/              # 通知模块用例
+├── security/                  # 风控模块用例
+├── nft/                       # NFT 模块用例
+└── other/                     # 其他未分类模块用例
+```
+
+**重要说明**：
+- 所有通过"生成测试用例"指令创建的测试用例文件，必须保存到 `docs/testcases/cases/<模块目录>/` 目录
+- 生成用例时自动识别模块并创建对应的子目录（如果不存在）
+- 确保所有测试用例按模块集中管理，便于查找、维护和版本控制
+- 生成用例时自动创建文件，无需用户手动指定路径
+
 ### 7.1 用例标题（单行）
 用例标题：`<模块名或组合> - <测试主题>`
 
@@ -334,7 +394,10 @@ P0 必须围绕：资金 / 安全 / 风控 / 主流程 / 状态切换。
 - **使用效果**：当你将此源码粘贴到 Jira、Notion 或 Cursor 预览时，`<br>` 会被自动渲染为视觉上的换行。
 
 #### 针对 File 文件落盘（自动写入）
-- **目录**：`docs/testcases/cases/`
+- **目录规范（强制）**：所有生成的测试用例文件必须统一保存到 `docs/testcases/cases/` 目录下，不得保存到其他位置
+  - 这是测试用例文件的唯一保存路径
+  - 确保所有测试用例集中管理，便于查找和维护
+  - 其他类型文件（Checklist、性能报告、API 测试用例）有各自的目录，详见下文
 - **文件名**：`YYYY-MM-DD_<模块>-<测试主题>.md`
 - **内容格式**：
   - **禁止**在文件内容的最外层包裹 ` ```markdown ` 代码块标记。
