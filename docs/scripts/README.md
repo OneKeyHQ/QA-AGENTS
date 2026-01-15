@@ -35,7 +35,8 @@
 | `auto-confirm.sh` | 模拟按键自动确认 | 临时方案，需要持续运行 |
 | `stop-auto-confirm.sh` | 停止自动确认脚本 | 停止 auto-confirm.sh |
 | `force-stop.sh` | 强制停止自动确认 | auto-confirm.sh 无法正常停止时使用 |
-| `start-mcp-chrome.sh` | 启动/连接 Chrome 调试实例 | 启动带 CDP 的 Chrome |
+| `start-mcp-chrome.sh` | 启动/连接 Chrome 调试实例 | 启动带 CDP 的 Chrome（支持多种模式） |
+| `start-chrome-debug.sh` | 启动 Chrome 调试模式 | 简化版启动脚本，自动创建调试目录 |
 
 ---
 
@@ -115,7 +116,30 @@ tail -f /tmp/cursor-mcp-auto-confirm.log
 
 ## 🌐 Chrome MCP 连接
 
-### 连接已有 Chrome 实例
+### 方式 1：使用 start-chrome-debug.sh（推荐新手，一键启动）
+
+```bash
+./start-chrome-debug.sh
+```
+
+**特点**：
+- ✅ 自动检测是否已有 Chrome 调试实例运行
+- ✅ 自动创建独立的调试目录（`Chrome-Debug`）
+- ✅ 自动复制用户数据（首次运行）
+- ✅ 自动等待并验证启动成功
+- ⚠️ **限制**：如果检测到已有 Chrome 运行，会关闭并重启（可能丢失未保存的工作）
+
+**适用场景**：首次使用、快速启动、不需要保留当前浏览器状态
+
+### 方式 2：使用 start-mcp-chrome.sh（推荐，功能完整）
+
+**特点**：
+- ✅ 支持连接已有 Chrome 实例（不关闭当前浏览器）
+- ✅ 支持启动新实例（可选择是否复制数据）
+- ✅ 支持自定义端口
+- ✅ 更灵活，适合不同场景
+
+**连接已有 Chrome 实例**：
 
 ```bash
 ./start-mcp-chrome.sh
@@ -123,7 +147,7 @@ tail -f /tmp/cursor-mcp-auto-confirm.log
 
 如果你已经启动了带 `--remote-debugging-port=9222` 的 Chrome，脚本会检测并确认连接状态。
 
-### 启动新的调试实例
+**启动新的调试实例**：
 
 ```bash
 # 轻量模式（空 Profile）
@@ -186,5 +210,6 @@ pkill -f 'Google Chrome'
 
 ## 📝 更新日志
 
+- **2026-01-12**：新增 `start-chrome-debug.sh`，简化 Chrome 调试模式启动流程
 - **2026-01-08**：新增 `enable-auto-run.sh`，支持 Cursor 内置自动运行
 - **2026-01-08**：优化 `auto-confirm.sh`，改为智能模式

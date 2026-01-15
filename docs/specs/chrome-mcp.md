@@ -6,16 +6,24 @@
 
 ## 1）连接浏览器（调试模式）
 
+> ⚠️ **强制要求**：冒烟测试**必须**使用调试模式，**禁止**使用新窗口模式
+> - ❌ **禁止使用**：`mcp_playwright_browser_*`、`mcp_cursor-ide-browser_*` 等会创建新窗口的工具
+> - ✅ **必须使用**：`mcp_chrome-devtools-9222_*` 系列工具（Chrome DevTools MCP）
+> - 如果 Chrome 调试模式未运行，系统会自动提示用户启动调试模式
+
 ### 1.1 连接方式
 
 **直接连接到已运行的 Chrome**（推荐）：
 - 使用 Chrome DevTools MCP 连接到本地 Chrome 浏览器（端口 9222）
 - 无需复制数据，直接使用当前浏览器的所有状态（钱包、登录、扩展等）
+- **必须**在调试模式下运行，不能使用新窗口模式
 
 ### 1.2 启动/检查脚本
 
+**推荐使用 `start-mcp-chrome.sh`**（功能完整，支持连接已有实例）：
+
 ```bash
-# 检查 CDP 是否可用（连接模式）
+# 检查 CDP 是否可用（连接模式，推荐）
 ./docs/scripts/start-mcp-chrome.sh
 
 # 如需启动新实例（轻量模式，不复制数据）
@@ -24,6 +32,17 @@
 # 如需启动新实例（完整模式，复制数据）
 ./docs/scripts/start-mcp-chrome.sh --new --copy
 ```
+
+**或使用 `start-chrome-debug.sh`**（简化版，一键启动，但会关闭已有 Chrome）：
+
+```bash
+# 一键启动（自动检测、自动复制数据）
+./docs/scripts/start-chrome-debug.sh
+```
+
+**选择建议**：
+- 如果当前 Chrome 有重要工作未保存 → 使用 `start-mcp-chrome.sh`（连接模式）
+- 如果首次使用或可以关闭当前 Chrome → 使用 `start-chrome-debug.sh`（更简单）
 
 ### 1.3 前提条件
 
@@ -46,7 +65,12 @@ pkill -f "Google Chrome"
 
 ## 2）必须使用的工具
 
-> 使用 `mcp_chrome-devtools-9222_*` 系列工具（Chrome DevTools MCP）
+> ⚠️ **强制要求**：冒烟测试**必须**使用 `mcp_chrome-devtools-9222_*` 系列工具（Chrome DevTools MCP）
+> 
+> **禁止使用的工具**：
+> - ❌ `mcp_playwright_browser_*` - 会创建新窗口，无法使用现有浏览器状态
+> - ❌ `mcp_cursor-ide-browser_*` - 会创建新窗口，无法使用现有浏览器状态
+> - ❌ 任何会创建新浏览器窗口的工具
 
 | 工具 | 用途 |
 |-----|------|

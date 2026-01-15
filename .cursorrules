@@ -117,7 +117,11 @@ curl -s http://127.0.0.1:9222/json/version
 
 #### 重要提示
 
-1. **不要使用 Playwright MCP** - 冒烟测试必须使用 Chrome DevTools MCP
+1. **⚠️ 强制要求：必须使用调试模式** - 冒烟测试**禁止**使用 Playwright MCP 或其他新窗口模式，**必须**使用 Chrome DevTools MCP (`mcp_chrome-devtools-9222_*`)
+   - ❌ **禁止**：`mcp_playwright_browser_*` 系列工具（会创建新窗口）
+   - ❌ **禁止**：`mcp_cursor-ide-browser_*` 系列工具（会创建新窗口）
+   - ✅ **必须**：`mcp_chrome-devtools-9222_*` 系列工具（连接已运行的 Chrome）
+   - 如果检测到 Chrome 调试模式未运行，自动提示用户运行启动脚本
 2. **用户数据目录** - 首次启动会从默认 Chrome 配置复制数据，保留用户登录状态和书签
 3. **端口冲突** - 如果端口 9222 被占用，需要先关闭占用进程
 
@@ -268,9 +272,24 @@ alias chrome-debug='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chro
 - **输出文件**：`{模块名}-{功能名}.spec.ts`
 - **运行命令**：`cd e2e && npx playwright test {脚本名}.spec.ts`
 
-## 规则维护
-- 当引入新需求/新规则时：
+## 规则维护（强制自动执行）
+- **当生成测试用例时，必须自动检查并补充规则文档**：
+  1. **识别新需求/新规则**：分析用户输入的需求，判断是否为新的功能点或规则
+  2. **检查需求文档**：
+     - 检查 `docs/requirements/` 目录下是否存在对应的需求文档
+     - 如果不存在，自动创建需求文档（格式：`<模块>-<功能名>.md`）
+     - 如果存在，检查是否需要更新（新增功能点、规则变更等）
+  3. **检查规则文档**：
+     - 检查 `docs/rules/` 目录下是否存在对应的模块规则文档（如 `perps-rules.md`）
+     - 如果不存在，自动创建规则文档
+     - 如果存在，检查是否需要更新（新增规则、规则变更等）
+  4. **更新 qa-rules.md**：
+     - 如果是新模块，在 `qa-rules.md` 中添加模块章节
+     - 如果是已有模块的新功能，检查是否需要更新模块章节
+     - 确保添加规则文档引用（如：`详见 docs/rules/<module>-rules.md`）
+  5. **执行顺序**：先创建/更新需求文档和规则文档，再生成测试用例，确保用例生成时能引用最新规则
+- **规则文档组织原则**：
   - **通用规则**：优先把规则固化到 `docs/qa-rules.md`
   - **模块专项规则**：按模块拆分到 `docs/rules/<module>-rules.md`（如转账链规则在 `docs/rules/transfer-chain-rules.md`）
-  - **需求文档**：新增或更新 `docs/requirements/<topic>.md`
+  - **需求文档**：新增或更新 `docs/requirements/<模块>-<功能名>.md`
   - 生成用例时会自动引用相关规则文档
