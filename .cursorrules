@@ -17,6 +17,10 @@
 - **整合**：同模块同功能的需求整合到同一文件，追加变更记录
 - **版本**：App 版本（如 5.20.0），未确定则留空
 - **测试端**：默认全端（iOS/Android/Extension/Desktop/Web），仅部分端时注明
+- **需求更新规则**：
+  - 当用户同时发送现有需求和新需求时，必须先更新或新建需求文档
+  - 不能忽略现有需求中的测试点，必须在原有基础上补充完善
+  - 生成用例前必须完整读取需求文档，确保覆盖所有测试点
 
 ### 输出硬性约束（任何"生成测试用例"类请求都要满足）
 - **禁止项**：禁止输出"模块感知分析/内部推理过程"（只做不说）。
@@ -29,25 +33,29 @@
   - **目录**：`docs/testcases/cases/<模块目录>/`（所有测试用例必须按模块自动分类到对应子目录）
   - **模块自动分类规则**：
     1. 从文件名中提取模块名（格式：`YYYY-MM-DD_<模块>-<主题>.md`，提取第一个 `-` 之前的内容）
-    2. 根据模块名称映射表自动分类：
-       - `Wallet`/`钱包` → `wallet/`
-       - `Transfer`/`转账` → `transfer/`
+    2. 根据模块名称映射表自动分类（共 11 个一级模块）：
+       - `Account`/`账户`/`AccountModel` → `account/`（账户模型：硬件/软件钱包、观察/外部账户、密钥派生、账户管理、备份）
+       - `Wallet`/`钱包`/`Transfer`/`转账` → `wallet/`（转账、首页、Network、Token、历史、NFT、法币、授权、UTXO）
        - `Swap` → `swap/`
        - `Market`/`市场` → `market/`
+       - `Perps`/`合约` → `Perps/`
+       - `Prime` → `prime/`
+       - `Referral`/`返佣`/`推荐` → `referral/`
        - `DeFi`/`Defi` → `defi/`
-       - `Perps`/`合约` / `Hyperliquid` → `perps/`
-       - `DApp`/`Dapp`/`dApp` → `dapp/`
-       - `返佣`/`Referral` → `referral/`
-       - `通知`/`Notification` → `notification/`
-       - `风控`/`Security` → `security/`
-       - `NFT` → `nft/`
+       - `Browser`/`DApp`/`Dapp`/`dApp`/`浏览器` → `browser/`
+       - `utility`/`通用`/`Setting`/`设置`/`Notification`/`通知` → `common/`（设置、地址簿、通知、网络选择器、App升级、搜索、扫码、手势、快捷键）
+       - `HW`/`Hardware`/`硬件`/`HWApp` → `hardware/`（硬件转账、硬件Swap、硬件派生、硬件功能）
        - 其他未匹配 → `other/`
+    3. 二级功能自动归类：
+       - `派生`/`Derive`/`备份`/`Backup`/`助记词`/`Mnemonic`/`私钥`/`PrivateKey` → `account/`
+       - `NFT`/`UTXO`/`历史`/`History`/`授权`/`Approval`/`法币`/`Fiat` → `wallet/`
+       - `地址簿`/`AddressBook`/`扫码`/`Scan`/`升级`/`Upgrade` → `common/`
     3. 匹配不区分大小写，优先匹配英文模块名
     4. 如果模块目录不存在，自动创建
   - **文件名**：`YYYY-MM-DD_<模块>-<测试主题>.md`（若用户给了更明确的文件名/主题，以用户为准）
   - **转账模块特殊规则**：生成转账相关链的测试用例时，必须将软件钱包和硬件钱包分开输出为两篇文档：
     - 软件钱包：`YYYY-MM-DD_Wallet-<链名>-软件钱包测试.md` → `wallet/`
-    - 硬件钱包：`YYYY-MM-DD_Wallet-<链名>-硬件钱包测试.md` → `wallet/`
+    - 硬件钱包：`YYYY-MM-DD_Hardware-<链名>-硬件钱包测试.md` → `hardware/`（硬件转账属于 HW & App 模块）
   - **文件内容**：可直接渲染为 Markdown 表格，禁止最外层代码块包裹
   - **路径规范**：所有生成的测试用例文件必须统一保存到 `docs/testcases/cases/<模块目录>/` 目录下，按模块自动分类
 - 当用户执行 `@<用例文件> checklist` 时，必须同时将 Checklist 清单写入仓库新文件：

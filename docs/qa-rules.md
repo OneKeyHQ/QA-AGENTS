@@ -135,11 +135,13 @@
 **分组方式**：
 1. **软件钱包测试用例文档**（必须独立输出）：
    - 文件名：`YYYY-MM-DD_Wallet-<链名>-软件钱包测试.md`
+   - 保存目录：`docs/testcases/cases/wallet/`
    - 包含：主币转账、代币转账、私钥转账、私钥导入导出、DAPP 交易等相关功能点
    - 所有软件钱包相关功能集中在一个文档中
 
 2. **硬件钱包测试用例文档**（必须独立输出）：
-   - 文件名：`YYYY-MM-DD_Wallet-<链名>-硬件钱包测试.md`
+   - 文件名：`YYYY-MM-DD_Hardware-<链名>-硬件钱包测试.md`
+   - 保存目录：`docs/testcases/cases/hardware/`（硬件转账属于 HW & App 模块）
    - 包含：主币转账、代币转账、DAPP 交易（仅此三项，其他功能不输出）
    - 不支持的功能只需简单标注"不支持"，无需详细用例
    - 所有硬件钱包相关功能集中在一个文档中
@@ -189,6 +191,11 @@
 - 极端行情：精度丢失、科学计数法、涨跌幅异常、停牌/新币无数据
 - 性能：长列表虚拟化、K 线交互帧率、缓存/预加载
 - 可观测：数据源降级提示、请求失败可恢复路径
+- **Swap Pro Mode**（Market 模块下的快捷兑换功能）：
+  - 入口：Market Token 详情页的 Pro Mode 快捷兑换
+  - 状态机：询价→路径→授权(Approve/Permit)→Swap→Pending→Success/Fail
+  - 核心验证：滑点设置、Gas 费用、价格影响、最小收到量、授权流程
+  - 特殊场景：Pro Mode 与普通 Swap 的差异验证、Market 行情数据与 Swap 报价一致性
 - **限价单特殊逻辑**（CowSwap 渠道，支持网络：Ethereum、Arbitrum、Base）：
   - FromToken 不支持直接出售 ETH，只能换成 WETH（需要验证 ETH → WETH 自动转换逻辑）
   - 订单有效期设置：支持 5分钟/30分钟/1小时/1天/3天/7天/1个月（需要验证各选项功能及到期处理）
@@ -245,6 +252,13 @@
 - 风控：钓鱼 NFT 自动隐藏/提示、恶意链接拦截
 - 性能：长列表滚动、缩略图缓存、分页
 
+### HW & App（硬件钱包）
+- 状态机：连接→配对→验证→操作→确认→断开
+- 设备管理：设备列表、设备详情、设备设置、固件更新
+- 安全：正品验证、Passphrase、PIN 码、助记词验证
+- 兼容性：多设备型号（Pro/Touch/Classic/1S/Mini/Pure）、多连接方式（USB/蓝牙/QR）
+- **输出规则**：硬件相关测试用例**禁止**输出自动化相关内容（自动化层级、断言、Mock 等），详见 `docs/rules/hardware-rules.md`
+
 ---
 
 ## 6）优先级规则
@@ -274,20 +288,32 @@ P0 必须围绕：资金 / 安全 / 风控 / 主流程 / 状态切换。
 3. 如果无法识别模块，使用 `other/` 目录作为兜底
 
 **模块名称映射表**：
-| 模块名（文件名中） | 目录名 | 说明 |
-|-----------------|--------|------|
-| `Wallet` / `钱包` | `wallet/` | 钱包模块 |
-| `Transfer` / `转账` | `transfer/` | 转账模块 |
-| `Swap` | `swap/` | Swap 模块 |
-| `Market` / `市场` | `market/` | Market 模块 |
-| `DeFi` / `Defi` | `defi/` | DeFi 模块 |
-| `Perps` / `合约` | `perps/` | Perps 模块 |
-| `DApp` / `Dapp` / `dApp` | `dapp/` | DApp 模块 |
-| `返佣` / `Referral` | `referral/` | 返佣模块 |
-| `通知` / `Notification` | `notification/` | 通知模块 |
-| `风控` / `Security` | `security/` | 风控模块 |
-| `NFT` | `nft/` | NFT 模块 |
-| 其他未匹配 | `other/` | 兜底目录 |
+
+> **模块层级说明**：
+> - 一级模块为主要业务划分，对应测试用例的目录分类
+> - 二级功能为一级模块下的子功能，文件名中出现时自动归类到对应一级模块
+
+| 一级模块 | 模块名（文件名中） | 目录名 | 包含功能/说明 |
+|---------|-----------------|--------|-------------|
+| **账户模型** | `Account` / `账户` / `AccountModel` | `account/` | 硬件钱包与软件钱包、观察账户与外部账户、私钥/公钥与账户派生、钱包账户管理、软件钱包备份 |
+| **Wallet** | `Wallet` / `钱包` / `Transfer` / `转账` | `wallet/` | 转账规则（所有链）、钱包首页、Network、Token、历史记录、NFT、法币出入金、授权、BTC UTXO 管理 |
+| **Swap** | `Swap` | `swap/` | Swap 兑换功能 |
+| **Market** | `Market` / `市场` / `Swap-Pro-Mode` | `market/` | 行情功能、Swap Pro Mode（Token 详情页快捷兑换） |
+| **Perps** | `Perps` / `合约` | `perps/` | Perps 合约功能 |
+| **Prime** | `Prime` | `prime/` | Prime 功能 |
+| **返佣** | `Referral` / `返佣` / `推荐` | `referral/` | 返佣/推荐功能 |
+| **DeFi** | `DeFi` / `Defi` | `defi/` | DeFi 功能（含借贷、质押等） |
+| **Browser** | `Browser` / `DApp` / `Dapp` / `dApp` / `浏览器` | `browser/` | 浏览器/DApp 功能 |
+| **通用业务** | `Utility` / `通用` / `Setting` / `设置` / `Notification` / `通知` | `utility/` | 设置、地址簿、通知、网络选择器、App 升级、通用搜索、扫码、手势、AppTable、快捷键 |
+| **HW & App** | `HW` / `Hardware` / `硬件` / `HWApp` | `hardware/` | 硬件转账、硬件 Swap、硬件派生、硬件设备功能 |
+| 其他未匹配 | - | `other/` | 兜底目录 |
+
+**二级功能自动归类规则**：
+| 二级功能关键词 | 自动归类到 |
+|--------------|-----------|
+| `派生` / `Derive` / `备份` / `Backup` / `助记词` / `Mnemonic` / `私钥` / `PrivateKey` | `account/` |
+| `NFT` / `UTXO` / `历史` / `History` / `授权` / `Approval` / `法币` / `Fiat` | `wallet/` |
+| `地址簿` / `AddressBook` / `扫码` / `Scan` / `升级` / `Upgrade` | `utility/` |
 
 **匹配规则**：
 - 模块名匹配不区分大小写（`Wallet` = `wallet` = `WALLET`）
@@ -297,17 +323,17 @@ P0 必须围绕：资金 / 安全 / 风控 / 主流程 / 状态切换。
 **目录结构示例**：
 ```
 docs/testcases/cases/
-├── wallet/                    # 钱包模块用例
-├── transfer/                  # 转账模块用例
+├── account/                   # 账户模型用例（硬件/软件钱包、账户派生、备份等）
+├── wallet/                    # Wallet 模块用例（转账、首页、Token、NFT、历史等）
 ├── swap/                      # Swap 模块用例
 ├── market/                    # Market 模块用例
-├── defi/                      # DeFi 模块用例
-├── perps/                     # Perps 模块用例
-├── dapp/                      # DApp 模块用例
+├── perps/                     # Perps 合约模块用例
+├── prime/                     # Prime 模块用例
 ├── referral/                  # 返佣模块用例
-├── notification/              # 通知模块用例
-├── security/                  # 风控模块用例
-├── nft/                       # NFT 模块用例
+├── defi/                      # DeFi 模块用例
+├── browser/                   # Browser/DApp 模块用例
+├── utility/                   # 通用业务用例（设置、地址簿、通知等）
+├── hardware/                  # HW & App 交互用例（硬件转账、Swap、派生等）
 └── other/                     # 其他未分类模块用例
 ```
 

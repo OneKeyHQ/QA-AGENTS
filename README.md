@@ -258,17 +258,19 @@ QA SKILL/
 
 ## 🏷️ 支持的业务模块
 
-- 钱包账户（软件钱包 / 硬件钱包 / 地址管理）
-- 转账（Transfer）
-- Swap（兑换 / 路由 / 滑点）
-- Market（行情 / 价格 / 代币风险 / 持仓信息 / 图表）
-- DeFi（Lending / LP / Stake / Reward / Earn）
-- Perps（合约 / 保证金 / 强平 / 资金费率）
-- DApp（授权 / 签名 / 合约交互）
-- 返佣 / 推荐奖励
-- 通知 / 消息中心
-- 风控 / 安全（封禁 / 拦截 / 限制）
-- NFT / 数字藏品
+| 模块 | 目录 | 包含功能 |
+|-----|------|---------|
+| 账户模型 | `account/` | 硬件/软件钱包、观察/外部账户、密钥派生、账户管理、备份 |
+| Wallet | `wallet/` | 转账（所有链）、首页、Network、Token、历史、NFT、法币、授权、UTXO |
+| Swap | `swap/` | 兑换、路由、滑点 |
+| Market | `market/` | 行情、价格、代币风险、持仓信息、图表 |
+| Perps | `perps/` | 合约、保证金、强平、资金费率 |
+| Prime | `prime/` | Prime 功能 |
+| 返佣 | `referral/` | 返佣、推荐奖励 |
+| DeFi | `defi/` | Lending、LP、Stake、Reward、Earn |
+| Browser | `browser/` | DApp 授权、签名、合约交互 |
+| 通用业务 | `utility/` | 设置、地址簿、通知、网络选择器、App 升级、搜索、扫码、手势、快捷键 |
+| HW & App | `hardware/` | 硬件转账、设备管理、硬件通信、硬件派生.. |
 
 ---
 
