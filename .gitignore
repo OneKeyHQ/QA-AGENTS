@@ -24,3 +24,6 @@ docs/testcases/performance/
 
 # 需求文档（内部文档）
 docs/requirements/
+
+# Claude 目录
+claude/
