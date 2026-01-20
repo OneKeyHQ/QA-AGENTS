@@ -366,6 +366,39 @@ docs/testcases/cases/
 - **序号格式示例**：`1. 显示 6 个代币<br>2. 每个代币右侧显示复选框<br>3. 底部显示按钮`
 - 不同测试场景禁止合并为同一张表。
 
+**中文化输出规范**：
+- 按钮文案、提示语、空状态文案等 UI 文案必须用中文描述
+- 专业术语可保留英文（如 Health factor、APY、Supply、Borrow、Withdraw、Repay 等）
+- 场景列和操作步骤列必须使用 `1. 2. 3.` 序号 + `<br>` 换行
+
+**UI 文案中文化对照表**：
+
+| 英文 | 中文 |
+|-----|-----|
+| Receive | 接收 |
+| Bridge | 跨链 |
+| Claim | 领取 |
+| History | 历史 |
+| Details | 详情 |
+| Confirm | 确认 |
+| Cancel | 取消 |
+| Max | 最大 |
+| Swap | 兑换 |
+| Send | 发送 |
+| Nothing supplied yet | 暂无存入 |
+| Nothing borrowed yet | 暂无借款 |
+| Supply assets as collateral before borrowing | 请先存入资产作为抵押品 |
+| Your wallet is empty... | 钱包为空，请先接收、跨链或购买资产 |
+| Be careful — you are very close to liquidation | 注意：您的仓位接近清算阈值 |
+| I acknowledge the risks involved | 我已了解相关风险 |
+| Liquidation reminder | 清算风险提醒 |
+
+**格式示例**：
+
+| 优先级 | 场景 | 操作步骤 | 预期结果 |
+| --- | --- | --- | --- |
+| ❗️❗️P0❗️❗️ | 1. 已连接钱包<br>2. 钱包余额为空 | 1. 进入借贷首页<br>2. 观察页面展示 | 1. 显示空状态文案："钱包为空，请先接收、跨链或购买资产"<br>2. 显示「接收」和「跨链」按钮 |
+
 ### 7.3.1 钱包账户类型分组规则（强制）
 
 **核心原则**：新链接入按钱包账户类型（软件钱包/硬件钱包）分成两条用例输出，同一类型的所有功能测试集中在一起。
