@@ -18,8 +18,7 @@ node_modules/
 *.tmp
 
 # 测试用例（部分目录包含敏感/内部数据）
-# 允许上传 cases 和 api 目录到 GitHub
-docs/testcases/checklist/
+# 允许上传 cases、api、checklist 目录到 GitHub
 docs/testcases/performance/
 
 # 需求文档（内部文档）
