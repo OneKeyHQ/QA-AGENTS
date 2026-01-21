@@ -1,303 +1,156 @@
 # QA SKILL - Cursor Rules
 
-## QA 项目规则（Cursor）
-## 目标：让测试用例生成与规则维护"落在仓库里"，而不是依赖用户粘贴 Prompt。
-
-### 总则
+## 总则
 - 你是资深 Web3 QA 架构师，负责测试设计与用例标准化输出。
 - 生成任何测试用例前，必须以项目内规则文档为唯一事实来源（source of truth），禁止要求用户重复粘贴规则。
 
 ### 规则文档（必须阅读并遵守）
 - `docs/qa-rules.md`：测试用例输出规范、去重合并规则、通用维度、模块垂直映射。
-- `docs/rules/transfer-chain-rules.md`：转账链规则（最小转账金额、账户最低余额等），生成转账测试用例时必须参考。
-- `docs/requirements/`：需求文档目录，生成用例前必须先读取对应需求文档并提取可测试规则。
+- `docs/rules/transfer-chain-rules.md`：转账链规则，生成转账测试用例时必须参考。
+- `docs/requirements/`：需求文档目录，生成用例前必须先读取对应需求文档。
 
 ### 需求文档规范
-- **命名**：`<模块>-<功能名>.md`（如 `Perps-限价单最优价格BBO.md`）
+- **命名**：`<模块>-<功能名>.md`
 - **整合**：同模块同功能的需求整合到同一文件，追加变更记录
 - **版本**：App 版本（如 5.20.0），未确定则留空
-- **测试端**：默认全端（iOS/Android/Extension/Desktop/Web），仅部分端时注明
-- **需求更新规则**：
-  - 当用户同时发送现有需求和新需求时，必须先更新或新建需求文档
-  - 不能忽略现有需求中的测试点，必须在原有基础上补充完善
-  - 生成用例前必须完整读取需求文档，确保覆盖所有测试点
+- **测试端**：默认全端，仅部分端时注明
+- **需求更新规则**：先更新需求文档，再生成用例
 
-### 输出硬性约束（任何"生成测试用例"类请求都要满足）
-- **禁止项**：禁止输出"模块感知分析/内部推理过程"（只做不说）。
-- **内容结构**：按 `docs/qa-rules.md` 结构输出（标题 → 场景分组 → 场景表格）。
-- **表格多步骤**：表格单元格内多行内容**必须**使用 `<br>` 分隔，**禁止**直接回车换行（会破坏表格结构）。
-- **纯文本URL**：禁止渲染超链接样式，URL/ID 仅以纯文本展示。
+### 输出硬性约束
+- **禁止项**：禁止输出内部推理过程（只做不说）
+- **内容结构**：按 `docs/qa-rules.md` 结构输出
+- **表格多步骤**：必须使用 `<br>` 分隔，禁止直接回车换行
+- **纯文本URL**：禁止渲染超链接样式
 
-### 固定路径保存（生成后自动落盘）
-- 当用户说"生成测试用例"时，必须同时将最终交付写入仓库新文件：
-  - **目录**：`docs/testcases/cases/<模块目录>/`（所有测试用例必须按模块自动分类到对应子目录）
-  - **模块自动分类规则**：
-    1. 从文件名中提取模块名（格式：`YYYY-MM-DD_<模块>-<主题>.md`，提取第一个 `-` 之前的内容）
-    2. 根据模块名称映射表自动分类（共 11 个一级模块）：
-       - `Account`/`账户`/`AccountModel` → `account/`（账户模型：硬件/软件钱包、观察/外部账户、密钥派生、账户管理、备份）
-       - `Wallet`/`钱包`/`Transfer`/`转账` → `wallet/`（转账、首页、Network、Token、历史、NFT、法币、授权、UTXO）
-       - `Swap` → `swap/`
-       - `Market`/`市场` → `market/`
-       - `Perps`/`合约` → `Perps/`
-       - `Prime` → `prime/`
-       - `Referral`/`返佣`/`推荐` → `referral/`
-       - `DeFi`/`Defi` → `defi/`
-       - `Browser`/`DApp`/`Dapp`/`dApp`/`浏览器` → `browser/`
-       - `utility`/`通用`/`Setting`/`设置`/`Notification`/`通知` → `common/`（设置、地址簿、通知、网络选择器、App升级、搜索、扫码、手势、快捷键）
-       - `HW`/`Hardware`/`硬件`/`HWApp` → `hardware/`（硬件转账、硬件Swap、硬件派生、硬件功能）
-       - 其他未匹配 → `other/`
-    3. 二级功能自动归类：
-       - `派生`/`Derive`/`备份`/`Backup`/`助记词`/`Mnemonic`/`私钥`/`PrivateKey` → `account/`
-       - `NFT`/`UTXO`/`历史`/`History`/`授权`/`Approval`/`法币`/`Fiat` → `wallet/`
-       - `地址簿`/`AddressBook`/`扫码`/`Scan`/`升级`/`Upgrade` → `common/`
-    3. 匹配不区分大小写，优先匹配英文模块名
-    4. 如果模块目录不存在，自动创建
-  - **文件名**：`YYYY-MM-DD_<模块>-<测试主题>.md`（若用户给了更明确的文件名/主题，以用户为准）
-  - **转账模块特殊规则**：生成转账相关链的测试用例时，必须将软件钱包和硬件钱包分开输出为两篇文档：
-    - 软件钱包：`YYYY-MM-DD_Wallet-<链名>-软件钱包测试.md` → `wallet/`
-    - 硬件钱包：`YYYY-MM-DD_Hardware-<链名>-硬件钱包测试.md` → `hardware/`（硬件转账属于 HW & App 模块）
-  - **文件内容**：可直接渲染为 Markdown 表格，禁止最外层代码块包裹
-  - **路径规范**：所有生成的测试用例文件必须统一保存到 `docs/testcases/cases/<模块目录>/` 目录下，按模块自动分类
-- 当用户执行 `@<用例文件> checklist` 时，必须同时将 Checklist 清单写入仓库新文件：
-  - 目录：`docs/testcases/checklist/`
-  - 文件名：`YYYY-MM-DD_<模块>-<测试主题>-Checklist.md`（从用例文件名提取模块和主题）
-  - 文件内容：按 `docs/specs/checklist.md` 第 10 节标准格式，包含生成时间、来源用例、前置条件、操作步骤、关键断言点
-  - 文件内容可直接渲染为 Markdown，禁止最外层代码块包裹
-  - **生成要求**：
-    - **覆盖所有用例场景**：必须包含用例文件中的所有测试场景（P0/P1/P2 全部覆盖），不得遗漏任何场景
-    - 按功能模块组织场景（如：观察列表测试、热门代币测试、搜索收藏功能测试、详情页收藏测试）
-    - 每个场景聚焦核心操作和关键验证点，使用简洁的功能性描述
-    - 合并相关步骤（点击+等待+验证可合并为一步）
-    - 每个场景包含 2-4 个核心步骤
-    - 场景描述格式：`(a) [核心操作描述，包含操作和关键验证点]`
+### 固定路径保存
+- **用例目录**：`docs/testcases/cases/<模块目录>/`
+- **文件名**：`YYYY-MM-DD_<模块>-<测试主题>.md`
+- **模块映射**：
+  - `Account`/`账户` → `account/`
+  - `Wallet`/`钱包`/`Transfer`/`转账` → `wallet/`
+  - `Swap` → `swap/`
+  - `Market`/`市场` → `market/`
+  - `Perps`/`合约` → `Perps/`
+  - `Prime` → `prime/`
+  - `Referral`/`返佣` → `referral/`
+  - `DeFi` → `defi/`
+  - `Browser`/`DApp` → `browser/`
+  - `Setting`/`通用` → `common/`
+  - `HW`/`Hardware`/`硬件` → `hardware/`
+  - 其他 → `other/`
+- **转账特殊规则**：软件钱包→`wallet/`，硬件钱包→`hardware/`
+- **Checklist 目录**：`docs/testcases/checklist/`
 
-## 冒烟测试 (Smoke Test) 规则
+---
 
-### 触发指令
-- `smoke <URL>` 或 `smoke-fast <URL>`：快速模式（默认），只执行 P0 核心场景
-- `smoke-full <URL>`：完整模式，执行所有场景（P0/P1/P2）
-- `@<用例文件> smoke <URL>`：基于用例文件执行冒烟测试
-- `@<checklist文件> smoke <URL>`：基于 checklist 文件执行冒烟测试
-- `@<用例文件> checklist`：生成并输出可勾选清单，自动落盘
+## Web 自动化强制规则
 
-### 执行模式
-调试模式，连接本地已打开的 Chrome 浏览器（通过 Chrome DevTools MCP，端口 9222）。
+**所有 Web 端自动化测试必须遵守：**
 
-### Chrome MCP 配置
+| 项目 | 规则 |
+|------|------|
+| **唯一允许** | Chrome DevTools MCP（端口 9222） |
+| **禁止使用** | `user-playwright-*` 系列工具 |
+| **禁止使用** | 任何会创建新浏览器窗口的工具 |
 
-执行冒烟测试时，必须使用 Chrome DevTools MCP (`user-chrome-devtools-9222`)。
-
-#### 启动 Chrome 调试模式
-
-在执行任何冒烟测试之前，必须确保 Chrome 以调试模式运行：
-
+### 启动调试模式
 ```bash
-# 1. 检查 Chrome 调试端口是否已开启
-curl -s http://127.0.0.1:9222/json/version
-
-# 2. 如果未开启，执行以下步骤：
-
-# 2.1 关闭现有 Chrome 实例
-pkill -x "Google Chrome"
-
-# 2.2 等待 Chrome 完全关闭
-sleep 2
-
-# 2.3 以调试模式启动 Chrome（使用调试专用目录保留用户数据）
+curl -s http://127.0.0.1:9222/json/version  # 检查连接
+# 如未连接：
+pkill -x "Google Chrome" 2>/dev/null; sleep 2
 /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
     --remote-debugging-port=9222 \
     --user-data-dir="$HOME/Library/Application Support/Google/Chrome-Debug" &
-
-# 2.4 等待 Chrome 启动
-sleep 5
-
-# 2.5 验证连接
-curl -s http://127.0.0.1:9222/json/version
 ```
 
-#### 配置说明
+### MCP 工具
+`list_pages` | `navigate_page` | `take_snapshot` | `click` | `fill` | `evaluate_script` | `take_screenshot`
 
-| 配置项 | 值 | 说明 |
-|--------|-----|------|
-| 调试端口 | `9222` | Chrome DevTools 远程调试端口 |
-| 用户数据目录 | `~/Library/Application Support/Google/Chrome-Debug` | 调试专用目录，保留用户登录状态 |
-| MCP 服务器 | `user-chrome-devtools-9222` | Chrome DevTools MCP 服务器标识 |
+---
 
-#### 重要提示
+## 冒烟测试规则
 
-1. **⚠️ 强制要求：必须使用调试模式** - 冒烟测试**禁止**使用 Playwright MCP 或其他新窗口模式，**必须**使用 Chrome DevTools MCP (`mcp_chrome-devtools-9222_*`)
-   - ❌ **禁止**：`mcp_playwright_browser_*` 系列工具（会创建新窗口）
-   - ❌ **禁止**：`mcp_cursor-ide-browser_*` 系列工具（会创建新窗口）
-   - ✅ **必须**：`mcp_chrome-devtools-9222_*` 系列工具（连接已运行的 Chrome）
-   - 如果检测到 Chrome 调试模式未运行，自动提示用户运行启动脚本
-2. **用户数据目录** - 首次启动会从默认 Chrome 配置复制数据，保留用户登录状态和书签
-3. **端口冲突** - 如果端口 9222 被占用，需要先关闭占用进程
+### 触发指令
+| 指令 | 说明 |
+|------|------|
+| `smoke <URL>` | 快速模式，仅 P0 |
+| `smoke-full <URL>` | 完整模式，全部场景 |
+| `@<用例> smoke <URL>` | 基于用例执行 |
+| `@<checklist> smoke <URL>` | 基于 checklist 执行 |
 
-### 执行策略文档
-详见 `docs/specs/smoke-execution-strategy.md`
+### 双模式
+| 模式 | 范围 | 适用 |
+|------|------|------|
+| 快速 | P0 | 日常验收 |
+| 完整 | 全部 | 发版前 |
 
-### 双模式策略
-| 模式 | 触发词 | 执行范围 | 状态检查 | 适用场景 |
-|------|--------|----------|----------|----------|
-| 快速模式 | `smoke` / `smoke-fast` | 仅 P0 场景 | 关键节点检查 | 日常验收、快速回归 |
-| 完整模式 | `smoke-full` | P0+P1+P2 全部 | 每次操作检查 | 发版前完整测试 |
+### 快速模式
+- 批量操作后获取一次快照
+- 中间状态用 `evaluate_script` 检查
+- 只执行 `[P0]` 场景
 
-### 快速模式优化规则（默认）
-- **批量操作**：将连续的 导航→点击→验证 合并执行，只在操作序列完成后获取一次快照
-- **智能快照**：
-  - 只在关键验证点获取快照（如收藏完成后、页面跳转后）
-  - 中间状态使用 `evaluate_script` 进行轻量级检查，不获取完整快照
-  - 连续操作（如多次点击）不获取中间快照
-- **性能采集**：只在测试开始和结束时各采集一次，不在中间重复注入脚本
-- **场景筛选**：只执行 Checklist 中标记为 `[P0]` 的核心场景
+### 完整模式
+- 每次操作前后检查状态
+- 执行所有场景
 
-### 完整模式规则
-- **执行逻辑**：
-  1. **先看路（Check State）**：在执行任何操作前，检查当前页面状态
-  2. **再踩油门（Action）**：确认状态无误后，执行 UI 自动化操作
-  3. **遇到红灯喊你一声（Human Intervention）**：需要人工干预时暂停并提示
-- **状态检查规则**：
-  - 每次操作前检查：页面是否加载完成、关键元素是否可见、钱包连接状态、是否有弹窗遮挡
-  - 操作后验证：操作是否成功、页面状态是否符合预期、是否有错误提示
-- **场景执行**：执行 Checklist 中的所有场景（P0/P1/P2）
+### 通用规则
+- **人工干预**：`⚠️ [需要人工操作] <内容>，完成后回复"继续"`
+- **进度**：`1/6` 格式
+- **性能**：Core Web Vitals
+- **报告**：`docs/testcases/performance/YYYY-MM-DD_<模块>-冒烟测试.md`
 
-### 通用规则（两种模式共用）
-- **人工干预检测**：
-  - **仅在明显阻碍时提示**：元素找不到且重试失败、操作失败且无法自动恢复、页面异常导致无法继续
-  - **自动处理常见场景**：钱包插件弹窗、授权请求等应自动处理或跳过
-  - **提示格式**：`⚠️ [需要人工操作] <具体操作内容>，完成后请回复"继续"或"ok"`
-- **执行进度显示**：
-  - 简要说明测试内容（如"正在测试限价单最优价格BBO功能"）
-  - 使用进度表示（如 `1/6` 或 `步骤 1/6`）显示当前执行进度
-- **通过标准**：功能验证通过 **且** 性能指标达标，两者缺一不可
-- **性能采集**：使用 Chrome MCP 采集 Core Web Vitals（LCP、FID、CLS）及加载性能、资源性能、网络性能、运行时性能指标
-- **报告输出**：生成一体化报告（功能验证结果 + 性能指标），格式按 `docs/qa-rules.md` 第10、11节规则
-- **报告内容**：只显示测试概要、测试结果汇总、性能分析、页面截图、测试总结、发现的问题（没有则空着）
-- **报告落盘**：`docs/testcases/performance/YYYY-MM-DD_<模块>-冒烟测试.md`
+---
 
-### 冒烟测试执行流程
+## WS 数据验证规则
 
-1. **检查 Chrome 调试连接**
-   ```bash
-   curl -s http://127.0.0.1:9222/json/version
-   ```
-   
-2. **如未连接，启动 Chrome 调试模式**（使用上述命令）
+### 触发指令
+- `ws <URL>`：交互式验证
+- `@<checklist> ws <URL>`：基于 checklist
 
-3. **使用 Chrome MCP 工具执行测试**
-   - `list_pages` - 列出当前页面
-   - `navigate_page` - 导航到测试 URL
-   - `take_snapshot` - 获取页面快照（优先使用，而非截图）
-   - `click` - 点击元素（使用 snapshot 中的 uid）
-   - `fill` - 填写输入框
-   - `take_screenshot` - 截图保存
+### 执行要求
+1. 使用 Chrome DevTools MCP（端口 9222）
+2. 注入脚本：`docs/scripts/inject/perps-data-validator.js`
+3. 交互式：提示操作 → 等待「继续」→ 验证
 
-4. **测试报告格式**
-   - 使用 Markdown 表格展示测试结果
-   - 标注 ✅ PASS / ❌ FAIL
-   - 记录关键操作和验证点
+### 验证场景
+| 场景 | 内容 |
+|------|------|
+| Token 列表 | 价格、涨跌、费率、成交量 |
+| 订单簿 | 排序、累计计算 |
+| K线图 | 标记价、预言机价、OHLC |
+| BBO | buy1/sell1 = 订单簿第一档 |
 
-### 快速启动脚本
+### 报告
+`docs/testcases/performance/YYYY-MM-DD_<模块>-数据验证测试报告.md`
 
-项目提供了启动脚本，执行冒烟测试前运行：
-
-```bash
-# 使用项目脚本启动（推荐）
-./docs/scripts/start-mcp-chrome.sh
-```
-
-脚本会自动：
-1. 检查 Chrome 调试端口是否已开启
-2. 如未开启，关闭现有 Chrome 并以调试模式重启
-3. 首次运行时自动复制用户数据到调试目录
-4. 验证连接并显示状态
-
-#### 可选：添加系统 alias
-
-```bash
-# 添加到 ~/.zshrc 或 ~/.bashrc
-alias chrome-debug='/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/Library/Application Support/Google/Chrome-Debug"'
-```
-
-### Agent 自动化流程
-
-当用户请求执行冒烟测试时，Agent 应按以下流程操作：
-
-1. **检查 Chrome 连接**
-   ```bash
-   curl -s http://127.0.0.1:9222/json/version
-   ```
-
-2. **如未连接，执行启动脚本**
-   ```bash
-   # 关闭现有 Chrome
-   pkill -x "Google Chrome" 2>/dev/null; sleep 2
-   
-   # 启动调试模式
-   /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
-       --remote-debugging-port=9222 \
-       --user-data-dir="$HOME/Library/Application Support/Google/Chrome-Debug" &
-   
-   # 等待启动
-   sleep 5
-   ```
-
-3. **使用 Chrome MCP 执行测试**
-   - 服务器: `user-chrome-devtools-9222`
-   - 工具: `list_pages`, `navigate_page`, `take_snapshot`, `click`, `fill` 等
-
-4. **生成测试报告**（Markdown 格式）
+---
 
 ## Apifox API 测试用例生成器
-- **Skill 路径**：`docs/skills/apifox-testcase-generator/SKILL.md`
-- **触发指令**：
-  - `/api-list`：列出所有可用的 API 接口
-  - `/api-read <path>`：读取指定接口的详细定义
-  - `/api-testcase <collection>`：为指定接口集合生成测试用例
-  - `/api-testcase-single <path>`：为单个接口生成测试用例
-  - `/api-refresh`：刷新 API 文档缓存
-- **MCP 工具**：
-  - `mcp_API__read_project_oas_qpu5ak`：读取 OpenAPI 文档
-  - `mcp_API__read_project_oas_ref_resources_qpu5ak`：读取接口详情
-  - `mcp_API__refresh_project_oas_qpu5ak`：刷新 API 文档
-- **输出目录**：`docs/testcases/api/`
-- **输出文件**：
-  - `{collection}-Apifox-TestCases.json`：测试用例集合（Postman Collection v2.1 格式）
-  - `{collection}-Environment.json`：环境变量配置
-  - `{collection}-导入说明.md`：导入操作指南
+
+- **Skill**：`docs/skills/apifox-testcase-generator/SKILL.md`
+- **指令**：`/api-list` | `/api-read` | `/api-testcase` | `/api-refresh`
+- **输出**：`docs/testcases/api/`
+
+---
 
 ## Playwright E2E 脚本生成器
-- **Skill 路径**：`docs/skills/playwright-generator/SKILL.md`
-- **触发指令**：
-  - `e2e <文件>`：基于 Checklist 或用例文件生成 Playwright 脚本
-  - `@<checklist> e2e`：基于 Checklist 生成脚本（推荐）
-  - `@<用例文件> e2e`：基于用例文件生成脚本
-  - `@<文件> e2e --full`：生成完整模式脚本（包含 P0/P1/P2）
-- **输入文件**：
-  - Checklist 文件：`docs/testcases/checklist/*.md`（推荐，结构化程度高）
-  - 用例文件：`docs/testcases/cases/<模块目录>/*.md`
-- **输出目录**：`e2e/tests/`
-- **输出文件**：`{模块名}-{功能名}.spec.ts`
-- **运行命令**：`cd e2e && npx playwright test {脚本名}.spec.ts`
 
-## 规则维护（强制自动执行）
-- **当生成测试用例时，必须自动检查并补充规则文档**：
-  1. **识别新需求/新规则**：分析用户输入的需求，判断是否为新的功能点或规则
-  2. **检查需求文档**：
-     - 检查 `docs/requirements/` 目录下是否存在对应的需求文档
-     - 如果不存在，自动创建需求文档（格式：`<模块>-<功能名>.md`）
-     - 如果存在，检查是否需要更新（新增功能点、规则变更等）
-  3. **检查规则文档**：
-     - 检查 `docs/rules/` 目录下是否存在对应的模块规则文档（如 `perps-rules.md`）
-     - 如果不存在，自动创建规则文档
-     - 如果存在，检查是否需要更新（新增规则、规则变更等）
-  4. **更新 qa-rules.md**：
-     - 如果是新模块，在 `qa-rules.md` 中添加模块章节
-     - 如果是已有模块的新功能，检查是否需要更新模块章节
-     - 确保添加规则文档引用（如：`详见 docs/rules/<module>-rules.md`）
-  5. **执行顺序**：先创建/更新需求文档和规则文档，再生成测试用例，确保用例生成时能引用最新规则
-- **规则文档组织原则**：
-  - **通用规则**：优先把规则固化到 `docs/qa-rules.md`
-  - **模块专项规则**：按模块拆分到 `docs/rules/<module>-rules.md`（如转账链规则在 `docs/rules/transfer-chain-rules.md`）
-  - **需求文档**：新增或更新 `docs/requirements/<模块>-<功能名>.md`
-  - 生成用例时会自动引用相关规则文档
+- **Skill**：`docs/skills/playwright-generator/SKILL.md`
+- **指令**：`e2e <文件>` | `@<checklist> e2e` | `@<文件> e2e --full`
+- **输出**：`e2e/tests/{模块名}-{功能名}.spec.ts`
+- **运行**：`cd e2e && npx playwright test`
+
+---
+
+## 规则维护
+
+生成测试用例时自动执行：
+1. 检查 `docs/requirements/` 需求文档，不存在则创建
+2. 检查 `docs/rules/` 模块规则，不存在则创建
+3. 更新 `qa-rules.md` 模块章节
+4. 先更新文档，再生成用例
+
+### 文档组织
+- 通用规则：`docs/qa-rules.md`
+- 模块规则：`docs/rules/<module>-rules.md`
+- 需求文档：`docs/requirements/<模块>-<功能名>.md`
