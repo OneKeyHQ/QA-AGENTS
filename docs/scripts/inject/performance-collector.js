@@ -5,43 +5,101 @@
  * 使用方法：在执行冒烟测试时，系统会自动在页面中执行此脚本
  */
 
-// Core Web Vitals 采集
+// Core Web Vitals 全局存储（在页面加载前初始化）
+if (typeof window !== 'undefined' && !window.__coreWebVitals) {
+  window.__coreWebVitals = {
+    lcp: null,
+    fid: null,
+    cls: 0
+  };
+
+  // LCP (Largest Contentful Paint) - 持续监听
+  try {
+    const lcpObserver = new PerformanceObserver((list) => {
+      const entries = list.getEntries();
+      if (entries.length > 0) {
+        const lastEntry = entries[entries.length - 1];
+        window.__coreWebVitals.lcp = lastEntry.renderTime || lastEntry.loadTime;
+      }
+    });
+    lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+  } catch (e) {
+    console.warn('LCP observer failed:', e);
+  }
+
+  // FID (First Input Delay) - 持续监听
+  try {
+    const fidObserver = new PerformanceObserver((list) => {
+      const entries = list.getEntries();
+      if (entries.length > 0 && !window.__coreWebVitals.fid) {
+        const firstInput = entries[0];
+        window.__coreWebVitals.fid = firstInput.processingStart - firstInput.startTime;
+      }
+    });
+    fidObserver.observe({ entryTypes: ['first-input'] });
+  } catch (e) {
+    console.warn('FID observer failed:', e);
+  }
+
+  // CLS (Cumulative Layout Shift) - 持续监听
+  try {
+    const clsObserver = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        if (!entry.hadRecentInput) {
+          window.__coreWebVitals.cls += entry.value;
+        }
+      }
+    });
+    clsObserver.observe({ entryTypes: ['layout-shift'] });
+  } catch (e) {
+    console.warn('CLS observer failed:', e);
+  }
+}
+
+// Core Web Vitals 采集函数（从全局变量读取）
 function collectCoreWebVitals() {
+  if (typeof window !== 'undefined' && window.__coreWebVitals) {
+    return {
+      lcp: window.__coreWebVitals.lcp,
+      fid: window.__coreWebVitals.fid,
+      cls: window.__coreWebVitals.cls
+    };
+  }
+  
+  // 如果全局变量不存在，尝试从 Performance API 直接读取
   const vitals = {
     lcp: null,
     fid: null,
     cls: 0
   };
 
-  // LCP (Largest Contentful Paint)
-  const lcpObserver = new PerformanceObserver((list) => {
-    const entries = list.getEntries();
-    const lastEntry = entries[entries.length - 1];
-    vitals.lcp = lastEntry.renderTime || lastEntry.loadTime;
-  });
-  lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+  // 尝试从已收集的条目中读取 LCP
+  try {
+    const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
+    if (lcpEntries.length > 0) {
+      const lastEntry = lcpEntries[lcpEntries.length - 1];
+      vitals.lcp = lastEntry.renderTime || lastEntry.loadTime;
+    }
+  } catch (e) {}
 
-  // FID (First Input Delay)
-  const fidObserver = new PerformanceObserver((list) => {
-    const entries = list.getEntries();
-    if (entries.length > 0) {
-      const firstInput = entries[0];
+  // 尝试从已收集的条目中读取 FID
+  try {
+    const fidEntries = performance.getEntriesByType('first-input');
+    if (fidEntries.length > 0) {
+      const firstInput = fidEntries[0];
       vitals.fid = firstInput.processingStart - firstInput.startTime;
     }
-  });
-  fidObserver.observe({ entryTypes: ['first-input'] });
+  } catch (e) {}
 
-  // CLS (Cumulative Layout Shift)
-  let clsValue = 0;
-  const clsObserver = new PerformanceObserver((list) => {
-    for (const entry of list.getEntries()) {
+  // 尝试从已收集的条目中读取 CLS
+  try {
+    const clsEntries = performance.getEntriesByType('layout-shift');
+    clsEntries.forEach(entry => {
       if (!entry.hadRecentInput) {
-        clsValue += entry.value;
+        vitals.cls += entry.value;
       }
-    }
-    vitals.cls = clsValue;
-  });
-  clsObserver.observe({ entryTypes: ['layout-shift'] });
+    });
+  } catch (e) {}
 
   return vitals;
 }
