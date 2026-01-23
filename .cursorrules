@@ -5,9 +5,9 @@
 - 生成任何测试用例前，必须以项目内规则文档为唯一事实来源（source of truth），禁止要求用户重复粘贴规则。
 
 ### 规则文档（必须阅读并遵守）
-- `docs/qa-rules.md`：测试用例输出规范、去重合并规则、通用维度、模块垂直映射。
-- `docs/rules/transfer-chain-rules.md`：转账链规则，生成转账测试用例时必须参考。
-- `docs/requirements/`：需求文档目录，生成用例前必须先读取对应需求文档。
+- `docs/qa/qa-rules.md`：测试用例输出规范、去重合并规则、通用维度、模块垂直映射。
+- `docs/qa/rules/transfer-chain-rules.md`：转账链规则，生成转账测试用例时必须参考。
+- `docs/qa/requirements/`：需求文档目录，生成用例前必须先读取对应需求文档。
 
 ### 需求文档规范
 - **命名**：`<模块>-<功能名>.md`
@@ -18,12 +18,12 @@
 
 ### 输出硬性约束
 - **禁止项**：禁止输出内部推理过程（只做不说）
-- **内容结构**：按 `docs/qa-rules.md` 结构输出
+- **内容结构**：按 `docs/qa/qa-rules.md` 结构输出
 - **表格多步骤**：必须使用 `<br>` 分隔，禁止直接回车换行
 - **纯文本URL**：禁止渲染超链接样式
 
 ### 固定路径保存
-- **用例目录**：`docs/testcases/cases/<模块目录>/`
+- **用例目录**：`docs/qa/testcases/cases/<模块目录>/`
 - **文件名**：`YYYY-MM-DD_<模块>-<测试主题>.md`
 - **模块映射**：
   - `Account`/`账户` → `account/`
@@ -35,11 +35,11 @@
   - `Referral`/`返佣` → `referral/`
   - `DeFi` → `defi/`
   - `Browser`/`DApp` → `browser/`
-  - `Setting`/`通用` → `common/`
+  - `Utility`/`通用`/`Setting` → `utility/`
   - `HW`/`Hardware`/`硬件` → `hardware/`
   - 其他 → `other/`
 - **转账特殊规则**：软件钱包→`wallet/`，硬件钱包→`hardware/`
-- **Checklist 目录**：`docs/testcases/checklist/`
+- **Checklist 目录**：`docs/skills/checklist-generator/output/`
 
 ---
 
@@ -97,7 +97,7 @@ pkill -x "Google Chrome" 2>/dev/null; sleep 2
 - **人工干预**：`⚠️ [需要人工操作] <内容>，完成后回复"继续"`
 - **进度**：`1/6` 格式
 - **性能**：Core Web Vitals
-- **报告**：`docs/testcases/performance/YYYY-MM-DD_<模块>-冒烟测试.md`
+- **报告**：`docs/skills/smoke-test/reports/YYYY-MM-DD_<模块>-冒烟测试.md`
 
 ---
 
@@ -109,7 +109,7 @@ pkill -x "Google Chrome" 2>/dev/null; sleep 2
 
 ### 执行要求
 1. 使用 Chrome DevTools MCP（端口 9222）
-2. 注入脚本：`docs/scripts/inject/perps-data-validator.js`
+2. 注入脚本：`docs/skills/scripts/inject/perps-data-validator.js`
 3. 交互式：提示操作 → 等待「继续」→ 验证
 
 ### 验证场景
@@ -121,7 +121,7 @@ pkill -x "Google Chrome" 2>/dev/null; sleep 2
 | BBO | buy1/sell1 = 订单簿第一档 |
 
 ### 报告
-`docs/testcases/performance/YYYY-MM-DD_<模块>-数据验证测试报告.md`
+`docs/skills/smoke-test/reports/YYYY-MM-DD_<模块>-数据验证测试报告.md`
 
 ---
 
@@ -129,7 +129,7 @@ pkill -x "Google Chrome" 2>/dev/null; sleep 2
 
 - **Skill**：`docs/skills/apifox-testcase-generator/SKILL.md`
 - **指令**：`/api-list` | `/api-read` | `/api-testcase` | `/api-refresh`
-- **输出**：`docs/testcases/api/`
+- **输出**：`docs/skills/apifox-testcase-generator/output/`
 
 ---
 
@@ -145,12 +145,13 @@ pkill -x "Google Chrome" 2>/dev/null; sleep 2
 ## 规则维护
 
 生成测试用例时自动执行：
-1. 检查 `docs/requirements/` 需求文档，不存在则创建
-2. 检查 `docs/rules/` 模块规则，不存在则创建
+1. 检查 `docs/qa/requirements/` 需求文档，不存在则创建
+2. 检查 `docs/qa/rules/` 模块规则，不存在则创建
 3. 更新 `qa-rules.md` 模块章节
 4. 先更新文档，再生成用例
 
 ### 文档组织
-- 通用规则：`docs/qa-rules.md`
-- 模块规则：`docs/rules/<module>-rules.md`
-- 需求文档：`docs/requirements/<模块>-<功能名>.md`
+- 通用规则：`docs/qa/qa-rules.md`
+- 模块规则：`docs/qa/rules/<module>-rules.md`
+- 需求文档：`docs/qa/requirements/<模块>-<功能名>.md`
+

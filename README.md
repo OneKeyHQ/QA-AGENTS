@@ -84,13 +84,13 @@ brew install node@20  # 或使用 nvm: nvm install 20
 
 ```bash
 # 默认端口 9222
-./docs/scripts/start-mcp-chrome.sh
+./docs/skills/scripts/start-mcp-chrome.sh
 
 # 指定端口
-./docs/scripts/start-mcp-chrome.sh 12306
+./docs/skills/scripts/start-mcp-chrome.sh 12306
 
 # 无头模式
-HEADLESS=1 ./docs/scripts/start-mcp-chrome.sh
+HEADLESS=1 ./docs/skills/scripts/start-mcp-chrome.sh
 ```
 
 ### 4. 开始使用
@@ -114,17 +114,17 @@ smoke https://app.onekey.so/perps
 @Perps限价单需求.doc 生成测试用例
 
 # 输出精细化步骤清单
-@docs/testcases/2026-01-03_Perps-限价单.md checklist
+@docs/qa/testcases/cases/perps/2026-01-03_Perps-限价单.md checklist
 ```
 
 ### 冒烟测试
 
 ```bash
 # 带 checklist 文件执行（推荐）
-@docs/testcases/checklist/2026-01-04_Market-Checklist.md smoke https://app.onekey.so/market
+@docs/skills/checklist-generator/output/2026-01-04_Market-Checklist.md smoke https://app.onekey.so/market
 
 # 带用例文件执行
-@docs/testcases/2026-01-03_Perps-限价单.md smoke https://app.onekey.so/perps
+@docs/qa/testcases/cases/perps/2026-01-03_Perps-限价单.md smoke https://app.onekey.so/perps
 
 # 直接指令执行（最高优先级）
 smoke https://app.onekey.so/perps 具体操作描述
@@ -177,9 +177,9 @@ analyze https://app.onekey.so/perps
 ```
 
 **输出文件**：
-- `docs/testcases/api/{collection}-Apifox-TestCases.json` - Postman Collection 格式
-- `docs/testcases/api/{collection}-Environment.json` - 环境变量配置
-- `docs/testcases/api/{collection}-导入说明.md` - 导入操作指南
+- `docs/skills/apifox-testcase-generator/output/{collection}-Apifox-TestCases.json` - Postman Collection 格式
+- `docs/skills/apifox-testcase-generator/output/{collection}-Environment.json` - 环境变量配置
+- `docs/skills/apifox-testcase-generator/output/{collection}-导入说明.md` - 导入操作指南
 
 **详细文档**：查看 [`docs/skills/apifox-testcase-generator/SKILL.md`](docs/skills/apifox-testcase-generator/SKILL.md)
 
@@ -189,40 +189,27 @@ analyze https://app.onekey.so/perps
 
 ```
 QA SKILL/
-├── .cursorrules                          # Cursor 入口规则
-├── README.md                             # 本文件
+├── .cursorrules                              # Cursor 入口规则
+├── README.md                                 # 本文件
 ├── docs/
-│   ├── qa-rules.md                       # 核心规则（唯一事实来源）
-│   ├── SKILL.md                          # 能力说明
-│   ├── AGENTS.md                         # 辅助技能库（上下文工程）
+│   ├── qa/                                   # 📦 用例生成（独立）
+│   │   ├── SKILL.md                          # 用例生成指令说明
+│   │   ├── qa-rules.md                       # 核心规则（唯一事实来源）
+│   │   ├── rules/                            # 模块测试规则
+│   │   ├── requirements/                     # 需求文档
+│   │   └── testcases/cases/                  # 测试用例（按模块分类）
 │   │
-│   ├── specs/                            # 📦 能力规范（按需读取）
-│   │   ├── smoke-test.md                 # 冒烟测试 + perf/ws/analyze
-│   │   ├── checklist.md                  # Checklist 标准
-│   │   ├── performance.md                # 性能指标 + 报告模板
-│   │   └── chrome-mcp.md                 # MCP 工具规范
-│   │
-│   ├── scripts/                          # 📦 脚本文件
-│   │   ├── start-mcp-chrome.sh           # 启动 Chrome MCP
-│   │   └── inject/                       # 注入脚本（自动执行）
-│   │       ├── performance-collector.js  # 性能采集
-│   │       └── websocket-monitor.js      # WS 监听
-│   │
-│   ├── requirements/                     # 需求文档目录
-│   │   └── *.doc / *.md / *.pdf
-│   │
-│   └── testcases/                        # 用例文件（自动落盘）
-│       ├── README.md
-│       ├── YYYY-MM-DD_<模块>-<主题>.md
-│       ├── performance/                  # 冒烟测试报告
-│       │   └── YYYY-MM-DD_<模块>-冒烟测试.md
-│       ├── api/                          # API 测试用例
-│       │   └── {collection}-Apifox-TestCases.json
-│       └── checklist/                    # Checklist 清单
-│           └── YYYY-MM-DD_<模块>-<主题>-Checklist.md
+│   └── skills/                               # 📦 执行能力（独立）
+│       ├── SKILL.md                          # 执行能力指令说明
+│       ├── specs/                            # 规范文档
+│       ├── smoke-test/reports/               # 冒烟测试报告
+│       ├── checklist-generator/output/       # Checklist 清单
+│       ├── apifox-testcase-generator/output/ # API 测试用例
+│       ├── playwright-generator/output/      # E2E 脚本
+│       └── scripts/                          # 脚本文件
 │
-└── html-test/                            # 📦 测试工具
-    └── Mnemonic OCR.html                  # SLIP39 助记词 OCR 识别工具
+└── html-test/                                # 📦 测试工具
+    └── Mnemonic OCR.html
 ```
 
 ---
@@ -278,9 +265,10 @@ QA SKILL/
 
 当引入新需求/新规则时：
 
-1. 优先把规则固化到 `docs/qa-rules.md`
-2. 或新增 `docs/requirements/<topic>.md`
-3. 生成用例时会自动引用
+1. 优先把规则固化到 `docs/qa/qa-rules.md`
+2. 模块专项规则更新到 `docs/qa/rules/<module>-rules.md`
+3. 新增需求文档到 `docs/qa/requirements/<topic>.md`
+4. 生成用例时会自动引用
 
 ---
 
@@ -309,13 +297,12 @@ QA SKILL/
 
 | 文档 | 用途 | 何时读取 |
 |------|------|----------|
-| `docs/qa-rules.md` | 用例生成规则 | 生成用例时 |
-| `docs/specs/smoke-test.md` | 冒烟测试规范 | 执行测试时 |
-| `docs/specs/checklist.md` | Checklist 标准 | 生成 checklist 时 |
-| `docs/specs/performance.md` | 性能指标定义 | 需要性能报告时 |
-| `docs/specs/chrome-mcp.md` | MCP 工具规范 | 执行自动化时 |
-| `docs/skills/apifox-testcase-generator/SKILL.md` | API 测试用例生成器 | 生成 API 测试用例时 |
-| `docs/AGENTS.md` | 辅助技能库（上下文工程） | 需要上下文优化时 |
+| `docs/qa/SKILL.md` | 用例生成指令 | 生成用例时 |
+| `docs/qa/qa-rules.md` | 用例生成规则 | 生成用例时 |
+| `docs/skills/SKILL.md` | 执行能力指令 | 执行测试时 |
+| `docs/skills/specs/smoke-test.md` | 冒烟测试规范 | 执行 smoke 时 |
+| `docs/skills/specs/checklist.md` | Checklist 标准 | 生成 checklist 时 |
+| `docs/skills/apifox-testcase-generator/SKILL.md` | API 测试用例生成器 | 执行 /api-* 时 |
 
 ---
 

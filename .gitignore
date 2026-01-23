@@ -26,3 +26,14 @@ docs/requirements/
 
 # Claude 目录
 claude/
+
+# E2E 测试（本地代码）
+e2e/
+
+# Agent Skills 文档
+AGENTS.md
+docs/AGENTS.md
+
+# Superpowers 技能框架（第三方）
+superpowers/
+superpowers-meta/
