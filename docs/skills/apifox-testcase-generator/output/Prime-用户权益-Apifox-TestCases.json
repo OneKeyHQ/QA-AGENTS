@@ -1,0 +1,1733 @@
+{
+  "info": {
+    "name": "Prime 用户权益接口测试用例集合",
+    "description": "Prime 模块用户权益功能完整接口测试用例\n\n参数说明：\n- 固定参数直接硬编码在请求中\n- 动态数据（如 uuid、X-Onekey-Request-Token）通过环境变量传递\n- 执行时自动提取响应数据写入环境变量\n\n执行顺序：\n1. 先执行「01-通用接口」获取 uuid\n2. 再执行「02-用户账户」相关接口\n3. 最后执行「03-设备管理」相关接口",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01-通用接口",
+      "description": "获取随机ID、发送验证码等通用接口",
+      "item": [
+        {
+          "name": "01-获取随机ID",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取随机ID');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 uuid 字段', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('uuid');",
+                  "    pm.expect(jsonData.data.uuid).to.be.a('string');",
+                  "    pm.expect(jsonData.data.uuid.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "// ★ 提取 uuid 到环境变量供后续接口使用",
+                  "if (jsonData.data && jsonData.data.uuid) {",
+                  "    pm.environment.set('uuid', jsonData.data.uuid);",
+                  "    console.log('★ 已写入环境变量:');",
+                  "    console.log('  - uuid:', jsonData.data.uuid);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/general/get-random-id",
+              "path": ["prime", "v1", "general", "get-random-id"]
+            }
+          }
+        },
+        {
+          "name": "02-发送邮箱验证码",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 发送邮箱验证码');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 resendAt 字段', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('resendAt');",
+                  "    pm.expect(jsonData.data.resendAt).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"scene\": \"UpdateReabteWithdrawAddress\"}"
+            },
+            "url": {
+              "raw": "/prime/v1/general/emailOTP",
+              "path": ["prime", "v1", "general", "emailOTP"]
+            }
+          }
+        },
+        {
+          "name": "03-获取客服JWT Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取客服JWT Token');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回数据结构正确', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('userId');",
+                  "    pm.expect(jsonData.data).to.have.property('nonce');",
+                  "    pm.expect(jsonData.data).to.have.property('pwdHash');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/general/customer_jwt",
+              "path": ["prime", "v1", "general", "customer_jwt"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-用户账户",
+      "description": "用户信息、登录、登出、注销等账户相关接口",
+      "item": [
+        {
+          "name": "01-获取用户信息",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const token = pm.environment.get('X-Onekey-Request-Token');",
+                  "if (!token) {",
+                  "    console.warn('⚠️ X-Onekey-Request-Token 未设置，需要先登录');",
+                  "}",
+                  "console.log('开始测试: 获取用户信息');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 用户信息响应结构验证",
+                  "pm.test('响应数据结构正确', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              },
+              {
+                "key": "x-onekey-wallet-type",
+                "value": "hd",
+                "type": "text"
+              },
+              {
+                "key": "x-onekey-request-device-name",
+                "value": "Test Device",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/user/info",
+              "path": ["prime", "v1", "user", "info"]
+            }
+          }
+        },
+        {
+          "name": "02-更新用户信息",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const token = pm.environment.get('X-Onekey-Request-Token');",
+                  "if (!token) {",
+                  "    console.warn('⚠️ X-Onekey-Request-Token 未设置，需要先登录');",
+                  "}",
+                  "console.log('开始测试: 更新用户信息');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 success 消息', function() {",
+                  "    pm.expect(jsonData.message).to.eql('success');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nickname\": \"TestUser\", \"avatar\": \"https://example.com/avatar.png\"}"
+            },
+            "url": {
+              "raw": "/prime/v1/user/info",
+              "path": ["prime", "v1", "user", "info"]
+            }
+          }
+        },
+        {
+          "name": "03-获取用户 Nonce",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取用户 Nonce');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 nonce 相关字段', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('userId');",
+                  "    pm.expect(jsonData.data).to.have.property('nonce');",
+                  "    pm.expect(jsonData.data).to.have.property('pwdHash');",
+                  "});",
+                  "",
+                  "pm.test('nonce 是数值类型', function() {",
+                  "    pm.expect(jsonData.data.nonce).to.be.a('number');",
+                  "});",
+                  "",
+                  "// 提取到环境变量",
+                  "if (jsonData.data) {",
+                  "    pm.environment.set('userId', jsonData.data.userId);",
+                  "    pm.environment.set('nonce', jsonData.data.nonce);",
+                  "    pm.environment.set('pwdHash', jsonData.data.pwdHash);",
+                  "    console.log('★ 已写入环境变量:');",
+                  "    console.log('  - userId:', jsonData.data.userId);",
+                  "    console.log('  - nonce:', jsonData.data.nonce);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/user/nonce",
+              "path": ["prime", "v1", "user", "nonce"]
+            }
+          }
+        },
+        {
+          "name": "04-用户登录",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 用户登录');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 5000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 如果登录成功且返回 token，保存到环境变量",
+                  "if (jsonData.data && jsonData.data.token) {",
+                  "    pm.environment.set('X-Onekey-Request-Token', jsonData.data.token);",
+                  "    console.log('★ 已写入环境变量: X-Onekey-Request-Token');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "x-onekey-wallet-type",
+                "value": "hd",
+                "type": "text"
+              },
+              {
+                "key": "x-onekey-request-device-name",
+                "value": "Test Device",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "/prime/v1/user/login",
+              "path": ["prime", "v1", "user", "login"]
+            }
+          }
+        },
+        {
+          "name": "05-用户登出",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const token = pm.environment.get('X-Onekey-Request-Token');",
+                  "if (!token) {",
+                  "    console.warn('⚠️ X-Onekey-Request-Token 未设置，请先执行登录');",
+                  "}",
+                  "console.log('开始测试: 用户登出');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 登出成功后清除 token",
+                  "pm.environment.unset('X-Onekey-Request-Token');",
+                  "console.log('★ 已清除环境变量: X-Onekey-Request-Token');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/user/logout",
+              "path": ["prime", "v1", "user", "logout"]
+            }
+          }
+        },
+        {
+          "name": "06-注销账户",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const uuid = pm.environment.get('uuid');",
+                  "if (!uuid) {",
+                  "    console.warn('⚠️ uuid 未设置，请先执行「01-获取随机ID」');",
+                  "}",
+                  "console.log('开始测试: 注销账户');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "// 注意：此接口为危险操作，需要有效的 emailOTP",
+                  "pm.test('响应包含 code 字段', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"uuid\": \"{{uuid}}\", \"emailOTP\": \"123456\"}"
+            },
+            "url": {
+              "raw": "/prime/v1/user/delete",
+              "path": ["prime", "v1", "user", "delete"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03-设备管理",
+      "description": "设备列表、移除设备、激活设备等接口",
+      "item": [
+        {
+          "name": "01-获取登录设备列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const token = pm.environment.get('X-Onekey-Request-Token');",
+                  "if (!token) {",
+                  "    console.warn('⚠️ X-Onekey-Request-Token 未设置，请先登录');",
+                  "}",
+                  "console.log('开始测试: 获取登录设备列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回数据是数组或对象', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});",
+                  "",
+                  "// 如果有设备数据，提取第一个设备的 instanceId",
+                  "if (jsonData.data && Array.isArray(jsonData.data) && jsonData.data.length > 0) {",
+                  "    const device = jsonData.data[0];",
+                  "    if (device.instanceId) {",
+                  "        pm.environment.set('deviceInstanceId', device.instanceId);",
+                  "        console.log('★ 已写入环境变量: deviceInstanceId =', device.instanceId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/user/devices",
+              "path": ["prime", "v1", "user", "devices"]
+            }
+          }
+        },
+        {
+          "name": "02-激活当前设备 Prime",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const token = pm.environment.get('X-Onekey-Request-Token');",
+                  "if (!token) {",
+                  "    console.warn('⚠️ X-Onekey-Request-Token 未设置，请先登录');",
+                  "}",
+                  "console.log('开始测试: 激活当前设备 Prime');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 5000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              },
+              {
+                "key": "x-onekey-request-device-name",
+                "value": "Test Device",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/user/device/active",
+              "path": ["prime", "v1", "user", "device", "active"]
+            }
+          }
+        },
+        {
+          "name": "03-移除登录设备",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const instanceId = pm.environment.get('deviceInstanceId');",
+                  "if (!instanceId) {",
+                  "    console.warn('⚠️ deviceInstanceId 未设置，请先执行「01-获取登录设备列表」');",
+                  "}",
+                  "console.log('开始测试: 移除登录设备, instanceId:', instanceId);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/user/device/{{deviceInstanceId}}",
+              "path": ["prime", "v1", "user", "device", "{{deviceInstanceId}}"]
+            }
+          }
+        },
+        {
+          "name": "04-上传头像",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const token = pm.environment.get('X-Onekey-Request-Token');",
+                  "if (!token) {",
+                  "    console.warn('⚠️ X-Onekey-Request-Token 未设置，请先登录');",
+                  "}",
+                  "console.log('开始测试: 上传头像');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 10000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(10000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回头像 URL', function() {",
+                  "    pm.expect(jsonData.data).to.be.a('string');",
+                  "    pm.expect(jsonData.data.length).to.be.above(0);",
+                  "});",
+                  "",
+                  "// 保存头像 URL",
+                  "if (jsonData.data) {",
+                  "    pm.environment.set('avatarUrl', jsonData.data);",
+                  "    console.log('★ 已写入环境变量: avatarUrl');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "头像图片文件"
+                }
+              ]
+            },
+            "url": {
+              "raw": "/prime/v1/user/upload-avatar",
+              "path": ["prime", "v1", "user", "upload-avatar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04-边界测试",
+      "description": "缺失参数、无效参数等边界测试",
+      "item": [
+        {
+          "name": "01-获取用户信息-缺少Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取用户信息-缺少Token');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 401', function() {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（需要认证）', function() {",
+                  "    // 缺少 Token 应该返回错误",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/user/info",
+              "path": ["prime", "v1", "user", "info"]
+            }
+          }
+        },
+        {
+          "name": "02-获取用户信息-无效Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取用户信息-无效Token');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 401', function() {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（Token 无效）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "invalid_token_12345",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/user/info",
+              "path": ["prime", "v1", "user", "info"]
+            }
+          }
+        },
+        {
+          "name": "03-注销账户-无效OTP",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 注销账户-无效OTP');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（OTP 无效）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"uuid\": \"test-uuid-12345\", \"emailOTP\": \"000000\"}"
+            },
+            "url": {
+              "raw": "/prime/v1/user/delete",
+              "path": ["prime", "v1", "user", "delete"]
+            }
+          }
+        },
+        {
+          "name": "04-移除设备-无效instanceId",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 移除设备-无效instanceId');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（设备不存在）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Instance-Id",
+                "value": "38457117-2c0d-4a23-abdc-8617155229e9",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "/prime/v1/user/device/invalid-instance-id-12345",
+              "path": ["prime", "v1", "user", "device", "invalid-instance-id-12345"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
