@@ -1,0 +1,3177 @@
+{
+  "info": {
+    "name": "Host Security API 测试用例",
+    "description": "域名安全信息管理接口测试用例集合\n\n包含以下接口：\n- 获取域名安全信息列表\n- 创建域名安全信息\n- 更新域名安全信息\n- 删除域名安全信息\n- 清除host缓存（客户端）\n- 删除host缓存（后台）",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.onekey.so",
+      "type": "string",
+      "description": "API 基础地址"
+    },
+    {
+      "key": "hostSecurityId",
+      "value": "",
+      "type": "string",
+      "description": "动态获取的域名安全信息ID"
+    },
+    {
+      "key": "testHost",
+      "value": "test-domain.example.com",
+      "type": "string",
+      "description": "测试用域名"
+    }
+  ],
+  "item": [
+    {
+      "name": "基础功能测试",
+      "item": [
+        {
+          "name": "获取域名安全信息列表-默认分页",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取域名安全信息列表-默认分页');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('响应包含 data 字段', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});",
+                  "",
+                  "// 仅在 code=0 且 data 不为 null 时验证数据结构",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('data 包含 data 数组', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('data');",
+                  "        pm.expect(jsonData.data.data).to.be.an('array');",
+                  "    });",
+                  "",
+                  "    pm.test('data 包含 count 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('count');",
+                  "        pm.expect(jsonData.data.count).to.be.a('number');",
+                  "    });",
+                  "",
+                  "    // 如果有数据，验证数据结构",
+                  "    if (jsonData.data.data && jsonData.data.data.length > 0) {",
+                  "        const firstItem = jsonData.data.data[0];",
+                  "        ",
+                  "        pm.test('列表项包含必要字段', function() {",
+                  "            pm.expect(firstItem).to.have.property('host');",
+                  "            pm.expect(firstItem).to.have.property('hostSecurityId');",
+                  "            pm.expect(firstItem).to.have.property('riskLevel');",
+                  "            pm.expect(firstItem).to.have.property('isBlackList');",
+                  "            pm.expect(firstItem).to.have.property('isWhiteList');",
+                  "            pm.expect(firstItem).to.have.property('isMalicious');",
+                  "        });",
+                  "        ",
+                  "        pm.test('riskLevel 值合法', function() {",
+                  "            const validLevels = ['high', 'medium', 'low', 'security', 'unknown'];",
+                  "            pm.expect(validLevels).to.include(firstItem.riskLevel);",
+                  "        });",
+                  "        ",
+                  "        // 保存第一个 hostSecurityId 供后续测试使用",
+                  "        pm.collectionVariables.set('hostSecurityId', firstItem.hostSecurityId);",
+                  "        console.log('已保存 hostSecurityId:', firstItem.hostSecurityId);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/list?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", "list"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "获取域名安全信息列表-筛选黑名单",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取域名安全信息列表-筛选黑名单');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 验证返回的都是黑名单",
+                  "if (jsonData.code === 0 && jsonData.data && jsonData.data.data && jsonData.data.data.length > 0) {",
+                  "    pm.test('所有返回项都是黑名单', function() {",
+                  "        jsonData.data.data.forEach(function(item) {",
+                  "            pm.expect(item.isBlackList).to.be.true;",
+                  "        });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/list?page=1&limit=10&isBlack=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", "list"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "isBlack",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "获取域名安全信息列表-筛选白名单",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取域名安全信息列表-筛选白名单');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 验证返回的都是白名单",
+                  "if (jsonData.code === 0 && jsonData.data && jsonData.data.data && jsonData.data.data.length > 0) {",
+                  "    pm.test('所有返回项都是白名单', function() {",
+                  "        jsonData.data.data.forEach(function(item) {",
+                  "            pm.expect(item.isWhiteList).to.be.true;",
+                  "        });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/list?page=1&limit=10&isWhite=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", "list"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "isWhite",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "获取域名安全信息列表-关键字搜索",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取域名安全信息列表-关键字搜索');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 验证搜索结果包含关键字",
+                  "if (jsonData.code === 0 && jsonData.data && jsonData.data.data && jsonData.data.data.length > 0) {",
+                  "    pm.test('搜索结果包含关键字', function() {",
+                  "        jsonData.data.data.forEach(function(item) {",
+                  "            const hostLower = item.host.toLowerCase();",
+                  "            pm.expect(hostLower).to.include('crypto');",
+                  "        });",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/list?page=1&limit=10&search=crypto",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", "list"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "crypto"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CRUD 操作测试",
+      "item": [
+        {
+          "name": "创建域名安全信息-仅host",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "// 生成唯一测试域名",
+                  "const timestamp = Date.now();",
+                  "pm.variables.set('uniqueTestHost', 'test-' + timestamp + '.example.com');",
+                  "console.log('开始测试: 创建域名安全信息-仅host');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 仅在 code=0 且 data 不为 null 时验证数据结构",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('返回 hostSecurityId', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('hostSecurityId');",
+                  "        pm.expect(jsonData.data.hostSecurityId).to.be.a('string');",
+                  "    });",
+                  "",
+                  "    pm.test('返回 host 与请求一致', function() {",
+                  "        pm.expect(jsonData.data.host).to.include('test-');",
+                  "    });",
+                  "",
+                  "    pm.test('默认不是黑名单或白名单', function() {",
+                  "        pm.expect(jsonData.data.isBlackList).to.be.false;",
+                  "        pm.expect(jsonData.data.isWhiteList).to.be.false;",
+                  "    });",
+                  "",
+                  "    // 保存 hostSecurityId 供后续测试使用",
+                  "    pm.collectionVariables.set('createdHostSecurityId', jsonData.data.hostSecurityId);",
+                  "    console.log('已保存 createdHostSecurityId:', jsonData.data.hostSecurityId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"host\": \"{{uniqueTestHost}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "创建域名安全信息-设为黑名单",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const timestamp = Date.now();",
+                  "pm.variables.set('blacklistTestHost', 'blacklist-' + timestamp + '.example.com');",
+                  "console.log('开始测试: 创建域名安全信息-设为黑名单');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 仅在 code=0 且 data 不为 null 时验证数据结构",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('isBlackList 为 true', function() {",
+                  "        pm.expect(jsonData.data.isBlackList).to.be.true;",
+                  "    });",
+                  "",
+                  "    pm.test('isWhiteList 为 false', function() {",
+                  "        pm.expect(jsonData.data.isWhiteList).to.be.false;",
+                  "    });",
+                  "",
+                  "    // 保存供删除测试使用",
+                  "    pm.collectionVariables.set('blacklistHostSecurityId', jsonData.data.hostSecurityId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"host\": \"{{blacklistTestHost}}\",\n  \"isBlackList\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "创建域名安全信息-设为白名单",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const timestamp = Date.now();",
+                  "pm.variables.set('whitelistTestHost', 'whitelist-' + timestamp + '.example.com');",
+                  "console.log('开始测试: 创建域名安全信息-设为白名单');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 仅在 code=0 且 data 不为 null 时验证数据结构",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('isWhiteList 为 true', function() {",
+                  "        pm.expect(jsonData.data.isWhiteList).to.be.true;",
+                  "    });",
+                  "",
+                  "    pm.test('isBlackList 为 false', function() {",
+                  "        pm.expect(jsonData.data.isBlackList).to.be.false;",
+                  "    });",
+                  "",
+                  "    // 保存供删除测试使用",
+                  "    pm.collectionVariables.set('whitelistHostSecurityId', jsonData.data.hostSecurityId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"host\": \"{{whitelistTestHost}}\",\n  \"isWhiteList\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "更新域名安全信息-改为黑名单",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 更新域名安全信息-改为黑名单');",
+                  "",
+                  "const hostSecurityId = pm.collectionVariables.get('createdHostSecurityId');",
+                  "if (!hostSecurityId) {",
+                  "    console.warn('警告: createdHostSecurityId 未设置，请先执行创建接口');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 仅在 code=0 且 data 不为 null 时验证数据结构",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('isBlackList 已更新为 true', function() {",
+                  "        pm.expect(jsonData.data.isBlackList).to.be.true;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hostSecurityId\": \"{{createdHostSecurityId}}\",\n  \"isBlackList\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "更新域名安全信息-改为白名单",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 更新域名安全信息-改为白名单');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 仅在 code=0 且 data 不为 null 时验证数据结构",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('isWhiteList 已更新为 true', function() {",
+                  "        pm.expect(jsonData.data.isWhiteList).to.be.true;",
+                  "    });",
+                  "",
+                  "    pm.test('isBlackList 已更新为 false', function() {",
+                  "        pm.expect(jsonData.data.isBlackList).to.be.false;",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hostSecurityId\": \"{{createdHostSecurityId}}\",\n  \"isWhiteList\": true,\n  \"isBlackList\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "删除域名安全信息",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 删除域名安全信息');",
+                  "",
+                  "const hostSecurityId = pm.collectionVariables.get('createdHostSecurityId');",
+                  "if (!hostSecurityId) {",
+                  "    console.warn('警告: createdHostSecurityId 未设置，请先执行创建接口');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "// 清理已保存的变量",
+                  "pm.collectionVariables.unset('createdHostSecurityId');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/?id={{createdHostSecurityId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{createdHostSecurityId}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "缓存操作测试",
+      "item": [
+        {
+          "name": "清除host缓存-客户端接口",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 清除host缓存-客户端接口');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/host-security/reset-cache?host=example.com",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "host-security", "reset-cache"],
+              "query": [
+                {
+                  "key": "host",
+                  "value": "example.com"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "删除host缓存-后台接口-指定host",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 删除host缓存-后台接口-指定host');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/reset-cache?host=example.com",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", "reset-cache"],
+              "query": [
+                {
+                  "key": "host",
+                  "value": "example.com"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "删除host缓存-后台接口-不指定host",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 删除host缓存-后台接口-不指定host');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/reset-cache",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", "reset-cache"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "边界测试",
+      "item": [
+        {
+          "name": "创建域名-缺失必填参数host",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 创建域名-缺失必填参数host');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 400', function() {",
+                  "    pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（应返回错误）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isBlackList\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "创建域名-host为空字符串",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 创建域名-host为空字符串');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 400', function() {",
+                  "    pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（应返回错误）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"host\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "更新域名-缺失必填参数hostSecurityId",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 更新域名-缺失必填参数hostSecurityId');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 400', function() {",
+                  "    pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（应返回错误）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isBlackList\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "更新域名-无效的hostSecurityId",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 更新域名-无效的hostSecurityId');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 400 或 404', function() {",
+                  "    pm.expect([200, 400, 404]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（应返回错误）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hostSecurityId\": \"invalid-uuid-12345\",\n  \"isBlackList\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "删除域名-缺失必填参数id",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 删除域名-缺失必填参数id');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 400', function() {",
+                  "    pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "// 根据实际 API 行为调整断言",
+                  "// 有些 API 缺失参数会返回 code != 0",
+                  "try {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.code !== undefined) {",
+                  "        pm.test('业务状态码不为 0（应返回错误）', function() {",
+                  "            pm.expect(jsonData.code).to.not.eql(0);",
+                  "        });",
+                  "    }",
+                  "} catch(e) {",
+                  "    // 如果响应不是 JSON，跳过",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""]
+            }
+          }
+        },
+        {
+          "name": "删除域名-无效的id",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 删除域名-无效的id');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 400 或 404', function() {",
+                  "    pm.expect([200, 400, 404]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/?id=invalid-uuid-12345",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "invalid-uuid-12345"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "清除缓存-客户端-缺失必填参数host",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 清除缓存-客户端-缺失必填参数host');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 400', function() {",
+                  "    pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "try {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.code !== undefined) {",
+                  "        pm.test('业务状态码不为 0（应返回错误）', function() {",
+                  "            pm.expect(jsonData.code).to.not.eql(0);",
+                  "        });",
+                  "    }",
+                  "} catch(e) {",
+                  "    // 如果响应不是 JSON，跳过",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/host-security/reset-cache",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "host-security", "reset-cache"]
+            }
+          }
+        },
+        {
+          "name": "列表查询-分页边界-page为0",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 列表查询-分页边界-page为0');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "// page=0 可能被当作 page=1 处理，或返回错误",
+                  "pm.test('响应正常处理', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/list?page=0&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", "list"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "列表查询-分页边界-limit为负数",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 列表查询-分页边界-limit为负数');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 400', function() {",
+                  "    pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('响应正常处理', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/list?page=1&limit=-1",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", "list"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "-1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "清理测试数据",
+      "item": [
+        {
+          "name": "清理-删除黑名单测试数据",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('开始清理: 删除黑名单测试数据');",
+                  "const id = pm.collectionVariables.get('blacklistHostSecurityId');",
+                  "if (!id) {",
+                  "    console.log('blacklistHostSecurityId 未设置，跳过清理');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('清理完成', function() {",
+                  "    pm.expect([200, 400, 404]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.unset('blacklistHostSecurityId');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/?id={{blacklistHostSecurityId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{blacklistHostSecurityId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "清理-删除白名单测试数据",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('开始清理: 删除白名单测试数据');",
+                  "const id = pm.collectionVariables.get('whitelistHostSecurityId');",
+                  "if (!id) {",
+                  "    console.log('whitelistHostSecurityId 未设置，跳过清理');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('清理完成', function() {",
+                  "    pm.expect([200, 400, 404]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.collectionVariables.unset('whitelistHostSecurityId');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              },
+              {
+                "key": "X-Onekey-Request-Token",
+                "value": "{{X-Onekey-Request-Token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/v1/host-security/?id={{whitelistHostSecurityId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "v1", "host-security", ""],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{whitelistHostSecurityId}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "检索域名安全信息-专项测试",
+      "item": [
+        {
+          "name": "安全网站",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 安全网站');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('返回 host 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('host');",
+                  "    });",
+                  "",
+                  "    pm.test('返回 level 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('level');",
+                  "    });",
+                  "",
+                  "    pm.test('安全网站 level 应为 security', function() {",
+                  "        pm.expect(jsonData.data.level).to.eql('security');",
+                  "    });",
+                  "",
+                  "    pm.test('不是钓鱼网站', function() {",
+                  "        pm.expect(jsonData.data.phishingSite).to.be.false;",
+                  "    });",
+                  "",
+                  "    pm.test('attackTypes 为空或长度为0', function() {",
+                  "        pm.expect(jsonData.data.attackTypes).to.be.an('array');",
+                  "        pm.expect(jsonData.data.attackTypes.length).to.eql(0);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=https://app.uniswap.org&from=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": "https://app.uniswap.org"
+                },
+                {
+                  "key": "from",
+                  "value": "app"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "钓鱼网站",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 钓鱼网站');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('返回 host 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('host');",
+                  "    });",
+                  "",
+                  "    pm.test('返回 level 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('level');",
+                  "    });",
+                  "",
+                  "    pm.test('钓鱼网站 level 应为 high', function() {",
+                  "        pm.expect(jsonData.data.level).to.eql('high');",
+                  "    });",
+                  "",
+                  "    pm.test('phishingSite 应为 true', function() {",
+                  "        pm.expect(jsonData.data.phishingSite).to.be.true;",
+                  "    });",
+                  "",
+                  "    pm.test('应包含 alert 提醒文案', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('alert');",
+                  "        pm.expect(jsonData.data.alert).to.be.a('string');",
+                  "        pm.expect(jsonData.data.alert.length).to.be.above(0);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=https://metamask-io.phishing.example&from=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": "https://metamask-io.phishing.example"
+                },
+                {
+                  "key": "from",
+                  "value": "app"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "恶意网站",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 恶意网站');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('返回 host 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('host');",
+                  "    });",
+                  "",
+                  "    pm.test('恶意网站 level 应为 high', function() {",
+                  "        pm.expect(jsonData.data.level).to.eql('high');",
+                  "    });",
+                  "",
+                  "    pm.test('attackTypes 应包含攻击类型', function() {",
+                  "        pm.expect(jsonData.data.attackTypes).to.be.an('array');",
+                  "        pm.expect(jsonData.data.attackTypes.length).to.be.above(0);",
+                  "    });",
+                  "",
+                  "    if (jsonData.data.attackTypes && jsonData.data.attackTypes.length > 0) {",
+                  "        pm.test('attackTypes 结构正确', function() {",
+                  "            const firstAttack = jsonData.data.attackTypes[0];",
+                  "            pm.expect(firstAttack).to.have.property('name');",
+                  "            pm.expect(firstAttack).to.have.property('description');",
+                  "        });",
+                  "    }",
+                  "",
+                  "    pm.test('应包含 alert 提醒文案', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('alert');",
+                  "        pm.expect(jsonData.data.alert.length).to.be.above(0);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=https://cryptodoggies.xyz&from=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": "https://cryptodoggies.xyz"
+                },
+                {
+                  "key": "from",
+                  "value": "app"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "不安全的HTTP连接",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 不安全的HTTP连接');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('返回 host 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('host');",
+                  "    });",
+                  "",
+                  "    pm.test('HTTP连接 level 应为 medium 或 high', function() {",
+                  "        const validLevels = ['medium', 'high'];",
+                  "        pm.expect(validLevels).to.include(jsonData.data.level);",
+                  "    });",
+                  "",
+                  "    pm.test('应包含 alert 提醒文案', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('alert');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=http://app.sablier.com/&from=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": "http://app.sablier.com/"
+                },
+                {
+                  "key": "from",
+                  "value": "app"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "包含特殊字符",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 包含特殊字符');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('返回 host 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('host');",
+                  "    });",
+                  "",
+                  "    pm.test('返回 level 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('level');",
+                  "        const validLevels = ['high', 'medium', 'low', 'security', 'unknown'];",
+                  "        pm.expect(validLevels).to.include(jsonData.data.level);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=https://example.com/%E4%B8%AD%E6%96%87?param=test&foo=bar&from=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": "https://example.com/%E4%B8%AD%E6%96%87?param=test&foo=bar"
+                },
+                {
+                  "key": "from",
+                  "value": "app"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "疑似恶意行为",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 疑似恶意行为');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('返回 host 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('host');",
+                  "    });",
+                  "",
+                  "    pm.test('疑似恶意行为 level 应为 medium', function() {",
+                  "        pm.expect(jsonData.data.level).to.eql('medium');",
+                  "    });",
+                  "",
+                  "    pm.test('应包含 checkSources 检测源', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('checkSources');",
+                  "        pm.expect(jsonData.data.checkSources).to.be.an('array');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=https://swarm.city&from=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": "https://swarm.city"
+                },
+                {
+                  "key": "from",
+                  "value": "app"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "已认证的网站",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 已认证的网站');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('返回 host 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('host');",
+                  "    });",
+                  "",
+                  "    pm.test('已认证网站 level 应为 security', function() {",
+                  "        pm.expect(jsonData.data.level).to.eql('security');",
+                  "    });",
+                  "",
+                  "    pm.test('不是钓鱼网站', function() {",
+                  "        pm.expect(jsonData.data.phishingSite).to.be.false;",
+                  "    });",
+                  "",
+                  "    pm.test('无攻击类型', function() {",
+                  "        pm.expect(jsonData.data.attackTypes).to.be.an('array');",
+                  "        pm.expect(jsonData.data.attackTypes.length).to.eql(0);",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=https://opensea.io&from=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": "https://opensea.io"
+                },
+                {
+                  "key": "from",
+                  "value": "app"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "未认证的网站",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 未认证的网站');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('返回 host 字段', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('host');",
+                  "    });",
+                  "",
+                  "    pm.test('未认证网站 level 应为 unknown', function() {",
+                  "        pm.expect(jsonData.data.level).to.eql('unknown');",
+                  "    });",
+                  "",
+                  "    pm.test('返回 checkSources 检测源', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('checkSources');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=https://random-unknown-site-12345.com&from=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": "https://random-unknown-site-12345.com"
+                },
+                {
+                  "key": "from",
+                  "value": "app"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "from参数-script来源",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: from参数-script来源');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "if (jsonData.code === 0 && jsonData.data !== null) {",
+                  "    pm.test('script 来源返回正常', function() {",
+                  "        pm.expect(jsonData.data).to.have.property('host');",
+                  "        pm.expect(jsonData.data).to.have.property('level');",
+                  "    });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=https://app.uniswap.org&from=script",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": "https://app.uniswap.org"
+                },
+                {
+                  "key": "from",
+                  "value": "script"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "边界-url为空",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 边界-url为空');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "// url 为空时可能返回错误或特定处理",
+                  "pm.test('响应包含 code 字段', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{$guid}}"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "5.19.0"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2000000000"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/utility/v1/discover/check-host?url=&from=app",
+              "host": ["{{baseUrl}}"],
+              "path": ["utility", "v1", "discover", "check-host"],
+              "query": [
+                {
+                  "key": "url",
+                  "value": ""
+                },
+                {
+                  "key": "from",
+                  "value": "app"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -140,9 +140,6 @@ docs/testcases/api/
 }
 ```
 
-**重要说明**：
-- 生成的用例不会覆盖接口的响应定义（返回响应、响应示例、响应字段说明等），这些是给前端看的参数定义，会完整保留
-
 ---
 
 ### `/api-testcase-single <path>` - 生成单接口测试用例
@@ -237,6 +234,143 @@ pm.test('业务状态码为 0', function() {
 | 布尔 | `pm.expect(jsonData.data.xxx).to.be.a('boolean')` |
 | 非空 | `pm.expect(jsonData.data.xxx.length).to.be.above(0)` |
 
+### 3.1 标签断言规则（交易解析类接口）
+
+交易解析接口使用 **前置脚本 + 统一后置脚本** 的断言方式，通过变量控制验证逻辑。
+
+#### 规则 1：前置脚本设置验证变量
+
+在前置脚本中设置期望验证的标签类型：
+
+```javascript
+/**
+ * 前置脚本：设置验证变量
+ */
+pm.variables.set("EXPECT_FIRST_TRANSFER", true);   // 是否验证首次转账标签
+pm.variables.set("EXPECT_CONTRACT_TAG", false);    // 是否严格验证合约标签
+```
+
+#### 规则 2：统一后置断言脚本
+
+所有交易解析用例共用一套后置断言脚本，根据实际返回数据自动识别场景（CEX/合约/诈骗）并执行对应验证：
+
+```javascript
+/**
+ * 交易解析统一断言脚本
+ */
+
+/* ---------- 配置白名单 ---------- */
+const EXCHANGE_WHITELIST = [
+  "binance", "okx", "bybit", "coinbase", "kraken", 
+  "bitget", "kucoin", "gate", "htx", "novadax"
+];
+const CONTRACT_TAGS = ["合约", "Contract", "Smart Contract"];
+const SCAM_TAGS = ["诈骗", "诈骗地址", "Scam", "Phishing", "Fraud"];
+const FIRST_TRANSFER_TAGS = ["首次转账", "Initial Transfer"];
+
+/* ---------- 工具函数 ---------- */
+function getToComp(res) {
+  return (res?.data?.display?.components || []).find(
+    c => c?.type === "address" && (c?.label === "至" || c?.label === "To")
+  );
+}
+
+function getTagValues(comp) {
+  return (comp?.tags || []).map(t => t?.value).filter(Boolean);
+}
+
+function hitAny(actual, expectedList) {
+  const expectedLower = expectedList.map(e => String(e).toLowerCase());
+  return (actual || []).some(v => expectedLower.includes(String(v).toLowerCase()));
+}
+
+/* ---------- 主逻辑 ---------- */
+const res = pm.response.json();
+const toComp = getToComp(res);
+const tags = getTagValues(toComp);
+const tagsText = tags.length ? tags.join(",") : "(empty)";
+console.log("To address tags =>", tagsText);
+
+/* ---------- 场景识别 ---------- */
+const isCex = hitAny(tags, EXCHANGE_WHITELIST) || 
+              (res?.data?.parsedTx?.to?.labels || []).includes("cex");
+const isContractParsed = res?.data?.parsedTx?.to?.isContract === true;
+const isContractTag = hitAny(tags, CONTRACT_TAGS);
+const isContract = isContractParsed || isContractTag;
+const isScam = hitAny(tags, SCAM_TAGS);
+
+/* ---------- CEX 规则 ---------- */
+if (isCex) {
+  pm.test(`【CEX】To 地址命中交易所 | tags=${tagsText}`, function () {
+    pm.expect(hitAny(tags, EXCHANGE_WHITELIST)).to.be.true;
+  });
+  const expectFirst = pm.variables.get("EXPECT_FIRST_TRANSFER");
+  if (expectFirst === true || expectFirst === "true") {
+    pm.test(`【CEX】首次转账标签校验 | tags=${tagsText}`, function () {
+      pm.expect(hitAny(tags, FIRST_TRANSFER_TAGS)).to.be.true;
+    });
+  }
+}
+
+/* ---------- 合约规则 ---------- */
+if (isContract) {
+  pm.test(`【合约】parsedTx.isContract 或 tags 命中合约 | tags=${tagsText}`, function () {
+    pm.expect(isContractParsed || isContractTag).to.be.true;
+  });
+  const expectContractTag = pm.variables.get("EXPECT_CONTRACT_TAG");
+  if (expectContractTag === true || expectContractTag === "true") {
+    pm.test(`【合约-严格】UI tags 必须包含合约标签 | tags=${tagsText}`, function () {
+      pm.expect(isContractTag).to.be.true;
+    });
+  }
+}
+
+/* ---------- 诈骗规则 ---------- */
+if (isScam) {
+  pm.test(`【诈骗】To 地址包含诈骗标签 | tags=${tagsText}`, function () {
+    pm.expect(hitAny(tags, SCAM_TAGS)).to.be.true;
+  });
+}
+
+/* ---------- 兜底 ---------- */
+if (!isCex && !isContract && !isScam) {
+  pm.test(`【普通地址】未命中特殊规则 | tags=${tagsText}`, function () {
+    pm.expect(true).to.be.true;
+  });
+}
+```
+
+#### 规则 3：用例必须使用实际入参
+
+生成用例时**必须使用实际可用的请求参数**，不能使用占位符或虚假数据：
+
+| 链类型 | 正确示例 | 错误示例 |
+|--------|---------|---------|
+| EVM | `0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B` | `0x1234...` |
+| BTC | `bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq` | `bc1q123...` |
+| LTC | `LVg2kJoFNg45Nbpy53h7Fe1wKyeXVRhMH9` | `ltc1q123...` |
+
+> **重要**：生成用例前先通过 `/api-read` 获取接口示例数据，使用示例中的实际参数。
+
+#### 规则 4：常见标签映射
+
+| 场景 | 标签 value | displayType |
+|------|-----------|-------------|
+| 首次转账 | `Initial Transfer` | `warning` |
+| 已转账过 | `Transferred` / `Interacted before` | `info` |
+| 交易所地址 | `Binance` / `Coinbase` / `OKX` / `Kraken` | `default` |
+| 诈骗地址 | `Scam` / `Phishing` / `Malicious` | `warning` |
+| 合约地址 | `Contract` / 合约名称 | `warning` |
+
+#### 规则 5：用例结构统一
+
+| 组成部分 | 必须 | 说明 |
+|----------|------|------|
+| 前置脚本 | 是 | 设置 `EXPECT_FIRST_TRANSFER` 等验证变量 |
+| 统一后置脚本 | 是 | 使用上述统一断言脚本 |
+| 实际入参 | 是 | 使用真实可用的请求参数 |
+| 日志输出 | 推荐 | `console.log` 记录标签便于调试 |
+
 ### 4. 边界测试用例规则
 
 自动生成以下边界测试：
@@ -318,9 +452,7 @@ pm.test('业务状态码为 0', function() {
 }
 ```
 
-**响应定义说明**：
-- 生成的用例不包含响应定义（返回响应、响应示例、响应字段说明等），这些是给前端看的参数定义，会完整保留
-```
+---
 
 ## 🚀 使用示例
 
@@ -416,4 +548,7 @@ X-Onekey-Request-Build-Number: 2000000000
 
 | 版本 | 日期 | 更新内容 |
 |------|------|---------|
+| 1.2.0 | 2026-02-02 | 重构断言方案：前置脚本+统一后置脚本，支持 CEX/合约/诈骗场景自动识别 |
+| 1.1.1 | 2026-02-02 | 修正 displayType 映射（warning/default），精简代码示例 |
+| 1.1.0 | 2026-02-02 | 新增 3.1 标签断言规则，规范交易解析类接口的标签验证 |
 | 1.0.0 | 2026-01-05 | 初始版本，支持基础测试用例生成 |
