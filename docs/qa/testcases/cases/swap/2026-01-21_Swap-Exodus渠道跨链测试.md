@@ -3,10 +3,10 @@
 
 ## 测试范围说明
 
-**Exodus 渠道支持网络**：BTC、Optimism、Arbitrum、Ethereum、Base、BSC、Solana、Cardano、Avalanche、Polygon
+**Exodus 渠道跨链支持网络**：BTC、Doge、LTC、Optimism、Arbitrum、Ethereum、Base、BSC、Solana、Avalanche、Polygon、Fantom、Ripple、Tron、TON、SUI
 
 **测试覆盖要求**：
-- 兑换类型：主币到主币、主币到代币、代币到主币、代币到代币（4 种类型）
+- 兑换类型：在上述跨链网络组合中至少覆盖主币→主币、主币→代币、代币→主币、代币→代币（4 种类型）
 - 金额测试：最小值、中间值、最大值
 - 账户类型：软件钱包、硬件钱包
 - 测试路线：报价测试、构建订单测试、手续费测试、历史记录测试
