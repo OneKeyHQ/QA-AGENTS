@@ -362,6 +362,44 @@
 
 生成 Swap 模块测试用例时，必须根据不同的 Swap 渠道覆盖其支持的网络。各渠道支持的网络如下：
 
+**渠道与 provider 映射表**（编写 API 用例时，请求体/断言中的 `provider` 必须按下表取值，不得自拟）：
+
+| 渠道 | provider |
+|------|----------|
+| 0x | `Swap0x` |
+| 1inch | `Swap1inch` |
+| 1inch Fusion | `Swap1inchFusion` |
+| Jupiter | `SwapJupiter` |
+| OKX | `SwapOKX` |
+| CowSwap | `SwapCow` |
+| Panora | `SwapPanora` |
+| LiquidMesh | `SwapLiquidMesh` |
+| LiFi | `SwapLifi` |
+| Near | `SwapNear` |
+| Changelly | `SwapChangelly` |
+| ChangeHero | `SwapChangeHero` |
+| SwapKit（ThorChain） | `SwapThor` |
+
+**渠道构建依赖规则（quoteResultCtx）**：
+- 部分渠道的构建接口（`POST /swap/v1/build-tx`）**必须依赖询价返回的上下文**（如 `quoteResultCtx` / 内部 quoteId / CowSwap 未签名订单等），不能只靠静态字段拼 body。
+- 编写任意渠道的构建用例前，必须先根据下表确认**是否需要传 `quoteResultCtx`**：
+
+| 是否需要 quoteResultCtx | 渠道 | 说明 |
+|------------------------|------|------|
+| ✅ 需要 | LiFi (`SwapLifi`) | 构建依赖前一步跨链询价结果（内部路径/quoteId 等） |
+| ✅ 需要 | Changelly (`SwapChangelly`) | 构建依赖 Changelly 侧 quote 上下文 |
+| ✅ 需要 | ChangeHero (`SwapChangeHero`) | 构建依赖 ChangeHero 侧 quote 上下文 |
+| ✅ 需要 | 1inch Fusion (`Swap1inchFusion`) | 必须先 quote，使用返回的 `quoteResultCtx` 进行 Fusion 构建 |
+| ✅ 需要 | CowSwap (`SwapCow`) | 必须携带 CowSwap 询价返回的 `quoteResultCtx`（包括 unsignedOrder、appData、quoteId、签名等） |
+| ❌ 不需要 | 0x (`Swap0x`) | 仅依赖静态参数（from/to/tokenAmount/network/provider/slippage 等） |
+| ❌ 不需要 | 1inch (`Swap1inch`) | 普通 1inch 构建不需要 quoteResultCtx，按静态参数构建 |
+| ❌ 不需要 | OKX (`SwapOKX`) | 构建按静态参数+provider 即可 |
+| ❌ 不需要 | ThorSwap / SwapKit（`SwapThor`） | 由 SwapKit 封装，当前构建按静态参数处理 |
+| ❌ 不需要 | Panora (`SwapPanora`) | Aptos Panora 构建按静态参数处理 |
+| ❌ 不需要 | Jupiter (`SwapJupiter`) | Solana Jupiter 构建按静态参数处理，但必须返回 `data.tx` |
+
+> 规则：生成构建用例时，先根据渠道名查本表——**需要 quoteResultCtx 的渠道**，用例必须先说明「前置询价 + 提取 quoteResultCtx」或直接使用真实 quoteResultCtx 示例；**不需要的渠道**则禁止伪造无效 quoteResultCtx 字段，保持 body 简洁一致。
+
 #### 同链聚合器（DEX Aggregator）
 
 **0x**：
@@ -465,6 +503,49 @@
 #### 4. 网络特定规则测试
 
 **重要说明**：详细的网络特性表请参考 `docs/rules/swap-network-features.md`，包含所有支持网络的详细特性（主币信息、授权要求、交易费单位、特殊规则等）。
+
+**用户地址（userAddress）规则**：
+- 为保证不同渠道、不同网络下的 API 用例一致复用，这里维护一份「按网络/地址类型划分的测试用户地址表」。
+- 所有 Swap 相关 API 用例（0x / 1inch / Jupiter / CowSwap / OKX / Panora / ThorChain / Changelly 等），在同一网络/地址类型下必须共用同一个 `userAddress` / `receivingAddress`。
+
+| 网络 / 类型 | userAddress / receivingAddress | 说明 |
+|------------|--------------------------------|------|
+| EVM（Ethereum / BSC / Polygon / Arbitrum / Optimism / Base / Avalanche 等） | `0x4EF880525383ab4E3d94b7689e3146bF899A296e` | 统一 EVM 测试地址，所有 EVM 渠道共用 |
+| Tron | `TC6LJQFu9Ji7CRNNwBwLjsVRne3yfyYozz` | TRC20 / TRX 测试地址 |
+| Solana | `CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ` | Solana/SPL 测试地址（Jupiter 等） |
+| TON | `UQBRIGeMl7e7rAKeWZAQww3G0iaiL6H0naMP9qHQqZdqyXJi` | TON 主网测试地址 |
+| Aptos | `0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc` | Aptos/Panora 测试地址 |
+| Near | `2a6c28047e3e7d4aab0f31f56db3b54623d0a983c3168f74fd052a5c4481f3cd` | Near 测试地址 |
+| SUI | `0x941c5346003a695b5a5d2c176e60e15ab8172e58c16adae3e634eb4e54541297` | SUI 测试地址 |
+| Dogecoin | `DDCnuDbHbvYsz3BaYx9H3dwAu2d2AzuAMJ` | DOGE UTXO 地址 |
+| Bitcoin Cash | `bitcoincash:qqz4mx4h9t5ux9vjgjj4fefyrrv3a56gqujx8jz6fy` | BCH 地址 |
+| Bitcoin Taproot | `bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc` | BTC Taproot 地址 |
+| Bitcoin Nested SegWit | `3CPcZhXh8fkaVrvX8LPxhpHzecS8AMUZ8H` | BTC P2SH-P2WPKH 地址 |
+| Bitcoin Native SegWit | `3CPcZhXh8fkaVrvX8LPxhpHzecS8AMUZ8H` | BTC Bech32 测试（如需专用地址可后续拆分） |
+| Bitcoin Legacy | `3CPcZhXh8fkaVrvX8LPxhpHzecS8AMUZ8H` | BTC Legacy 测试（同上，可后续拆分） |
+| Litecoin Nested SegWit | `MS6rq9UZenRGgfZe9AWUP1Uy9LVSGa8Wb9` | LTC P2SH-P2WPKH 地址 |
+| Litecoin Native SegWit | `ltc1qnfw5td47d7euedp22aca8068s7fmpp3pelca7d` | LTC Bech32 地址 |
+| Litecoin Legacy | `LLDxVgko1QChSend8YB9HwZ3tvMhhGTA9F` | LTC Legacy 地址 |
+
+> 规则：编写任意渠道的 Swap 用例时，`userAddress` 与 `receivingAddress` 必须从上表按网络（以及 BTC/LTC 的地址类型）选择，不得自定义随机地址，避免不同文件间不一致。
+
+**代币合约地址规则**：
+- 不同网络常用代币的合约地址在本节中维护，**生成测试用例时必须从表中选取**，避免临时手填导致不一致
+- **代币<>代币场景禁止使用同一个合约地址**，如 USDC→USDC 不允许，需使用 USDC→USDT 或 USDT→USDC 等组合
+
+| 网络 | 代币 | 类型 | 合约地址 / Mint |
+|------|------|------|-----------------|
+| Solana | SOL | 主币 | `native`（无合约地址，使用账户地址+lamports） |
+| Solana | USDC | 代币 | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
+| Solana | USDT | 代币 | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB` |
+| Aptos | APT | 主币 | `0x1::aptos_coin::AptosCoin` |
+| Aptos | USDC | 代币 | `0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b` |
+| Aptos | USDT | 代币 | `0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b` |
+| SUI | SUI | 主币 | `0x2::sui::SUI` |
+
+> 生成 Jupiter、Panora 等异构链渠道的用例时：  
+> - 主币<>代币场景：主币使用上表主币标识（如 Aptos APT 用 `0x1::aptos_coin::AptosCoin`，SUI 主币用 `0x2::sui::SUI`，Solana 主币保持空字符串）。  
+> - 「代币<>代币」用例应优先使用上表中的 USDC/USDT 组合，确保 `fromTokenAddress` 与 `toTokenAddress` 不同。
 
 **EVM 兼容链**（Ethereum、BSC、Polygon、Arbitrum、Optimism、Base、Avalanche、zkSync Era、Linea、Mantle、Scroll、Blast、Sonic 等）：
 - Gas 费计算（wei 单位）

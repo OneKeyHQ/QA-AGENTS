@@ -1,0 +1,487 @@
+{
+  "info": {
+    "name": "Swap 1inch - 按兑换类型（网络为变量）",
+    "description": "以兑换类型为维度：主币<>代币、代币<>主币、代币<>代币。每条用例内用 testCases 数组覆盖多个网络，网络与 token 地址直接在脚本中维护。\n\n- 01-1inch-询价：3 条（每条内循环请求多网络）\n- 02-1inch-构建：3 条（同上）",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "requestId",
+      "value": "{{$guid}}",
+      "type": "string"
+    },
+    {
+      "key": "baseUrl",
+      "value": "https://swap.onekeytest.com",
+      "type": "string"
+    },
+    {
+      "key": "userAddress",
+      "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01-1inch-询价",
+      "item": [
+        {
+          "name": "Quote - 1inch - 主币<>代币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [\n  {\n    \"name\": \"Ethereum.ETH 1 → USDC\",\n    \"params\": {\n      \"fromTokenAddress\": \"\",\n      \"toTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"fromTokenAmount\": \"1\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Polygon 10 POL → USDC\",\n    \"params\": {\n      \"fromTokenAddress\": \"\",\n      \"toTokenAddress\": \"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--137\",\n      \"toNetworkId\": \"evm--137\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Arbitrum.ETH 1 → USDC\",\n    \"params\": {\n      \"fromTokenAddress\": \"\",\n      \"toTokenAddress\": \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\",\n      \"fromTokenAmount\": \"1\",\n      \"fromNetworkId\": \"evm--42161\",\n      \"toNetworkId\": \"evm--42161\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  }\n];",
+                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
+                  "const headers = { \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"android-apk\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\" };",
+                  "function buildQuery(params) { return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; pm.sendRequest({ url: BASE_URL+'?'+buildQuery(c.params), method: 'GET', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }) }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); var json=res.json(); pm.test('['+c.name+'] 业务码 0', function(){ pm.expect(json.code).to.eql(0); }); var d=json.data; pm.test('['+c.name+'] 含 1inch 报价', function(){ var hit=(d||[]).some(function(x){ return x.info&&x.info.provider&&String(x.info.provider).toLowerCase().indexOf('1inch')>=0; }); pm.expect(hit).to.equal(true); }); runCase(i+1); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=&toTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&fromTokenAmount=1&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                {"key": "fromTokenAddress", "value": ""},
+                {"key": "toTokenAddress", "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"},
+                {"key": "fromTokenAmount", "value": "1"},
+                {"key": "fromNetworkId", "value": "evm--1"},
+                {"key": "toNetworkId", "value": "evm--1"},
+                {"key": "protocol", "value": "Swap"},
+                {"key": "userAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
+                {"key": "slippagePercentage", "value": "0.5"},
+                {"key": "autoSlippage", "value": "true"},
+                {"key": "receivingAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
+                {"key": "kind", "value": "sell"},
+                {"key": "toTokenAmount", "value": ""},
+                {"key": "denySingleSwapProvider", "value": ""}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quote - 1inch - 代币<>主币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [\n  {\n    \"name\": \"Ethereum.USDC 10 → ETH\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"toTokenAddress\": \"\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Polygon.USDC 10 → POL\",\n    \"params\": {\n      \"fromTokenAddress\": \"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\",\n      \"toTokenAddress\": \"\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--137\",\n      \"toNetworkId\": \"evm--137\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Arbitrum.USDC 10 → ETH\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\",\n      \"toTokenAddress\": \"\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--42161\",\n      \"toNetworkId\": \"evm--42161\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  }\n];",
+                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
+                  "const headers = { \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"android-apk\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\" };",
+                  "function buildQuery(params) { return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; pm.sendRequest({ url: BASE_URL+'?'+buildQuery(c.params), method: 'GET', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }) }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); var json=res.json(); pm.test('['+c.name+'] 业务码 0', function(){ pm.expect(json.code).to.eql(0); }); var d=json.data; pm.test('['+c.name+'] 含 1inch 报价', function(){ var hit=(d||[]).some(function(x){ return x.info&&x.info.provider&&String(x.info.provider).toLowerCase().indexOf('1inch')>=0; }); pm.expect(hit).to.equal(true); }); runCase(i+1); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&toTokenAddress=&fromTokenAmount=10&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                {"key": "fromTokenAddress", "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"},
+                {"key": "toTokenAddress", "value": ""},
+                {"key": "fromTokenAmount", "value": "10"},
+                {"key": "fromNetworkId", "value": "evm--1"},
+                {"key": "toNetworkId", "value": "evm--1"},
+                {"key": "protocol", "value": "Swap"},
+                {"key": "userAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
+                {"key": "slippagePercentage", "value": "0.5"},
+                {"key": "autoSlippage", "value": "true"},
+                {"key": "receivingAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
+                {"key": "kind", "value": "sell"},
+                {"key": "toTokenAmount", "value": ""},
+                {"key": "denySingleSwapProvider", "value": ""}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quote - 1inch - 代币<>代币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [\n  {\n    \"name\": \"Ethereum.USDC 10 → USDT\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"toTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Polygon.USDC 10 → USDT\",\n    \"params\": {\n      \"fromTokenAddress\": \"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\",\n      \"toTokenAddress\": \"0xc2132d05d31c914a87c6611c10748aeb04b58e8f\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--137\",\n      \"toNetworkId\": \"evm--137\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Arbitrum.USDC 10 → USDT\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\",\n      \"toTokenAddress\": \"0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--42161\",\n      \"toNetworkId\": \"evm--42161\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  }\n];",
+                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
+                  "const headers = { \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"android-apk\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\" };",
+                  "function buildQuery(params) { return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; pm.sendRequest({ url: BASE_URL+'?'+buildQuery(c.params), method: 'GET', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }) }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); var json=res.json(); pm.test('['+c.name+'] 业务码 0', function(){ pm.expect(json.code).to.eql(0); }); var d=json.data; pm.test('['+c.name+'] 含 1inch 报价', function(){ var hit=(d||[]).some(function(x){ return x.info&&x.info.provider&&String(x.info.provider).toLowerCase().indexOf('1inch')>=0; }); pm.expect(hit).to.equal(true); }); runCase(i+1); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&toTokenAddress=0xdac17f958d2ee523a2206206994597c13d831ec7&fromTokenAmount=10&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                {"key": "fromTokenAddress", "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"},
+                {"key": "toTokenAddress", "value": "0xdac17f958d2ee523a2206206994597c13d831ec7"},
+                {"key": "fromTokenAmount", "value": "10"},
+                {"key": "fromNetworkId", "value": "evm--1"},
+                {"key": "toNetworkId", "value": "evm--1"},
+                {"key": "protocol", "value": "Swap"},
+                {"key": "userAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
+                {"key": "slippagePercentage", "value": "0.5"},
+                {"key": "autoSlippage", "value": "true"},
+                {"key": "receivingAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
+                {"key": "kind", "value": "sell"},
+                {"key": "toTokenAmount", "value": ""},
+                {"key": "denySingleSwapProvider", "value": ""}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-1inch-构建",
+      "item": [
+        {
+          "name": "Build - 1inch - 主币<>代币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [\n  {\n    \"name\": \"主币 → 代币 (ETH → USDC)\",\n    \"params\": {\n      \"fromTokenAddress\": \"\",\n      \"toTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"fromTokenAmount\": \"0.003463814288664618\",\n      \"toTokenAmount\": \"9.3784\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"provider\": \"Swap1inch\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": 0.5,\n      \"kind\": \"sell\",\n      \"walletType\": \"hd\"\n    }\n  }\n];",
+                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
+                  "const headers = { \"accept\": \"application/json, text/plain, */*\", \"content-type\": \"application/json\", \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"desktop-macosStore\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\", \"X-Onekey-Wallet-Type\": \"hd\" };",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var body=c.params; console.log('Build-1inch 主币<>代币 请求 body:', body); pm.sendRequest({ url: BASE_URL, method: 'POST', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }), body: { mode: 'raw', raw: JSON.stringify(body) } }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; if(code===422){ console.log('['+c.name+'] 422 body =>', res.text()); } pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); if(code===200){ var json=res.json(); pm.test('['+c.name+'] data.tx 存在', function(){ pm.expect(json.data).to.have.property('tx'); pm.expect(json.data.tx).to.be.ok; }); } runCase(i+1); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"fromTokenAmount\": \"0.003463814288664618\",\n  \"toTokenAmount\": \"9.3784\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"Swap1inch\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build - 1inch - 代币<>主币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [\n  {\n    \"name\": \"代币 → 主币 (USDC → ETH)\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"toTokenAddress\": \"\",\n      \"fromTokenAmount\": \"10\",\n      \"toTokenAmount\": \"0.0035\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"provider\": \"Swap1inch\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": 0.5,\n      \"kind\": \"sell\",\n      \"walletType\": \"hd\"\n    }\n  }\n];",
+                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
+                  "const headers = { \"accept\": \"application/json, text/plain, */*\", \"content-type\": \"application/json\", \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"desktop-macosStore\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\", \"X-Onekey-Wallet-Type\": \"hd\" };",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var body=c.params; console.log('Build-1inch 代币<>主币 请求 body:', body); pm.sendRequest({ url: BASE_URL, method: 'POST', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }), body: { mode: 'raw', raw: JSON.stringify(body) } }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; if(code===422){ console.log('['+c.name+'] 422 body =>', res.text()); } pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); if(code===200){ var json=res.json(); pm.test('['+c.name+'] data.tx 存在', function(){ pm.expect(json.data).to.have.property('tx'); pm.expect(json.data.tx).to.be.ok; }); } runCase(i+1); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"10\",\n  \"toTokenAmount\": \"0.0035\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"Swap1inch\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build - 1inch - 代币<>代币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [\n  {\n    \"name\": \"代币 → 代币 (USDC → USDT)\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"toTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n      \"fromTokenAmount\": \"10\",\n      \"toTokenAmount\": \"9.97\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"provider\": \"Swap1inch\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": 0.5,\n      \"kind\": \"sell\",\n      \"walletType\": \"hd\"\n    }\n  }\n];",
+                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
+                  "const headers = { \"accept\": \"application/json, text/plain, */*\", \"content-type\": \"application/json\", \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"desktop-macosStore\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\", \"X-Onekey-Wallet-Type\": \"hd\" };",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var body=c.params; console.log('Build-1inch 代币<>代币 请求 body:', body); pm.sendRequest({ url: BASE_URL, method: 'POST', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }), body: { mode: 'raw', raw: JSON.stringify(body) } }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; if(code===422){ console.log('['+c.name+'] 422 body =>', res.text()); } pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); if(code===200){ var json=res.json(); pm.test('['+c.name+'] data.tx 存在', function(){ pm.expect(json.data).to.have.property('tx'); pm.expect(json.data.tx).to.be.ok; }); } runCase(i+1); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"toTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n  \"fromTokenAmount\": \"10\",\n  \"toTokenAmount\": \"9.97\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"Swap1inch\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

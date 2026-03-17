@@ -1,0 +1,546 @@
+{
+  "info": {
+    "name": "Swap Panora - Aptos 单网络全类型",
+    "description": "Panora 渠道（Aptos）API 测试用例：\n- 01-Panora-询价：同链主币<>代币、代币<>主币、代币<>代币（单网络，不使用多网络循环）\n- 02-Panora-构建：同链主币<>代币、代币<>主币、代币<>代币（严格校验 data.tx 存在）",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "requestId",
+      "value": "{{$guid}}",
+      "type": "string"
+    },
+    {
+      "key": "baseUrl",
+      "value": "https://swap.onekeytest.com",
+      "type": "string"
+    },
+    {
+      "key": "userAddressAptos",
+      "value": "0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01-Panora-询价",
+      "item": [
+        {
+          "name": "Quote - Panora - 主币<>代币 (APT → USDC)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Panora 主币<>代币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Panora 主币<>代币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('Panora 主币<>代币 - 返回包含 Panora 报价', function () {",
+                  "  var data = json.data || [];",
+                  "  var hit = data.some(function (x) {",
+                  "    var p = x && x.info && x.info.provider;",
+                  "    if (!p) return false;",
+                  "    var s = String(p).toLowerCase();",
+                  "    return s.indexOf('panora') >= 0;",
+                  "  });",
+                  "  pm.expect(hit).to.equal(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=0x1::aptos_coin::AptosCoin&toTokenAddress=0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b&fromTokenAmount=1&fromNetworkId=aptos--1&toNetworkId=aptos--1&protocol=Swap&userAddress=0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                { "key": "fromTokenAddress", "value": "0x1::aptos_coin::AptosCoin" },
+                { "key": "toTokenAddress", "value": "0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b" },
+                { "key": "fromTokenAmount", "value": "1" },
+                { "key": "fromNetworkId", "value": "aptos--1" },
+                { "key": "toNetworkId", "value": "aptos--1" },
+                { "key": "protocol", "value": "Swap" },
+                { "key": "userAddress", "value": "0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc" },
+                { "key": "slippagePercentage", "value": "0.5" },
+                { "key": "autoSlippage", "value": "true" },
+                { "key": "receivingAddress", "value": "0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc" },
+                { "key": "kind", "value": "sell" },
+                { "key": "toTokenAmount", "value": "" },
+                { "key": "denySingleSwapProvider", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quote - Panora - 代币<>主币 (USDC → APT)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Panora 代币<>主币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Panora 代币<>主币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('Panora 代币<>主币 - 返回包含 Panora 报价', function () {",
+                  "  var data = json.data || [];",
+                  "  var hit = data.some(function (x) {",
+                  "    var p = x && x.info && x.info.provider;",
+                  "    if (!p) return false;",
+                  "    var s = String(p).toLowerCase();",
+                  "    return s.indexOf('panora') >= 0;",
+                  "  });",
+                  "  pm.expect(hit).to.equal(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b&toTokenAddress=&fromTokenAmount=1&fromNetworkId=aptos--1&toNetworkId=aptos--1&protocol=Swap&userAddress=0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                { "key": "fromTokenAddress", "value": "0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b" },
+                { "key": "toTokenAddress", "value": "" },
+                { "key": "fromTokenAmount", "value": "1" },
+                { "key": "fromNetworkId", "value": "aptos--1" },
+                { "key": "toNetworkId", "value": "aptos--1" },
+                { "key": "protocol", "value": "Swap" },
+                { "key": "userAddress", "value": "0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc" },
+                { "key": "slippagePercentage", "value": "0.5" },
+                { "key": "autoSlippage", "value": "true" },
+                { "key": "receivingAddress", "value": "0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc" },
+                { "key": "kind", "value": "sell" },
+                { "key": "toTokenAmount", "value": "" },
+                { "key": "denySingleSwapProvider", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quote - Panora - 代币<>代币 (USDC → USDT)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Panora 代币<>代币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Panora 代币<>代币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('Panora 代币<>代币 - 返回包含 Panora 报价', function () {",
+                  "  var data = json.data || [];",
+                  "  var hit = data.some(function (x) {",
+                  "    var p = x && x.info && x.info.provider;",
+                  "    if (!p) return false;",
+                  "    var s = String(p).toLowerCase();",
+                  "    return s.indexOf('panora') >= 0;",
+                  "  });",
+                  "  pm.expect(hit).to.equal(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b&toTokenAddress=0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b&fromTokenAmount=1&fromNetworkId=aptos--1&toNetworkId=aptos--1&protocol=Swap&userAddress=0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                { "key": "fromTokenAddress", "value": "0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b" },
+                { "key": "toTokenAddress", "value": "0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b" },
+                { "key": "fromTokenAmount", "value": "1" },
+                { "key": "fromNetworkId", "value": "aptos--1" },
+                { "key": "toNetworkId", "value": "aptos--1" },
+                { "key": "protocol", "value": "Swap" },
+                { "key": "userAddress", "value": "0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc" },
+                { "key": "slippagePercentage", "value": "0.5" },
+                { "key": "autoSlippage", "value": "true" },
+                { "key": "receivingAddress", "value": "0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc" },
+                { "key": "kind", "value": "sell" },
+                { "key": "toTokenAmount", "value": "" },
+                { "key": "denySingleSwapProvider", "value": "" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-Panora-构建",
+      "item": [
+        {
+          "name": "Build - Panora - 主币<>代币 (APT → USDC)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Panora Build 主币<>代币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Panora Build 主币<>代币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "pm.test('Panora Build 主币<>代币 - data.tx 存在', function () {",
+                  "  pm.expect(json.data).to.have.property('tx');",
+                  "  pm.expect(json.data.tx).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"0x1::aptos_coin::AptosCoin\",\n  \"toTokenAddress\": \"0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"0.92809\",\n  \"fromNetworkId\": \"aptos--1\",\n  \"toNetworkId\": \"aptos--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapPanora\",\n  \"userAddress\": \"0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc\",\n  \"receivingAddress\": \"0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build - Panora - 代币<>主币 (USDC → APT)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Panora Build 代币<>主币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Panora Build 代币<>主币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "pm.test('Panora Build 代币<>主币 - data.tx 存在', function () {",
+                  "  pm.expect(json.data).to.have.property('tx');",
+                  "  pm.expect(json.data.tx).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"aptos--1\",\n  \"toNetworkId\": \"aptos--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapPanora\",\n  \"userAddress\": \"0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc\",\n  \"receivingAddress\": \"0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build - Panora - 代币<>代币 (USDC → USDT)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Panora Build 代币<>代币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Panora Build 代币<>代币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "pm.test('Panora Build 代币<>代币 - data.tx 存在', function () {",
+                  "  pm.expect(json.data).to.have.property('tx');",
+                  "  pm.expect(json.data.tx).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b\",\n  \"toTokenAddress\": \"0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"aptos--1\",\n  \"toNetworkId\": \"aptos--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapPanora\",\n  \"userAddress\": \"0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc\",\n  \"receivingAddress\": \"0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
