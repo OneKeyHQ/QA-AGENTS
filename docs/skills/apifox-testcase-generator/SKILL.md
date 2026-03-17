@@ -382,6 +382,51 @@ if (!isCex && !isContract && !isScam) {
 | 边界值 | 数值类型测试 0、负数、超大值 |
 | 空值 | 传入空字符串或 null |
 
+### 5. Swap 模块 API 测试规则
+
+生成 **Swap 相关**接口（询价、构建等）的 Apifox 用例时，必须遵守以下规则。**来源**：`docs/qa/rules/swap-rules.md`、`docs/qa/rules/swap-network-features.md`。
+
+#### 5.1 生成前必读
+
+- **必须先阅读** `docs/qa/rules/swap-rules.md` 中的：**渠道与网络支持矩阵**、**兑换类型覆盖**、**多链测试覆盖原则**、**代币合约地址规则（不同网络维护的 USDC/USDT 等合约地址表）**。
+- **网络特性与代币合约地址**：如需确认某网络主币精度、交易费单位、常用代币合约地址，必须同步参考 `docs/qa/rules/swap-network-features.md`。
+- 历史 JS 脚本中维护的代币地址、网络 ID（如 `scripts/swap-quote-sse/CHANNEL_CONFIG.js`）仅作**辅参考**，**以 `swap-rules.md` / `swap-network-features.md` 为最终准则**。
+
+#### 5.2 询价接口（GET /swap/v1/quote）
+
+| 规则 | 说明 |
+|------|------|
+| **Query 必须完整** | 请求必须带齐所有服务端要求的 Query 参数；缺参会导致 422 无效参数。 |
+| **Apifox 使用 url.query** | 除 `url.raw` 外，必须显式写 `url.query` 数组（每项 `key`、`value`），保证 Apifox 的「Query 参数」面板有默认参数，避免 Params 为空报错。 |
+| **必含参数** | fromTokenAddress、toTokenAddress、fromTokenAmount、fromNetworkId、toNetworkId、protocol、userAddress、slippagePercentage、autoSlippage、receivingAddress、kind、toTokenAmount、**denySingleSwapProvider**（可为 `""`）。 |
+| **protocol** | 与现有 Swap 用例保持一致（如小写 `swap`）。 |
+| **断言** | HTTP 200；业务码 `code === 0`；`data` 中含对应渠道报价（如 0x 用例需含 provider 含 `0x`）。询价/构建的 **provider 断言**与下方 5.5 写法一致。 |
+
+#### 5.3 兑换类型维度
+
+- **同链**：主币<>代币、代币<>主币、代币<>代币（3 种必须覆盖）。
+- **跨链**：主币<>主币、主币<>代币、代币<>主币、代币<>代币（4 种）。
+- 按渠道生成时，每个渠道至少覆盖上述兑换类型；按「类型」维度生成时，每种类型下用变量（如 testCases 数组）覆盖多网络。
+- **例外：1inch Fusion** 仅支持 ERC20<>ERC20，同链只生成「代币<>代币」用例（主币<>代币、代币<>主币不生成 Fusion 用例）。
+
+#### 5.4 渠道与网络
+
+- 按 `swap-rules.md` 的**渠道与网络支持矩阵**生成用例（0x、1inch、1inch Fusion、Jupiter、CowSwap、OKX、Panora 等各支持网络不同）。
+- 网络 ID 格式：EVM 为 `evm--<chainId>`（如 `evm--1`、`evm--43114`），其他链见 swap-network-features.md。
+- 各网络使用该渠道支持的代币地址（主币填空字符串 `""`）。
+
+#### 5.5 构建接口（POST /swap/v1/build-tx）与 provider 写法
+
+- **路径**：`POST /swap/v1/build-tx`（不是 `/swap/v1/build`）。
+- Body 为 JSON，需包含：fromTokenAddress、toTokenAddress、fromTokenAmount、**toTokenAmount**（必填，可为预估收到数量或任意值如 `"1"`）、fromNetworkId、toNetworkId、protocol、**provider**、userAddress、receivingAddress、**slippagePercentage**（**必须为 number**，如 `0.5`，不能为字符串 `"0.5"`）、kind（如 `"sell"`）、**walletType**（如 `hd`）。**不要**传 `autoSlippage`（构建接口不需要）。
+- **provider 统一写法**（每个渠道一致）：首字母大写 `Swap` + 渠道名，如 `Swap0x`、`Swap1inch`、`SwapJupiter`、`CowSwap`、`SwapOKX`、`SwapPanora`。构建请求与询价断言中的 provider 均按此规范。
+- 断言：HTTP 200；业务码 `code === 0`；**`data.tx` 存在且非空**（响应结构为 `data.tx`，不是 `data.result`）。
+
+#### 5.6 集合组织方式
+
+- **按渠道与兑换类型**：每个渠道下 3 条（主币<>代币、代币<>主币、代币<>代币），每条为单请求 + 单次断言。
+- **按兑换类型 + 多网络**：每条用例为一种兑换类型，用例内用脚本循环多网络（testCases 数组 + runCase），请求 URL 与脚本中 params 保持一致（含 denySingleSwapProvider），且主请求的 `url.query` 填默认参数。
+
 ---
 
 ## 📁 输出文件格式
@@ -541,6 +586,8 @@ X-Onekey-Request-Build-Number: 2000000000
 - [Apifox 导入文档](https://apifox.com/help/api-docs/import)
 - [Postman Collection 格式](https://schema.postman.com/)
 - [项目 QA 规则](../../qa-rules.md)
+- [Swap 模块测试规则](../../qa/rules/swap-rules.md)（生成 Swap API 用例前必读）
+- [Swap 网络特性](../../qa/rules/swap-network-features.md)
 
 ---
 
@@ -548,6 +595,7 @@ X-Onekey-Request-Build-Number: 2000000000
 
 | 版本 | 日期 | 更新内容 |
 |------|------|---------|
+| 1.3.0 | 2026-02-28 | 新增 5. Swap 模块 API 测试规则：询价必含 query/denySingleSwapProvider、url.query 显式、兑换类型与渠道网络矩阵、构建接口 body、集合组织方式 |
 | 1.2.0 | 2026-02-02 | 重构断言方案：前置脚本+统一后置脚本，支持 CEX/合约/诈骗场景自动识别 |
 | 1.1.1 | 2026-02-02 | 修正 displayType 映射（warning/default），精简代码示例 |
 | 1.1.0 | 2026-02-02 | 新增 3.1 标签断言规则，规范交易解析类接口的标签验证 |

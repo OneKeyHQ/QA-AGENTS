@@ -1,0 +1,546 @@
+{
+  "info": {
+    "name": "Swap Jupiter - Solana 单网络全类型",
+    "description": "Jupiter 渠道（Solana）API 测试用例：\n- 01-Jupiter-询价：同链主币<>代币、代币<>主币、代币<>代币（单网络，不使用多网络循环）\n- 02-Jupiter-构建：同链主币<>代币、代币<>主币、代币<>代币（严格校验 data.tx 存在）",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "requestId",
+      "value": "{{$guid}}",
+      "type": "string"
+    },
+    {
+      "key": "baseUrl",
+      "value": "https://swap.onekeytest.com",
+      "type": "string"
+    },
+    {
+      "key": "userAddressSol",
+      "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01-Jupiter-询价",
+      "item": [
+        {
+          "name": "Quote - Jupiter - 主币<>代币 (SOL → USDC)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Jupiter 主币<>代币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Jupiter 主币<>代币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('Jupiter 主币<>代币 - 返回包含 Jupiter 报价', function () {",
+                  "  var data = json.data || [];",
+                  "  var hit = data.some(function (x) {",
+                  "    var p = x && x.info && x.info.provider;",
+                  "    if (!p) return false;",
+                  "    var s = String(p).toLowerCase();",
+                  "    return s.indexOf('jupiter') >= 0;",
+                  "  });",
+                  "  pm.expect(hit).to.equal(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=&toTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&slippagePercentage=0.5&autoSlippage=true&receivingAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                { "key": "fromTokenAddress", "value": "" },
+                { "key": "toTokenAddress", "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" },
+                { "key": "fromTokenAmount", "value": "1" },
+                { "key": "fromNetworkId", "value": "sol--101" },
+                { "key": "toNetworkId", "value": "sol--101" },
+                { "key": "protocol", "value": "Swap" },
+                { "key": "userAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "slippagePercentage", "value": "0.5" },
+                { "key": "autoSlippage", "value": "true" },
+                { "key": "receivingAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "kind", "value": "sell" },
+                { "key": "toTokenAmount", "value": "" },
+                { "key": "denySingleSwapProvider", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quote - Jupiter - 代币<>主币 (USDC → SOL)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Jupiter 代币<>主币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Jupiter 代币<>主币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('Jupiter 代币<>主币 - 返回包含 Jupiter 报价', function () {",
+                  "  var data = json.data || [];",
+                  "  var hit = data.some(function (x) {",
+                  "    var p = x && x.info && x.info.provider;",
+                  "    if (!p) return false;",
+                  "    var s = String(p).toLowerCase();",
+                  "    return s.indexOf('jupiter') >= 0;",
+                  "  });",
+                  "  pm.expect(hit).to.equal(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&toTokenAddress=&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&slippagePercentage=0.5&autoSlippage=true&receivingAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                { "key": "fromTokenAddress", "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" },
+                { "key": "toTokenAddress", "value": "" },
+                { "key": "fromTokenAmount", "value": "1" },
+                { "key": "fromNetworkId", "value": "sol--101" },
+                { "key": "toNetworkId", "value": "sol--101" },
+                { "key": "protocol", "value": "Swap" },
+                { "key": "userAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "slippagePercentage", "value": "0.5" },
+                { "key": "autoSlippage", "value": "true" },
+                { "key": "receivingAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "kind", "value": "sell" },
+                { "key": "toTokenAmount", "value": "" },
+                { "key": "denySingleSwapProvider", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quote - Jupiter - 代币<>代币 (USDC → USDT)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Jupiter 代币<>代币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Jupiter 代币<>代币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('Jupiter 代币<>代币 - 返回包含 Jupiter 报价', function () {",
+                  "  var data = json.data || [];",
+                  "  var hit = data.some(function (x) {",
+                  "    var p = x && x.info && x.info.provider;",
+                  "    if (!p) return false;",
+                  "    var s = String(p).toLowerCase();",
+                  "    return s.indexOf('jupiter') >= 0;",
+                  "  });",
+                  "  pm.expect(hit).to.equal(true);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&toTokenAddress=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&slippagePercentage=0.5&autoSlippage=true&receivingAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                { "key": "fromTokenAddress", "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" },
+                { "key": "toTokenAddress", "value": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB" },
+                { "key": "fromTokenAmount", "value": "1" },
+                { "key": "fromNetworkId", "value": "sol--101" },
+                { "key": "toNetworkId", "value": "sol--101" },
+                { "key": "protocol", "value": "Swap" },
+                { "key": "userAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "slippagePercentage", "value": "0.5" },
+                { "key": "autoSlippage", "value": "true" },
+                { "key": "receivingAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "kind", "value": "sell" },
+                { "key": "toTokenAmount", "value": "" },
+                { "key": "denySingleSwapProvider", "value": "" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-Jupiter-构建",
+      "item": [
+        {
+          "name": "Build - Jupiter - 主币<>代币 (SOL → USDC)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Jupiter Build 主币<>代币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Jupiter Build 主币<>代币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "pm.test('Jupiter Build 主币<>代币 - data.tx 存在', function () {",
+                  "  pm.expect(json.data).to.have.property('tx');",
+                  "  pm.expect(json.data.tx).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"fromTokenAmount\": \"0.01\",\n  \"toTokenAmount\": \"0.829974\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"receivingAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build - Jupiter - 代币<>主币 (USDC → SOL)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Jupiter Build 代币<>主币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Jupiter Build 代币<>主币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "pm.test('Jupiter Build 代币<>主币 - data.tx 存在', function () {",
+                  "  pm.expect(json.data).to.have.property('tx');",
+                  "  pm.expect(json.data.tx).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"0.012026025\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"receivingAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build - Jupiter - 代币<>代币 (USDC → USDT)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Jupiter Build 代币<>代币 - HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "var json = pm.response.json();",
+                  "pm.test('Jupiter Build 代币<>代币 - 业务码 0', function () {",
+                  "  pm.expect(json.code).to.eql(0);",
+                  "});",
+                  "pm.test('Jupiter Build 代币<>代币 - data.tx 存在', function () {",
+                  "  pm.expect(json.data).to.have.property('tx');",
+                  "  pm.expect(json.data.tx).to.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"receivingAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
