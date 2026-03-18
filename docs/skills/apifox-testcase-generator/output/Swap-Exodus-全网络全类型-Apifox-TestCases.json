@@ -1,0 +1,1185 @@
+{
+  "info": {
+    "name": "Swap Exodus - 按兑换类型（网络为变量）",
+    "description": "Exodus 跨链渠道测试用例集合。以兑换类型为维度：主币<>代币、代币<>主币、代币<>代币，每条用例内通过 testCases 数组覆盖 Exodus 支持的部分主流网络组合（同链与跨链均有覆盖）。\n\n- 01-Exodus-询价：3 条（每条内循环多网络 / 多链组合）\n- 02-Exodus-构建：3 条（同上，构建按静态参数+provider 方式，不依赖 quoteResultCtx）",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "requestId",
+      "value": "{{$guid}}",
+      "type": "string"
+    },
+    {
+      "key": "baseUrl",
+      "value": "https://swap.onekeytest.com",
+      "type": "string"
+    },
+    {
+      "key": "userAddressEvm",
+      "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e",
+      "type": "string"
+    },
+    {
+      "key": "userAddressTron",
+      "value": "TC6LJQFu9Ji7CRNNwBwLjsVRne3yfyYozz",
+      "type": "string"
+    },
+    {
+      "key": "userAddressSol",
+      "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ",
+      "type": "string"
+    },
+    {
+      "key": "userAddressTon",
+      "value": "UQBRIGeMl7e7rAKeWZAQww3G0iaiL6H0naMP9qHQqZdqyXJi",
+      "type": "string"
+    },
+    {
+      "key": "userAddressSui",
+      "value": "0x941c5346003a695b5a5d2c176e60e15ab8172e58c16adae3e634eb4e54541297",
+      "type": "string"
+    },
+    {
+      "key": "userAddressBtc",
+      "value": "bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc",
+      "type": "string"
+    },
+    {
+      "key": "userAddressLtc",
+      "value": "ltc1qnfw5td47d7euedp22aca8068s7fmpp3pelca7d",
+      "type": "string"
+    },
+    {
+      "key": "userAddressDoge",
+      "value": "DDCnuDbHbvYsz3BaYx9H3dwAu2d2AzuAMJ",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01-Exodus-询价",
+      "item": [
+        {
+          "name": "Quote - Exodus - 主币<>代币（仅跨链）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [",
+                  "  {",
+                  "    name: \"Optimism.ETH 0.1 → Ethereum.USDC (跨链)\",",
+                  "    params: {",
+                  "      fromTokenAddress: \"\",",
+                  "      toTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      fromTokenAmount: \"0.1\",",
+                  "      fromNetworkId: \"evm--10\",",
+                  "      toNetworkId: \"evm--1\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    }",
+                  "  },",
+                  "  {",
+                  "    name: \"Arbitrum.ETH 0.1 → Ethereum.USDC (跨链)\",",
+                  "    params: {",
+                  "      fromTokenAddress: \"\",",
+                  "      toTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      fromTokenAmount: \"0.1\",",
+                  "      fromNetworkId: \"evm--42161\",",
+                  "      toNetworkId: \"evm--1\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    }",
+                  "  },",
+                  "  {",
+                  "    name: \"BTC 0.001 → Ethereum.USDC (跨链)\",",
+                  "    params: {",
+                  "      fromTokenAddress: \"\",",
+                  "      toTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      fromTokenAmount: \"0.001\",",
+                  "      fromNetworkId: \"btc--0\",",
+                  "      toNetworkId: \"evm--1\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    }",
+                  "  },",
+                  "  {",
+                  "    name: \"LTC 0.5 → Ethereum.USDC (跨链)\",",
+                  "    params: {",
+                  "      fromTokenAddress: \"\",",
+                  "      toTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      fromTokenAmount: \"0.5\",",
+                  "      fromNetworkId: \"ltc--0\",",
+                  "      toNetworkId: \"evm--1\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"ltc1qnfw5td47d7euedp22aca8068s7fmpp3pelca7d\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"ltc1qnfw5td47d7euedp22aca8068s7fmpp3pelca7d\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    }",
+                  "  }",
+                  "];",
+                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/quote/events\";",
+                  "const headers = {",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026031799\"",
+                  "};",
+                  "function buildQuery(params) {",
+                  "  return Object.entries(params)",
+                  "    .filter(function(kv){ return kv[1]!==undefined && kv[1]!==null; })",
+                  "    .map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); })",
+                  "    .join('&');",
+                  "}",
+                  "function runCase(i){",
+                  "  if(i>=testCases.length){ console.log('Exodus 主币<>代币 quote done'); return; }",
+                  "  var c=testCases[i];",
+                  "  pm.sendRequest({",
+                  "    url: BASE_URL+'?'+buildQuery(c.params),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; })",
+                  "  }, function(err, res){",
+                  "    if(err){",
+                  "      pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); });",
+                  "      runCase(i+1);",
+                  "      return;",
+                  "    }",
+                  "    var code=res.code||res.status;",
+                  "    pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    var json=res.json();",
+                  "    pm.test('['+c.name+'] 业务码 0', function(){ pm.expect(json.code).to.eql(0); });",
+                  "    var d=json.data;",
+                  "    var list = Array.isArray(d) ? d : [];",
+                  "    pm.test('['+c.name+'] 含 Exodus 报价', function(){",
+                  "      var hit=list.some(function(x){",
+                  "        var p = x && x.info && x.info.provider;",
+                  "        if (!p) return false;",
+                  "        return String(p).toLowerCase().indexOf('exodus')>=0;",
+                  "      });",
+                  "      pm.expect(hit).to.equal(true);",
+                  "    });",
+                  "    runCase(i+1);",
+                  "  });",
+                  "}",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=&toTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&fromTokenAmount=0.1&fromNetworkId=evm--10&toNetworkId=evm--1&protocol=Swap&userAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                { "key": "fromTokenAddress", "value": "" },
+                { "key": "toTokenAddress", "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" },
+                { "key": "fromTokenAmount", "value": "0.1" },
+                { "key": "fromNetworkId", "value": "evm--10" },
+                { "key": "toNetworkId", "value": "evm--1" },
+                { "key": "protocol", "value": "Swap" },
+                { "key": "userAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "slippagePercentage", "value": "0.5" },
+                { "key": "autoSlippage", "value": "true" },
+                { "key": "receivingAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "kind", "value": "sell" },
+                { "key": "toTokenAmount", "value": "" },
+                { "key": "denySingleSwapProvider", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quote - Exodus - 代币<>主币（仅跨链）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [",
+                  "  {",
+                  "    name: \"Ethereum.USDC 50 → BTC (跨链)\",",
+                  "    params: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"\",",
+                  "      fromTokenAmount: \"50\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"btc--0\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    }",
+                  "  },",
+                  "  {",
+                  "    name: \"BSC.USDC 50 → BTC (跨链)\",",
+                  "    params: {",
+                  "      fromTokenAddress: \"0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d\",",
+                  "      toTokenAddress: \"\",",
+                  "      fromTokenAmount: \"50\",",
+                  "      fromNetworkId: \"evm--56\",",
+                  "      toNetworkId: \"btc--0\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    }",
+                  "  },",
+                  "  {",
+                  "    name: \"Solana.USDC 10 → BTC (跨链)\",",
+                  "    params: {",
+                  "      fromTokenAddress: \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",",
+                  "      toTokenAddress: \"\",",
+                  "      fromTokenAmount: \"10\",",
+                  "      fromNetworkId: \"sol--101\",",
+                  "      toNetworkId: \"btc--0\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    }",
+                  "  }",
+                  "];",
+                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
+                  "const headers = {",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026031799\"",
+                  "};",
+                  "function buildQuery(params) {",
+                  "  return Object.entries(params)",
+                  "    .filter(function(kv){ return kv[1]!==undefined && kv[1]!==null; })",
+                  "    .map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); })",
+                  "    .join('&');",
+                  "}",
+                  "function runCase(i){",
+                  "  if(i>=testCases.length){ console.log('Exodus 代币<>主币 quote done'); return; }",
+                  "  var c=testCases[i];",
+                  "  pm.sendRequest({",
+                  "    url: BASE_URL+'?'+buildQuery(c.params),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; })",
+                  "  }, function(err, res){",
+                  "    if(err){",
+                  "      pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); });",
+                  "      runCase(i+1);",
+                  "      return;",
+                  "    }",
+                  "    var code=res.code||res.status;",
+                  "    pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    var json=res.json();",
+                  "    pm.test('['+c.name+'] 业务码 0', function(){ pm.expect(json.code).to.eql(0); });",
+                  "    var d=json.data;",
+                  "    var list = Array.isArray(d) ? d : [];",
+                  "    pm.test('['+c.name+'] 含 Exodus 报价', function(){",
+                  "      var hit=list.some(function(x){",
+                  "        var p = x && x.info && x.info.provider;",
+                  "        if (!p) return false;",
+                  "        return String(p).toLowerCase().indexOf('exodus')>=0;",
+                  "      });",
+                  "      pm.expect(hit).to.equal(true);",
+                  "    });",
+                  "    runCase(i+1);",
+                  "  });",
+                  "}",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                { "key": "fromTokenAddress", "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" },
+                { "key": "toTokenAddress", "value": "" },
+                { "key": "fromTokenAmount", "value": "50" },
+                { "key": "fromNetworkId", "value": "evm--1" },
+                { "key": "toNetworkId", "value": "btc--0" },
+                { "key": "protocol", "value": "Swap" },
+                { "key": "userAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "slippagePercentage", "value": "0.5" },
+                { "key": "autoSlippage", "value": "true" },
+                { "key": "receivingAddress", "value": "bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc" },
+                { "key": "kind", "value": "sell" },
+                { "key": "toTokenAmount", "value": "" },
+                { "key": "denySingleSwapProvider", "value": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quote - Exodus - 代币<>代币（仅跨链）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [",
+                  "  {",
+                  "    name: \"Ethereum.USDC 50 → Arbitrum.USDT (跨链)\",",
+                  "    params: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9\",",
+                  "      fromTokenAmount: \"50\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"evm--42161\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    }",
+                  "  },",
+                  "  {",
+                  "    name: \"Arbitrum.USDC 50 → Optimism.USDT (跨链)\",",
+                  "    params: {",
+                  "      fromTokenAddress: \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\",",
+                  "      toTokenAddress: \"0x94b008aa00579c1307b0ef2c499ad98a8ce58e58\",",
+                  "      fromTokenAmount: \"50\",",
+                  "      fromNetworkId: \"evm--42161\",",
+                  "      toNetworkId: \"evm--10\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    }",
+                  "  }",
+                  "];",
+                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/quote/events\";",
+                  "const headers = {",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026031799\"",
+                  "};",
+                  "function buildQuery(params) {",
+                  "  return Object.entries(params)",
+                  "    .filter(function(kv){ return kv[1]!==undefined && kv[1]!==null; })",
+                  "    .map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); })",
+                  "    .join('&');",
+                  "}",
+                  "function runCase(i){",
+                  "  if(i>=testCases.length){ console.log('Exodus 代币<>代币 quote done'); return; }",
+                  "  var c=testCases[i];",
+                  "  pm.sendRequest({",
+                  "    url: BASE_URL+'?'+buildQuery(c.params),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; })",
+                  "  }, function(err, res){",
+                  "    if(err){",
+                  "      pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); });",
+                  "      runCase(i+1);",
+                  "      return;",
+                  "    }",
+                  "    var code=res.code||res.status;",
+                  "    pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    var json=res.json();",
+                  "    pm.test('['+c.name+'] 业务码 0', function(){ pm.expect(json.code).to.eql(0); });",
+                  "    var d=json.data;",
+                  "    var list = Array.isArray(d) ? d : [];",
+                  "    pm.test('['+c.name+'] 含 Exodus 报价', function(){",
+                  "      var hit=list.some(function(x){",
+                  "        var p = x && x.info && x.info.provider;",
+                  "        if (!p) return false;",
+                  "        return String(p).toLowerCase().indexOf('exodus')>=0;",
+                  "      });",
+                  "      pm.expect(hit).to.equal(true);",
+                  "    });",
+                  "    runCase(i+1);",
+                  "  });",
+                  "}",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "quote"
+              ],
+              "query": [
+                { "key": "fromTokenAddress", "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" },
+                { "key": "toTokenAddress", "value": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9" },
+                { "key": "fromTokenAmount", "value": "50" },
+                { "key": "fromNetworkId", "value": "evm--1" },
+                { "key": "toNetworkId", "value": "evm--42161" },
+                { "key": "protocol", "value": "Swap" },
+                { "key": "userAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "slippagePercentage", "value": "0.5" },
+                { "key": "autoSlippage", "value": "true" },
+                { "key": "receivingAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "kind", "value": "sell" },
+                { "key": "toTokenAmount", "value": "" },
+                { "key": "denySingleSwapProvider", "value": "" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-Exodus-构建",
+      "item": [
+        {
+          "name": "Build - Exodus - 主币<>代币（仅跨链，含 Quote）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [",
+                  "  {",
+                  "    name: \"Optimism.ETH 0.1 → Ethereum.USDC (跨链)\",",
+                  "    quoteParams: {",
+                  "      fromTokenAddress: \"\",",
+                  "      toTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      fromTokenAmount: \"0.1\",",
+                  "      fromNetworkId: \"evm--10\",",
+                  "      toNetworkId: \"evm--1\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    },",
+                  "    buildBase: {",
+                  "      fromTokenAddress: \"\",",
+                  "      toTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      fromTokenAmount: \"0.1\",",
+                  "      toTokenAmount: \"10\",",
+                  "      fromNetworkId: \"evm--10\",",
+                  "      toNetworkId: \"evm--1\"",
+                  "    }",
+                  "  },",
+                  "  {",
+                  "    name: \"BTC 0.001 → Ethereum.USDC (跨链)\",",
+                  "    quoteParams: {",
+                  "      fromTokenAddress: \"\",",
+                  "      toTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      fromTokenAmount: \"0.001\",",
+                  "      fromNetworkId: \"btc--0\",",
+                  "      toNetworkId: \"evm--1\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    },",
+                  "    buildBase: {",
+                  "      fromTokenAddress: \"\",",
+                  "      toTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      fromTokenAmount: \"0.001\",",
+                  "      toTokenAmount: \"20\",",
+                  "      fromNetworkId: \"btc--0\",",
+                  "      toNetworkId: \"evm--1\"",
+                  "    }",
+                  "  }",
+                  "];",
+                  "const QUOTE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
+                  "const BUILD_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
+                  "const quoteHeaders = {",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026031799\"",
+                  "};",
+                  "const buildHeaders = {",
+                  "  \"Content-Type\": \"application/json\",",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026031799\"",
+                  "};",
+                  "function buildQuery(params) {",
+                  "  return Object.entries(params)",
+                  "    .filter(function(kv){ return kv[1]!==undefined && kv[1]!==null; })",
+                  "    .map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); })",
+                  "    .join('&');",
+                  "}",
+                  "function runCase(i){",
+                  "  if(i>=testCases.length){ console.log('Exodus 主币<>代币 build+quote done'); return; }",
+                  "  var c=testCases[i];",
+                  "  var caseName=c.name;",
+                  "  pm.sendRequest({",
+                  "    url: QUOTE_URL+'?'+buildQuery(c.quoteParams),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(quoteHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; })",
+                  "  }, function(err, res){",
+                  "    if(err){",
+                  "      pm.test('['+caseName+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); });",
+                  "      runCase(i+1);",
+                  "      return;",
+                  "    }",
+                  "    var code=res.code||res.status;",
+                  "    pm.test('['+caseName+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    var json=res.json();",
+                  "    pm.test('['+caseName+'] quote 业务码 0', function(){ pm.expect(json.code).to.eql(0); });",
+                  "    var d=json.data;",
+                  "    var list = Array.isArray(d) ? d : [];",
+                  "    var exEntry=list.find(function(x){",
+                  "      return x.info && x.info.provider && String(x.info.provider).toLowerCase().indexOf('exodus')>=0;",
+                  "    });",
+                  "    pm.test('['+caseName+'] 找到 Exodus 报价', function(){",
+                  "      pm.expect(exEntry, '未找到 provider 含 exodus 的条目').to.be.ok;",
+                  "    });",
+                  "    var ctx=exEntry && exEntry.quoteResultCtx;",
+                  "    pm.test('['+caseName+'] quoteResultCtx 存在', function(){",
+                  "      pm.expect(ctx, 'quoteResultCtx 缺失').to.be.ok;",
+                  "    });",
+                  "    var userAddr = c.quoteParams.fromNetworkId === 'btc--0'",
+                  "      ? 'bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc'",
+                  "      : '0x4EF880525383ab4E3d94b7689e3146bF899A296e';",
+                  "    var buildBody = Object.assign({}, c.buildBase, {",
+                  "      protocol: 'Swap',",
+                  "      provider: 'SwapExodus',",
+                  "      userAddress: userAddr,",
+                  "      receivingAddress: userAddr,",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd',",
+                  "      quoteResultCtx: ctx",
+                  "    });",
+                  "    pm.sendRequest({",
+                  "      url: BUILD_URL,",
+                  "      method: 'POST',",
+                  "      header: Object.entries(buildHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; }),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(buildBody) }",
+                  "    }, function(err2, res2){",
+                  "      if(err2){",
+                  "        pm.test('['+caseName+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); });",
+                  "        runCase(i+1);",
+                  "        return;",
+                  "      }",
+                  "      var code2=res2.code||res2.status;",
+                  "      pm.test('['+caseName+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); });",
+                  "      if(code2===200){",
+                  "        var j2=res2.json();",
+                  "        pm.test('['+caseName+'] build data.tx 存在', function(){",
+                  "          pm.expect(j2.data).to.have.property('tx');",
+                  "          pm.expect(j2.data.tx).to.be.ok;",
+                  "        });",
+                  "      }",
+                  "      runCase(i+1);",
+                  "    });",
+                  "  });",
+                  "}",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"fromTokenAmount\": \"0.1\",\n  \"toTokenAmount\": \"10\",\n  \"fromNetworkId\": \"evm--10\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapExodus\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build - Exodus - 代币<>主币（仅跨链，含 Quote）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [",
+                  "  {",
+                  "    name: \"Ethereum.USDC 50 → BTC (跨链)\",",
+                  "    quoteParams: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"\",",
+                  "      fromTokenAmount: \"50\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"btc--0\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    },",
+                  "    buildBase: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"\",",
+                  "      fromTokenAmount: \"50\",",
+                  "      toTokenAmount: \"0.02\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"btc--0\"",
+                  "    }",
+                  "  }",
+                  "];",
+                  "const QUOTE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
+                  "const BUILD_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
+                  "const quoteHeaders = {",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026031799\"",
+                  "};",
+                  "const buildHeaders = {",
+                  "  \"Content-Type\": \"application/json\",",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026031799\"",
+                  "};",
+                  "function buildQuery(params) {",
+                  "  return Object.entries(params)",
+                  "    .filter(function(kv){ return kv[1]!==undefined && kv[1]!==null; })",
+                  "    .map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); })",
+                  "    .join('&');",
+                  "}",
+                  "function runCase(i){",
+                  "  if(i>=testCases.length){ console.log('Exodus 代币<>主币 build+quote done'); return; }",
+                  "  var c=testCases[i];",
+                  "  var caseName=c.name;",
+                  "  pm.sendRequest({",
+                  "    url: QUOTE_URL+'?'+buildQuery(c.quoteParams),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(quoteHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; })",
+                  "  }, function(err, res){",
+                  "    if(err){",
+                  "      pm.test('['+caseName+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); });",
+                  "      runCase(i+1);",
+                  "      return;",
+                  "    }",
+                  "    var code=res.code||res.status;",
+                  "    pm.test('['+caseName+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    var json=res.json();",
+                  "    pm.test('['+caseName+'] quote 业务码 0', function(){ pm.expect(json.code).to.eql(0); });",
+                  "    var d=json.data;",
+                  "    var list = Array.isArray(d) ? d : [];",
+                  "    var exEntry=list.find(function(x){",
+                  "      return x.info && x.info.provider && String(x.info.provider).toLowerCase().indexOf('exodus')>=0;",
+                  "    });",
+                  "    pm.test('['+caseName+'] 找到 Exodus 报价', function(){",
+                  "      pm.expect(exEntry, '未找到 provider 含 exodus 的条目').to.be.ok;",
+                  "    });",
+                  "    var ctx=exEntry && exEntry.quoteResultCtx;",
+                  "    pm.test('['+caseName+'] quoteResultCtx 存在', function(){",
+                  "      pm.expect(ctx, 'quoteResultCtx 缺失').to.be.ok;",
+                  "    });",
+                  "    var buildBody = Object.assign({}, c.buildBase, {",
+                  "      protocol: 'Swap',",
+                  "      provider: 'SwapExodus',",
+                  "      userAddress: '0x4EF880525383ab4E3d94b7689e3146bF899A296e',",
+                  "      receivingAddress: 'bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc',",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd',",
+                  "      quoteResultCtx: ctx",
+                  "    });",
+                  "    pm.sendRequest({",
+                  "      url: BUILD_URL,",
+                  "      method: 'POST',",
+                  "      header: Object.entries(buildHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; }),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(buildBody) }",
+                  "    }, function(err2, res2){",
+                  "      if(err2){",
+                  "        pm.test('['+caseName+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); });",
+                  "        runCase(i+1);",
+                  "        return;",
+                  "      }",
+                  "      var code2=res2.code||res2.status;",
+                  "      pm.test('['+caseName+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); });",
+                  "      if(code2===200){",
+                  "        var j2=res2.json();",
+                  "        pm.test('['+caseName+'] build data.tx 存在', function(){",
+                  "          pm.expect(j2.data).to.have.property('tx');",
+                  "          pm.expect(j2.data.tx).to.be.ok;",
+                  "        });",
+                  "      }",
+                  "      runCase(i+1);",
+                  "    });",
+                  "  });",
+                  "}",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"50\",\n  \"toTokenAmount\": \"0.02\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapExodus\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build - Exodus - 代币<>代币（仅跨链，含 Quote）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const testCases = [",
+                  "  {",
+                  "    name: \"Ethereum.USDC 50 → Arbitrum.USDT (跨链)\",",
+                  "    quoteParams: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9\",",
+                  "      fromTokenAmount: \"50\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"evm--42161\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    },",
+                  "    buildBase: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9\",",
+                  "      fromTokenAmount: \"50\",",
+                  "      toTokenAmount: \"49\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"evm--42161\"",
+                  "    }",
+                  "  }",
+                  "];",
+                  "const QUOTE_URL = \"https://swap.onekeytest.com/swap/v1/quote/events\";",
+                  "const BUILD_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
+                  "const quoteHeaders = {",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026031799\"",
+                  "};",
+                  "const buildHeaders = {",
+                  "  \"Content-Type\": \"application/json\",",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026031799\"",
+                  "};",
+                  "function buildQuery(params) {",
+                  "  return Object.entries(params)",
+                  "    .filter(function(kv){ return kv[1]!==undefined && kv[1]!==null; })",
+                  "    .map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); })",
+                  "    .join('&');",
+                  "}",
+                  "function runCase(i){",
+                  "  if(i>=testCases.length){ console.log('Exodus 代币<>代币 build+quote done'); return; }",
+                  "  var c=testCases[i];",
+                  "  var caseName=c.name;",
+                  "  pm.sendRequest({",
+                  "    url: QUOTE_URL+'?'+buildQuery(c.quoteParams),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(quoteHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; })",
+                  "  }, function(err, res){",
+                  "    if(err){",
+                  "      pm.test('['+caseName+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); });",
+                  "      runCase(i+1);",
+                  "      return;",
+                  "    }",
+                  "    var code=res.code||res.status;",
+                  "    pm.test('['+caseName+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    var json=res.json();",
+                  "    pm.test('['+caseName+'] quote 业务码 0', function(){ pm.expect(json.code).to.eql(0); });",
+                  "    var d=json.data;",
+                  "    var list = Array.isArray(d) ? d : [];",
+                  "    var exEntry=list.find(function(x){",
+                  "      return x.info && x.info.provider && String(x.info.provider).toLowerCase().indexOf('exodus')>=0;",
+                  "    });",
+                  "    pm.test('['+caseName+'] 找到 Exodus 报价', function(){",
+                  "      pm.expect(exEntry, '未找到 provider 含 exodus 的条目').to.be.ok;",
+                  "    });",
+                  "    var ctx=exEntry && exEntry.quoteResultCtx;",
+                  "    pm.test('['+caseName+'] quoteResultCtx 存在', function(){",
+                  "      pm.expect(ctx, 'quoteResultCtx 缺失').to.be.ok;",
+                  "    });",
+                  "    var buildBody = Object.assign({}, c.buildBase, {",
+                  "      protocol: 'Swap',",
+                  "      provider: 'SwapExodus',",
+                  "      userAddress: '0x4EF880525383ab4E3d94b7689e3146bF899A296e',",
+                  "      receivingAddress: '0x4EF880525383ab4E3d94b7689e3146bF899A296e',",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd',",
+                  "      quoteResultCtx: ctx",
+                  "    });",
+                  "    pm.sendRequest({",
+                  "      url: BUILD_URL,",
+                  "      method: 'POST',",
+                  "      header: Object.entries(buildHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; }),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(buildBody) }",
+                  "    }, function(err2, res2){",
+                  "      if(err2){",
+                  "        pm.test('['+caseName+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); });",
+                  "        runCase(i+1);",
+                  "        return;",
+                  "      }",
+                  "      var code2=res2.code||res2.status;",
+                  "      pm.test('['+caseName+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); });",
+                  "      if(code2===200){",
+                  "        var j2=res2.json();",
+                  "        pm.test('['+caseName+'] build data.tx 存在', function(){",
+                  "          pm.expect(j2.data).to.have.property('tx');",
+                  "          pm.expect(j2.data.tx).to.be.ok;",
+                  "        });",
+                  "      }",
+                  "      runCase(i+1);",
+                  "    });",
+                  "  });",
+                  "}",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"toTokenAddress\": \"0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9\",\n  \"fromTokenAmount\": \"50\",\n  \"toTokenAmount\": \"49\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--42161\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapExodus\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

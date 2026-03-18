@@ -1,0 +1,440 @@
+{
+  "info": {
+    "name": "Swap 1inchFusion - 按兑换类型（Quote+Build）",
+    "description": "1inch Fusion 渠道构建接口测试用例。由于 1inch Fusion 仅支持 ERC20<>ERC20 兑换，本集合**只覆盖代币<>代币**场景。每条用例在 Tests 脚本中先调用 quote 接口获取 quoteResultCtx，然后携带该字段调用 build-tx 接口。\n\n当前仅覆盖 Ethereum 网络（evm--1），后续可在 testCases 中按 swap-rules.md 扩展到 Arbitrum / Optimism / BSC / Polygon / Avalanche。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "requestId",
+      "value": "{{$guid}}",
+      "type": "string"
+    },
+    {
+      "key": "baseUrl",
+      "value": "https://swap.onekeytest.com",
+      "type": "string"
+    },
+    {
+      "key": "userAddress",
+      "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01-1inchFusion-构建（含 Quote，仅代币<>代币）",
+      "item": [
+        {
+          "name": "Build - 1inchFusion - 代币<>代币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "/**",
+                  " * 1inch Fusion 代币→代币：quoteResultCtx -> build-tx",
+                  " */",
+                  "const testCases = [",
+                  "  {",
+                  "    name: \"Ethereum.USDC 10 → USDT (Fusion)\",",
+                  "    quoteParams: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"0xdac17f958d2ee523a2206206994597c13d831ec7\",",
+                  "      fromTokenAmount: \"10\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"evm--1\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    },",
+                  "    buildBase: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"0xdac17f958d2ee523a2206206994597c13d831ec7\",",
+                  "      fromTokenAmount: \"10\",",
+                  "      toTokenAmount: \"9.97\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"evm--1\"",
+                  "    }",
+                  "  }",
+                  "];",
+                  "",
+                  "const QUOTE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
+                  "const BUILD_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
+                  "",
+                  "const quoteHeaders = {",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn(\"{{$guid}}\"),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026022727\"",
+                  "};",
+                  "",
+                  "const buildHeaders = {",
+                  "  \"accept\": \"application/json, text/plain, */*\",",
+                  "  \"content-type\": \"application/json\",",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn(\"{{$guid}}\"),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026022727\",",
+                  "  \"X-Onekey-Wallet-Type\": \"hd\"",
+                  "};",
+                  "",
+                  "function buildQuery(params) {",
+                  "  return Object.entries(params)",
+                  "    .filter(function(kv){ return kv[1]!==undefined && kv[1]!==null; })",
+                  "    .map(function(kv){ return encodeURIComponent(kv[0]) + '=' + encodeURIComponent(String(kv[1])); })",
+                  "    .join('&');",
+                  "}",
+                  "",
+                  "function runCase(i){",
+                  "  if(i >= testCases.length){",
+                  "    console.log(\"🎉 1inchFusion 代币<>主币 用例完成\");",
+                  "    return;",
+                  "  }",
+                  "  var c = testCases[i];",
+                  "  var caseName = c.name;",
+                  "  console.log(\"\\n===== [\" + caseName + \"] 开始 =====\");",
+                  "",
+                  "  pm.sendRequest({",
+                  "    url: QUOTE_URL + '?' + buildQuery(c.quoteParams),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(quoteHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; })",
+                  "  }, function(err, res){",
+                  "    if (err) {",
+                  "      pm.test('['+caseName+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); });",
+                  "      runCase(i+1);",
+                  "      return;",
+                  "    }",
+                  "    var code = res.code || res.status;",
+                  "    pm.test('['+caseName+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    var json = res.json();",
+                  "    pm.test('['+caseName+'] quote 业务码 0', function(){ pm.expect(json.code).to.eql(0); });",
+                  "    var d = json.data || [];",
+                  "    var fusionEntry = d.find(function(x){",
+                  "      return x.info && x.info.provider && String(x.info.provider).toLowerCase().indexOf('fusion') >= 0;",
+                  "    });",
+                  "    pm.test('['+caseName+'] 找到 provider 含 fusion 的报价', function(){",
+                  "      pm.expect(fusionEntry, '未找到 info.provider 含 fusion 的条目').to.be.ok;",
+                  "    });",
+                  "    var ctx = fusionEntry && fusionEntry.quoteResultCtx;",
+                  "    pm.test('['+caseName+'] quoteResultCtx 存在', function(){ pm.expect(ctx, 'quoteResultCtx 缺失').to.be.ok; });",
+                  "",
+                  "    var buildBody = Object.assign({}, c.buildBase, {",
+                  "      protocol: 'Swap',",
+                  "      provider: 'Swap1inch',",
+                  "      userAddress: '0x4EF880525383ab4E3d94b7689e3146bF899A296e',",
+                  "      receivingAddress: '0x4EF880525383ab4E3d94b7689e3146bF899A296e',",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd',",
+                  "      quoteResultCtx: ctx",
+                  "    });",
+                  "",
+                  "    console.log('['+caseName+'] build body:', buildBody);",
+                  "",
+                  "    pm.sendRequest({",
+                  "      url: BUILD_URL,",
+                  "      method: 'POST',",
+                  "      header: Object.entries(buildHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; }),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(buildBody) }",
+                  "    }, function(err2, res2){",
+                  "      if (err2) {",
+                  "        pm.test('['+caseName+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); });",
+                  "        runCase(i+1);",
+                  "        return;",
+                  "      }",
+                  "      var code2 = res2.code || res2.status;",
+                  "      if (code2 === 422) {",
+                  "        console.log('❌ ['+caseName+'] build 422 body =>', res2.text());",
+                  "      }",
+                  "      pm.test('['+caseName+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); });",
+                  "      if (code2 === 200) {",
+                  "        var j2 = res2.json();",
+                  "        pm.test('['+caseName+'] build data.tx 存在', function(){",
+                  "          pm.expect(j2.data).to.have.property('tx');",
+                  "          pm.expect(j2.data.tx).to.be.ok;",
+                  "        });",
+                  "      }",
+                  "      runCase(i+1);",
+                  "    });",
+                  "  });",
+                  "}",
+                  "",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"10\",\n  \"toTokenAmount\": \"0.0035\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"Swap1inch\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build - 1inchFusion - 代币<>代币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "/**",
+                  " * 1inch Fusion 代币→代币：quoteResultCtx -> build-tx",
+                  " */",
+                  "const testCases = [",
+                  "  {",
+                  "    name: \"Ethereum.USDC 10 → USDT (Fusion)\",",
+                  "    quoteParams: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"0xdac17f958d2ee523a2206206994597c13d831ec7\",",
+                  "      fromTokenAmount: \"10\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"evm--1\",",
+                  "      protocol: \"Swap\",",
+                  "      userAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      slippagePercentage: \"0.5\",",
+                  "      autoSlippage: \"true\",",
+                  "      receivingAddress: \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",",
+                  "      kind: \"sell\",",
+                  "      toTokenAmount: \"\",",
+                  "      denySingleSwapProvider: \"\"",
+                  "    },",
+                  "    buildBase: {",
+                  "      fromTokenAddress: \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "      toTokenAddress: \"0xdac17f958d2ee523a2206206994597c13d831ec7\",",
+                  "      fromTokenAmount: \"10\",",
+                  "      toTokenAmount: \"9.97\",",
+                  "      fromNetworkId: \"evm--1\",",
+                  "      toNetworkId: \"evm--1\"",
+                  "    }",
+                  "  }",
+                  "];",
+                  "",
+                  "const QUOTE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
+                  "const BUILD_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
+                  "",
+                  "const quoteHeaders = {",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn(\"{{$guid}}\"),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026022727\"",
+                  "};",
+                  "",
+                  "const buildHeaders = {",
+                  "  \"accept\": \"application/json, text/plain, */*\",",
+                  "  \"content-type\": \"application/json\",",
+                  "  \"X-Onekey-Request-ID\": pm.variables.replaceIn(\"{{$guid}}\"),",
+                  "  \"X-Onekey-Request-Currency\": \"usd\",",
+                  "  \"X-Onekey-Request-Locale\": \"en\",",
+                  "  \"X-Onekey-Request-Theme\": \"light\",",
+                  "  \"X-Onekey-Request-Platform\": \"desktop-macosStore\",",
+                  "  \"X-Onekey-Request-Version\": \"6.1.0\",",
+                  "  \"X-Onekey-Request-Build-Number\": \"2026022727\",",
+                  "  \"X-Onekey-Wallet-Type\": \"hd\"",
+                  "};",
+                  "",
+                  "function buildQuery(params) {",
+                  "  return Object.entries(params)",
+                  "    .filter(function(kv){ return kv[1]!==undefined && kv[1]!==null; })",
+                  "    .map(function(kv){ return encodeURIComponent(kv[0]) + '=' + encodeURIComponent(String(kv[1])); })",
+                  "    .join('&');",
+                  "}",
+                  "",
+                  "function runCase(i){",
+                  "  if(i >= testCases.length){",
+                  "    console.log(\"🎉 1inchFusion 代币<>代币 用例完成\");",
+                  "    return;",
+                  "  }",
+                  "  var c = testCases[i];",
+                  "  var caseName = c.name;",
+                  "  console.log(\"\\n===== [\" + caseName + \"] 开始 =====\");",
+                  "",
+                  "  pm.sendRequest({",
+                  "    url: QUOTE_URL + '?' + buildQuery(c.quoteParams),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(quoteHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; })",
+                  "  }, function(err, res){",
+                  "    if (err) {",
+                  "      pm.test('['+caseName+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); });",
+                  "      runCase(i+1);",
+                  "      return;",
+                  "    }",
+                  "    var code = res.code || res.status;",
+                  "    pm.test('['+caseName+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    var json = res.json();",
+                  "    pm.test('['+caseName+'] quote 业务码 0', function(){ pm.expect(json.code).to.eql(0); });",
+                  "    var d = json.data || [];",
+                  "    var fusionEntry = d.find(function(x){",
+                  "      return x.info && x.info.provider && String(x.info.provider).toLowerCase().indexOf('fusion') >= 0;",
+                  "    });",
+                  "    pm.test('['+caseName+'] 找到 provider 含 fusion 的报价', function(){",
+                  "      pm.expect(fusionEntry, '未找到 info.provider 含 fusion 的条目').to.be.ok;",
+                  "    });",
+                  "    var ctx = fusionEntry && fusionEntry.quoteResultCtx;",
+                  "    pm.test('['+caseName+'] quoteResultCtx 存在', function(){ pm.expect(ctx, 'quoteResultCtx 缺失').to.be.ok; });",
+                  "",
+                  "    var buildBody = Object.assign({}, c.buildBase, {",
+                  "      protocol: 'Swap',",
+                  "      provider: 'Swap1inch',",
+                  "      userAddress: '0x4EF880525383ab4E3d94b7689e3146bF899A296e',",
+                  "      receivingAddress: '0x4EF880525383ab4E3d94b7689e3146bF899A296e',",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd',",
+                  "      quoteResultCtx: ctx",
+                  "    });",
+                  "",
+                  "    console.log('['+caseName+'] build body:', buildBody);",
+                  "",
+                  "    pm.sendRequest({",
+                  "      url: BUILD_URL,",
+                  "      method: 'POST',",
+                  "      header: Object.entries(buildHeaders).map(function(e){ return { key: e[0], value: String(e[1]) }; }),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(buildBody) }",
+                  "    }, function(err2, res2){",
+                  "      if (err2) {",
+                  "        pm.test('['+caseName+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); });",
+                  "        runCase(i+1);",
+                  "        return;",
+                  "      }",
+                  "      var code2 = res2.code || res2.status;",
+                  "      if (code2 === 422) {",
+                  "        console.log('❌ ['+caseName+'] build 422 body =>', res2.text());",
+                  "      }",
+                  "      pm.test('['+caseName+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); });",
+                  "      if (code2 === 200) {",
+                  "        var j2 = res2.json();",
+                  "        pm.test('['+caseName+'] build data.tx 存在', function(){",
+                  "          pm.expect(j2.data).to.have.property('tx');",
+                  "          pm.expect(j2.data.tx).to.be.ok;",
+                  "        });",
+                  "      }",
+                  "      runCase(i+1);",
+                  "    });",
+                  "  });",
+                  "}",
+                  "",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.1.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026022727",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"toTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n  \"fromTokenAmount\": \"10\",\n  \"toTokenAmount\": \"9.97\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"Swap1inch\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+
