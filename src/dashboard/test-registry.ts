@@ -22,6 +22,15 @@ function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
+function titleizeSegment(seg: string) {
+  // "token-search" -> "Token Search"
+  return seg
+    .split('-')
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
 function findTestFiles(dir: string, base: string = dir): string[] {
   const results: string[] = [];
   for (const entry of readdirSync(dir)) {
@@ -49,11 +58,16 @@ export async function getTestRegistry(): Promise<TestGroup[]> {
 
       const rel = relative(TESTS_DIR, file);
       const parts = rel.replace(/\.test\.mjs$/, '').split('/');
-      const platform = rel.startsWith('android') ? 'android' : 'desktop';
+      const platform = parts[0] === 'android' ? 'android' : 'desktop';
 
-      // "perps/favorites" → category: "Perps", group: "Favorites"
-      const category = capitalize(parts[0]);
-      const group = parts.length > 1 ? capitalize(parts[1]) : category;
+      // Normalize path: "{platform}/{module}/{feature}"
+      // Example: "desktop/perps/favorites" → category: "Perps", group: "Favorites"
+      // Example: "desktop/settings/theme-switch" → category: "Settings", group: "Theme Switch"
+      const moduleSeg = parts[0] === 'desktop' || parts[0] === 'android' ? parts[1] : parts[0];
+      const featureSeg = parts[0] === 'desktop' || parts[0] === 'android' ? parts[2] : parts[1];
+
+      const category = moduleSeg ? capitalize(moduleSeg) : 'Other';
+      const group = featureSeg ? titleizeSegment(featureSeg) : category;
 
       groups.push({
         file: rel,

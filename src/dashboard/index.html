@@ -16,7 +16,7 @@
   body { font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); font-size: 13px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
   /* Header */
-  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; position: relative; z-index: 20; }
   .header h1 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
   .header h1 span { color: var(--accent); }
   .connection-status { display: flex; align-items: center; gap: 8px; font-size: 12px; }
@@ -29,7 +29,7 @@
   .conn-label.disconnected { color: var(--red); }
 
   /* Control Bar */
-  .control-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+  .control-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 16px; flex-shrink: 0; position: relative; z-index: 20; }
   .selected-count { font-size: 12px; color: var(--text2); min-width: 120px; }
   .selected-count strong { color: var(--text); }
   .ctrl-buttons { display: flex; gap: 8px; }
@@ -54,7 +54,7 @@
   .progress-text { font-size: 11px; color: var(--text2); min-width: 60px; text-align: right; }
 
   /* Main Layout */
-  .main { display: flex; flex: 1; overflow: hidden; }
+  .main { display: flex; flex: 1; overflow: hidden; position: relative; z-index: 1; }
 
   /* Left Panel - Test Case Tree */
   .left-panel { width: 320px; min-width: 320px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
@@ -71,7 +71,7 @@
 
   /* Category (top-level directory) */
   .category { margin-bottom: 4px; }
-  .category-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; user-select: none; transition: background 0.15s; border-bottom: 1px solid var(--border); }
+  .category-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; -webkit-user-select: none; user-select: none; transition: background 0.15s; border-bottom: 1px solid var(--border); }
   .category-header:hover { background: var(--surface2); }
   .category-chevron { font-size: 10px; color: var(--text2); transition: transform 0.2s; width: 14px; text-align: center; }
   .category-chevron.expanded { transform: rotate(90deg); }
@@ -83,7 +83,7 @@
 
   /* Group (file-level) */
   .group { margin-bottom: 2px; }
-  .group-header { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 28px; cursor: pointer; user-select: none; transition: background 0.15s; }
+  .group-header { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 28px; cursor: pointer; -webkit-user-select: none; user-select: none; transition: background 0.15s; }
   .group-header:hover { background: var(--surface2); }
   .group-chevron { font-size: 10px; color: var(--text2); transition: transform 0.2s; width: 14px; text-align: center; }
   .group-chevron.expanded { transform: rotate(90deg); }
@@ -438,6 +438,24 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') document.getElementById('modalOverlay').classList.remove('visible');
 });
 
+// ---- Global click fallback (fix: start button not clickable) ----
+// Some environments may have invisible overlays intercepting pointer events.
+// If the user clicks within the "Start" button bounds, force-trigger the action.
+document.addEventListener('click', (e) => {
+  try {
+    const btn = document.getElementById('startBtn');
+    if (!btn || btn.disabled) return;
+    const r = btn.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    const inRect = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+    if (!inRect) return;
+    if (e.target === btn || btn.contains(e.target)) return;
+    // Trigger the button handler programmatically.
+    btn.click();
+  } catch (_) {}
+}, true);
+
 // ---- Group Toggle ----
 function toggleGroup(groupKey) {
   if (expandedGroups.has(groupKey)) {
@@ -452,7 +470,7 @@ function toggleGroup(groupKey) {
 function toggleGroupSelect(groupKey, checked) {
   const group = registry.find(g => (g.file || g.group) === groupKey);
   if (!group) return;
-  group.cases.forEach(c => {
+  (group.cases || []).forEach(c => {
     if (checked) selected.add(c.id);
     else selected.delete(c.id);
   });
@@ -507,25 +525,35 @@ function renderControls() {
 
   switch (state) {
     case 'idle':
-      btns = `<button class="ctrl-btn start" onclick="startRun()" ${selected.size === 0 ? 'disabled' : ''}>&#9654; 开始执行</button>`;
+      btns = `<button class="ctrl-btn start" id="startBtn" ${selected.size === 0 ? 'disabled' : ''}>&#9654; 开始执行</button>`;
       break;
     case 'running':
-      btns = `<button class="ctrl-btn stop" onclick="stopRun()">&#9632; 停止</button>`;
+      btns = `<button class="ctrl-btn stop" id="stopBtn">&#9632; 停止</button>`;
       indicator.style.display = 'flex';
       progressContainer.style.display = 'flex';
       break;
     case 'paused':
-      btns = `<button class="ctrl-btn resume" onclick="resumeRun()">&#9654; 继续</button>
-              <button class="ctrl-btn restart" onclick="restartRun()">&#8635; 重新开始</button>`;
+      btns = `<button class="ctrl-btn resume" id="resumeBtn">&#9654; 继续</button>
+              <button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>`;
       progressContainer.style.display = 'flex';
       break;
     case 'finished':
-      btns = `<button class="ctrl-btn restart" onclick="restartRun()">&#8635; 重新开始</button>`;
+      btns = `<button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>`;
       progressContainer.style.display = 'flex';
       break;
   }
 
   container.innerHTML = btns;
+  // Bind events (avoid relying on inline onclick)
+  const startBtn = document.getElementById('startBtn');
+  if (startBtn) startBtn.onclick = () => startRun();
+  const stopBtn = document.getElementById('stopBtn');
+  if (stopBtn) stopBtn.onclick = () => stopRun();
+  const resumeBtn = document.getElementById('resumeBtn');
+  if (resumeBtn) resumeBtn.onclick = () => resumeRun();
+  const restartBtn = document.getElementById('restartBtn');
+  if (restartBtn) restartBtn.onclick = () => restartRun();
+
   updateProgressBar();
 }
 
@@ -713,17 +741,37 @@ function connectSSE() {
   evtSource.onopen = () => setConnection(true);
   evtSource.onerror = () => setConnection(false);
 
+  function upsertQueueItem(id, name, patch = {}) {
+    const idx = queueItems.findIndex(q => q.id === id);
+    if (idx >= 0) {
+      queueItems[idx] = { ...queueItems[idx], name: name ?? queueItems[idx].name, ...patch };
+      return;
+    }
+    queueItems.push({ id, name: name || '', status: 'pending', duration: null, error: null, ...patch });
+  }
+
   evtSource.addEventListener('queue', (e) => {
     const data = JSON.parse(e.data);
-    queueItems = (data.cases || []).map(c => ({
-      id: c.id,
-      name: c.name || '',
-      status: 'pending',
-      duration: null,
-      error: null,
-    }));
-    state = 'running';
-    startTimer();
+
+    // Backend may emit queue events one-by-one: { id, name, ... }
+    // Or in batch: { cases: [{id,name}, ...] }
+    if (Array.isArray(data.cases)) {
+      queueItems = data.cases.map(c => ({
+        id: c.id,
+        name: c.name || '',
+        status: 'pending',
+        duration: null,
+        error: null,
+      }));
+    } else if (data.id) {
+      upsertQueueItem(data.id, data.name, { status: 'pending', duration: null, error: null });
+    }
+
+    // Queueing doesn't mean the case has started yet.
+    if (state === 'idle') {
+      state = 'running';
+      startTimer();
+    }
     renderControls();
     renderStatus();
   });

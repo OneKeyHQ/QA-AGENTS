@@ -7,10 +7,10 @@ import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   unlockWalletIfNeeded, goToWalletHome,
-} from '../helpers/index.mjs';
+} from '../../helpers/index.mjs';
 
 export const testCases = [
-  { id: 'REFER-001', name: 'Bind Invite Code' },
+  { id: 'REFER-001', name: '返佣-绑定邀请码' },
 ];
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'referral');
@@ -22,7 +22,7 @@ export async function run() {
   const startTime = Date.now();
   const results = {
     testId: 'REFER-001',
-    name: 'Bind Invite Code',
+    name: '返佣-绑定邀请码',
     status: 'passed',
     steps: [],
     errors: [],

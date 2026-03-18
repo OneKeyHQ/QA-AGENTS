@@ -37,39 +37,25 @@ npm install
 
 ### 2. 运行自动化测试
 
-**Dashboard 面板（推荐）：**
-
 ```bash
-npm run dashboard
-# 打开 http://localhost:5050 选择用例执行
-```
+# 最简单（推荐）：一键启动 OneKey CDP + Dashboard，并引导在面板勾选执行
+/qatest 开始执行
 
-**CLI 执行：**
-
-```bash
-# 列出所有测试
-node src/tests/run.mjs
-
-# 执行指定模块
-node src/tests/run.mjs perps
-node src/tests/run.mjs cosmos
-
-# 执行单个用例
-node src/tests/perps/token-search.test.mjs SEARCH-001
+# 可选：直接 CLI 跑脚本
+node src/tests/desktop/market/search.test.mjs
+node src/tests/desktop/market/search.test.mjs MARKET-SEARCH-002
 ```
 
 ### 3. 录制新用例
 
 ```bash
-# 启动 OneKey（自动带 CDP 调试端口）
+# 最简单（推荐）：从用例文件开始录制
+@docs/qa/testcases/cases/<module>/<file>.md 开始录制
+
+# 可选：手动启动（CDP 9222 + Recorder 3210）
 /Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey --remote-debugging-port=9222
-
-# 启动录制器
 node src/recorder/listen.mjs
-# 监控 UI: http://localhost:3210
 ```
-
-在 OneKey 上操作 → 录制器自动捕获 → 确认操作清单 → 生成测试脚本。
 
 ## 项目结构
 

@@ -10,8 +10,8 @@ import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
-} from '../helpers/index.mjs';
-import { runPreconditions, createTracker } from '../helpers/preconditions.mjs';
+} from '../../helpers/index.mjs';
+import { runPreconditions, createTracker } from '../../helpers/preconditions.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'search');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -329,9 +329,9 @@ async function testSearch003(page) {
 // ── Registry ────────────────────────────────────────────────
 
 export const testCases = [
-  { id: 'SEARCH-001', name: '英文搜索 + 跨 tab 联动', fn: testSearch001 },
-  { id: 'SEARCH-002', name: '中文关键词搜索', fn: testSearch002 },
-  { id: 'SEARCH-003', name: '版块 Tab 遍历', fn: testSearch003 },
+  { id: 'SEARCH-001', name: 'Perps-搜索-英文搜索与跨Tab联动', fn: testSearch001 },
+  { id: 'SEARCH-002', name: 'Perps-搜索-中文关键词搜索', fn: testSearch002 },
+  { id: 'SEARCH-003', name: 'Perps-搜索-版块Tab遍历', fn: testSearch003 },
 ];
 
 export async function setup(page) {

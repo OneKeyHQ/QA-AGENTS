@@ -8,10 +8,10 @@ import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, clickTestId, RESULTS_DIR, WALLET_PASSWORD,
   closeAllModals, goToWalletHome, unlockWalletIfNeeded,
-} from '../helpers/index.mjs';
+} from '../../helpers/index.mjs';
 
 export const testCases = [
-  { id: 'WALLET-001', name: 'Create Mnemonic Wallet with KeyTag Backup' },
+  { id: 'WALLET-001', name: '钱包-创建助记词钱包(KeyTag备份)' },
 ];
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'wallet-create');
@@ -21,7 +21,7 @@ export async function run() {
   const startTime = Date.now();
   const results = {
     testId: 'WALLET-001',
-    name: 'Create Mnemonic Wallet with KeyTag Backup',
+    name: '钱包-创建助记词钱包(KeyTag备份)',
     status: 'passed',
     steps: [],
     errors: [],

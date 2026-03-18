@@ -8,10 +8,10 @@ import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, clickTestId,
   waitForReload, WALLET_PASSWORD, RESULTS_DIR,
-} from '../helpers/index.mjs';
+} from '../../helpers/index.mjs';
 
 export const testCases = [
-  { id: 'LANG-SWITCH-001', name: 'Language Switch Verification' },
+  { id: 'LANG-SWITCH-001', name: '设置-语言切换' },
 ];
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'language-switch');

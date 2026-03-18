@@ -6,10 +6,10 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, clickTestId, RESULTS_DIR,
-} from '../helpers/index.mjs';
+} from '../../helpers/index.mjs';
 
 export const testCases = [
-  { id: 'SETTINGS-001', name: 'Theme Switch Verification' },
+  { id: 'SETTINGS-001', name: '设置-主题切换' },
 ];
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'theme-switch');

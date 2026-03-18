@@ -1,6 +1,6 @@
 // Cosmos Transfer Tests — 9 data-driven transfer cases (COSMOS-001 through COSMOS-009)
 // Each case: switch account -> switch network -> send form -> recipient -> amount -> preview -> confirm submit -> assert success
-// Supports CLI filtering: node src/tests/cosmos/transfer.test.mjs COSMOS-003
+// Supports CLI filtering: node src/tests/desktop/transfer/cosmos/transfer.test.mjs COSMOS-003
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -11,7 +11,7 @@ import {
   dismissErrorDialogs,
   switchAccount, switchNetwork,
   executeTransferFlow,
-} from '../helpers/index.mjs';
+} from '../../../helpers/index.mjs';
 
 mkdirSync(RESULTS_DIR, { recursive: true });
 
@@ -85,7 +85,7 @@ const TRANSFERS = [
 
 export const testCases = TRANSFERS.map(t => ({
   id: t.id,
-  name: `${t.network} (${t.token}) transfer`,
+  name: `转账-Cosmos-${t.network}(${t.token})`,
 }));
 
 // ── Single transfer execution ────────────────────────────────

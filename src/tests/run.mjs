@@ -2,8 +2,8 @@
 // CLI runner for standalone test modules
 // Usage:
 //   node src/tests/run.mjs                          # list available tests
-//   node src/tests/run.mjs settings/language-switch  # run specific test
-//   node src/tests/run.mjs settings                  # run all tests in a feature folder
+//   node src/tests/run.mjs desktop/settings/language-switch  # run specific test
+//   node src/tests/run.mjs desktop/settings                  # run all tests in a feature folder
 
 import { resolve, relative } from 'node:path';
 import { glob } from 'node:fs';
@@ -14,7 +14,9 @@ const TESTS_DIR = import.meta.dirname;
 const PROJECT_ROOT = resolve(TESTS_DIR, '../..');
 
 async function discoverTests() {
-  const pattern = resolve(TESTS_DIR, '*/*.test.mjs');
+  // Platform-first structure: only discover runnable desktop CDP tests here.
+  // Android scripts (Midscene/ADB) are executed via their own entrypoints.
+  const pattern = resolve(TESTS_DIR, 'desktop/**/*.test.mjs');
   const files = await globAsync(pattern);
   return files.map(f => {
     const rel = relative(TESTS_DIR, f);
@@ -46,7 +48,7 @@ async function main() {
       console.log(`    ${t.name}`);
     }
     console.log(`\n  Usage: node src/tests/run.mjs <test-name>`);
-    console.log('  Example: node src/tests/run.mjs settings/language-switch\n');
+    console.log('  Example: node src/tests/run.mjs desktop/settings/language-switch\n');
     return;
   }
 

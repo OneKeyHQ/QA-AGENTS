@@ -16,7 +16,7 @@ import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
-} from '../helpers/index.mjs';
+} from '../../helpers/index.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'perps-favorites');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -737,11 +737,11 @@ async function testPerps005(page) {
 // ── Registry ──────────────────────────────────────────────
 
 export const testCases = [
-  { id: 'PERPS-001', name: '默认推荐代币收藏', fn: testPerps001 },
-  { id: 'PERPS-002', name: '搜索收藏/取消收藏', fn: testPerps002 },
-  { id: 'PERPS-003', name: '自选列表管理', fn: testPerps003 },
-  { id: 'PERPS-004', name: '行情页顶部展示与切换', fn: testPerps004 },
-  { id: 'PERPS-005', name: '跨入口数据一致性', fn: testPerps005 },
+  { id: 'PERPS-001', name: 'Perps-收藏-默认推荐代币收藏', fn: testPerps001 },
+  { id: 'PERPS-002', name: 'Perps-收藏-搜索收藏与取消收藏', fn: testPerps002 },
+  { id: 'PERPS-003', name: 'Perps-收藏-自选列表管理', fn: testPerps003 },
+  { id: 'PERPS-004', name: 'Perps-收藏-行情页顶部展示与切换', fn: testPerps004 },
+  { id: 'PERPS-005', name: 'Perps-收藏-跨入口数据一致性', fn: testPerps005 },
 ];
 
 export async function setup(page) {
