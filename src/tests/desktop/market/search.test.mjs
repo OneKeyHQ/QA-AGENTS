@@ -591,7 +591,7 @@ export async function run() {
     return { status: 'error' };
   }
 
-  const { page } = await connectCDP();
+  let { page } = await connectCDP();
 
   console.log('\n' + '='.repeat(60));
   console.log(`  Market Search Tests — ${casesToRun.length} case(s)`);
@@ -607,6 +607,11 @@ export async function run() {
     console.log('─'.repeat(60));
 
     try {
+      if (page?.isClosed?.()) {
+        console.log('  Page was closed, reconnecting CDP...');
+        ({ page } = await connectCDP());
+        await setup(page);
+      }
       const result = await test.fn(page);
       const duration = Date.now() - startTime;
       const r = {
@@ -630,12 +635,14 @@ export async function run() {
         timestamp: new Date().toISOString(),
       };
       console.error(`>> ${test.id}: FAILED (${(duration / 1000).toFixed(1)}s) — ${error.message}`);
-      await screenshot(page, SCREENSHOT_DIR, `${test.id}-error`);
+      if (page && !page?.isClosed?.()) {
+        await screenshot(page, SCREENSHOT_DIR, `${test.id}-error`);
+      }
       writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
       results.push(r);
     }
 
-    try { await dismissOverlays(page); } catch {}
+    try { if (page && !page?.isClosed?.()) await dismissOverlays(page); } catch {}
     await sleep(800);
   }
 
