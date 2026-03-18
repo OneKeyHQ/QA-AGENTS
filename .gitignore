@@ -1,0 +1,34 @@
+
+# Agent Skills 文档
+# Chrome MCP 临时数据目录
+# Claude 目录
+# E2E 测试（本地代码）
+# IDE
+# Node
+# Superpowers 技能框架（第三方）
+# macOS
+# 临时文件
+# 允许上传 cases、api、checklist 目录到 GitHub
+# 测试用例（部分目录包含敏感/内部数据）
+# 需求文档（内部文档）
+.env
+.env.*
+*.log
+*.swo
+*.swp
+*.tmp
+.DS_Store
+dist/
+midscene_run/
+.chrome-mcp-user-data*/
+.idea/
+.vscode/
+AGENTS.md
+claude/
+docs/AGENTS.md
+docs/requirements/
+docs/testcases/performance/
+e2e/
+node_modules/
+superpowers-meta/
+superpowers/

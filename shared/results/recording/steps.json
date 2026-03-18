@@ -1,0 +1,356 @@
+[
+  {
+    "time": "2026-03-17T08:16:34.174Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "Desktop-AppSideBar-Content-Container",
+    "text": "合约",
+    "placeholder": "",
+    "x": 40,
+    "y": 311,
+    "rect": {
+      "x": 25,
+      "y": 304,
+      "w": 22,
+      "h": 14
+    },
+    "step": 1,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-01.png"
+  },
+  {
+    "time": "2026-03-17T08:16:40.403Z",
+    "type": "click",
+    "tag": "DIV",
+    "testid": "",
+    "text": "SUIUSDC0 手续费",
+    "placeholder": "",
+    "x": 353,
+    "y": 126,
+    "rect": {
+      "x": 117,
+      "y": 98,
+      "w": 265,
+      "h": 44
+    },
+    "step": 2,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-02.png"
+  },
+  {
+    "time": "2026-03-17T08:16:46.644Z",
+    "type": "input",
+    "tag": "INPUT",
+    "testid": "nav-header-search",
+    "placeholder": "搜索资产",
+    "value": "BT",
+    "x": 0,
+    "y": 0,
+    "step": 3,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-03.png"
+  },
+  {
+    "time": "2026-03-17T08:16:51.355Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "永续合约",
+    "placeholder": "",
+    "x": 220,
+    "y": 234,
+    "rect": {
+      "x": 183,
+      "y": 220,
+      "w": 51,
+      "h": 18
+    },
+    "step": 4,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-04.png"
+  },
+  {
+    "time": "2026-03-17T08:16:53.719Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "加密货币",
+    "placeholder": "",
+    "x": 284,
+    "y": 235,
+    "rect": {
+      "x": 258,
+      "y": 220,
+      "w": 51,
+      "h": 18
+    },
+    "step": 5,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-05.png"
+  },
+  {
+    "time": "2026-03-17T08:16:57.278Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "股票",
+    "placeholder": "",
+    "x": 345,
+    "y": 230,
+    "rect": {
+      "x": 333,
+      "y": 220,
+      "w": 26,
+      "h": 18
+    },
+    "step": 6,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-06.png"
+  },
+  {
+    "time": "2026-03-17T08:17:00.208Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "永续合约",
+    "placeholder": "",
+    "x": 213,
+    "y": 235,
+    "rect": {
+      "x": 183,
+      "y": 220,
+      "w": 51,
+      "h": 18
+    },
+    "step": 7,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-07.png"
+  },
+  {
+    "time": "2026-03-17T08:18:54.234Z",
+    "type": "input",
+    "tag": "INPUT",
+    "testid": "nav-header-search",
+    "placeholder": "搜索资产",
+    "value": "比特",
+    "x": 0,
+    "y": 0,
+    "step": 8,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-08.png"
+  },
+  {
+    "time": "2026-03-17T08:19:00.438Z",
+    "type": "input",
+    "tag": "INPUT",
+    "testid": "nav-header-search",
+    "placeholder": "搜索资产",
+    "value": "yi tai",
+    "x": 0,
+    "y": 0,
+    "step": 9,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-09.png"
+  },
+  {
+    "time": "2026-03-17T08:19:01.984Z",
+    "type": "input",
+    "tag": "INPUT",
+    "testid": "nav-header-search",
+    "placeholder": "搜索资产",
+    "value": "以太",
+    "x": 0,
+    "y": 0,
+    "step": 10,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-10.png"
+  },
+  {
+    "time": "2026-03-17T08:19:47.197Z",
+    "type": "click",
+    "tag": "svg",
+    "testid": "-clear",
+    "text": "",
+    "placeholder": "",
+    "x": 875,
+    "y": 189,
+    "rect": {
+      "x": 868,
+      "y": 173,
+      "w": 24,
+      "h": 24
+    },
+    "step": 11,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-11.png"
+  },
+  {
+    "time": "2026-03-17T08:19:49.293Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "加密货币",
+    "placeholder": "",
+    "x": 281,
+    "y": 229,
+    "rect": {
+      "x": 258,
+      "y": 220,
+      "w": 51,
+      "h": 18
+    },
+    "step": 12,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-12.png"
+  },
+  {
+    "time": "2026-03-17T08:19:51.003Z",
+    "type": "click",
+    "tag": "DIV",
+    "testid": "TMPopover-ScrollView",
+    "text": "自选永续合约加密货币股票贵金属指数大宗商品外汇预上线",
+    "placeholder": "",
+    "x": 363,
+    "y": 226,
+    "rect": {
+      "x": 117,
+      "y": 208,
+      "w": 800,
+      "h": 43
+    },
+    "step": 13,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-14.png"
+  },
+  {
+    "time": "2026-03-17T08:19:52.269Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "股票",
+    "placeholder": "",
+    "x": 353,
+    "y": 226,
+    "rect": {
+      "x": 333,
+      "y": 220,
+      "w": 26,
+      "h": 18
+    },
+    "step": 14,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-14.png"
+  },
+  {
+    "time": "2026-03-17T08:19:54.261Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "贵金属",
+    "placeholder": "",
+    "x": 398,
+    "y": 231,
+    "rect": {
+      "x": 383,
+      "y": 220,
+      "w": 38,
+      "h": 18
+    },
+    "step": 15,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-15.png"
+  },
+  {
+    "time": "2026-03-17T08:19:56.486Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "指数",
+    "placeholder": "",
+    "x": 462,
+    "y": 229,
+    "rect": {
+      "x": 445,
+      "y": 220,
+      "w": 26,
+      "h": 18
+    },
+    "step": 16,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-16.png"
+  },
+  {
+    "time": "2026-03-17T08:19:57.993Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "大宗商品",
+    "placeholder": "",
+    "x": 527,
+    "y": 229,
+    "rect": {
+      "x": 495,
+      "y": 220,
+      "w": 51,
+      "h": 18
+    },
+    "step": 17,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-17.png"
+  },
+  {
+    "time": "2026-03-17T08:19:59.644Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "外汇",
+    "placeholder": "",
+    "x": 588,
+    "y": 233,
+    "rect": {
+      "x": 570,
+      "y": 220,
+      "w": 26,
+      "h": 18
+    },
+    "step": 18,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-19.png"
+  },
+  {
+    "time": "2026-03-17T08:20:01.027Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "预上线",
+    "placeholder": "",
+    "x": 649,
+    "y": 227,
+    "rect": {
+      "x": 619,
+      "y": 220,
+      "w": 38,
+      "h": 18
+    },
+    "step": 19,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-19.png"
+  },
+  {
+    "time": "2026-03-17T08:20:04.071Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "自选",
+    "placeholder": "",
+    "x": 137,
+    "y": 226,
+    "rect": {
+      "x": 133,
+      "y": 220,
+      "w": 26,
+      "h": 18
+    },
+    "step": 20,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-20.png"
+  },
+  {
+    "time": "2026-03-17T08:20:05.688Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "TMPopover-ScrollView",
+    "text": "永续合约",
+    "placeholder": "",
+    "x": 210,
+    "y": 230,
+    "rect": {
+      "x": 183,
+      "y": 220,
+      "w": 51,
+      "h": 18
+    },
+    "step": 21,
+    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-21.png"
+  }
+]

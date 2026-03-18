@@ -1,0 +1,46 @@
+{
+  "version": "2.1.0",
+  "lastUpdated": "2026-02-13T00:00:00Z",
+  "patterns": [
+    {
+      "id": "K-001",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "data-testid selectors are most reliable on OneKey desktop",
+      "details": "Prefer [data-testid=X] over text matching or CSS class selectors",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-002",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Sidebar home click blocked by modal overlay",
+      "details": "When APP-Modal-Screen is visible, [data-testid=home] click fails silently. Use page.evaluate() JS click to bypass.",
+      "confidence": 0.92
+    },
+    {
+      "id": "K-003",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Cosmos chains support memo field",
+      "details": "Cosmos ecosystem chains (Osmosis, Cosmos, Akash, etc.) have a memo/tag input in send form. Placeholder contains 'Memo'.",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-004",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "page.mouse.click more reliable than page.evaluate click for recipient selection",
+      "details": "Use page.evaluate to find element coordinates, then page.mouse.click(x,y) for actual click. JS .click() on container elements may not trigger React event handlers.",
+      "confidence": 0.88
+    },
+    {
+      "id": "K-005",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Modal scope required for element search",
+      "details": "Always restrict element search to [data-testid=APP-Modal-Screen] when modal is open. Elements behind modal (wallet home) have matching text and are clickable but wrong.",
+      "confidence": 0.95
+    }
+  ]
+}

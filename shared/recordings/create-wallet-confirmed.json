@@ -1,0 +1,146 @@
+{
+  "flow": "create-wallet",
+  "description": "创建助记词钱包完整流程",
+  "confirmedAt": "2026-02-28T08:35:00.000Z",
+  "userConfirmed": true,
+  "steps": [
+    {
+      "step": 1,
+      "action": "click",
+      "description": "点击账户选择器 'Account #1'",
+      "target": {
+        "testid": "AccountSelectorTriggerBase",
+        "text": "Account #1",
+        "tag": "DIV",
+        "role": "button"
+      }
+    },
+    {
+      "step": 2,
+      "action": "click",
+      "description": "点击添加钱包按钮",
+      "target": {
+        "testid": "add-wallet",
+        "text": "",
+        "tag": "BUTTON",
+        "role": "button"
+      }
+    },
+    {
+      "step": 3,
+      "action": "click",
+      "description": "选择 '创建助记词钱包' 选项",
+      "target": {
+        "testid": null,
+        "text": "创建助记词钱包",
+        "tag": "DIV",
+        "textMatch": "创建助记词钱包"
+      }
+    },
+    {
+      "step": 4,
+      "action": "wait",
+      "description": "等待钱包创建成功",
+      "waitFor": "钱包创建完成，页面变化"
+    },
+    {
+      "step": 5,
+      "action": "click",
+      "description": "选择 OneKey KeyTag 备份方式",
+      "target": {
+        "testid": null,
+        "text": "OneKey KeyTag",
+        "tag": "BUTTON",
+        "role": "button"
+      },
+      "note": "备份选项，需要输入密码才能进入备份页面"
+    },
+    {
+      "step": 6,
+      "action": "click",
+      "description": "点击密码输入框",
+      "target": {
+        "testid": "password-input",
+        "text": "",
+        "tag": "INPUT"
+      }
+    },
+    {
+      "step": 7,
+      "action": "input",
+      "description": "输入密码",
+      "target": {
+        "testid": "password-input",
+        "placeholder": "输入密码",
+        "tag": "INPUT",
+        "inputType": "password"
+      },
+      "value": "<password>"
+    },
+    {
+      "step": 8,
+      "action": "click",
+      "description": "点击验证密码按钮（提交密码）",
+      "target": {
+        "testid": "verifying-password",
+        "text": "",
+        "tag": "DIV"
+      }
+    },
+    {
+      "step": 9,
+      "action": "click",
+      "description": "查看助记词备份弹窗（显示 12 个助记词）",
+      "target": {
+        "testid": "APP-Modal-Screen",
+        "tag": "DIV"
+      },
+      "note": "显示 Wallet 名称和 12 个助记词编号"
+    },
+    {
+      "step": 10,
+      "action": "click",
+      "description": "点击 '我明白了' 确认按钮",
+      "target": {
+        "testid": "page-footer-confirm",
+        "text": "我明白了",
+        "tag": "BUTTON",
+        "role": "button"
+      }
+    },
+    {
+      "step": 11,
+      "action": "click",
+      "description": "点击邀请码输入框",
+      "target": {
+        "testid": null,
+        "placeholder": "邀请码",
+        "tag": "INPUT",
+        "inputType": "text"
+      }
+    },
+    {
+      "step": 12,
+      "action": "input",
+      "description": "输入邀请码",
+      "target": {
+        "testid": null,
+        "placeholder": "邀请码",
+        "tag": "INPUT",
+        "inputType": "text"
+      },
+      "value": "<invite-code>"
+    },
+    {
+      "step": 13,
+      "action": "click",
+      "description": "点击 '加入' 按钮",
+      "target": {
+        "testid": null,
+        "text": "加入",
+        "tag": "BUTTON",
+        "role": "button"
+      }
+    }
+  ]
+}

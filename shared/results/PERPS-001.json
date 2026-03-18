@@ -1,0 +1,45 @@
+{
+  "testId": "PERPS-001",
+  "status": "passed",
+  "duration": 22808,
+  "steps": [
+    {
+      "name": "清空已有自选",
+      "status": "passed",
+      "detail": "removed 4 tokens",
+      "time": "2026-03-13T14:54:25.522Z"
+    },
+    {
+      "name": "推荐列表显示",
+      "status": "passed",
+      "detail": "",
+      "time": "2026-03-13T14:54:26.529Z"
+    },
+    {
+      "name": "显示 6 个默认代币",
+      "status": "passed",
+      "detail": "found 6: BTCUSDC, ETHUSDC, BNBUSDC, SOLUSDC, HYPEUSDC, XRPUSDC",
+      "time": "2026-03-13T14:54:26.715Z"
+    },
+    {
+      "name": "自选列表显示 4 个代币",
+      "status": "passed",
+      "detail": "found: XRP, SOL, HYPE, BNB",
+      "time": "2026-03-13T14:54:31.601Z"
+    },
+    {
+      "name": "BTC/ETH 不在自选中",
+      "status": "passed",
+      "detail": "",
+      "time": "2026-03-13T14:54:31.601Z"
+    },
+    {
+      "name": "顶部行情栏同步",
+      "status": "passed",
+      "detail": "top: BNB, SOL, HYPE, XRP, TURBO, INTC, TRUMP, COIN, RIVN, CL, RENDER, SILVER, HOOD",
+      "time": "2026-03-13T14:54:31.623Z"
+    }
+  ],
+  "errors": [],
+  "timestamp": "2026-03-13T14:54:33.133Z"
+}

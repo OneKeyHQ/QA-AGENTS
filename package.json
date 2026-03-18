@@ -1,0 +1,33 @@
+{
+  "name": "onekey-agent-test",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsx src/cli/index.ts run",
+    "status": "tsx src/cli/index.ts status",
+    "init": "tsx src/cli/index.ts init",
+    "dashboard": "tsx src/dashboard/server.ts"
+  },
+  "dependencies": {
+    "chalk": "^5.4.0",
+    "commander": "^13.0.0",
+    "openai": "^6.25.0",
+    "sharp": "^0.34.5",
+    "uuid": "^11.0.0",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@midscene/android": "^1.4.9",
+    "@midscene/core": "^1.4.2",
+    "@midscene/web": "^1.4.2",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^22.0.0",
+    "@types/uuid": "^10.0.0",
+    "dotenv": "^17.3.1",
+    "playwright": "^1.58.2",
+    "playwright-core": "^1.58.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

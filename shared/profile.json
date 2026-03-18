@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-28T09:53:16.741Z",
+  "platforms": {
+    "desktop": {
+      "total_runs": 16,
+      "pass_rate": 0.25,
+      "common_failures": [
+        "timeout",
+        "element_not_found",
+        "unknown"
+      ],
+      "reliable_selectors": [
+        "[data-testid=\"AccountSelectorTriggerBase\"]",
+        "[data-testid=\"APP-Modal-Screen\"]",
+        "[data-testid=\"account-network-trigger-button\"]"
+      ],
+      "unreliable_selectors": [
+        "[data-testid=\"home\"]"
+      ]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["version", "lastUpdated", "platforms"],
+  "properties": {
+    "version": { "type": "string" },
+    "lastUpdated": { "type": "string", "format": "date-time" },
+    "platforms": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "total_runs": { "type": "number" },
+          "pass_rate": { "type": "number" },
+          "common_failures": { "type": "array", "items": { "type": "string" } },
+          "reliable_selectors": { "type": "array", "items": { "type": "string" } },
+          "unreliable_selectors": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

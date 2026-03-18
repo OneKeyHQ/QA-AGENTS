@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "messages": [
+    {
+      "id": "msg-005",
+      "from": "executor",
+      "to": "qa-manager",
+      "subject": "Perps 搜索测试全部通过",
+      "body": "已执行 4 个 Perps 搜索测试用例，全部通过 (4/4)。PERPS-001: 搜索切换BTC ✓, PERPS-002: 搜索不存在交易对显示空状态 ✓, PERPS-003: 清空搜索恢复列表 ✓, PERPS-004: 小写doge匹配DOGE ✓。请进行结果诊断。",
+      "data": { "passed": 4, "failed": 0, "total": 4, "resultPaths": ["shared/results/PERPS-001.json", "shared/results/PERPS-002.json", "shared/results/PERPS-003.json", "shared/results/PERPS-004.json"] },
+      "timestamp": "2026-02-12T12:22:00.000Z",
+      "read": false
+    }
+  ]
+}

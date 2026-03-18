@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["id", "intent", "preconditions", "steps", "expected"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Z]+-\\d{3}$" },
+    "intent": { "type": "string" },
+    "preconditions": { "type": "array", "items": { "type": "string" } },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["order", "intent"],
+        "properties": {
+          "order": { "type": "number" },
+          "intent": { "type": "string" }
+        }
+      }
+    },
+    "expected": { "type": "string" },
+    "priority": { "enum": ["P0", "P1", "P2"] },
+    "tags": { "type": "array", "items": { "type": "string" } },
+    "strategies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label", "sender", "recipient"],
+        "properties": {
+          "label": { "type": "string" },
+          "sender": { "type": "string" },
+          "recipient": { "type": "string" },
+          "amount": { "type": "string" },
+          "memo": { "type": ["string", "null"] }
+        }
+      },
+      "minItems": 1
+    },
+    "on_all_failed": {
+      "type": "string",
+      "enum": ["skip", "fail", "report"]
+    }
+  }
+}

@@ -1,0 +1,1914 @@
+{
+  "testids": [
+    {
+      "testid": "Desktop-AppSideBar-Container",
+      "tag": "DIV",
+      "text": "钱包市场交易合约DeFi设备推荐浏览器",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 72,
+        "h": 806
+      }
+    },
+    {
+      "testid": "Desktop-AppSideBar-Content-Container",
+      "tag": "DIV",
+      "text": "钱包市场交易合约DeFi设备推荐浏览器",
+      "rect": {
+        "x": 0,
+        "y": 52,
+        "w": 72,
+        "h": 754
+      }
+    },
+    {
+      "testid": "home",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 58,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "tab-modal-active-item-WalletSolid",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 58,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "market",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 126,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "tab-modal-no-active-item-ChartTrendingUp2Outline",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 126,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "swap",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 194,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "tab-modal-no-active-item-SwapHorOutline",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 194,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "perp",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 262,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "tab-modal-no-active-item-TradingViewCandlesOutline",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 262,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "earn",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 330,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "tab-modal-no-active-item-CoinsOutline",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 330,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "devicemanagement",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 398,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "tab-modal-no-active-item-OnekeyProOutline",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 398,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "referfriends",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 466,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "tab-modal-no-active-item-GiftOutline",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 466,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "discovery",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 534,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "tab-modal-no-active-item-CompassCircleOutline",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 16,
+        "y": 534,
+        "w": 40,
+        "h": 40
+      }
+    },
+    {
+      "testid": "nav-header-search",
+      "tag": "INPUT",
+      "text": "",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266,
+        "h": 28
+      }
+    },
+    {
+      "testid": "",
+      "tag": "DIV",
+      "text": "⌘K",
+      "rect": {
+        "x": 760,
+        "y": 11,
+        "w": 52,
+        "h": 30
+      }
+    },
+    {
+      "testid": "header-right-notification",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 1190,
+        "y": 14,
+        "w": 24,
+        "h": 24
+      }
+    },
+    {
+      "testid": "AccountSelectorTriggerBase",
+      "tag": "DIV",
+      "text": "Account #1",
+      "rect": {
+        "x": 97,
+        "y": 73,
+        "w": 140,
+        "h": 32
+      }
+    },
+    {
+      "testid": "account-network-trigger-button",
+      "tag": "DIV",
+      "text": "Ethereum",
+      "rect": {
+        "x": 239,
+        "y": 73,
+        "w": 122,
+        "h": 32
+      }
+    },
+    {
+      "testid": "account-network-trigger-button-text",
+      "tag": "SPAN",
+      "text": "Ethereum",
+      "rect": {
+        "x": 267,
+        "y": 79,
+        "w": 70,
+        "h": 20
+      }
+    },
+    {
+      "testid": "Wallet-Tab-Header",
+      "tag": "DIV",
+      "text": "$0.00发送接收兑换",
+      "rect": {
+        "x": 83,
+        "y": -383,
+        "w": 1140,
+        "h": 150
+      }
+    },
+    {
+      "testid": "Wallet-Token-List-Header",
+      "tag": "DIV",
+      "text": "资产余额价格",
+      "rect": {
+        "x": 111,
+        "y": 367,
+        "w": 1084,
+        "h": 44
+      }
+    },
+    {
+      "testid": "Wallet-DeFi-Empty",
+      "tag": "DIV",
+      "text": "开始赚取收益您的仓位将显示在这里",
+      "rect": {
+        "x": 103,
+        "y": 863,
+        "w": 1100,
+        "h": 168
+      }
+    },
+    {
+      "testid": "nav-header-search",
+      "tag": "INPUT",
+      "text": "",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266,
+        "h": 28
+      }
+    },
+    {
+      "testid": "",
+      "tag": "DIV",
+      "text": "⌘K",
+      "rect": {
+        "x": 760,
+        "y": 11,
+        "w": 52,
+        "h": 30
+      }
+    },
+    {
+      "testid": "header-right-notification",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 1190,
+        "y": 14,
+        "w": 24,
+        "h": 24
+      }
+    },
+    {
+      "testid": "nav-header-search",
+      "tag": "INPUT",
+      "text": "",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266,
+        "h": 28
+      }
+    },
+    {
+      "testid": "",
+      "tag": "DIV",
+      "text": "⌘K",
+      "rect": {
+        "x": 760,
+        "y": 11,
+        "w": 52,
+        "h": 30
+      }
+    },
+    {
+      "testid": "header-right-notification",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 1190,
+        "y": 14,
+        "w": 24,
+        "h": 24
+      }
+    },
+    {
+      "testid": "nav-header-search",
+      "tag": "INPUT",
+      "text": "",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266,
+        "h": 28
+      }
+    },
+    {
+      "testid": "",
+      "tag": "DIV",
+      "text": "⌘K",
+      "rect": {
+        "x": 760,
+        "y": 11,
+        "w": 52,
+        "h": 30
+      }
+    },
+    {
+      "testid": "perp-header-settings-button",
+      "tag": "BUTTON",
+      "text": "",
+      "rect": {
+        "x": 1145,
+        "y": 11,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "testid": "header-right-notification",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 1190,
+        "y": 14,
+        "w": 24,
+        "h": 24
+      }
+    },
+    {
+      "testid": "nav-header-search",
+      "tag": "INPUT",
+      "text": "",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266,
+        "h": 28
+      }
+    },
+    {
+      "testid": "",
+      "tag": "DIV",
+      "text": "⌘K",
+      "rect": {
+        "x": 760,
+        "y": 11,
+        "w": 52,
+        "h": 30
+      }
+    },
+    {
+      "testid": "header-right-notification",
+      "tag": "DIV",
+      "text": "",
+      "rect": {
+        "x": 1190,
+        "y": 14,
+        "w": 24,
+        "h": 24
+      }
+    },
+    {
+      "testid": "browser-shortcuts-button",
+      "tag": "BUTTON",
+      "text": "",
+      "rect": {
+        "x": 1183,
+        "y": 7,
+        "w": 38,
+        "h": 38
+      }
+    }
+  ],
+  "texts": [
+    {
+      "text": "钱包",
+      "rect": {
+        "x": 25,
+        "y": 100
+      }
+    },
+    {
+      "text": "市场",
+      "rect": {
+        "x": 25,
+        "y": 168
+      }
+    },
+    {
+      "text": "交易",
+      "rect": {
+        "x": 25,
+        "y": 236
+      }
+    },
+    {
+      "text": "合约",
+      "rect": {
+        "x": 25,
+        "y": 304
+      }
+    },
+    {
+      "text": "DeFi",
+      "rect": {
+        "x": 24,
+        "y": 372
+      }
+    },
+    {
+      "text": "设备",
+      "rect": {
+        "x": 25,
+        "y": 440
+      }
+    },
+    {
+      "text": "推荐",
+      "rect": {
+        "x": 25,
+        "y": 508
+      }
+    },
+    {
+      "text": "浏览器",
+      "rect": {
+        "x": 20,
+        "y": 576
+      }
+    },
+    {
+      "text": "⌘K",
+      "rect": {
+        "x": 768,
+        "y": 18
+      }
+    },
+    {
+      "text": "⌘",
+      "rect": {
+        "x": 770,
+        "y": 18
+      }
+    },
+    {
+      "text": "K",
+      "rect": {
+        "x": 790,
+        "y": 18
+      }
+    },
+    {
+      "text": "Account #1",
+      "rect": {
+        "x": 137,
+        "y": 79
+      }
+    },
+    {
+      "text": "Ethereum",
+      "rect": {
+        "x": 267,
+        "y": 79
+      }
+    },
+    {
+      "text": "$0.00",
+      "rect": {
+        "x": 103,
+        "y": -351
+      }
+    },
+    {
+      "text": "$",
+      "rect": {
+        "x": 103,
+        "y": -350
+      }
+    },
+    {
+      "text": "0",
+      "rect": {
+        "x": 129,
+        "y": -350
+      }
+    },
+    {
+      "text": ".00",
+      "rect": {
+        "x": 155,
+        "y": -350
+      }
+    },
+    {
+      "text": "发送",
+      "rect": {
+        "x": 152,
+        "y": -270
+      }
+    },
+    {
+      "text": "接收",
+      "rect": {
+        "x": 264,
+        "y": -270
+      }
+    },
+    {
+      "text": "兑换",
+      "rect": {
+        "x": 376,
+        "y": -270
+      }
+    },
+    {
+      "text": "0 手续费合约，现在体验",
+      "rect": {
+        "x": 123,
+        "y": -171
+      }
+    },
+    {
+      "text": "黄金、白银及股票永续合约现已支持，马上交易",
+      "rect": {
+        "x": 411,
+        "y": -171
+      }
+    },
+    {
+      "text": "黄金、白银及股票永续合约现已支持，马上交易",
+      "rect": {
+        "x": 699,
+        "y": -171
+      }
+    },
+    {
+      "text": "连接，自由了",
+      "rect": {
+        "x": 1051,
+        "y": -168
+      }
+    },
+    {
+      "text": "OneKey 现已支持蓝牙，无线配对，轻松上手",
+      "rect": {
+        "x": 1051,
+        "y": -146
+      }
+    },
+    {
+      "text": "黄金、白银及股票永续合约现已支持，马上交易",
+      "rect": {
+        "x": 1275,
+        "y": -171
+      }
+    },
+    {
+      "text": "连接，自由了",
+      "rect": {
+        "x": 1627,
+        "y": -168
+      }
+    },
+    {
+      "text": "OneKey 现已支持蓝牙，无线配对，轻松上手",
+      "rect": {
+        "x": 1627,
+        "y": -146
+      }
+    },
+    {
+      "text": "Use USDT to cover fees",
+      "rect": {
+        "x": 1851,
+        "y": -171
+      }
+    },
+    {
+      "text": "Invite friends and get rewards",
+      "rect": {
+        "x": 2139,
+        "y": -171
+      }
+    },
+    {
+      "text": "Sign & verify message",
+      "rect": {
+        "x": 2427,
+        "y": -171
+      }
+    },
+    {
+      "text": "充值",
+      "rect": {
+        "x": 119,
+        "y": 47
+      }
+    },
+    {
+      "text": "充值",
+      "rect": {
+        "x": 163,
+        "y": 162
+      }
+    },
+    {
+      "text": "投资组合",
+      "rect": {
+        "x": 117,
+        "y": 261
+      }
+    },
+    {
+      "text": "NFT",
+      "rect": {
+        "x": 217,
+        "y": 261
+      }
+    },
+    {
+      "text": "历史记录",
+      "rect": {
+        "x": 284,
+        "y": 261
+      }
+    },
+    {
+      "text": "授权",
+      "rect": {
+        "x": 384,
+        "y": 261
+      }
+    },
+    {
+      "text": "代币",
+      "rect": {
+        "x": 103,
+        "y": 323
+      }
+    },
+    {
+      "text": "·",
+      "rect": {
+        "x": 143,
+        "y": 323
+      }
+    },
+    {
+      "text": "$0.00",
+      "rect": {
+        "x": 152,
+        "y": 323
+      }
+    },
+    {
+      "text": "资产",
+      "rect": {
+        "x": 123,
+        "y": 381
+      }
+    },
+    {
+      "text": "余额",
+      "rect": {
+        "x": 621,
+        "y": 381
+      }
+    },
+    {
+      "text": "价格",
+      "rect": {
+        "x": 889,
+        "y": 381
+      }
+    },
+    {
+      "text": "ETH",
+      "rect": {
+        "x": 167,
+        "y": 419
+      }
+    },
+    {
+      "text": "Ethereum",
+      "rect": {
+        "x": 167,
+        "y": 439
+      }
+    },
+    {
+      "text": "0",
+      "rect": {
+        "x": 638,
+        "y": 419
+      }
+    },
+    {
+      "text": "$0.00",
+      "rect": {
+        "x": 609,
+        "y": 439
+      }
+    },
+    {
+      "text": "$1,861.56",
+      "rect": {
+        "x": 850,
+        "y": 419
+      }
+    },
+    {
+      "text": "-8.47%",
+      "rect": {
+        "x": 867,
+        "y": 439
+      }
+    },
+    {
+      "text": "兑换",
+      "rect": {
+        "x": 1144,
+        "y": 429
+      }
+    },
+    {
+      "text": "USDT",
+      "rect": {
+        "x": 167,
+        "y": 475
+      }
+    },
+    {
+      "text": "Tether USD",
+      "rect": {
+        "x": 167,
+        "y": 495
+      }
+    },
+    {
+      "text": "0",
+      "rect": {
+        "x": 638,
+        "y": 475
+      }
+    },
+    {
+      "text": "$0.00",
+      "rect": {
+        "x": 609,
+        "y": 495
+      }
+    },
+    {
+      "text": "$1.00",
+      "rect": {
+        "x": 878,
+        "y": 475
+      }
+    },
+    {
+      "text": "+0.00%",
+      "rect": {
+        "x": 865,
+        "y": 495
+      }
+    },
+    {
+      "text": "兑换",
+      "rect": {
+        "x": 1144,
+        "y": 485
+      }
+    },
+    {
+      "text": "USDC",
+      "rect": {
+        "x": 167,
+        "y": 531
+      }
+    },
+    {
+      "text": "USD Coin",
+      "rect": {
+        "x": 167,
+        "y": 551
+      }
+    },
+    {
+      "text": "0",
+      "rect": {
+        "x": 638,
+        "y": 531
+      }
+    },
+    {
+      "text": "$0.00",
+      "rect": {
+        "x": 609,
+        "y": 551
+      }
+    },
+    {
+      "text": "$0.9999",
+      "rect": {
+        "x": 858,
+        "y": 531
+      }
+    },
+    {
+      "text": "+0.00%",
+      "rect": {
+        "x": 865,
+        "y": 551
+      }
+    },
+    {
+      "text": "兑换",
+      "rect": {
+        "x": 1144,
+        "y": 541
+      }
+    },
+    {
+      "text": "DAI",
+      "rect": {
+        "x": 167,
+        "y": 587
+      }
+    },
+    {
+      "text": "Dai Stablecoin",
+      "rect": {
+        "x": 167,
+        "y": 607
+      }
+    },
+    {
+      "text": "0",
+      "rect": {
+        "x": 638,
+        "y": 587
+      }
+    },
+    {
+      "text": "$0.00",
+      "rect": {
+        "x": 609,
+        "y": 607
+      }
+    },
+    {
+      "text": "$0.9995",
+      "rect": {
+        "x": 858,
+        "y": 587
+      }
+    },
+    {
+      "text": "-0.06%",
+      "rect": {
+        "x": 867,
+        "y": 607
+      }
+    },
+    {
+      "text": "兑换",
+      "rect": {
+        "x": 1144,
+        "y": 597
+      }
+    },
+    {
+      "text": "RNDR",
+      "rect": {
+        "x": 167,
+        "y": 643
+      }
+    },
+    {
+      "text": "Render Token",
+      "rect": {
+        "x": 167,
+        "y": 663
+      }
+    },
+    {
+      "text": "0",
+      "rect": {
+        "x": 638,
+        "y": 643
+      }
+    },
+    {
+      "text": "$0.00",
+      "rect": {
+        "x": 609,
+        "y": 663
+      }
+    },
+    {
+      "text": "$1.33",
+      "rect": {
+        "x": 878,
+        "y": 643
+      }
+    },
+    {
+      "text": "-10.29%",
+      "rect": {
+        "x": 860,
+        "y": 663
+      }
+    },
+    {
+      "text": "兑换",
+      "rect": {
+        "x": 1144,
+        "y": 653
+      }
+    },
+    {
+      "text": "未找到代币？",
+      "rect": {
+        "x": 565,
+        "y": 707
+      }
+    },
+    {
+      "text": "添加代币",
+      "rect": {
+        "x": 659,
+        "y": 707
+      }
+    },
+    {
+      "text": "添加代币",
+      "rect": {
+        "x": 659,
+        "y": 709
+      }
+    },
+    {
+      "text": "DeFi",
+      "rect": {
+        "x": 103,
+        "y": 817
+      }
+    },
+    {
+      "text": "·",
+      "rect": {
+        "x": 145,
+        "y": 817
+      }
+    },
+    {
+      "text": "$0.00",
+      "rect": {
+        "x": 154,
+        "y": 815
+      }
+    },
+    {
+      "text": "开始赚取收益",
+      "rect": {
+        "x": 579,
+        "y": 955
+      }
+    },
+    {
+      "text": "开始赚取收益",
+      "rect": {
+        "x": 579,
+        "y": 957
+      }
+    },
+    {
+      "text": "您的仓位将显示在这里",
+      "rect": {
+        "x": 573,
+        "y": 987
+      }
+    },
+    {
+      "text": "自选",
+      "rect": {
+        "x": 103,
+        "y": 1083
+      }
+    },
+    {
+      "text": "添加 4 个代币",
+      "rect": {
+        "x": 1117,
+        "y": 1085
+      }
+    },
+    {
+      "text": "LINK",
+      "rect": {
+        "x": 164,
+        "y": 1128
+      }
+    },
+    {
+      "text": "ChainLink Token",
+      "rect": {
+        "x": 164,
+        "y": 1152
+      }
+    },
+    {
+      "text": "SHIB",
+      "rect": {
+        "x": 442,
+        "y": 1128
+      }
+    },
+    {
+      "text": "SHIBA INU",
+      "rect": {
+        "x": 442,
+        "y": 1152
+      }
+    },
+    {
+      "text": "WLFI",
+      "rect": {
+        "x": 720,
+        "y": 1128
+      }
+    },
+    {
+      "text": "World Liberty Financial",
+      "rect": {
+        "x": 720,
+        "y": 1152
+      }
+    },
+    {
+      "text": "UNI",
+      "rect": {
+        "x": 998,
+        "y": 1128
+      }
+    },
+    {
+      "text": "Uniswap",
+      "rect": {
+        "x": 998,
+        "y": 1152
+      }
+    },
+    {
+      "text": "赚币",
+      "rect": {
+        "x": 103,
+        "y": 1221
+      }
+    },
+    {
+      "text": "查看更多",
+      "rect": {
+        "x": 1121,
+        "y": 1223
+      }
+    },
+    {
+      "text": "SOL",
+      "rect": {
+        "x": 152,
+        "y": 1274
+      }
+    },
+    {
+      "text": "5.80% APR",
+      "rect": {
+        "x": 120,
+        "y": 1298
+      }
+    },
+    {
+      "text": "5.80% APR",
+      "rect": {
+        "x": 120,
+        "y": 1318
+      }
+    },
+    {
+      "text": "可用：0",
+      "rect": {
+        "x": 120,
+        "y": 1340
+      }
+    },
+    {
+      "text": "USDT",
+      "rect": {
+        "x": 430,
+        "y": 1274
+      }
+    },
+    {
+      "text": "3.74% APY",
+      "rect": {
+        "x": 398,
+        "y": 1298
+      }
+    },
+    {
+      "text": "3.74% APY",
+      "rect": {
+        "x": 398,
+        "y": 1318
+      }
+    },
+    {
+      "text": "可用：0",
+      "rect": {
+        "x": 398,
+        "y": 1340
+      }
+    },
+    {
+      "text": "USDC",
+      "rect": {
+        "x": 708,
+        "y": 1274
+      }
+    },
+    {
+      "text": "3.20% APY",
+      "rect": {
+        "x": 676,
+        "y": 1298
+      }
+    },
+    {
+      "text": "3.20% APY",
+      "rect": {
+        "x": 676,
+        "y": 1318
+      }
+    },
+    {
+      "text": "可用：0",
+      "rect": {
+        "x": 676,
+        "y": 1340
+      }
+    },
+    {
+      "text": "USDe",
+      "rect": {
+        "x": 986,
+        "y": 1274
+      }
+    },
+    {
+      "text": "1.62% APR",
+      "rect": {
+        "x": 954,
+        "y": 1298
+      }
+    },
+    {
+      "text": "1.62% APR",
+      "rect": {
+        "x": 954,
+        "y": 1318
+      }
+    },
+    {
+      "text": "可用：0",
+      "rect": {
+        "x": 954,
+        "y": 1340
+      }
+    },
+    {
+      "text": "升级",
+      "rect": {
+        "x": 103,
+        "y": 1425
+      }
+    },
+    {
+      "text": "Prime",
+      "rect": {
+        "x": 169,
+        "y": 1477
+      }
+    },
+    {
+      "text": "云同步、批量工具、更高限额及更多功能…",
+      "rect": {
+        "x": 169,
+        "y": 1501
+      }
+    },
+    {
+      "text": "获取 Prime",
+      "rect": {
+        "x": 1106,
+        "y": 1489
+      }
+    },
+    {
+      "text": "支持中心",
+      "rect": {
+        "x": 103,
+        "y": 1581
+      }
+    },
+    {
+      "text": "OneKey Sifu",
+      "rect": {
+        "x": 119,
+        "y": 1671
+      }
+    },
+    {
+      "text": "通过 1 对 1 专家指导，在 60 分钟内掌握您的钱包。",
+      "rect": {
+        "x": 119,
+        "y": 1695
+      }
+    },
+    {
+      "text": "联系我们",
+      "rect": {
+        "x": 741,
+        "y": 1642
+      }
+    },
+    {
+      "text": "帮助中心",
+      "rect": {
+        "x": 741,
+        "y": 1723
+      }
+    },
+    {
+      "text": "⌘K",
+      "rect": {
+        "x": 768,
+        "y": 18
+      }
+    },
+    {
+      "text": "⌘",
+      "rect": {
+        "x": 770,
+        "y": 18
+      }
+    },
+    {
+      "text": "K",
+      "rect": {
+        "x": 790,
+        "y": 18
+      }
+    },
+    {
+      "text": "⌘K",
+      "rect": {
+        "x": 768,
+        "y": 18
+      }
+    },
+    {
+      "text": "⌘",
+      "rect": {
+        "x": 770,
+        "y": 18
+      }
+    },
+    {
+      "text": "K",
+      "rect": {
+        "x": 790,
+        "y": 18
+      }
+    },
+    {
+      "text": "⌘K",
+      "rect": {
+        "x": 768,
+        "y": 18
+      }
+    },
+    {
+      "text": "⌘",
+      "rect": {
+        "x": 770,
+        "y": 18
+      }
+    },
+    {
+      "text": "K",
+      "rect": {
+        "x": 790,
+        "y": 18
+      }
+    },
+    {
+      "text": "存款",
+      "rect": {
+        "x": 1050,
+        "y": 18
+      }
+    },
+    {
+      "text": "⌘K",
+      "rect": {
+        "x": 768,
+        "y": 18
+      }
+    },
+    {
+      "text": "⌘",
+      "rect": {
+        "x": 770,
+        "y": 18
+      }
+    },
+    {
+      "text": "K",
+      "rect": {
+        "x": 790,
+        "y": 18
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "type": "text",
+      "placeholder": "搜索任何内容",
+      "testid": "nav-header-search",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266
+      }
+    },
+    {
+      "type": "text",
+      "placeholder": "搜索任何内容",
+      "testid": "nav-header-search",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266
+      }
+    },
+    {
+      "type": "text",
+      "placeholder": "搜索任何内容",
+      "testid": "nav-header-search",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266
+      }
+    },
+    {
+      "type": "text",
+      "placeholder": "搜索任何内容",
+      "testid": "nav-header-search",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266
+      }
+    },
+    {
+      "type": "text",
+      "placeholder": "搜索任何内容",
+      "testid": "nav-header-search",
+      "rect": {
+        "x": 494,
+        "y": 11,
+        "w": 266
+      }
+    }
+  ],
+  "buttons": [
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1183,
+        "y": 7,
+        "w": 38,
+        "h": 38
+      }
+    },
+    {
+      "text": "Account #1",
+      "testid": "AccountSelectorTriggerBase",
+      "rect": {
+        "x": 97,
+        "y": 73,
+        "w": 140,
+        "h": 32
+      }
+    },
+    {
+      "text": "Ethereum",
+      "testid": "account-network-trigger-button",
+      "rect": {
+        "x": 239,
+        "y": 73,
+        "w": 122,
+        "h": 32
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 364,
+        "y": 74,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 222,
+        "y": -346,
+        "w": 38,
+        "h": 38
+      }
+    },
+    {
+      "text": "发送",
+      "testid": null,
+      "rect": {
+        "x": 103,
+        "y": -283,
+        "w": 102,
+        "h": 50
+      }
+    },
+    {
+      "text": "接收",
+      "testid": null,
+      "rect": {
+        "x": 215,
+        "y": -283,
+        "w": 102,
+        "h": 50
+      }
+    },
+    {
+      "text": "兑换",
+      "testid": null,
+      "rect": {
+        "x": 327,
+        "y": -283,
+        "w": 102,
+        "h": 50
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 439,
+        "y": -283,
+        "w": 50,
+        "h": 50
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 350,
+        "y": -188,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 638,
+        "y": -188,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 926,
+        "y": -188,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1214,
+        "y": -188,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1502,
+        "y": -188,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1790,
+        "y": -188,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 87,
+        "y": -152,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1189,
+        "y": -152,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "充值",
+      "testid": null,
+      "rect": {
+        "x": 119,
+        "y": 149,
+        "w": 120,
+        "h": 50
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1178,
+        "y": 320,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "资产",
+      "testid": null,
+      "rect": {
+        "x": 117,
+        "y": 377,
+        "w": 38,
+        "h": 24
+      }
+    },
+    {
+      "text": "余额",
+      "testid": null,
+      "rect": {
+        "x": 615,
+        "y": 377,
+        "w": 38,
+        "h": 24
+      }
+    },
+    {
+      "text": "价格",
+      "testid": null,
+      "rect": {
+        "x": 883,
+        "y": 377,
+        "w": 38,
+        "h": 24
+      }
+    },
+    {
+      "text": "兑换",
+      "testid": null,
+      "rect": {
+        "x": 1133,
+        "y": 424,
+        "w": 50,
+        "h": 30
+      }
+    },
+    {
+      "text": "兑换",
+      "testid": null,
+      "rect": {
+        "x": 1133,
+        "y": 480,
+        "w": 50,
+        "h": 30
+      }
+    },
+    {
+      "text": "兑换",
+      "testid": null,
+      "rect": {
+        "x": 1133,
+        "y": 536,
+        "w": 50,
+        "h": 30
+      }
+    },
+    {
+      "text": "兑换",
+      "testid": null,
+      "rect": {
+        "x": 1133,
+        "y": 592,
+        "w": 50,
+        "h": 30
+      }
+    },
+    {
+      "text": "兑换",
+      "testid": null,
+      "rect": {
+        "x": 1133,
+        "y": 648,
+        "w": 50,
+        "h": 30
+      }
+    },
+    {
+      "text": "添加代币",
+      "testid": null,
+      "rect": {
+        "x": 650,
+        "y": 702,
+        "w": 100,
+        "h": 30
+      }
+    },
+    {
+      "text": "开始赚取收益",
+      "testid": null,
+      "rect": {
+        "x": 570,
+        "y": 950,
+        "w": 166,
+        "h": 38
+      }
+    },
+    {
+      "text": "添加 4 个代币",
+      "testid": null,
+      "rect": {
+        "x": 1082,
+        "y": 1080,
+        "w": 130,
+        "h": 30
+      }
+    },
+    {
+      "text": "查看更多",
+      "testid": null,
+      "rect": {
+        "x": 1112,
+        "y": 1218,
+        "w": 100,
+        "h": 30
+      }
+    },
+    {
+      "text": "SOL5.80% APR可用：0",
+      "testid": null,
+      "rect": {
+        "x": 103,
+        "y": 1257,
+        "w": 266,
+        "h": 124
+      }
+    },
+    {
+      "text": "USDT3.74% APY可用：0",
+      "testid": null,
+      "rect": {
+        "x": 381,
+        "y": 1257,
+        "w": 266,
+        "h": 124
+      }
+    },
+    {
+      "text": "USDC3.20% APY可用：0",
+      "testid": null,
+      "rect": {
+        "x": 659,
+        "y": 1257,
+        "w": 266,
+        "h": 124
+      }
+    },
+    {
+      "text": "USDe1.62% APR可用：0",
+      "testid": null,
+      "rect": {
+        "x": 937,
+        "y": 1257,
+        "w": 266,
+        "h": 124
+      }
+    },
+    {
+      "text": "获取 Prime",
+      "testid": null,
+      "rect": {
+        "x": 1095,
+        "y": 1484,
+        "w": 92,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1183,
+        "y": 7,
+        "w": 38,
+        "h": 38
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1183,
+        "y": 7,
+        "w": 38,
+        "h": 38
+      }
+    },
+    {
+      "text": "存款",
+      "testid": null,
+      "rect": {
+        "x": 1014,
+        "y": 11,
+        "w": 72,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1099,
+        "y": 7,
+        "w": 38,
+        "h": 38
+      }
+    },
+    {
+      "text": "",
+      "testid": "perp-header-settings-button",
+      "rect": {
+        "x": 1145,
+        "y": 11,
+        "w": 30,
+        "h": 30
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1183,
+        "y": 7,
+        "w": 38,
+        "h": 38
+      }
+    },
+    {
+      "text": "",
+      "testid": null,
+      "rect": {
+        "x": 1183,
+        "y": 7,
+        "w": 38,
+        "h": 38
+      }
+    },
+    {
+      "text": "",
+      "testid": "browser-shortcuts-button",
+      "rect": {
+        "x": 1183,
+        "y": 7,
+        "w": 38,
+        "h": 38
+      }
+    }
+  ],
+  "screenshot": "/Users/chole/onekey-agent-test/shared/recordings/2026-02-28T08-06-20-900Z.png",
+  "timestamp": "2026-02-28T08:06:21.012Z",
+  "url": "file:///",
+  "title": "OneKey"
+}

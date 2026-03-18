@@ -1,0 +1,2952 @@
+{
+  "info": {
+    "name": "Pendle 协议 - 代币列表 & 询价 & 构建交易 & Fee 验证（6.1.0）",
+    "description": "按三层逻辑验证 Pendle 协议：\n1. 获取 Pendle 代币列表 + vault 信息\n2. 根据 vault 获取可 swap 代币列表\n3. 固定地址 + 不同代币询价，内嵌 OneKey Fee 验证\n4. 6.1.0 补充：APY 历史、推荐资产；压力/限频测试（询价、资产列表）\n\n关联需求：docs/qa/requirements/DeFi-Pendle协议.md\n规则文档：docs/qa/rules/defi-rules.md（第 2 章 Pendle）",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [],
+  "item": [
+    {
+      "name": "1. Pendle 代币列表 + vault 信息（stake-protocol/detail）",
+      "item": [
+        {
+          "name": "1.1 USDe vault 协议详情 - 获取 vault 地址与代币信息",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('查询 USDe vault 协议详情 - 验证 vault 信息和代币数据');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('Pendle 代币列表数据获取正常', function() {",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "    pm.expect(jsonData.data).to.have.property('subscriptionValue');",
+                  "    pm.expect(jsonData.data).to.have.property('nums');",
+                  "});",
+                  "",
+                  "if (jsonData.data) {",
+                  "    const d = jsonData.data;",
+                  "",
+                  "    pm.test('subscriptionValue 包含代币信息', function() {",
+                  "        pm.expect(d.subscriptionValue).to.have.property('token');",
+                  "        pm.expect(d.subscriptionValue.token).to.have.property('info');",
+                  "        pm.expect(d.subscriptionValue.token.info).to.have.property('symbol');",
+                  "        pm.expect(d.subscriptionValue.token.info).to.have.property('address');",
+                  "        pm.expect(d.subscriptionValue.token.info).to.have.property('decimals');",
+                  "    });",
+                  "",
+                  "    pm.test('到期日数据存在', function() {",
+                  "        pm.expect(d.nums).to.have.property('maturity');",
+                  "        pm.expect(d.nums.maturity).to.have.property('text');",
+                  "    });",
+                  "",
+                  "    console.log('vault symbol:', d.subscriptionValue.token.info.symbol);",
+                  "    console.log('vault token address:', d.subscriptionValue.token.info.address);",
+                  "    console.log('maturity:', d.nums.maturity.text);",
+                  "",
+                  "    const maturityText = d.nums.maturity.text;",
+                  "    const maturityDate = new Date(maturityText);",
+                  "    const now = new Date();",
+                  "    const isExpired = maturityDate < now;",
+                  "    const daysLeft = Math.ceil((maturityDate - now) / (1000*60*60*24));",
+                  "    console.log('是否已到期:', isExpired, '剩余天数:', daysLeft);",
+                  "    pm.environment.set('pendle_usde_expired', isExpired);",
+                  "    pm.environment.set('pendle_usde_days_left', daysLeft);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake-protocol/detail?provider=pendle&symbol=USDe&networkId=evm--1&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D",
+              "query": [
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "1.2 sUSDe vault 协议详情 - 获取 vault 地址与代币信息",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('查询 sUSDe vault 协议详情');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('Pendle 代币列表数据获取正常', function() {",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "    pm.expect(jsonData.data).to.have.property('subscriptionValue');",
+                  "    pm.expect(jsonData.data).to.have.property('nums');",
+                  "});",
+                  "",
+                  "if (jsonData.data) {",
+                  "    const d = jsonData.data;",
+                  "    console.log('vault symbol:', d.subscriptionValue.token.info.symbol);",
+                  "    console.log('vault token address:', d.subscriptionValue.token.info.address);",
+                  "    console.log('maturity:', d.nums.maturity.text);",
+                  "",
+                  "    const maturityText = d.nums.maturity.text;",
+                  "    const maturityDate = new Date(maturityText);",
+                  "    const now = new Date();",
+                  "    const isExpired = maturityDate < now;",
+                  "    const daysLeft = Math.ceil((maturityDate - now) / (1000*60*60*24));",
+                  "    console.log('是否已到期:', isExpired, '剩余天数:', daysLeft);",
+                  "    pm.environment.set('pendle_susde_expired', isExpired);",
+                  "    pm.environment.set('pendle_susde_days_left', daysLeft);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake-protocol/detail?provider=pendle&symbol=sUSDe&networkId=evm--1&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883",
+              "query": [
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "sUSDe"
+                },
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. 可 swap 代币列表（earn/v1/asset-list）",
+      "item": [
+        {
+          "name": "2.1 USDe vault - stake 可用 inputToken 列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('查询 USDe vault stake 可用的 inputToken 列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('swap 代币列表数据获取正常', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('assets');",
+                  "    pm.expect(jsonData.data.assets).to.be.an('array').and.not.empty;",
+                  "});",
+                  "",
+                  "if (jsonData.data && jsonData.data.assets) {",
+                  "    const assets = jsonData.data.assets;",
+                  "    console.log('可用代币数:', assets.length);",
+                  "",
+                  "    pm.test('每个 asset 包含 info.symbol / info.address / info.decimals', function() {",
+                  "        assets.slice(0, 5).forEach(function(a) {",
+                  "            pm.expect(a).to.have.property('info');",
+                  "            pm.expect(a.info).to.have.property('symbol');",
+                  "            pm.expect(a.info).to.have.property('decimals');",
+                  "        });",
+                  "    });",
+                  "",
+                  "    const symbols = assets.map(a => a.info.symbol);",
+                  "    pm.test('包含常见代币 ETH/USDC/USDT/USDe/sUSDe', function() {",
+                  "        pm.expect(symbols).to.include('ETH');",
+                  "        pm.expect(symbols).to.include('USDC');",
+                  "        pm.expect(symbols).to.include('USDT');",
+                  "        pm.expect(symbols).to.include('USDe');",
+                  "        pm.expect(symbols).to.include('sUSDe');",
+                  "    });",
+                  "",
+                  "    console.log('前 10 代币:', symbols.slice(0, 10).join(', '));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.2 sUSDe vault - stake 可用 inputToken 列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('查询 sUSDe vault stake 可用的 inputToken 列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "pm.test('swap 代币列表数据获取正常', function() {",
+                  "    pm.expect(jsonData.data.assets).to.be.an('array').and.not.empty;",
+                  "});",
+                  "if (jsonData.data && jsonData.data.assets) {",
+                  "    console.log('sUSDe vault stake 可用代币数:', jsonData.data.assets.length);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=sUSDe&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "sUSDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.3 USDe vault - unstake 可用 outputToken 列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('查询 USDe vault unstake 可用的 outputToken 列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "pm.test('swap 代币列表数据获取正常', function() {",
+                  "    pm.expect(jsonData.data.assets).to.be.an('array').and.not.empty;",
+                  "});",
+                  "if (jsonData.data && jsonData.data.assets) {",
+                  "    const symbols = jsonData.data.assets.map(a => a.info.symbol);",
+                  "    pm.test('unstake 支持 ETH/USDe/USDT/USDC', function() {",
+                  "        pm.expect(symbols).to.include('ETH');",
+                  "        pm.expect(symbols).to.include('USDe');",
+                  "        pm.expect(symbols).to.include('USDT');",
+                  "        pm.expect(symbols).to.include('USDC');",
+                  "    });",
+                  "    console.log('USDe vault unstake 可用代币数:', jsonData.data.assets.length);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=unstake",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "unstake"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.4 sUSDe vault - unstake 可用 outputToken 列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('查询 sUSDe vault unstake 可用的 outputToken 列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "pm.test('swap 代币列表数据获取正常', function() {",
+                  "    pm.expect(jsonData.data.assets).to.be.an('array').and.not.empty;",
+                  "});",
+                  "if (jsonData.data && jsonData.data.assets) {",
+                  "    console.log('sUSDe vault unstake 可用代币数:', jsonData.data.assets.length);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=sUSDe&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=unstake",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "sUSDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "unstake"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "2.5 asset-list 缺少 accountAddress 应返回 422",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('边界: 缺少 accountAddress 参数');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "pm.test('返回 422 参数校验错误', function() {",
+                  "    pm.expect(jsonData.code).to.eql(422);",
+                  "});",
+                  "pm.test('错误信息包含 accountAddress', function() {",
+                  "    pm.expect(jsonData.message).to.include('accountAddress');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&action=stake",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Buy 询价 + OneKey Fee 验证（4 网络 × 多协议代币覆盖）",
+      "item": [
+        {
+          "name": "3.1 ETH-USDe vault - ETH 询价（原生币, dec=18）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--1 | USDe vault: ETH → PT-USDe 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--1 | ETH → PT-USDe | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=5&inputTokenAddress=&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "5"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xaebf0bb9f57e89260d57f31af34eb58657d96ce0"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.2 ETH-USDe vault - USDT 询价（稳定币, dec=6）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--1 | USDe vault: USDT → PT-USDe 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--1 | USDT → PT-USDe | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0xdac17f958d2ee523a2206206994597c13d831ec7&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "100"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xaebf0bb9f57e89260d57f31af34eb58657d96ce0"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.3 ETH-USDe vault - DAI 询价（稳定币, dec=18）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--1 | USDe vault: DAI → PT-USDe 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--1 | DAI → PT-USDe | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "100"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": "0x6b175474e89094c44da98b954eedeac495271d0f"
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xaebf0bb9f57e89260d57f31af34eb58657d96ce0"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.4 ETH-sUSDe vault - USDC 询价（稳定币, dec=6）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--1 | sUSDe vault: USDC → PT-sUSDe 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--1 | USDC → PT-sUSDe | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=sUSDe&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputTokenAddress=0x3de0ff76e8b528c092d47b9dac775931cef80f49&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "sUSDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "100"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0x3de0ff76e8b528c092d47b9dac775931cef80f49"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.5 ETH-sUSDe vault - LINK 询价（DeFi, dec=18）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--1 | sUSDe vault: LINK → PT-sUSDe 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--1 | LINK → PT-sUSDe | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=sUSDe&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=10&inputTokenAddress=0x514910771af9ca656af840dff83e8264ecf986ca&outputTokenAddress=0x3de0ff76e8b528c092d47b9dac775931cef80f49&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "sUSDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "10"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": "0x514910771af9ca656af840dff83e8264ecf986ca"
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0x3de0ff76e8b528c092d47b9dac775931cef80f49"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.6 ETH-weETH vault - ETH 询价（LST 协议）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--1 | weETH vault: ETH → PT-weETH 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--1 | ETH → PT-weETH | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=weETH&vault=0x95a9504f246cd65bf91c2c550a53f7f415227ed1&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=1&inputTokenAddress=&outputTokenAddress=0x8e8b8d3b2dca78cb04b9914b7ec1ad72f671f96d&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "weETH"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x95a9504f246cd65bf91c2c550a53f7f415227ed1"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "1"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0x8e8b8d3b2dca78cb04b9914b7ec1ad72f671f96d"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.7 ETH-wstETH vault - ETH 询价（Lido 质押）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--1 | wstETH vault: ETH → PT-wstETH 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--1 | ETH → PT-wstETH | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=wstETH&vault=0x34280882267ffa6383B363E278B027Be083bBe3b&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=1&inputTokenAddress=&outputTokenAddress=0xb253eff1104802b97ac7e3ac9fdd73aece295a2c&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "wstETH"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x34280882267ffa6383B363E278B027Be083bBe3b"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "1"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xb253eff1104802b97ac7e3ac9fdd73aece295a2c"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.8 ETH-sENA vault - ETH 询价（Ethena 治理）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--1 | sENA vault: ETH → PT-sENA 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--1 | ETH → PT-sENA | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=sENA&vault=0xeab7b7c8353ba1cb4b29cf7ae9c166efdc57835f&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.5&inputTokenAddress=&outputTokenAddress=0x4552c668eb8dedeac53e00cfd05d873f11a80204&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "sENA"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xeab7b7c8353ba1cb4b29cf7ae9c166efdc57835f"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "0.5"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0x4552c668eb8dedeac53e00cfd05d873f11a80204"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.9 ETH-uniBTC vault - ETH 询价（BTC 协议, 多网络）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--1 | uniBTC-scaled18 vault: ETH → PT-uniBTC-scaled18 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--1 | ETH → PT-uniBTC-scaled18 | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=uniBTC-scaled18&vault=0xd625528a8c912fe0b4ed0a73541e2a5db44976cb&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.01&inputTokenAddress=&outputTokenAddress=0xba41c7e27abf380ab1d529bb1275fadfccdbf437&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "uniBTC-scaled18"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xd625528a8c912fe0b4ed0a73541e2a5db44976cb"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "0.01"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xba41c7e27abf380ab1d529bb1275fadfccdbf437"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.10 ARB-weETH vault - ETH 询价（Arbitrum）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--42161 | weETH vault: ETH → PT-weETH 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--42161 | ETH → PT-weETH | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--42161&provider=pendle&symbol=weETH&vault=0x46d62a8dede1bf2d0de04f2ed863245cbba5e538&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.5&inputTokenAddress=&outputTokenAddress=0xab7f3837e6e721abbc826927b655180af6a04388&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--42161"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "weETH"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x46d62a8dede1bf2d0de04f2ed863245cbba5e538"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "0.5"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xab7f3837e6e721abbc826927b655180af6a04388"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.11 ARB-wstETH vault - ETH 询价（Arbitrum Lido）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--42161 | wstETH vault: ETH → PT-wstETH 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--42161 | ETH → PT-wstETH | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--42161&provider=pendle&symbol=wstETH&vault=0xf78452e0f5c0b95fc5dc8353b8cd1e06e53fa25b&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.5&inputTokenAddress=&outputTokenAddress=0x71fbf40651e9d4278a74586afc99f307f369ce9a&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--42161"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "wstETH"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xf78452e0f5c0b95fc5dc8353b8cd1e06e53fa25b"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "0.5"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0x71fbf40651e9d4278a74586afc99f307f369ce9a"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.12 ARB-gUSDC vault - USDC 询价（Arbitrum 稳定币）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--42161 | gUSDC vault: USDC → PT-gUSDC 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--42161 | USDC → PT-gUSDC | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--42161&provider=pendle&symbol=gUSDC&vault=0x0934e592cee932b04b3967162b3cd6c85748c470&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0xaf88d065e77c8cc2239327c5edb3a432268e5831&outputTokenAddress=0x97c1a4ae3e0da8009aff13e3e3ee7ea5ee4afe84&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--42161"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "gUSDC"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x0934e592cee932b04b3967162b3cd6c85748c470"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "100"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": "0xaf88d065e77c8cc2239327c5edb3a432268e5831"
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0x97c1a4ae3e0da8009aff13e3e3ee7ea5ee4afe84"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.13 BNB-slisBNB vault - BNB 询价（BNB 链质押）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--56 | slisBNB vault: BNB → PT-slisBNB 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--56 | BNB → PT-slisBNB | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--56&provider=pendle&symbol=slisBNB&vault=0x3c1a3d6b69a866444fe506f7d38a00a1c2d859c5&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=1&inputTokenAddress=&outputTokenAddress=0xe052823b4aefc6e230faf46231a57d0905e30ae0&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--56"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "slisBNB"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x3c1a3d6b69a866444fe506f7d38a00a1c2d859c5"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "1"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xe052823b4aefc6e230faf46231a57d0905e30ae0"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.14 BNB-uniBTC vault - BNB 询价（BNB 链 BTC 协议）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--56 | uniBTC-scaled18 vault: BNB → PT-uniBTC-scaled18 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--56 | BNB → PT-uniBTC-scaled18 | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--56&provider=pendle&symbol=uniBTC-scaled18&vault=0x21558067e3ed5d3cdbe2dd3662bd9035a8e3315a&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.01&inputTokenAddress=&outputTokenAddress=0x0af2b242a526447fefd6e29cd531ecb89616afd2&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--56"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "uniBTC-scaled18"
+                },
+                {
+                  "key": "vault",
+                  "value": "0x21558067e3ed5d3cdbe2dd3662bd9035a8e3315a"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "0.01"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0x0af2b242a526447fefd6e29cd531ecb89616afd2"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.15 BASE-uniBTC vault - ETH 询价（Base 链 BTC 协议）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('evm--8453 | uniBTC-scaled18 vault: ETH → PT-uniBTC-scaled18 询价 + Fee 验证');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('询价数据获取正常 - 包含 APY / 到期日 / 预期收益', function() {",
+                  "    pm.expect(jsonData.data.rewards).to.be.an('array').and.have.length.at.least(3);",
+                  "});",
+                  "pm.test('onekey fee 验证成功', function() {",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "    pm.expect(feeItem, '费用字段存在').to.not.be.undefined;",
+                  "    const feeDetails = feeItem.button.data.items;",
+                  "    const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "    pm.expect(onekeyFee, 'OneKey fee 明细存在').to.not.be.undefined;",
+                  "    const feePercent = parseFloat(onekeyFee.value);",
+                  "    console.log('evm--8453 | ETH → PT-uniBTC-scaled18 | OneKey fee:', onekeyFee.value, '总费用:', feeItem.description.text);",
+                  "    if (feePercent > 0) {",
+                  "        const rewardItems = jsonData.data.rewards;",
+                  "        const yieldItem = rewardItems.find(r => r.description && r.description.text && r.description.text.includes('收益'));",
+                  "        if (yieldItem) {",
+                  "            const yieldMatch = yieldItem.description.text.match(/([\\\\d.]+)%/);",
+                  "            if (yieldMatch) {",
+                  "                const yieldPercent = parseFloat(yieldMatch[1]);",
+                  "                console.log('到期收益率:', yieldPercent + '%', '> OneKey fee:', feePercent + '%');",
+                  "                pm.expect(yieldPercent).to.be.above(feePercent, '到期收益率应大于 OneKey fee');",
+                  "            }",
+                  "        }",
+                  "    } else {",
+                  "        console.log('OneKey fee=0，走 Pendle 渠道');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--8453&provider=pendle&symbol=uniBTC-scaled18&vault=0xb2ba97b3e4ecba5af1e098bf65f5d33c9e2a7525&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.01&inputTokenAddress=&outputTokenAddress=0xc45139488b7ab235affad981cbdb5c898581d04f&slippage=0.5",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--8453"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "uniBTC-scaled18"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xb2ba97b3e4ecba5af1e098bf65f5d33c9e2a7525"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "0.01"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xc45139488b7ab235affad981cbdb5c898581d04f"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "3.16 已到期市场 - 验证不返回 onekey fee（到期后不收佣金）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('已到期市场验证：到期后接口不应返回 onekey fee 字段');",
+                  "console.log('USDe vault expired:', pm.environment.get('pendle_usde_expired'));",
+                  "console.log('sUSDe vault expired:', pm.environment.get('pendle_susde_expired'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "",
+                  "pm.test('到期时间验证', function() {",
+                  "    const rewards = jsonData.data.rewards;",
+                  "    const maturityItem = rewards.find(r => r.title.text.includes('到期日'));",
+                  "    pm.expect(maturityItem, '存在到期日字段').to.not.be.undefined;",
+                  "    const maturityText = maturityItem.description.text;",
+                  "    const maturityDate = new Date(maturityText);",
+                  "    const now = new Date();",
+                  "    const isExpired = maturityDate < now;",
+                  "    console.log('到期日:', maturityText, '是否已到期:', isExpired);",
+                  "    pm.environment.set('current_vault_expired', isExpired);",
+                  "});",
+                  "",
+                  "pm.test('已到期市场 - onekey fee 验证成功', function() {",
+                  "    const isExpired = pm.environment.get('current_vault_expired');",
+                  "    const tds = jsonData.data.transactionDetails.data.transactionDetails;",
+                  "    const feeItem = tds.find(t => t.title.text === '费用');",
+                  "",
+                  "    if (isExpired === true || isExpired === 'true') {",
+                  "        if (!feeItem || !feeItem.button || !feeItem.button.data) {",
+                  "            console.log('✅ 已到期：费用明细不存在，符合预期');",
+                  "            return;",
+                  "        }",
+                  "        const feeDetails = feeItem.button.data.items;",
+                  "        const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "        if (!onekeyFee) {",
+                  "            console.log('✅ 已到期：OneKey fee 字段不存在，符合预期');",
+                  "            return;",
+                  "        }",
+                  "        const feePercent = parseFloat(onekeyFee.value);",
+                  "        pm.expect(feePercent).to.eql(0, '已到期市场 OneKey fee 应为 0');",
+                  "        console.log('✅ 已到期：OneKey fee =', feePercent, '符合预期');",
+                  "    } else {",
+                  "        console.log('⏳ vault 未到期，当前测试用于到期后验证');",
+                  "        console.log('预期行为：vault 到期后，接口不返回 onekey fee 或 fee = 0');",
+                  "        pm.expect(feeItem, '未到期时费用字段应存在').to.not.be.undefined;",
+                  "        const feeDetails = feeItem.button.data.items;",
+                  "        const onekeyFee = feeDetails.find(f => f.title.text.includes('OneKey'));",
+                  "        if (onekeyFee) {",
+                  "            console.log('未到期 OneKey fee:', onekeyFee.value, '（到期后应不返回此字段）');",
+                  "        }",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.01",
+              "query": [
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "100"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xaebf0bb9f57e89260d57f31af34eb58657d96ce0"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.01"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Buy 构建交易（earn/v2/stake）",
+      "item": [
+        {
+          "name": "4.1 USDe vault - ETH 构建交易",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data.tx).to.have.property('from');",
+                  "    pm.expect(jsonData.data.tx).to.have.property('to');",
+                  "    pm.expect(jsonData.data.tx).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"\",\n    \"slippage\": 0.01,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake"
+            }
+          }
+        },
+        {
+          "name": "4.2 USDe vault - USDT 构建交易",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake"
+            }
+          }
+        },
+        {
+          "name": "4.3 sUSDe vault - USDC 构建交易",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"0x8dAe8ECe668cf80d348873F23D456448E8694883\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake"
+            }
+          }
+        },
+        {
+          "name": "4.4 USDe vault - DAI 构建交易（dec=18）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data.tx).to.have.property('from');",
+                  "    pm.expect(jsonData.data.tx).to.have.property('to');",
+                  "    pm.expect(jsonData.data.tx).to.have.property('data');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0x6b175474e89094c44da98b954eedeac495271d0f\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake"
+            }
+          }
+        },
+        {
+          "name": "4.5 USDe vault - stETH 构建交易（LST, dec=18）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xae7ab96520de3a18e5e111b5eaab095312d7fe84\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake"
+            }
+          }
+        },
+        {
+          "name": "4.6 sUSDe vault - LINK 构建交易（DeFi, dec=18）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"0x8dAe8ECe668cf80d348873F23D456448E8694883\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"10\",\n    \"inputTokenAddress\": \"0x514910771af9ca656af840dff83e8264ecf986ca\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Sell Early 询价 + 构建交易（unstake）",
+      "item": [
+        {
+          "name": "5.1 USDe vault - PT-USDe → USDe 构建交易",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x4c9edd5852cd905f086c759e8383e09bff1e68b3\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/unstake"
+            }
+          }
+        },
+        {
+          "name": "5.2 USDe vault - PT-USDe → USDT 构建交易",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/unstake"
+            }
+          }
+        },
+        {
+          "name": "5.3 sUSDe vault - PT-sUSDe → sUSDe 构建交易",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"0x8dAe8ECe668cf80d348873F23D456448E8694883\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x9d39a5de30e57443bff2a8307a4256c8797a3497\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/unstake"
+            }
+          }
+        },
+        {
+          "name": "5.4 sUSDe vault - PT-sUSDe → USDT 构建交易",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"0x8dAe8ECe668cf80d348873F23D456448E8694883\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/unstake"
+            }
+          }
+        },
+        {
+          "name": "5.5 USDe vault - PT-USDe → ETH 构建交易（原生币输出）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 tx 和 orderId', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('tx');",
+                  "    pm.expect(jsonData.data).to.have.property('orderId');",
+                  "});",
+                  "console.log('orderId:', jsonData.data.orderId);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/unstake"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. 仓位查询",
+      "item": [
+        {
+          "name": "6.1 当前持仓地址 Pendle 仓位",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "console.log('Positions:', JSON.stringify(jsonData).substring(0, 1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accounts\": [\n        {\n            \"networkId\": \"evm--1\",\n            \"accountAddress\": \"0x81b76ff3fed28ba0b4a5d4c76bd5c13bd0641d86\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/positions"
+            }
+          }
+        },
+        {
+          "name": "6.2 到期地址 Pendle 仓位",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "console.log('到期 Positions:', JSON.stringify(pm.response.json()).substring(0, 1000));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"accounts\": [\n        {\n            \"networkId\": \"evm--1\",\n            \"accountAddress\": \"0xed81f8ba2941c3979de2265c295748a6b6956567\"\n        },\n        {\n            \"networkId\": \"evm--1\",\n            \"accountAddress\": \"0xfaa8f05d068716dce1cf53b32dbb0c9ae4d0c685\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/positions"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. 边界与异常",
+      "item": [
+        {
+          "name": "7.1 Buy - 金额为 0",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "pm.test('金额 0 应返回错误码', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"0\",\n    \"inputTokenAddress\": \"\",\n    \"slippage\": 0.01,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake"
+            }
+          }
+        },
+        {
+          "name": "7.2 Buy - 不存在的 inputToken 地址",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "pm.test('不存在的 token 应返回错误码', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0x0000000000000000000000000000000000000001\",\n    \"slippage\": 0.01,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake"
+            }
+          }
+        },
+        {
+          "name": "7.3 Buy - 缺失 outputTokenAddress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "pm.test('缺失必要参数应返回错误', function() {",
+                  "    const statusOk = pm.response.code === 200 || pm.response.code === 400;",
+                  "    pm.expect(statusOk).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"\",\n    \"slippage\": 0.01\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/stake"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Pendle 补充接口（6.1.0）",
+      "item": [
+        {
+          "name": "8.1 APY 历史图表 - GET apy/history（Pendle sUSDe）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('查询 Pendle sUSDe APY 历史数据');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('APY 历史数据存在', function() {",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "    pm.expect(jsonData.data.length).to.be.above(0);",
+                  "});",
+                  "pm.test('APY 历史项含 apy 字段', function() {",
+                  "    pm.expect(jsonData.data[0]).to.have.property('apy');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/apy/history?networkId=evm--1&provider=pendle&symbol=sUSDe",
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "provider", "value": "pendle" },
+                { "key": "symbol", "value": "sUSDe" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "8.2 推荐资产列表 - 含 Pendle 协议",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "console.log('POST recommend，校验返回中是否包含 Pendle');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "const tokens = (jsonData.data && jsonData.data.tokens) || [];",
+                  "pm.test('推荐资产返回有效列表', function() {",
+                  "    pm.expect(tokens).to.be.an('array');",
+                  "});",
+                  "if (tokens.length > 0) {",
+                  "    pm.test('tokens 项含 symbol 与 protocols', function() {",
+                  "        pm.expect(tokens[0]).to.have.property('symbol');",
+                  "        pm.expect(tokens[0]).to.have.property('protocols');",
+                  "    });",
+                  "}",
+                  "const hasPendle = tokens.some(t => (t.protocols || []).some(p => (p.provider || '').toLowerCase() === 'pendle'));",
+                  "console.log('推荐列表中是否含 Pendle:', hasPendle, '（由服务端策略决定，不强制）');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accounts\": [\n    { \"networkId\": \"evm--1\", \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\", \"publicKey\": \"\" }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/recommend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. 压力/限频测试（询价 & 资产列表）",
+      "item": [
+        {
+          "name": "9.1 询价接口 - 限频检查（transaction-confirmation）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('未触发限频：状态码非 429', function() { pm.expect(pm.response.code).to.not.eql(429); });",
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "console.log('建议：Collection Runner 中对该用例设置 20 次迭代，观察是否出现 429');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=5&inputTokenAddress=&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "provider", "value": "pendle" },
+                { "key": "symbol", "value": "USDe" },
+                { "key": "vault", "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D" },
+                { "key": "accountAddress", "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7" },
+                { "key": "action", "value": "stake" },
+                { "key": "amount", "value": "5" },
+                { "key": "inputTokenAddress", "value": "" },
+                { "key": "outputTokenAddress", "value": "0xaebf0bb9f57e89260d57f31af34eb58657d96ce0" },
+                { "key": "slippage", "value": "0.5" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "9.2 获取资产列表 - 限频检查（available-assets）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('未触发限频：状态码非 429', function() { pm.expect(pm.response.code).to.not.eql(429); });",
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 Pendle 资产列表', function() {",
+                  "    const assets = (jsonData.data && jsonData.data.assets) || [];",
+                  "    const pendleAssets = assets.filter(a => (a.provider || '').toLowerCase() === 'pendle');",
+                  "    pm.expect(pendleAssets.length).to.be.above(0);",
+                  "});",
+                  "console.log('建议：Collection Runner 中对该用例设置 20 次迭代，观察是否出现 429');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v2/available-assets?provider=pendle",
+              "query": [
+                { "key": "provider", "value": "pendle" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "9.3 可 swap 代币列表 - 限频检查（asset-list）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('未触发限频：状态码非 429', function() { pm.expect(pm.response.code).to.not.eql(429); });",
+                  "pm.test('响应状态码为 200', function() { pm.response.to.have.status(200); });",
+                  "const jsonData = pm.response.json();",
+                  "pm.test('业务状态码为 0', function() { pm.expect(jsonData.code).to.eql(0); });",
+                  "pm.test('返回 assets 数组', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('assets');",
+                  "    pm.expect(jsonData.data.assets).to.be.an('array');",
+                  "});",
+                  "console.log('建议：Collection Runner 中对该用例设置 20 次迭代，观察是否出现 429');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake",
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "provider", "value": "pendle" },
+                { "key": "symbol", "value": "USDe" },
+                { "key": "vault", "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D" },
+                { "key": "accountAddress", "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7" },
+                { "key": "action", "value": "stake" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "testId": "SETTINGS-001",
+  "status": "passed",
+  "duration": 18281,
+  "error": null,
+  "steps": [],
+  "screenshots": [
+    "/Users/chole/onekey-agent-test/shared/results/SETTINGS-001-start.png",
+    "/Users/chole/onekey-agent-test/shared/results/SETTINGS-001-done.png"
+  ],
+  "state_recoveries": [],
+  "timestamp": "2026-02-14T16:33:15.744Z",
+  "attemptLog": [
+    {
+      "strategy": "steps",
+      "status": "success",
+      "reason": null
+    }
+  ],
+  "amount_used": null,
+  "failure_reason": null,
+  "assertionResults": [
+    {
+      "step": 4,
+      "action": "assert_theme",
+      "theme": "light",
+      "passed": true,
+      "labelFound": true,
+      "visualMatch": true,
+      "sidebarTextBrightness": 0
+    },
+    {
+      "step": 6,
+      "action": "assert_theme",
+      "theme": "system",
+      "passed": true,
+      "labelFound": true,
+      "visualMatch": true,
+      "sidebarTextBrightness": 0
+    },
+    {
+      "step": 8,
+      "action": "assert_theme",
+      "theme": "dark",
+      "passed": true,
+      "labelFound": true,
+      "visualMatch": true,
+      "sidebarTextBrightness": 255
+    },
+    {
+      "step": 10,
+      "action": "assert_theme",
+      "theme": "system",
+      "passed": true,
+      "labelFound": true,
+      "visualMatch": true,
+      "sidebarTextBrightness": 0
+    }
+  ],
+  "assertionSummary": "4/4 theme assertions passed"
+}

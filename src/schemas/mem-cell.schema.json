@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["id", "timestamp", "platform", "yaml_id", "status"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^mc-\\d+$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "platform": { "enum": ["desktop", "web", "android", "ios", "extension"] },
+    "yaml_id": { "type": "string" },
+    "status": { "enum": ["passed", "failed", "skipped"] },
+    "screenshot_hash": { "type": ["string", "null"] },
+    "error_type": { "enum": ["selector_stale", "timeout", "modal_overlay", "network_mismatch", "element_not_found", "assertion_failed", "state_drift", "unknown", null] },
+    "selector_used": { "type": ["string", "null"] },
+    "selector_success": { "type": ["boolean", "null"] },
+    "fallback_used": { "type": ["string", "null"] },
+    "fallback_success": { "type": ["boolean", "null"] },
+    "duration_ms": { "type": "number" },
+    "step_index": { "type": ["number", "null"] },
+    "error_message": { "type": ["string", "null"] }
+  }
+}

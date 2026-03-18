@@ -1,0 +1,91 @@
+{
+  "name": "playwright-generator",
+  "version": "1.0.0",
+  "description": "基于 Checklist 或测试用例文件生成 Playwright E2E 测试脚本",
+  
+  "triggers": [
+    "e2e <文件>",
+    "@<checklist> e2e",
+    "@<用例文件> e2e"
+  ],
+  
+  "defaults": {
+    "baseUrl": "https://app.onekey.so",
+    "outputDir": "e2e/tests",
+    "timeout": {
+      "navigation": 30000,
+      "action": 10000,
+      "assertion": 10000
+    },
+    "retries": 3,
+    "priorityFilter": ["P0"],
+    "includePerformanceTest": true
+  },
+  
+  "selectorStrategies": [
+    {
+      "priority": 1,
+      "type": "data-testid",
+      "pattern": "[data-testid=\"{name}\"]",
+      "description": "最稳定，优先使用"
+    },
+    {
+      "priority": 2,
+      "type": "semantic",
+      "pattern": "getByRole('{role}', { name: '{name}' })",
+      "description": "Playwright 推荐"
+    },
+    {
+      "priority": 3,
+      "type": "text-i18n",
+      "pattern": "text=/{en}|{zh}/",
+      "description": "支持中英文"
+    },
+    {
+      "priority": 4,
+      "type": "compound",
+      "pattern": "{parent} {child}",
+      "description": "结构相对稳定时"
+    },
+    {
+      "priority": 5,
+      "type": "css",
+      "pattern": "[{attr}*=\"{value}\"]",
+      "description": "兜底方案"
+    }
+  ],
+  
+  "fileNaming": {
+    "pattern": "{module}-{feature}.spec.ts",
+    "examples": [
+      "market-watchlist.spec.ts",
+      "perps-limit-order.spec.ts",
+      "wallet-transfer.spec.ts"
+    ]
+  },
+  
+  "supportedInputs": [
+    {
+      "type": "checklist",
+      "path": "docs/testcases/checklist/*.md",
+      "priority": 1,
+      "description": "推荐，结构化程度高"
+    },
+    {
+      "type": "testcase",
+      "path": "docs/testcases/cases/**/*.md",
+      "priority": 2,
+      "description": "需要额外解析表格结构"
+    }
+  ],
+  
+  "codeGeneration": {
+    "imports": [
+      "import { test, expect, Page } from '@playwright/test';"
+    ],
+    "testTimeout": 90000,
+    "performanceTestTimeout": 60000,
+    "maxLoadTime": 15000,
+    "randomDelayRange": [500, 1500]
+  }
+}

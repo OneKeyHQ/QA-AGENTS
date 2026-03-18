@@ -1,0 +1,829 @@
+{
+  "version": "2.2.0",
+  "lastUpdated": "2026-02-28T09:53:11.497Z",
+  "elements": {
+    "sidebarHome": {
+      "primary": "[data-testid=\"home\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"tab-home\"]",
+        "nav >> text=首页"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "首页",
+        "search_role": "tab",
+        "search_scope": "page"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.7,
+      "last_verified": "2026-02-13T00:00:00Z"
+    },
+    "walletSelector": {
+      "primary": "[data-testid=\"AccountSelectorTriggerBase\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"wallet-selector\"]",
+        "[data-testid=\"account-selector\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "piggy",
+        "search_role": "button",
+        "search_scope": "page"
+      },
+      "tier_stats": {
+        "primary_hits": 5,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 5
+      },
+      "page": "wallet-home",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.983616,
+      "last_verified": "2026-02-28T09:41:42.957Z"
+    },
+    "networkButton": {
+      "primary": "[data-testid=\"account-network-trigger-button\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"network-selector\"]",
+        "[data-testid=\"chain-selector-trigger\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "网络",
+        "search_role": "button",
+        "search_scope": "page"
+      },
+      "tier_stats": {
+        "primary_hits": 1,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 1
+      },
+      "page": "wallet-home",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.968,
+      "last_verified": "2026-02-14T08:06:40.353Z"
+    },
+    "networkButtonText": {
+      "primary": "[data-testid=\"account-network-trigger-button-text\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"account-network-trigger-button\"] >> text"
+      ],
+      "deep_search": {
+        "enabled": false
+      },
+      "tier_stats": {
+        "primary_hits": 1,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 1
+      },
+      "page": "wallet-home",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.96,
+      "last_verified": "2026-02-14T08:06:40.349Z"
+    },
+    "modal": {
+      "primary": "[data-testid=\"APP-Modal-Screen\"]",
+      "quick_fallbacks": [
+        "[role=\"dialog\"]",
+        "[data-testid=\"modal\"]"
+      ],
+      "deep_search": {
+        "enabled": false
+      },
+      "tier_stats": {
+        "primary_hits": 3,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 3
+      },
+      "page": "global-overlay",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.99488,
+      "last_verified": "2026-02-28T09:48:00.840Z"
+    },
+    "navBack": {
+      "primary": "[data-testid=\"nav-header-back\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"back-button\"]",
+        "button[aria-label=\"返回\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "返回",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "global-nav",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.9,
+      "last_verified": "2026-02-13T00:00:00Z"
+    },
+    "navClose": {
+      "primary": "[data-testid=\"nav-header-close\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"close-button\"]",
+        "button[aria-label=\"关闭\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "关闭",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "global-nav",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.9,
+      "last_verified": "2026-02-13T00:00:00Z"
+    },
+    "sendForm": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"send-form\"]",
+        "form >> text=发送"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "发送",
+        "search_role": "form",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.96,
+      "last_verified": "2026-02-13T19:13:33.090Z"
+    },
+    "contactsIcon": {
+      "primary": "[data-sentry-component=\"SvgPeopleCircle\"]",
+      "quick_fallbacks": [
+        "svg[data-sentry-component=\"SvgPeopleCircle\"]",
+        "[data-testid=\"contacts-icon\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "联系人",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.8,
+      "last_verified": "2026-02-13T00:00:00Z"
+    },
+    "walletTabHeader": {
+      "primary": "[data-testid=\"Wallet-Tab-Header\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"wallet-tab-header\"]",
+        "[data-testid=\"wallet-actions\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "发送",
+        "search_role": "button",
+        "search_scope": "page"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "wallet-home",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.95,
+      "last_verified": "2026-02-13T00:00:00Z"
+    },
+    "chainSearchInput": {
+      "primary": "[data-testid=\"nav-header-search-chain-selector\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"chain-search-input\"]",
+        "input[placeholder*=\"搜索\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "搜索",
+        "search_role": "textbox",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "chain-selector",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.96,
+      "last_verified": "2026-02-13T19:13:26.936Z"
+    },
+    "pageFooterConfirm": {
+      "primary": "[data-testid=\"page-footer-confirm\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"footer-confirm\"]",
+        "button >> text=预览"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "预览",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 1,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 1
+      },
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-28T09:46:00.535Z",
+      "notes": "Recording steps 23, 35 — text changes: '预览' on send form, '确认' on confirm screen"
+    },
+    "pageFooterCancel": {
+      "primary": "[data-testid=\"page-footer-cancel\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"footer-cancel\"]",
+        "button >> text=取消"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "取消",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T00:00:00Z",
+      "notes": "Recording steps 24, 36 — cancel/back button in send flow"
+    },
+    "contactsPopover": {
+      "primary": "[data-testid=\"TMPopover-ScrollView\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"contacts-popover\"]",
+        "[role=\"dialog\"] >> text=我的账户"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "我的账户",
+        "search_role": "dialog",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T00:00:00Z",
+      "notes": "Recording steps 15, 30 — popover opened by contacts icon, contains '我的账户' tab"
+    },
+    "accountItemByIndex": {
+      "primary": "[data-testid=\"account-item-index-{N}\"]",
+      "quick_fallbacks": [
+        "[data-testid^=\"account-item-index-\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "account-item",
+        "search_role": "listitem",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "account-selector",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T00:00:00Z",
+      "notes": "Recording steps 4,9,16,26,31 — pattern: index-0=first account, index-1=second. Used in both wallet selector and contacts popover."
+    },
+    "modalBackdrop": {
+      "primary": "[data-testid=\"app-modal-stacks-backdrop\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"modal-backdrop\"]",
+        "[data-testid=\"overlay-backdrop\"]"
+      ],
+      "deep_search": {
+        "enabled": false
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "global-overlay",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T00:00:00Z",
+      "notes": "Recording steps 2, 7 — clicking backdrop dismisses modals"
+    },
+    "overlayPopover": {
+      "primary": "[data-testid=\"ovelay-popover\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"overlay-popover\"]"
+      ],
+      "deep_search": {
+        "enabled": false
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "global-overlay",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T00:00:00Z",
+      "notes": "Recording steps 1, 38 — note: testid has typo 'ovelay' not 'overlay' in actual app"
+    },
+    "sendMaxButton": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"] >> text=最大",
+      "quick_fallbacks": [
+        "button >> text=最大",
+        "text=Max"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "最大",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T00:00:00Z",
+      "notes": "Recording steps 22, 33 — max amount button inside send form"
+    },
+    "sendAmountInput": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"] input",
+      "quick_fallbacks": [
+        "[data-testid=\"send-amount-input\"]",
+        "input[type=\"text\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "金额",
+        "search_role": "textbox",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T00:00:00Z",
+      "notes": "Recording steps 17-21, 32 — amount input field inside send form"
+    },
+    "sidebarSettings": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] > div > div:last-child svg[role=\"img\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"Desktop-AppSideBar-Content-Container\"] svg[viewBox=\"0 0 24 24\"]:last-of-type"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "菜單",
+        "search_role": "button",
+        "search_scope": "page"
+      },
+      "tier_stats": {
+        "primary_hits": 4,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 4
+      },
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T16:33:00.508Z",
+      "notes": "Recording step 1 — sidebar bottom gear icon, opens settings popover"
+    },
+    "settingsPreferences": {
+      "primary": "text=偏好設定",
+      "quick_fallbacks": [
+        "[data-testid=\"tab-modal-no-active-item-SettingsSolid\"]",
+        "[data-testid*=\"SettingsSolid\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "偏好設定",
+        "search_role": "button",
+        "search_scope": "page"
+      },
+      "tier_stats": {
+        "primary_hits": 3,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 3
+      },
+      "page": "settings",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T16:33:03.104Z",
+      "notes": "Recording step 3 — Preferences tab in settings modal"
+    },
+    "themeSelectSystem": {
+      "primary": "[data-testid=\"select-item-system\"]",
+      "quick_fallbacks": [
+        "text=跟隨系統"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "跟隨系統",
+        "search_role": "option",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 4,
+        "deep_hits": 0,
+        "total_attempts": 4
+      },
+      "page": "settings-preferences",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.7048000000000001,
+      "last_verified": "2026-02-14T16:33:12.943Z",
+      "notes": "Recording steps 5,9,15 — 'Follow System' theme option"
+    },
+    "themeSelectDark": {
+      "primary": "[data-testid=\"select-item-dark\"]",
+      "quick_fallbacks": [
+        "text=深色"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "深色",
+        "search_role": "option",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 2,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 2
+      },
+      "page": "settings-preferences",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T16:33:10.455Z",
+      "notes": "Recording steps 7,13 — 'Dark' theme option"
+    },
+    "addWalletButton": {
+      "primary": "[data-testid=\"add-wallet\"]",
+      "quick_fallbacks": [
+        "text=添加钱包",
+        "svg[data-testid=\"add-wallet\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "添加钱包",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 8,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 8
+      },
+      "page": "account-selector",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-28T09:47:39.576Z",
+      "notes": "Recording step 2 — add wallet button in account selector panel"
+    },
+    "onboardingScreen": {
+      "primary": "[data-testid=\"APP-OnBoarding-Screen\"]",
+      "quick_fallbacks": [
+        "[data-testid=\"onboarding-screen\"]",
+        "text=创建助记词钱包"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "创建助记词钱包",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 1,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 1
+      },
+      "page": "add-wallet",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-28T08:10:00.000Z",
+      "notes": "Recording step 3 — onboarding screen with wallet type options"
+    },
+    "passwordInput": {
+      "primary": "[data-testid=\"password-input\"]",
+      "quick_fallbacks": [
+        "input[placeholder=\"输入密码\"]",
+        "input[type=\"password\"]"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "输入密码",
+        "search_role": "textbox",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 4,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 4
+      },
+      "page": "password-dialog",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-28T09:47:56.392Z",
+      "notes": "Recording steps 6-19 — password input for unlock and backup confirmation"
+    },
+    "verifyingPassword": {
+      "primary": "[data-testid=\"verifying-password\"]",
+      "quick_fallbacks": [
+        "button[data-testid=\"verifying-password\"]"
+      ],
+      "deep_search": {
+        "enabled": false
+      },
+      "tier_stats": {
+        "primary_hits": 3,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 3
+      },
+      "page": "password-dialog",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-28T09:47:57.500Z",
+      "notes": "Submit arrow button next to password input"
+    },
+    "backupMoreOptions": {
+      "primary": "[data-testid=\"Wallet-No-Wallet-Empty\"] button:has(svg)",
+      "quick_fallbacks": [
+        "text=备份您的钱包 >> .. >> button >> svg"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "备份",
+        "search_role": "button",
+        "search_scope": "page"
+      },
+      "tier_stats": {
+        "primary_hits": 0,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 0
+      },
+      "page": "wallet-home",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-28T08:10:00.000Z",
+      "notes": "Recording step 4 — '...' more options button on backup card"
+    },
+    "inviteCodeInput": {
+      "primary": "input[placeholder=\"邀请码\"]",
+      "quick_fallbacks": [
+        "input[placeholder*=\"邀请\"]",
+        "text=加入 OneKey 推荐计划 >> .. >> input"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "邀请码",
+        "search_role": "textbox",
+        "search_scope": "page"
+      },
+      "tier_stats": {
+        "primary_hits": 2,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 2
+      },
+      "page": "wallet-home",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-28T09:53:10.377Z",
+      "notes": "Recording steps 22-28 — invite code input on referral card"
+    },
+    "inviteCodeJoinButton": {
+      "primary": "text=加入 OneKey 推荐计划 >> .. >> button >> text=加入",
+      "quick_fallbacks": [
+        "button:has-text(\"加入\")",
+        "text=加入"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "加入",
+        "search_role": "button",
+        "search_scope": "page"
+      },
+      "tier_stats": {
+        "primary_hits": 1,
+        "quick_hits": 1,
+        "deep_hits": 0,
+        "total_attempts": 2
+      },
+      "page": "wallet-home",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 0.9,
+      "last_verified": "2026-02-28T09:53:11.497Z",
+      "notes": "Recording step 29 — join button next to invite code input"
+    },
+    "createMnemonicWalletOption": {
+      "primary": "text=创建助记词钱包",
+      "quick_fallbacks": [
+        "div:has-text('创建助记词钱包')",
+        "[data-testid=\"APP-OnBoarding-Screen\"] >> text=创建助记词钱包"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "创建助记词钱包",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 5,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 5
+      },
+      "page": "add-wallet",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-28T09:47:41.706Z",
+      "notes": "Recording: create-wallet step 3 — 创建助记词钱包选项卡片，无 testid，使用文本匹配"
+    },
+    "keyTagBackupButton": {
+      "primary": "button:has-text('OneKey KeyTag')",
+      "quick_fallbacks": [
+        "text=OneKey KeyTag",
+        "button >> text=KeyTag"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "OneKey KeyTag",
+        "search_role": "button",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 4,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 4
+      },
+      "page": "backup-options",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-28T09:47:54.331Z",
+      "notes": "Recording: create-wallet step 5 — KeyTag 备份方式按钮，选择后需输入密码才能查看助记词"
+    },
+    "themeSelectLight": {
+      "primary": "[data-testid=\"select-item-light\"]",
+      "quick_fallbacks": [
+        "text=淺色"
+      ],
+      "deep_search": {
+        "enabled": true,
+        "search_text": "淺色",
+        "search_role": "option",
+        "search_scope": "modal"
+      },
+      "tier_stats": {
+        "primary_hits": 3,
+        "quick_hits": 0,
+        "deep_hits": 0,
+        "total_attempts": 3
+      },
+      "page": "settings-preferences",
+      "platform": [
+        "desktop"
+      ],
+      "success_rate": 1,
+      "last_verified": "2026-02-14T16:33:05.486Z",
+      "notes": "Recording step 11 — 'Light' theme option"
+    }
+  }
+}

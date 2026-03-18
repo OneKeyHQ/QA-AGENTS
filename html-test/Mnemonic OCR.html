@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Mnemonic OCR – Batch Groups</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    :root{
+      --bg:#0b0c0f;
+      --text:#e8eaf0;
+      --muted:#9aa3b2;
+      --line:rgba(255,255,255,.08);
+      --line2:rgba(255,255,255,.12);
+      --ok:#41d18f;
+      --bad:#ff5a6a;
+      --warn:#ffcc66;
+      --accent:#7c5cff;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius:16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background: radial-gradient(1200px 500px at 10% 0%, rgba(124,92,255,.22), transparent 60%),
+                  radial-gradient(900px 500px at 90% 0%, rgba(65,209,143,.16), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+    }
+    .wrap{ max-width:1200px; margin:28px auto 60px; padding:0 18px; }
+    header{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:18px; }
+    .title{ display:flex; flex-direction:column; gap:6px; }
+    h1{ margin:0; font-size:22px; letter-spacing:.2px; font-weight:650; }
+    .sub{ margin:0; color:var(--muted); font-size:13px; line-height:1.45; }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px; padding:7px 10px; border:1px solid var(--line);
+      background: rgba(255,255,255,.02); border-radius:999px; font-size:12px; color:var(--muted);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px); height:34px;
+    }
+    .badge strong{ color:var(--text); font-weight:650; }
+    .grid{ display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; }
+    @media (max-width: 980px){ .grid{ grid-template-columns:1fr; } }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .hd{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(255,255,255,.01);
+    }
+    .card .hd .h{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+    .card .hd .h .t{ font-weight:650; font-size:14px; letter-spacing:.2px; }
+    .card .hd .h .d{ color:var(--muted); font-size:12px; line-height:1.3; }
+    .card .bd{ padding:14px 16px 16px; }
+    .row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .btn{
+      border:1px solid var(--line2);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius: 12px;
+      font-size:13px;
+      cursor:pointer;
+      transition: .15s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      -webkit-user-select:none;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.06); }
+    .btn:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(124,92,255,.9), rgba(124,92,255,.75));
+      border-color: rgba(124,92,255,.6);
+    }
+    .btn.primary:hover{ background: linear-gradient(180deg, rgba(124,92,255,.95), rgba(124,92,255,.78)); }
+    .btn.ghost{ background: transparent; border-color: var(--line); color: var(--muted); }
+    .btn.danger{ background: rgba(255,90,106,.08); border-color: rgba(255,90,106,.35); }
+    .btn.small{ padding:7px 10px; border-radius: 10px; font-size:12px; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px; padding:7px 10px; border:1px solid var(--line);
+      border-radius:999px; background: rgba(255,255,255,.02);
+      color:var(--muted); font-size:12px; white-space:nowrap;
+    }
+    .pill.ok{ color: rgba(65,209,143,.95); border-color: rgba(65,209,143,.25); background: rgba(65,209,143,.06); }
+    .pill.bad{ color: rgba(255,90,106,.95); border-color: rgba(255,90,106,.25); background: rgba(255,90,106,.06); }
+    .pill.warn{ color: rgba(255,204,102,.95); border-color: rgba(255,204,102,.25); background: rgba(255,204,102,.06); }
+    .field{ display:flex; flex-direction:column; gap:6px; min-width: 180px; }
+    label{ font-size:12px; color:var(--muted); }
+    input[type="number"], input[type="text"]{
+      background: rgba(255,255,255,.03);
+      border:1px solid var(--line);
+      border-radius: 12px;
+      color:var(--text);
+      padding:10px 12px;
+      outline:none;
+      font-size:13px;
+      width: 160px;
+    }
+    input[type="number"]:focus, input[type="text"]:focus{
+      border-color: rgba(124,92,255,.6);
+      box-shadow: 0 0 0 3px rgba(124,92,255,.15);
+    }
+    input[type="range"]{ width: 220px; accent-color: var(--accent); }
+    .sep{ height:1px; background: var(--line); margin:14px 0; }
+    .thumbs{ display:flex; flex-wrap:wrap; gap:10px; }
+    .thumb{
+      width:148px; border:1px solid var(--line); border-radius: 14px;
+      background: rgba(255,255,255,.02); overflow:hidden; position:relative;
+    }
+    .thumb img{ width:100%; height:102px; object-fit:cover; display:block; filter: contrast(1.05) saturate(1.05); }
+    .thumb .meta{ display:flex; align-items:center; justify-content:space-between; padding:8px 10px; gap:10px; }
+    .thumb .name{
+      font-size:12px; color: var(--muted);
+      overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 100px;
+    }
+    .thumb .tag{
+      position:absolute; top:10px; left:10px;
+      font-size:11px; padding:5px 8px;
+      border-radius:999px; border:1px solid var(--line);
+      background: rgba(0,0,0,.35);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+    }
+    .thumb .tag strong{ color: var(--text); }
+    .mono{ font-family: var(--mono); }
+    .hint{ color:var(--muted); font-size:12px; line-height:1.45; }
+    .kpi{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    textarea{
+      width:100%;
+      min-height: 110px;
+      resize: vertical;
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding:12px 12px;
+      color:var(--text);
+      font-family: var(--mono);
+      font-size:12.5px;
+      line-height:1.5;
+      outline:none;
+    }
+    textarea:focus{
+      border-color: rgba(124,92,255,.6);
+      box-shadow: 0 0 0 3px rgba(124,92,255,.15);
+    }
+    .groups{ display:flex; flex-direction:column; gap:10px; }
+    .g{
+      border:1px solid var(--line);
+      border-radius: 14px;
+      padding:12px 12px;
+      background: rgba(255,255,255,.02);
+    }
+    .g .top{
+      display:flex; justify-content:space-between; align-items:flex-start;
+      gap:10px; margin-bottom:10px;
+    }
+    .g .top .left{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+    .g .top .left .name{ font-weight:650; font-size:13px; letter-spacing:.2px; }
+    .g .top .left .meta{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      color:var(--muted); font-size:12px;
+    }
+    .g .actions{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .g pre{
+      margin:0; padding:10px 10px; border-radius: 12px;
+      border:1px solid var(--line); background: rgba(0,0,0,.28);
+      color: var(--text); font-family: var(--mono); font-size:12.5px;
+      white-space: pre-wrap; word-break: break-word; line-height:1.55;
+    }
+    .footnote{ margin-top:12px; color:var(--muted); font-size:12px; line-height:1.5; }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">
+      <h1>Mnemonic OCR</h1>
+      <p class="sub">多图上传 → 设置参数 → 开始识别 → 复制提取结果。</p>
+    </div>
+    <div class="badge">
+      <span>进度</span>
+      <strong id="progressText">未开始</strong>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- Left -->
+    <section class="card">
+      <div class="hd">
+        <div class="h">
+          <div class="t">上传与分组</div>
+          <div class="d">按上传顺序分配到每组（Group 1…N），支持每组多张图片。</div>
+        </div>
+        <div class="row">
+          <span class="pill" id="imgCountPill"><strong>0</strong> 张</span>
+          <span class="pill" id="expectPill">期望：—</span>
+        </div>
+      </div>
+
+      <div class="bd">
+        <div class="row" style="justify-content:space-between;">
+          <div class="row">
+            <input type="file" id="fileInput" multiple accept="image/*" style="max-width:320px;" aria-label="上传图片">
+            <button class="btn ghost" id="btnClearImages">清空图片</button>
+          </div>
+          <div class="row">
+            <button class="btn primary" id="btnRun">开始识别</button>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row">
+          <div class="field">
+            <label>分组数量（Groups）</label>
+            <input type="number" id="groupsCount" min="1" value="16" aria-label="分组数量">
+          </div>
+          <div class="field">
+            <label>每组图片数（Images / Group）</label>
+            <input type="number" id="imgsPerGroup" min="1" value="1" aria-label="每组图片数">
+          </div>
+          <div class="field" style="min-width:240px;">
+            <label>编号范围（例如 1–33）</label>
+            <div class="row">
+              <input type="number" id="rangeFrom" min="1" value="1" style="width:86px;" aria-label="起始编号">
+              <span class="mono" style="color:var(--muted);">—</span>
+              <input type="number" id="rangeTo" min="1" value="33" style="width:86px;" aria-label="结束编号">
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi">
+          <span class="pill warn" id="validatePill">请上传图片</span>
+          <span class="pill" id="modePill">模式：强力</span>
+        </div>
+
+        <div class="sep"></div>
+
+        <div>
+          <div class="hint">OCR 图像增强（支持手动修改配置）</div>
+          <div class="row" style="margin-top:10px;">
+            <span class="pill">放大 <strong id="scaleVal">3</strong>x</span>
+            <input type="range" id="scaleRange" min="1" max="4" step="1" value="3" aria-label="放大倍数">
+            <span class="pill">对比 <strong id="contrastVal">1.6</strong></span>
+            <input type="range" id="contrastRange" min="1" max="2" step="0.1" value="1.6" aria-label="对比度">
+            <span class="pill">阈值 <strong id="thVal">175</strong></span>
+            <input type="range" id="thRange" min="80" max="230" step="1" value="175" aria-label="阈值">
+          </div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="row" style="justify-content:space-between;">
+          <div class="h">
+            <div class="t" style="font-weight:650;">图片预览</div>
+            <div class="d">每张图左上角显示它属于哪一组（Group X）。</div>
+          </div>
+        </div>
+
+        <div class="thumbs" id="thumbs"></div>
+
+        <div class="footnote">
+          只采集编号范围内的结果。
+        </div>
+      </div>
+    </section>
+
+    <!-- Right -->
+    <section class="card">
+      <div class="hd">
+        <div class="h">
+          <div class="t">识别结果</div>
+          <div class="d">按组输出，每组可单独复制，也可复制全部（每组一段）。</div>
+        </div>
+        <div class="row">
+          <button class="btn ghost" id="btnCopyAll">复制全部</button>
+          <button class="btn danger" id="btnClearAll">清空结果</button>
+        </div>
+      </div>
+
+      <div class="bd">
+        <div class="row" style="justify-content:space-between;">
+          <div class="pill" id="resultPill">已识别：<strong>0</strong> / 0 组</div>
+          <div class="pill" id="missingSummaryPill">缺号：—</div>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="groups" id="groupsContainer"></div>
+
+        <div class="sep"></div>
+
+        <div class="h">
+          <div class="t" style="font-weight:650;">调试输出</div>
+          <div class="d">用于观察识别进度/分块情况。</div>
+        </div>
+        <textarea id="logBox" readonly aria-label="调试输出"></textarea>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+  // ✅更宽松：兼容 "21. word" / "21 word" / "21word" / "21,word" / "21:word"
+  // 注意：extractPairs 中会做编号范围过滤，避免误抓别的数字。
+  const PAIR_PATTERN = /(\d{1,2})\s*(?:[.,:]\s*|\s+)?([a-zA-Z]{2,})/g;
+
+  let images = []; // {file, url}
+  // 默认开启强力识别（并移除“强力模式”按钮）
+  let aggressiveMode = true;
+  let recognizedGroups = []; // [{index, wordsText, missingNums, countFound, totalExpected, rawPairs, imgNames[]}]
+
+  const $ = (id)=>document.getElementById(id);
+  const logBox = $("logBox");
+
+  function log(line){
+    logBox.value += (line + "\n");
+    logBox.scrollTop = logBox.scrollHeight;
+  }
+  function setProgress(text){ $("progressText").textContent = text; }
+
+  function updatePills(){
+    const groupsCount = parseInt($("groupsCount").value, 10) || 0;
+    const imgsPerGroup = parseInt($("imgsPerGroup").value, 10) || 0;
+    const expected = groupsCount * imgsPerGroup;
+
+    $("imgCountPill").innerHTML = `<strong>${images.length}</strong> 张`;
+    $("expectPill").textContent = expected ? `期望：${groupsCount} 组 × ${imgsPerGroup} 张 = ${expected} 张` : "期望：—";
+
+    let status = "";
+    let cls = "pill warn";
+    if (!images.length){
+      status = "请上传图片";
+      cls = "pill warn";
+    } else if (!groupsCount || !imgsPerGroup){
+      status = "请设置分组数量与每组图片数";
+      cls = "pill warn";
+    } else if (images.length !== expected){
+      status = `数量不匹配：已上传 ${images.length} 张，期望 ${expected} 张`;
+      cls = "pill bad";
+    } else {
+      status = `数量匹配：将识别 ${groupsCount} 组`;
+      cls = "pill ok";
+    }
+    const v = $("validatePill");
+    v.className = cls;
+    v.textContent = status;
+
+    renderThumbs();
+
+    $("resultPill").innerHTML = `已识别：<strong>${recognizedGroups.length}</strong> / ${groupsCount || 0} 组`;
+  }
+
+  $("scaleRange").addEventListener("input", ()=> $("scaleVal").textContent = $("scaleRange").value);
+  $("contrastRange").addEventListener("input", ()=> $("contrastVal").textContent = $("contrastRange").value);
+  $("thRange").addEventListener("input", ()=> $("thVal").textContent = $("thRange").value);
+
+  ["groupsCount","imgsPerGroup","rangeFrom","rangeTo"].forEach(id=>{
+    $(id).addEventListener("input", updatePills);
+  });
+
+  $("fileInput").addEventListener("change", ()=>{
+    for (const f of $("fileInput").files){
+      images.push({ file: f, url: URL.createObjectURL(f) });
+    }
+    $("fileInput").value = "";
+    updatePills();
+    renderThumbs();
+  });
+
+  $("btnClearImages").addEventListener("click", ()=>{
+    images.forEach(x=>URL.revokeObjectURL(x.url));
+    images = [];
+    _grayCache.clear();
+    updatePills();
+    renderThumbs();
+  });
+
+  $("btnClearAll").addEventListener("click", ()=>{
+    if (!confirm("确认清空所有识别结果？")) return;
+    recognizedGroups = [];
+    renderGroups();
+    updatePills();
+    $("missingSummaryPill").textContent = "缺号：—";
+    logBox.value = "";
+    setProgress("未开始");
+  });
+
+  $("btnCopyAll").addEventListener("click", copyAll);
+
+  $("btnRun").addEventListener("click", async ()=>{
+    // 默认强力识别
+    aggressiveMode = true;
+    $("modePill").textContent = "模式：强力";
+    await runGroupedOCR();
+  });
+
+  function renderThumbs(){
+    const groupsCount = parseInt($("groupsCount").value, 10) || 0;
+    const imgsPerGroup = parseInt($("imgsPerGroup").value, 10) || 0;
+
+    const thumbs = $("thumbs");
+    thumbs.innerHTML = "";
+
+    images.forEach((img, idx)=>{
+      const groupIdx = (imgsPerGroup ? Math.floor(idx / imgsPerGroup) + 1 : 0);
+      const inRange = groupIdx && groupIdx <= groupsCount;
+
+      const div = document.createElement("div");
+      div.className = "thumb";
+
+      const tag = document.createElement("div");
+      tag.className = "tag mono";
+      tag.innerHTML = inRange ? `Group <strong>${groupIdx}</strong>` : `Group <strong>?</strong>`;
+
+      const im = document.createElement("img");
+      im.src = img.url;
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.title = img.file.name;
+      name.textContent = img.file.name;
+
+      const del = document.createElement("button");
+      del.className = "btn small danger";
+      del.textContent = "删除";
+      del.onclick = (e)=>{
+        e.stopPropagation();
+        URL.revokeObjectURL(img.url);
+        images.splice(idx, 1);
+        _grayCache.clear();
+        updatePills();
+        renderThumbs();
+      };
+
+      meta.appendChild(name);
+      meta.appendChild(del);
+
+      div.appendChild(im);
+      div.appendChild(tag);
+      div.appendChild(meta);
+      thumbs.appendChild(div);
+    });
+  }
+
+  function loadImage(url){
+    return new Promise((resolve, reject)=>{
+      const im = new Image();
+      im.onload = ()=>resolve(im);
+      im.onerror = reject;
+      im.src = url;
+    });
+  }
+
+  // ✅ 预处理（提速版）：灰度/对比度只算一次（按图片缓存），不同阈值只做快速二值化；并对超大边长做轻微上限，避免 3-4x 时爆炸性变慢
+  const _grayCache = new Map(); // key -> {w,h,gray,shouldInvert}
+  function _grayCacheKey(img){
+    const scale = parseInt($("scaleRange").value, 10);
+    const contrast = parseFloat($("contrastRange").value);
+    return `${img.src}|s=${scale}|c=${contrast.toFixed(2)}`;
+  }
+  function _buildGrayInfo(img){
+    const scaleUI = parseInt($("scaleRange").value, 10);
+    const contrast = parseFloat($("contrastRange").value);
+
+    let w = Math.max(1, Math.floor(img.width * scaleUI));
+    let h = Math.max(1, Math.floor(img.height * scaleUI));
+
+    // 轻微上限（兼顾速度与准确率）：防止极端大图在高倍率下卡死
+    const MAX_EDGE = 3200;
+    const maxEdge = Math.max(w, h);
+    if (maxEdge > MAX_EDGE){
+      const r = MAX_EDGE / maxEdge;
+      w = Math.max(1, Math.floor(w * r));
+      h = Math.max(1, Math.floor(h * r));
+    }
+
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const imageData = ctx.getImageData(0, 0, w, h);
+    const data = imageData.data;
+    const n = w * h;
+    const gray = new Uint8ClampedArray(n);
+
+    // 单次遍历：算灰度+对比度，并统计均值用于是否反色
+    let sum = 0;
+    for (let p=0, i=0; p<n; p++, i+=4){
+      const r=data[i], g=data[i+1], b=data[i+2];
+      let v = 0.299*r + 0.587*g + 0.114*b;
+      v = (v - 128) * contrast + 128;
+      // clamp
+      v = v < 0 ? 0 : (v > 255 ? 255 : v);
+      const gv = v | 0;
+      gray[p] = gv;
+      sum += gv;
+    }
+    const mean = sum / n;
+    const shouldInvert = mean < 115;
+    return { w, h, gray, shouldInvert };
+  }
+
+  function preprocessToCanvas(img, overrideTh=null){
+    const th = (overrideTh===null) ? parseInt($("thRange").value, 10) : overrideTh;
+    const key = _grayCacheKey(img);
+    let info = _grayCache.get(key);
+    if (!info){
+      info = _buildGrayInfo(img);
+      _grayCache.set(key, info);
+    }
+
+    const { w, h, gray, shouldInvert } = info;
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    const imageData = ctx.createImageData(w, h);
+    const data = imageData.data;
+
+    const thClamped = Math.max(80, Math.min(230, th));
+    const n = w * h;
+    for (let p=0, i=0; p<n; p++, i+=4){
+      let v = (gray[p] > thClamped) ? 255 : 0;
+      if (shouldInvert) v = 255 - v;
+      data[i] = data[i+1] = data[i+2] = v;
+      data[i+3] = 255;
+    }
+    ctx.putImageData(imageData, 0, 0);
+    return c;
+  }
+
+  function cropCanvas(src, x, y, w, h){
+    const c = document.createElement("canvas");
+    c.width = Math.max(1, Math.floor(w));
+    c.height = Math.max(1, Math.floor(h));
+    c.getContext("2d").drawImage(src, x, y, w, h, 0, 0, c.width, c.height);
+    return c;
+  }
+
+  // ✅切割矩形（提速版）：只计算 rect，不立刻 crop 生成新 canvas（避免每个阈值都做 4 次裁剪）
+  function splitRectsPhonesLR_TB(W, H, overlapRatio = 0.06){
+    const ovX = Math.floor(W * overlapRatio);
+    const midX = Math.floor(W / 2);
+
+    const leftRect  = { x: 0, y: 0, w: midX + ovX, h: H };
+    const rightRect = { x: midX - ovX, y: 0, w: W - (midX - ovX), h: H };
+
+    function splitTB(rect, prefix){
+      const my = Math.floor(rect.h / 2);
+      const oY = Math.floor(rect.h * overlapRatio);
+      return [
+        { name: `${prefix}-T`, x: rect.x, y: rect.y, w: rect.w, h: my + oY },
+        { name: `${prefix}-B`, x: rect.x, y: rect.y + (my - oY), w: rect.w, h: rect.h - (my - oY) },
+      ];
+    }
+
+    return [
+      ...splitTB(leftRect, "L"),
+      ...splitTB(rightRect, "R"),
+    ];
+  }
+
+  // ✅更稳切割：先左右分割（两台手机）→ 每半再上下分割（带 overlap 防止切断编号）
+  function splitCanvasPhonesLR_TB(srcCanvas, overlapRatio = 0.06){
+    const W = srcCanvas.width, H = srcCanvas.height;
+    const ovX = Math.floor(W * overlapRatio);
+    const midX = Math.floor(W / 2);
+
+    const left  = cropCanvas(srcCanvas, 0, 0, midX + ovX, H);
+    const right = cropCanvas(srcCanvas, midX - ovX, 0, W - (midX - ovX), H);
+
+    function splitTB(halfCanvas, prefix){
+      const w = halfCanvas.width, h = halfCanvas.height;
+      const my = Math.floor(h / 2);
+      const oY = Math.floor(h * overlapRatio);
+
+      const top = cropCanvas(halfCanvas, 0, 0, w, my + oY);
+      const bot = cropCanvas(halfCanvas, 0, my - oY, w, h - (my - oY));
+
+      return [
+        { name: `${prefix}-T`, canvas: top },
+        { name: `${prefix}-B`, canvas: bot },
+      ];
+    }
+
+    return [
+      ...splitTB(left, "L"),
+      ...splitTB(right, "R"),
+    ];
+  }
+
+  // 从灰度缓存直接生成“二值 tile canvas”，避免生成整张二值图再裁剪
+  function makeBinaryTileCanvas(grayInfo, rect, th){
+    const { w: W, h: H, gray, shouldInvert } = grayInfo;
+    const x0 = Math.max(0, Math.floor(rect.x));
+    const y0 = Math.max(0, Math.floor(rect.y));
+    const w = Math.max(1, Math.min(W - x0, Math.floor(rect.w)));
+    const h = Math.max(1, Math.min(H - y0, Math.floor(rect.h)));
+
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const ctx = c.getContext("2d", { willReadFrequently: true });
+    const imageData = ctx.createImageData(w, h);
+    const data = imageData.data;
+
+    const thClamped = Math.max(80, Math.min(230, th));
+    for (let yy=0; yy<h; yy++){
+      const rowBase = (y0 + yy) * W + x0;
+      let out = yy * w * 4;
+      for (let xx=0; xx<w; xx++){
+        let v = (gray[rowBase + xx] > thClamped) ? 255 : 0;
+        if (shouldInvert) v = 255 - v;
+        data[out] = data[out+1] = data[out+2] = v;
+        data[out+3] = 255;
+        out += 4;
+      }
+    }
+    ctx.putImageData(imageData, 0, 0);
+    return c;
+  }
+
+  function extractPairs(text, pairs, from, to, state=null){
+    // 注意：全局 /g 正则要重置 lastIndex，否则跨多次调用会漏匹配（也会导致“强力”跑更多轮而更慢）
+    PAIR_PATTERN.lastIndex = 0;
+    let m;
+    while ((m = PAIR_PATTERN.exec(text)) !== null){
+      const num = parseInt(m[1], 10);
+      const word = (m[2]||"").toLowerCase();
+      if (!Number.isFinite(num) || !word) continue;
+      if (num < from || num > to) continue;
+      if (!pairs[num] && state) state.found++;
+      pairs[num] = word;
+      if (state && state.found >= state.required) return;
+    }
+  }
+
+  function makeGroupResult(pairs){
+    const from = parseInt($("rangeFrom").value, 10);
+    const to = parseInt($("rangeTo").value, 10);
+    const words = [];
+    const missing = [];
+    for (let i=from; i<=to; i++){
+      if (pairs[i]) words.push(pairs[i]);
+      else missing.push(i);
+    }
+    return { wordsText: words.join(" "), missingNums: missing, countFound: words.length, totalExpected: (to-from+1) };
+  }
+
+  function renderGroups(){
+    const wrap = $("groupsContainer");
+    wrap.innerHTML = "";
+
+    const totalMissing = recognizedGroups.reduce((acc,g)=>acc+g.missingNums.length,0);
+    $("missingSummaryPill").textContent = totalMissing ? `缺号：共 ${totalMissing} 个` : "缺号：0";
+    updatePills();
+
+    recognizedGroups.forEach(g=>{
+      const div = document.createElement("div");
+      div.className = "g";
+
+      const top = document.createElement("div");
+      top.className = "top";
+
+      const left = document.createElement("div");
+      left.className = "left";
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = `Group ${g.index}`;
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      // 按需精简：移除“识别/齐全/图片数量”，仅在缺号时展示缺号摘要
+      meta.innerHTML = g.missingNums.length
+        ? `<span class="pill bad mono">缺 ${g.missingNums.length}/${g.totalExpected}</span>`
+        : ``;
+
+      left.appendChild(name);
+      left.appendChild(meta);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const btnCopy = document.createElement("button");
+      btnCopy.className = "btn small";
+      btnCopy.textContent = "复制本组";
+      btnCopy.onclick = async ()=> {
+        await navigator.clipboard.writeText(g.wordsText);
+        setProgress(`已复制 Group ${g.index}`);
+      };
+
+      actions.appendChild(btnCopy);
+
+      top.appendChild(left);
+      top.appendChild(actions);
+
+      const pre = document.createElement("pre");
+      pre.textContent = g.wordsText || "（未识别到有效内容）";
+
+      const foot = document.createElement("div");
+      foot.className = "hint mono";
+      foot.style.marginTop = "10px";
+      foot.innerHTML = g.missingNums.length
+        ? `<span style="color:rgba(255,90,106,.95)">缺少编号：</span> ${g.missingNums.join(", ")}`
+        : `<span style="color:rgba(65,209,143,.95)">编号齐全</span>`;
+
+      div.appendChild(top);
+      div.appendChild(pre);
+      div.appendChild(foot);
+
+      wrap.appendChild(div);
+    });
+  }
+
+  async function copyAll(){
+    if (!recognizedGroups.length) return alert("暂无结果可复制");
+    const sorted = [...recognizedGroups].sort((a,b)=>a.index-b.index);
+    const text = sorted.map(g=>g.wordsText).join("\n\n");
+    await navigator.clipboard.writeText(text);
+    setProgress("已复制全部（每组一段）");
+  }
+
+  // OCR 引擎复用 & 并行（scheduler 多 worker）：强力模式下会把 4 个分块同时跑，速度提升非常明显
+  let _ocrEngineReady = null;
+  let _ocrEngine = null; // { kind, recognize, workersCount }
+  let _ocrParamsKey = "";
+
+  async function createOcrWorker(){
+    if (!window.Tesseract) return null;
+    if (typeof Tesseract.createWorker !== "function") return null;
+
+    const noopLogger = ()=>{};
+    let worker = null;
+    const tries = [
+      // 新版常见签名：createWorker(lang, oem?, options?)
+      () => Tesseract.createWorker("eng", 1, { logger: noopLogger }),
+      () => Tesseract.createWorker("eng", { logger: noopLogger }),
+      () => Tesseract.createWorker("eng"),
+      // 旧版签名：createWorker(options)
+      () => Tesseract.createWorker({ logger: noopLogger }),
+      () => Tesseract.createWorker(),
+    ];
+    for (const fn of tries){
+      try{
+        worker = await fn();
+        if (worker) break;
+      }catch(_e){
+        // try next signature
+      }
+    }
+    if (!worker) return null;
+
+    // v2/v4 风格初始化；若某些方法不存在则跳过
+    try{ if (worker.loadLanguage) await worker.loadLanguage("eng"); }catch(_e){}
+    try{ if (worker.initialize) await worker.initialize("eng"); }catch(_e){}
+    return worker;
+  }
+
+  async function ensureOcrEngine(options){
+    const key = JSON.stringify(options || {});
+    if (_ocrEngineReady && key === _ocrParamsKey) return _ocrEngineReady;
+
+    _ocrParamsKey = key;
+    _ocrEngineReady = (async ()=>{
+      // 1) 优先 scheduler（多 worker 并行）
+      if (window.Tesseract && typeof Tesseract.createScheduler === "function"){
+        try{
+          const scheduler = Tesseract.createScheduler();
+          if (scheduler && typeof scheduler.addWorker === "function" && typeof scheduler.addJob === "function"){
+            const hc = Math.max(1, navigator.hardwareConcurrency || 4);
+            const workersTarget = Math.min(4, Math.max(2, hc >= 4 ? 4 : 2));
+            let added = 0;
+            for (let i=0; i<workersTarget; i++){
+              const w = await createOcrWorker();
+              if (!w) break;
+              try{ if (w.setParameters) await w.setParameters(options); }catch(_e){}
+              scheduler.addWorker(w);
+              added++;
+            }
+            if (added > 0){
+              _ocrEngine = {
+                kind: "scheduler",
+                workersCount: added,
+                recognize: (canvas)=>scheduler.addJob("recognize", canvas, options),
+              };
+              return _ocrEngine;
+            }
+          }
+        }catch(_e){
+          // ignore and fallback
+        }
+      }
+
+      // 2) 单 worker 复用
+      const worker = await createOcrWorker();
+      if (worker){
+        try{ if (worker.setParameters) await worker.setParameters(options); }catch(_e){}
+        _ocrEngine = { kind: "worker", workersCount: 1, recognize: (canvas)=>worker.recognize(canvas, options) };
+        return _ocrEngine;
+      }
+
+      // 3) 最后退回到每次 recognize（最慢）
+      _ocrEngine = { kind: "fallback", workersCount: 0, recognize: (canvas)=>Tesseract.recognize(canvas, "eng", options) };
+      return _ocrEngine;
+    })();
+
+    return _ocrEngineReady;
+  }
+
+  async function runGroupedOCR(){
+    const groupsCount = parseInt($("groupsCount").value, 10);
+    const imgsPerGroup = parseInt($("imgsPerGroup").value, 10);
+    const expected = groupsCount * imgsPerGroup;
+
+    const from = parseInt($("rangeFrom").value, 10);
+    const to = parseInt($("rangeTo").value, 10);
+
+    logBox.value = "";
+    recognizedGroups = [];
+    renderGroups();
+    updatePills();
+    _grayCache.clear();
+
+    if (!images.length) return alert("请先上传图片");
+    if (!groupsCount || !imgsPerGroup) return alert("请设置分组数量与每组图片数");
+    if (images.length !== expected) return alert(`图片数量不匹配：已上传 ${images.length} 张，期望 ${expected} 张`);
+    if (!from || !to || to < from) return alert("编号范围不合法（from/to）");
+
+    $("btnRun").disabled = true;
+    $("btnClearImages").disabled = true;
+    $("fileInput").disabled = true;
+
+    setProgress("准备中…");
+    log(`Mode: ${aggressiveMode ? "STRONG" : "STANDARD"}`);
+    log(`Groups: ${groupsCount}, Images/Group: ${imgsPerGroup}`);
+    log(`Range: ${from}–${to}`);
+    log(`Split: phones LR -> TB, overlap=6%`);
+    log("----");
+
+    // 识别参数（不同版本对某些参数支持不同，但不影响整体运行）
+    const baseOptions = {
+      tessedit_char_whitelist: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.:, ",
+      preserve_interword_spaces: "1",
+    };
+    const extraOptions = aggressiveMode ? { user_defined_dpi: "300" } : {};
+    const ocrOptions = { ...baseOptions, ...extraOptions };
+
+    const th0 = parseInt($("thRange").value, 10);
+    // 分层阈值：先跑 th0；缺号再跑 ±12；还缺再跑 ±24（更容易提前结束，也减少总次数）
+    const thresholdBatches = aggressiveMode
+      ? [[th0], [th0-12, th0+12], [th0-24, th0+24]]
+      : [[th0]];
+    const required = (to - from + 1);
+
+    const engine = await ensureOcrEngine(ocrOptions);
+    log(`OCR Engine: ${engine.kind}${engine.workersCount ? ` (${engine.workersCount} worker)` : ""}`);
+
+    for (let g=1; g<=groupsCount; g++){
+      setProgress(`识别 Group ${g}/${groupsCount}…`);
+      log(`\n[Group ${g}] start`);
+
+      const groupPairs = {};
+      const groupState = { found: 0, required };
+      const startIdx = (g-1) * imgsPerGroup;
+      const groupImgs = images.slice(startIdx, startIdx + imgsPerGroup);
+
+      for (let i=0; i<groupImgs.length; i++){
+        const imgObj = groupImgs[i];
+        log(`[Group ${g}] image ${i+1}/${imgsPerGroup}: ${imgObj.file.name}`);
+
+        const img = await loadImage(imgObj.url);
+        // 确保灰度缓存已构建（后续按 rect 直接生成二值 tile）
+        const grayKey = _grayCacheKey(img);
+        let grayInfo = _grayCache.get(grayKey);
+        if (!grayInfo){
+          grayInfo = _buildGrayInfo(img);
+          _grayCache.set(grayKey, grayInfo);
+        }
+        const rects = splitRectsPhonesLR_TB(grayInfo.w, grayInfo.h, 0.06);
+
+        // 按阈值批次并行跑分块（scheduler 模式下会真正并行）
+        // 提速策略：第二批（±12）只跑“上一批没有新增命中”的分块；最后一批（±24）再全跑兜底
+        let lastNewByTile = Object.create(null); // { [tileName]: newCount }
+
+        async function runTileBatch(thClamped, rectsToRun){
+          const t0 = performance.now();
+          const jobs = rectsToRun.map(async (r)=>{
+            const tileCanvas = makeBinaryTileCanvas(grayInfo, r, thClamped);
+            try{
+              const { data } = await engine.recognize(tileCanvas);
+              return { ok: true, name: r.name, text: (data && data.text) ? data.text : "" };
+            }catch(e){
+              return { ok: false, name: r.name, error: e };
+            }
+          });
+          const results = await Promise.all(jobs);
+          const dt = Math.round(performance.now() - t0);
+
+          const newByTile = Object.create(null);
+          for (const r of results){
+            if (!r.ok){
+              log(`[Group ${g}] ${imgObj.file.name} ${r.name} th=${thClamped} OCR error: ${r.error}`);
+              newByTile[r.name] = 0;
+              continue;
+            }
+            const before = groupState.found;
+            extractPairs(r.text, groupPairs, from, to, groupState);
+            newByTile[r.name] = Math.max(0, groupState.found - before);
+          }
+
+          const ranNames = rectsToRun.map(x=>x.name).join(",");
+          log(`[Group ${g}] ${imgObj.file.name} th=${thClamped}: tiles=[${ranNames}] batch ${dt}ms, +${Object.values(newByTile).reduce((a,b)=>a+b,0)} found ${groupState.found}/${groupState.required}`);
+          return newByTile;
+        }
+
+        for (let bi=0; bi<thresholdBatches.length; bi++){
+          const ths = thresholdBatches[bi];
+          for (let ti=0; ti<ths.length; ti++){
+            const thClamped = Math.max(80, Math.min(230, ths[ti]));
+            setProgress(`G${g} · ${imgObj.file.name} · th=${thClamped}…`);
+
+            let rectsToRun = rects;
+            // 仅在第二批（±12）做“跑差的 tile”优化
+            if (aggressiveMode && bi === 1){
+              const filtered = rects.filter(r => (lastNewByTile[r.name] || 0) === 0);
+              if (filtered.length) rectsToRun = filtered;
+            }
+            // 最后一批兜底：全跑
+            if (aggressiveMode && bi === thresholdBatches.length - 1) rectsToRun = rects;
+
+            lastNewByTile = await runTileBatch(thClamped, rectsToRun);
+
+            if (groupState.found >= groupState.required){
+              log(`[Group ${g}] 已齐全，提前结束（found ${groupState.found}/${groupState.required}）`);
+              break;
+            }
+          }
+
+          if (groupState.found >= groupState.required) break;
+
+          // 跑完第一批（th0）后，如果已经非常接近齐全，就直接收手提速
+          if (aggressiveMode && bi === 0 && groupState.found >= Math.max(1, Math.floor(groupState.required * 0.95))){
+            log(`[Group ${g}] 命中率很高（>=95%），跳过后续阈值以提速`);
+            break;
+          }
+        }
+        if (groupState.found >= groupState.required) break;
+      }
+
+      const res = makeGroupResult(groupPairs);
+      recognizedGroups.push({
+        index: g,
+        wordsText: res.wordsText,
+        missingNums: res.missingNums,
+        countFound: res.countFound,
+        totalExpected: res.totalExpected,
+        rawPairs: groupPairs,
+        imgNames: groupImgs.map(x=>x.file.name),
+      });
+
+      log(`[Group ${g}] done: found ${res.countFound}/${res.totalExpected}, missing ${res.missingNums.length}`);
+      renderGroups();
+    }
+
+    setProgress("完成");
+    $("btnRun").disabled = false;
+    $("btnClearImages").disabled = false;
+    $("fileInput").disabled = false;
+
+    updatePills();
+  }
+
+  // init
+  $("scaleVal").textContent = $("scaleRange").value;
+  $("contrastVal").textContent = $("contrastRange").value;
+  $("thVal").textContent = $("thRange").value;
+  $("modePill").textContent = aggressiveMode ? "模式：强力" : "模式：标准";
+  updatePills();
+  renderThumbs();
+
+  // 预热 OCR worker（不阻塞 UI）
+  setTimeout(()=>{ ensureOcrEngine({}).catch(()=>{}); }, 0);
+</script>
+</body>
+</html>

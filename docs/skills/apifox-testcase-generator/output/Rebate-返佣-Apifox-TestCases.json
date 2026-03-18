@@ -1,0 +1,1570 @@
+{
+  "info": {
+    "name": "Rebate 返佣接口测试用例集合",
+    "description": "Rebate 返佣模块完整接口测试用例\n\n⚠️ 重要说明：\n- 所有 Rebate 接口需要 Prime 登录认证\n- 执行前必须先运行「00-前置登录」分组获取 token\n- token 会自动存入环境变量 {{X-Onekey-Request-Token}}\n\n执行顺序：\n1. 00-前置登录：获取 uuid → 登录获取 token\n2. 01-邀请总览：查看推荐页面数据\n3. 02-邀请码管理：创建/查询邀请码\n4. 03-返佣记录：查询各类返佣记录\n5. 04-地址管理：管理提现地址\n6. 05-钱包绑定：绑定钱包地址\n7. 06-边界测试：异常参数测试",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00-前置登录（必须先执行）",
+      "description": "Prime 登录流程，获取 token 供后续 Rebate 接口使用",
+      "item": [
+        {
+          "name": "01-获取随机ID",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('🔐 开始 Prime 登录流程: 获取随机ID');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回 uuid 字段', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('uuid');",
+                  "    pm.expect(jsonData.data.uuid).to.be.a('string');",
+                  "});",
+                  "",
+                  "// ★ 提取 uuid 到环境变量",
+                  "if (jsonData.data && jsonData.data.uuid) {",
+                  "    pm.environment.set('uuid', jsonData.data.uuid);",
+                  "    console.log('★ 已写入环境变量: uuid =', jsonData.data.uuid);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"}
+            ],
+            "url": {
+              "raw": "/prime/v1/general/get-random-id",
+              "path": ["prime", "v1", "general", "get-random-id"]
+            }
+          }
+        },
+        {
+          "name": "02-Supabase验证获取Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 检查必填的登录参数",
+                  "const phone = pm.environment.get('phone');",
+                  "const smsToken = pm.environment.get('smsToken');",
+                  "",
+                  "if (!phone) {",
+                  "    console.error('❌ 缺少环境变量: phone（测试手机号）');",
+                  "    console.log('📝 请在环境变量中设置 phone = 5555552894');",
+                  "}",
+                  "",
+                  "if (!smsToken) {",
+                  "    console.error('❌ 缺少环境变量: smsToken（短信验证码）');",
+                  "    console.log('📝 请先获取验证码，然后设置 smsToken = 收到的验证码');",
+                  "}",
+                  "",
+                  "console.log('🔐 Supabase 验证获取 Token');",
+                  "console.log('📱 手机号:', phone || '未设置');",
+                  "console.log('🔑 验证码:', smsToken ? '已设置' : '未设置');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 5000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('返回 access_token', function() {",
+                  "    pm.expect(jsonData).to.have.property('access_token');",
+                  "});",
+                  "",
+                  "// ★ 提取 access_token 保存到环境变量",
+                  "if (jsonData.access_token) {",
+                  "    pm.environment.set('X-Onekey-Request-Token', jsonData.access_token);",
+                  "    console.log('★ 已写入环境变量: X-Onekey-Request-Token');",
+                  "    console.log('✅ 登录成功，可以继续执行 Rebate 接口测试');",
+                  "    console.log('⏰ Token 有效期:', jsonData.expires_in, '秒');",
+                  "} else {",
+                  "    console.error('❌ 未获取到 access_token');",
+                  "    console.log('响应数据:', JSON.stringify(jsonData, null, 2));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"{{phone}}\",\n  \"token\": \"{{smsToken}}\",\n  \"type\": \"sms\",\n  \"gotrue_meta_security\": {}\n}"
+            },
+            "url": {
+              "raw": "https://bwgpgzbzdgkisozswlck.supabase.co/auth/v1/verify",
+              "protocol": "https",
+              "host": ["bwgpgzbzdgkisozswlck", "supabase", "co"],
+              "path": ["auth", "v1", "verify"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01-邀请总览",
+      "description": "获取推荐页面总览数据",
+      "item": [
+        {
+          "name": "01-获取推荐页面总览",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const token = pm.environment.get('X-Onekey-Request-Token');",
+                  "if (!token) {",
+                  "    console.warn('⚠️ X-Onekey-Request-Token 未设置，请先执行「00-前置登录」');",
+                  "}",
+                  "console.log('开始测试: 获取推荐页面总览');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回数据结构正确', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/summary",
+              "path": ["rebate", "v1", "invite", "summary"]
+            }
+          }
+        },
+        {
+          "name": "02-获取推荐页面总览-带时间范围",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取推荐页面总览-带时间范围');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/summary?timeRange=1month",
+              "path": ["rebate", "v1", "invite", "summary"],
+              "query": [
+                {"key": "timeRange", "value": "1month"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "03-获取Earn推荐总览",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取Earn推荐总览');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/summary/earn",
+              "path": ["rebate", "v1", "invite", "summary", "earn"]
+            }
+          }
+        },
+        {
+          "name": "04-获取当前等级详情",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取当前等级详情');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/level-detail",
+              "path": ["rebate", "v1", "invite", "level-detail"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "02-邀请码管理",
+      "description": "邀请码的创建、查询、更新操作",
+      "item": [
+        {
+          "name": "01-获取用户所有邀请码列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取用户所有邀请码列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 如果有邀请码，保存第一个到环境变量",
+                  "if (jsonData.data && Array.isArray(jsonData.data) && jsonData.data.length > 0) {",
+                  "    const firstCode = jsonData.data[0];",
+                  "    if (firstCode.code) {",
+                  "        pm.environment.set('inviteCode', firstCode.code);",
+                  "        console.log('★ 已写入环境变量: inviteCode =', firstCode.code);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite-codes",
+              "path": ["rebate", "v1", "invite-codes"]
+            }
+          }
+        },
+        {
+          "name": "02-创建邀请码",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 创建邀请码');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 保存新创建的邀请码",
+                  "if (jsonData.data && jsonData.data.code) {",
+                  "    pm.environment.set('newInviteCode', jsonData.data.code);",
+                  "    console.log('★ 已写入环境变量: newInviteCode =', jsonData.data.code);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "/rebate/v1/invite-codes",
+              "path": ["rebate", "v1", "invite-codes"]
+            }
+          }
+        },
+        {
+          "name": "03-更新邀请码备注",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "const inviteCode = pm.environment.get('inviteCode');",
+                  "if (!inviteCode) {",
+                  "    console.warn('⚠️ inviteCode 未设置，请先执行「01-获取用户所有邀请码列表」');",
+                  "}",
+                  "console.log('开始测试: 更新邀请码备注');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"code\": \"{{inviteCode}}\", \"note\": \"QA 测试备注\"}"
+            },
+            "url": {
+              "raw": "/rebate/v1/invite-codes/note",
+              "path": ["rebate", "v1", "invite-codes", "note"]
+            }
+          }
+        },
+        {
+          "name": "04-使用邀请码反查折扣码",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 使用邀请码反查折扣码');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "// 保存折扣码",
+                  "if (jsonData.data) {",
+                  "    pm.environment.set('discountCode', jsonData.data);",
+                  "    console.log('★ 已写入环境变量: discountCode =', jsonData.data);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/discount-code?inviteCode={{inviteCode}}",
+              "path": ["rebate", "v1", "invite", "discount-code"],
+              "query": [
+                {"key": "inviteCode", "value": "{{inviteCode}}"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "03-返佣记录",
+      "description": "各类返佣记录查询",
+      "item": [
+        {
+          "name": "01-获取硬件销售推荐记录",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取硬件销售推荐记录');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回数据包含 total 和 items', function() {",
+                  "    pm.expect(jsonData.data).to.have.property('total');",
+                  "    pm.expect(jsonData.data).to.have.property('items');",
+                  "    pm.expect(jsonData.data.items).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/records?subject=HardwareSales&limit=10",
+              "path": ["rebate", "v1", "invite", "records"],
+              "query": [
+                {"key": "subject", "value": "HardwareSales"},
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "02-获取Earn推荐记录",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取Earn推荐记录');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/records?subject=Earn&limit=10",
+              "path": ["rebate", "v1", "invite", "records"],
+              "query": [
+                {"key": "subject", "value": "Earn"},
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "03-获取用户Earn返佣记录",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取用户Earn返佣记录');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/earn-records",
+              "path": ["rebate", "v1", "invite", "earn-records"]
+            }
+          }
+        },
+        {
+          "name": "04-获取历史推荐记录",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取历史推荐记录');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/history?subject=HardwareSales&limit=10",
+              "path": ["rebate", "v1", "invite", "history"],
+              "query": [
+                {"key": "subject", "value": "HardwareSales"},
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "05-获取佣金历史发放记录",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取佣金历史发放记录');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/paid",
+              "path": ["rebate", "v1", "invite", "paid"]
+            }
+          }
+        },
+        {
+          "name": "06-获取硬件累计奖励",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取硬件累计奖励');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/hardware-cumulative-rewards",
+              "path": ["rebate", "v1", "invite", "hardware-cumulative-rewards"]
+            }
+          }
+        },
+        {
+          "name": "07-获取Perps推荐记录",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取Perps推荐记录');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/perps-records",
+              "path": ["rebate", "v1", "invite", "perps-records"]
+            }
+          }
+        },
+        {
+          "name": "08-获取Perps被邀请人奖励",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取Perps被邀请人奖励');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/perps-invitee-rewards",
+              "path": ["rebate", "v1", "invite", "perps-invitee-rewards"]
+            }
+          }
+        },
+        {
+          "name": "09-导出记录",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 导出记录');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 5000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/export?subject=HardwareSales&tab=Earn",
+              "path": ["rebate", "v1", "invite", "export"],
+              "query": [
+                {"key": "subject", "value": "HardwareSales"},
+                {"key": "tab", "value": "Earn"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "04-地址管理",
+      "description": "提现地址管理",
+      "item": [
+        {
+          "name": "01-获取用户提现地址列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取用户提现地址列表');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回数据是数组', function() {",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/address/list",
+              "path": ["rebate", "v1", "address", "list"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "05-钱包绑定",
+      "description": "钱包地址绑定相关接口",
+      "item": [
+        {
+          "name": "01-批量检查地址绑定状态",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 批量检查地址绑定状态');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('返回数据是对象', function() {",
+                  "    pm.expect(jsonData.data).to.be.an('object');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"items\": [{\"networkId\": \"evm--1\", \"address\": \"0x45c7e365e7b27053a957e02137fa1fb362ecf167\"}]}"
+            },
+            "url": {
+              "raw": "/rebate/v1/wallet/batch-check",
+              "path": ["rebate", "v1", "wallet", "batch-check"]
+            }
+          }
+        },
+        {
+          "name": "02-创建签名消息体",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 创建签名消息体');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"},
+              {"key": "Content-Type", "value": "application/json", "type": "text"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"networkId\": \"evm--1\", \"address\": \"0x45c7e365e7b27053a957e02137fa1fb362ecf167\", \"inviteCode\": \"{{inviteCode}}\"}"
+            },
+            "url": {
+              "raw": "/rebate/v1/wallet/message",
+              "path": ["rebate", "v1", "wallet", "message"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "06-边界测试",
+      "description": "缺失参数、无效参数等边界测试",
+      "item": [
+        {
+          "name": "01-获取推荐总览-缺少Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取推荐总览-缺少Token');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 401', function() {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（需要认证）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/summary",
+              "path": ["rebate", "v1", "invite", "summary"]
+            }
+          }
+        },
+        {
+          "name": "02-获取推荐总览-无效Token",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取推荐总览-无效Token');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 401', function() {",
+                  "    pm.expect([200, 401]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（Token 无效）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "invalid_token_12345", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/summary",
+              "path": ["rebate", "v1", "invite", "summary"]
+            }
+          }
+        },
+        {
+          "name": "03-获取推荐记录-缺少必填参数subject",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取推荐记录-缺少必填参数subject');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200 或 400', function() {",
+                  "    pm.expect([200, 400]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码不为 0（缺少必填参数）', function() {",
+                  "    pm.expect(jsonData.code).to.not.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/records?limit=10",
+              "path": ["rebate", "v1", "invite", "records"],
+              "query": [
+                {"key": "limit", "value": "10"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "04-获取推荐记录-无效时间范围",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: 获取推荐记录-无效时间范围');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "// 无效的 timeRange 可能返回空数据或错误",
+                  "pm.test('响应包含 code 字段', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "X-Onekey-Request-ID", "value": "{{requestId}}", "type": "text"},
+              {"key": "X-Onekey-Request-Currency", "value": "usd", "type": "text"},
+              {"key": "X-Onekey-Request-Locale", "value": "en", "type": "text"},
+              {"key": "X-Onekey-Request-Theme", "value": "light", "type": "text"},
+              {"key": "X-Onekey-Request-Platform", "value": "android-apk", "type": "text"},
+              {"key": "X-Onekey-Request-Version", "value": "5.19.0", "type": "text"},
+              {"key": "X-Onekey-Request-Build-Number", "value": "2000000000", "type": "text"},
+              {"key": "X-Onekey-Instance-Id", "value": "38457117-2c0d-4a23-abdc-8617155229e9", "type": "text"},
+              {"key": "X-Onekey-Request-Token", "value": "{{X-Onekey-Request-Token}}", "type": "text"}
+            ],
+            "url": {
+              "raw": "/rebate/v1/invite/records?subject=HardwareSales&limit=10&timeRange=invalid_range",
+              "path": ["rebate", "v1", "invite", "records"],
+              "query": [
+                {"key": "subject", "value": "HardwareSales"},
+                {"key": "limit", "value": "10"},
+                {"key": "timeRange", "value": "invalid_range"}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

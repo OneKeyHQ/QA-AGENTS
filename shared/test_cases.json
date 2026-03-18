@@ -1,0 +1,550 @@
+{
+  "version": "2.4.0",
+  "lastUpdated": "2026-02-28T08:36:00.000Z",
+  "feature": "OneKey Desktop 回归测试",
+  "wallet": "ran",
+  "accounts": {
+    "piggy": { "label": "piggy🐷", "fullLabel": "ran / piggy🐷", "index": 0 },
+    "vault": { "label": "vault😂", "fullLabel": "Pro - 然 / vault😂", "index": 1 }
+  },
+  "verifyDepth": "submit",
+  "_migrated_note": "All 11 test cases migrated to standalone tests in src/tests/. See cosmos/, wallet/, referral/ directories.",
+  "cases": [
+    {
+      "id": "COSMOS-001",
+      "scenarioId": "akash-akt-transfer",
+      "title": "Akash 网络转账 AKT",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "cosmos", "transfer", "standard"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "使用钱包 ran"],
+      "data": {
+        "network": "Akash",
+        "token": "AKT",
+        "amount": "0.001",
+        "memo": null
+      },
+      "strategies": [
+        { "label": "primary", "sender": "piggy", "recipient": "vault", "amount": "0.001", "amount_fallback": "Max", "memo": null },
+        { "label": "reversed", "sender": "vault", "recipient": "piggy", "amount": "0.001", "amount_fallback": "Max", "memo": null }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "dismiss_overlays", "ui_element": "overlayPopover", "description": "关闭弹出层/popover" },
+        { "order": 2, "action": "select_account", "ui_element": "walletSelector", "description": "点击钱包选择器，选择 sender 账户", "param": "{strategy.sender}" },
+        { "order": 3, "action": "select_network", "ui_element": "networkButton", "description": "点击网络按钮，搜索并选择 Akash 网络", "param": "Akash" },
+        { "order": 4, "action": "click_send", "ui_element": "walletTabHeader", "description": "点击发送按钮", "text": "发送" },
+        { "order": 5, "action": "select_token", "ui_element": "modal", "description": "在弹出的币种选择列表中选择 AKT", "param": "AKT" },
+        { "order": 6, "action": "select_recipient", "ui_element": "contactsIcon", "description": "点击联系人图标 → 我的账户 → 选择 recipient 账户", "param": "{strategy.recipient}" },
+        { "order": 7, "action": "input_amount", "ui_element": "sendAmountInput", "description": "输入转账金额", "value": "{strategy.amount}" },
+        { "order": 8, "action": "click_preview", "ui_element": "pageFooterConfirm", "description": "点击预览按钮" },
+        { "order": 9, "action": "assert_preview", "description": "确认预览页信息正确", "assertions": ["网络=Akash", "代币=AKT", "金额={strategy.amount}", "收款方={strategy.recipient}"] },
+        { "order": 10, "action": "confirm_submit", "ui_element": "pageFooterConfirm", "description": "点击确认提交交易" },
+        { "order": 11, "action": "handle_password", "description": "处理密码验证弹窗（如出现）" },
+        { "order": 12, "action": "assert_tx_success", "description": "等待并验证交易提交成功提示" }
+      ],
+      "expected": ["预览页正确显示网络 Akash", "代币 AKT", "金额 0.001", "交易提交成功"]
+    },
+    {
+      "id": "COSMOS-002",
+      "scenarioId": "cosmos-atom-transfer",
+      "title": "Cosmos 网络转账 ATOM",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "cosmos", "transfer", "standard"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "使用钱包 ran"],
+      "data": {
+        "network": "Cosmos",
+        "token": "ATOM",
+        "amount": "1",
+        "memo": null
+      },
+      "strategies": [
+        { "label": "primary", "sender": "piggy", "recipient": "vault", "amount": "1", "amount_fallback": "Max", "memo": null },
+        { "label": "reversed", "sender": "vault", "recipient": "piggy", "amount": "1", "amount_fallback": "Max", "memo": null }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "dismiss_overlays", "ui_element": "overlayPopover", "description": "关闭弹出层/popover" },
+        { "order": 2, "action": "select_account", "ui_element": "walletSelector", "description": "选择 sender 账户", "param": "{strategy.sender}" },
+        { "order": 3, "action": "select_network", "ui_element": "networkButton", "description": "搜索并选择 Cosmos 网络", "param": "Cosmos" },
+        { "order": 4, "action": "click_send", "ui_element": "walletTabHeader", "description": "点击发送按钮", "text": "发送" },
+        { "order": 5, "action": "select_token", "ui_element": "modal", "description": "选择 ATOM", "param": "ATOM" },
+        { "order": 6, "action": "select_recipient", "ui_element": "contactsIcon", "description": "联系人图标 → 我的账户 → recipient", "param": "{strategy.recipient}" },
+        { "order": 7, "action": "input_amount", "ui_element": "sendAmountInput", "description": "输入转账金额", "value": "{strategy.amount}" },
+        { "order": 8, "action": "click_preview", "ui_element": "pageFooterConfirm", "description": "点击预览" },
+        { "order": 9, "action": "assert_preview", "description": "确认预览页信息", "assertions": ["网络=Cosmos", "代币=ATOM", "金额={strategy.amount}", "收款方={strategy.recipient}"] },
+        { "order": 10, "action": "confirm_submit", "ui_element": "pageFooterConfirm", "description": "点击确认提交交易" },
+        { "order": 11, "action": "handle_password", "description": "处理密码验证弹窗（如出现）" },
+        { "order": 12, "action": "assert_tx_success", "description": "等待并验证交易提交成功提示" }
+      ],
+      "expected": ["预览页正确显示网络 Cosmos", "代币 ATOM", "金额 1", "交易提交成功"]
+    },
+    {
+      "id": "COSMOS-003",
+      "scenarioId": "cryptoorg-cro-max-transfer",
+      "title": "Crypto.org 网络转账 CRO - 最大金额",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "cosmos", "transfer", "max-amount"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "使用钱包 ran", "sender 账户有 CRO 余额"],
+      "data": {
+        "network": "Crypto.org",
+        "token": "CRO",
+        "amount": "Max",
+        "memo": null
+      },
+      "strategies": [
+        { "label": "primary", "sender": "piggy", "recipient": "vault", "amount": "Max", "memo": null },
+        { "label": "reversed", "sender": "vault", "recipient": "piggy", "amount": "Max", "memo": null }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "dismiss_overlays", "ui_element": "overlayPopover", "description": "关闭弹出层" },
+        { "order": 2, "action": "select_account", "ui_element": "walletSelector", "description": "选择 sender 账户", "param": "{strategy.sender}" },
+        { "order": 3, "action": "select_network", "ui_element": "networkButton", "description": "搜索并选择 Crypto.org 网络", "param": "Crypto.org" },
+        { "order": 4, "action": "click_send", "ui_element": "walletTabHeader", "description": "点击发送按钮", "text": "发送" },
+        { "order": 5, "action": "select_token", "ui_element": "modal", "description": "选择 CRO", "param": "CRO" },
+        { "order": 6, "action": "select_recipient", "ui_element": "contactsIcon", "description": "联系人 → 我的账户 → recipient", "param": "{strategy.recipient}" },
+        { "order": 7, "action": "click_max", "ui_element": "sendMaxButton", "description": "点击最大金额按钮" },
+        { "order": 8, "action": "assert_amount", "ui_element": "sendAmountInput", "description": "确认金额已填入且大于 0", "assertion": "value > 0" },
+        { "order": 9, "action": "click_preview", "ui_element": "pageFooterConfirm", "description": "点击预览" },
+        { "order": 10, "action": "assert_preview", "description": "确认预览页信息", "assertions": ["网络=Crypto.org", "代币=CRO", "金额=最大余额", "收款方={strategy.recipient}"] },
+        { "order": 11, "action": "confirm_submit", "ui_element": "pageFooterConfirm", "description": "点击确认提交交易" },
+        { "order": 12, "action": "handle_password", "description": "处理密码验证弹窗（如出现）" },
+        { "order": 13, "action": "assert_tx_success", "description": "等待并验证交易提交成功提示" }
+      ],
+      "expected": ["最大按钮自动填入余额", "预览页正确显示 Crypto.org 网络", "代币 CRO", "交易提交成功"]
+    },
+    {
+      "id": "COSMOS-004",
+      "scenarioId": "fetchai-fet-small-transfer",
+      "title": "Fetch.ai 网络转账 FET - 极小金额",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "cosmos", "transfer", "small-amount"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "使用钱包 ran"],
+      "data": {
+        "network": "Fetch.ai",
+        "token": "FET",
+        "amount": "0.0001",
+        "memo": null
+      },
+      "strategies": [
+        { "label": "primary", "sender": "piggy", "recipient": "vault", "amount": "0.0001", "amount_fallback": "Max", "memo": null },
+        { "label": "reversed", "sender": "vault", "recipient": "piggy", "amount": "0.0001", "amount_fallback": "Max", "memo": null }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "dismiss_overlays", "ui_element": "overlayPopover", "description": "关闭弹出层" },
+        { "order": 2, "action": "select_account", "ui_element": "walletSelector", "description": "选择 sender 账户", "param": "{strategy.sender}" },
+        { "order": 3, "action": "select_network", "ui_element": "networkButton", "description": "搜索并选择 Fetch.ai 网络", "param": "Fetch.ai" },
+        { "order": 4, "action": "click_send", "ui_element": "walletTabHeader", "description": "点击发送按钮", "text": "发送" },
+        { "order": 5, "action": "select_token", "ui_element": "modal", "description": "选择 FET", "param": "FET" },
+        { "order": 6, "action": "select_recipient", "ui_element": "contactsIcon", "description": "联系人 → 我的账户 → recipient", "param": "{strategy.recipient}" },
+        { "order": 7, "action": "input_amount", "ui_element": "sendAmountInput", "description": "输入转账金额", "value": "{strategy.amount}" },
+        { "order": 8, "action": "click_preview", "ui_element": "pageFooterConfirm", "description": "点击预览" },
+        { "order": 9, "action": "assert_preview", "description": "确认预览页信息", "assertions": ["网络=Fetch.ai", "代币=FET", "金额={strategy.amount}", "收款方={strategy.recipient}"] },
+        { "order": 10, "action": "confirm_submit", "ui_element": "pageFooterConfirm", "description": "点击确认提交交易" },
+        { "order": 11, "action": "handle_password", "description": "处理密码验证弹窗（如出现）" },
+        { "order": 12, "action": "assert_tx_success", "description": "等待并验证交易提交成功提示" }
+      ],
+      "expected": ["预览页正确显示网络 Fetch.ai", "代币 FET", "金额 0.0001", "交易提交成功"]
+    },
+    {
+      "id": "COSMOS-005",
+      "scenarioId": "juno-juno-transfer",
+      "title": "Juno 网络转账 JUNO",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "cosmos", "transfer", "standard"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "使用钱包 ran"],
+      "data": {
+        "network": "Juno",
+        "token": "JUNO",
+        "amount": "0.0002",
+        "memo": null
+      },
+      "strategies": [
+        { "label": "primary", "sender": "piggy", "recipient": "vault", "amount": "0.0002", "amount_fallback": "Max", "memo": null },
+        { "label": "reversed", "sender": "vault", "recipient": "piggy", "amount": "0.0002", "amount_fallback": "Max", "memo": null }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "dismiss_overlays", "ui_element": "overlayPopover", "description": "关闭弹出层" },
+        { "order": 2, "action": "select_account", "ui_element": "walletSelector", "description": "选择 sender 账户", "param": "{strategy.sender}" },
+        { "order": 3, "action": "select_network", "ui_element": "networkButton", "description": "搜索并选择 Juno 网络", "param": "Juno" },
+        { "order": 4, "action": "click_send", "ui_element": "walletTabHeader", "description": "点击发送按钮", "text": "发送" },
+        { "order": 5, "action": "select_token", "ui_element": "modal", "description": "选择 JUNO", "param": "JUNO" },
+        { "order": 6, "action": "select_recipient", "ui_element": "contactsIcon", "description": "联系人 → 我的账户 → recipient", "param": "{strategy.recipient}" },
+        { "order": 7, "action": "input_amount", "ui_element": "sendAmountInput", "description": "输入转账金额", "value": "{strategy.amount}" },
+        { "order": 8, "action": "click_preview", "ui_element": "pageFooterConfirm", "description": "点击预览" },
+        { "order": 9, "action": "assert_preview", "description": "确认预览页信息", "assertions": ["网络=Juno", "代币=JUNO", "金额={strategy.amount}", "收款方={strategy.recipient}"] },
+        { "order": 10, "action": "confirm_submit", "ui_element": "pageFooterConfirm", "description": "点击确认提交交易" },
+        { "order": 11, "action": "handle_password", "description": "处理密码验证弹窗（如出现）" },
+        { "order": 12, "action": "assert_tx_success", "description": "等待并验证交易提交成功提示" }
+      ],
+      "expected": ["预览页正确显示网络 Juno", "代币 JUNO", "金额 0.0002", "交易提交成功"]
+    },
+    {
+      "id": "COSMOS-006",
+      "scenarioId": "osmosis-osmo-memo-transfer",
+      "title": "Osmosis 网络转账 OSMO - 带 memo",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "cosmos", "transfer", "memo"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "使用钱包 ran"],
+      "data": {
+        "network": "Osmosis",
+        "token": "OSMO",
+        "amount": "0.01",
+        "memo": "onekey"
+      },
+      "strategies": [
+        { "label": "primary", "sender": "piggy", "recipient": "vault", "amount": "0.01", "amount_fallback": "Max", "memo": "onekey" },
+        { "label": "reversed", "sender": "vault", "recipient": "piggy", "amount": "0.01", "amount_fallback": "Max", "memo": "onekey" }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "dismiss_overlays", "ui_element": "overlayPopover", "description": "关闭弹出层" },
+        { "order": 2, "action": "select_account", "ui_element": "walletSelector", "description": "选择 sender 账户", "param": "{strategy.sender}" },
+        { "order": 3, "action": "select_network", "ui_element": "networkButton", "description": "搜索并选择 Osmosis 网络", "param": "Osmosis" },
+        { "order": 4, "action": "click_send", "ui_element": "walletTabHeader", "description": "点击发送按钮", "text": "发送" },
+        { "order": 5, "action": "select_token", "ui_element": "modal", "description": "选择 OSMO", "param": "OSMO" },
+        { "order": 6, "action": "select_recipient", "ui_element": "contactsIcon", "description": "联系人 → 我的账户 → recipient", "param": "{strategy.recipient}" },
+        { "order": 7, "action": "input_amount", "ui_element": "sendAmountInput", "description": "输入转账金额", "value": "{strategy.amount}" },
+        { "order": 8, "action": "input_memo", "ui_element": "sendForm", "description": "输入 memo（标签）", "value": "{strategy.memo}", "placeholder": "备忘标签 (Memo, Tag, Comment)" },
+        { "order": 9, "action": "click_preview", "ui_element": "pageFooterConfirm", "description": "点击预览" },
+        { "order": 10, "action": "assert_preview", "description": "确认预览页信息", "assertions": ["网络=Osmosis", "代币=OSMO", "金额={strategy.amount}", "memo={strategy.memo}", "收款方={strategy.recipient}"] },
+        { "order": 11, "action": "confirm_submit", "ui_element": "pageFooterConfirm", "description": "点击确认提交交易" },
+        { "order": 12, "action": "handle_password", "description": "处理密码验证弹窗（如出现）" },
+        { "order": 13, "action": "assert_tx_success", "description": "等待并验证交易提交成功提示" }
+      ],
+      "expected": ["预览页正确显示网络 Osmosis", "代币 OSMO", "金额 0.01", "memo 为 onekey", "交易提交成功"]
+    },
+    {
+      "id": "COSMOS-007",
+      "scenarioId": "osmosis-atom-crosstoken-memo-transfer",
+      "title": "Osmosis 网络转账 ATOM - 跨链代币带 memo",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "cosmos", "transfer", "memo", "cross-token"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "使用钱包 ran", "sender 在 Osmosis 上有 ATOM (IBC) 余额"],
+      "data": {
+        "network": "Osmosis",
+        "token": "ATOM",
+        "amount": "0.001",
+        "memo": "123456"
+      },
+      "strategies": [
+        { "label": "primary", "sender": "piggy", "recipient": "vault", "amount": "0.001", "amount_fallback": "Max", "memo": "123456" },
+        { "label": "reversed", "sender": "vault", "recipient": "piggy", "amount": "0.001", "amount_fallback": "Max", "memo": "123456" }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "dismiss_overlays", "ui_element": "overlayPopover", "description": "关闭弹出层" },
+        { "order": 2, "action": "select_account", "ui_element": "walletSelector", "description": "选择 sender 账户", "param": "{strategy.sender}" },
+        { "order": 3, "action": "select_network", "ui_element": "networkButton", "description": "搜索并选择 Osmosis 网络", "param": "Osmosis" },
+        { "order": 4, "action": "click_send", "ui_element": "walletTabHeader", "description": "点击发送按钮", "text": "发送" },
+        { "order": 5, "action": "select_token", "ui_element": "modal", "description": "选择 ATOM（IBC 跨链代币）", "param": "ATOM" },
+        { "order": 6, "action": "select_recipient", "ui_element": "contactsIcon", "description": "联系人 → 我的账户 → recipient", "param": "{strategy.recipient}" },
+        { "order": 7, "action": "input_amount", "ui_element": "sendAmountInput", "description": "输入转账金额", "value": "{strategy.amount}" },
+        { "order": 8, "action": "input_memo", "ui_element": "sendForm", "description": "输入 memo（标签）", "value": "{strategy.memo}", "placeholder": "备忘标签 (Memo, Tag, Comment)" },
+        { "order": 9, "action": "click_preview", "ui_element": "pageFooterConfirm", "description": "点击预览" },
+        { "order": 10, "action": "assert_preview", "description": "确认预览页信息", "assertions": ["网络=Osmosis", "代币=ATOM (IBC)", "金额={strategy.amount}", "memo={strategy.memo}", "收款方={strategy.recipient}"] },
+        { "order": 11, "action": "confirm_submit", "ui_element": "pageFooterConfirm", "description": "点击确认提交交易" },
+        { "order": 12, "action": "handle_password", "description": "处理密码验证弹窗（如出现）" },
+        { "order": 13, "action": "assert_tx_success", "description": "等待并验证交易提交成功提示" }
+      ],
+      "expected": ["预览页正确显示网络 Osmosis", "代币 ATOM (IBC)", "金额 0.001", "memo 为 123456", "交易提交成功"]
+    },
+    {
+      "id": "COSMOS-008",
+      "scenarioId": "secret-scrt-transfer",
+      "title": "Secret Network 转账 SCRT",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "cosmos", "transfer", "standard"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "使用钱包 ran"],
+      "data": {
+        "network": "Secret Network",
+        "token": "SCRT",
+        "amount": "0.0001",
+        "memo": null
+      },
+      "strategies": [
+        { "label": "primary", "sender": "piggy", "recipient": "vault", "amount": "0.0001", "amount_fallback": "Max", "memo": null },
+        { "label": "reversed", "sender": "vault", "recipient": "piggy", "amount": "0.0001", "amount_fallback": "Max", "memo": null }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "dismiss_overlays", "ui_element": "overlayPopover", "description": "关闭弹出层" },
+        { "order": 2, "action": "select_account", "ui_element": "walletSelector", "description": "选择 sender 账户", "param": "{strategy.sender}" },
+        { "order": 3, "action": "select_network", "ui_element": "networkButton", "description": "搜索并选择 Secret Network", "param": "Secret Network" },
+        { "order": 4, "action": "click_send", "ui_element": "walletTabHeader", "description": "点击发送按钮", "text": "发送" },
+        { "order": 5, "action": "select_token", "ui_element": "modal", "description": "选择 SCRT", "param": "SCRT" },
+        { "order": 6, "action": "select_recipient", "ui_element": "contactsIcon", "description": "联系人 → 我的账户 → recipient", "param": "{strategy.recipient}" },
+        { "order": 7, "action": "input_amount", "ui_element": "sendAmountInput", "description": "输入转账金额", "value": "{strategy.amount}" },
+        { "order": 8, "action": "click_preview", "ui_element": "pageFooterConfirm", "description": "点击预览" },
+        { "order": 9, "action": "assert_preview", "description": "确认预览页信息", "assertions": ["网络=Secret Network", "代币=SCRT", "金额={strategy.amount}", "收款方={strategy.recipient}"] },
+        { "order": 10, "action": "confirm_submit", "ui_element": "pageFooterConfirm", "description": "点击确认提交交易" },
+        { "order": 11, "action": "handle_password", "description": "处理密码验证弹窗（如出现）" },
+        { "order": 12, "action": "assert_tx_success", "description": "等待并验证交易提交成功提示" }
+      ],
+      "expected": ["预览页正确显示网络 Secret Network", "代币 SCRT", "金额 0.0001", "交易提交成功"]
+    },
+    {
+      "id": "COSMOS-009",
+      "scenarioId": "celestia-tia-transfer",
+      "title": "Celestia 网络转账 TIA",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "cosmos", "transfer", "standard"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "使用钱包 ran"],
+      "data": {
+        "network": "Celestia",
+        "token": "TIA",
+        "amount": "0.0002",
+        "memo": null
+      },
+      "strategies": [
+        { "label": "primary", "sender": "piggy", "recipient": "vault", "amount": "0.0002", "amount_fallback": "Max", "memo": null },
+        { "label": "reversed", "sender": "vault", "recipient": "piggy", "amount": "0.0002", "amount_fallback": "Max", "memo": null }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "dismiss_overlays", "ui_element": "overlayPopover", "description": "关闭弹出层" },
+        { "order": 2, "action": "select_account", "ui_element": "walletSelector", "description": "选择 sender 账户", "param": "{strategy.sender}" },
+        { "order": 3, "action": "select_network", "ui_element": "networkButton", "description": "搜索并选择 Celestia 网络", "param": "Celestia" },
+        { "order": 4, "action": "click_send", "ui_element": "walletTabHeader", "description": "点击发送按钮", "text": "发送" },
+        { "order": 5, "action": "select_token", "ui_element": "modal", "description": "选择 TIA", "param": "TIA" },
+        { "order": 6, "action": "select_recipient", "ui_element": "contactsIcon", "description": "联系人 → 我的账户 → recipient", "param": "{strategy.recipient}" },
+        { "order": 7, "action": "input_amount", "ui_element": "sendAmountInput", "description": "输入转账金额", "value": "{strategy.amount}" },
+        { "order": 8, "action": "click_preview", "ui_element": "pageFooterConfirm", "description": "点击预览" },
+        { "order": 9, "action": "assert_preview", "description": "确认预览页信息", "assertions": ["网络=Celestia", "代币=TIA", "金额={strategy.amount}", "收款方={strategy.recipient}"] },
+        { "order": 10, "action": "confirm_submit", "ui_element": "pageFooterConfirm", "description": "点击确认提交交易" },
+        { "order": 11, "action": "handle_password", "description": "处理密码验证弹窗（如出现）" },
+        { "order": 12, "action": "assert_tx_success", "description": "等待并验证交易提交成功提示" }
+      ],
+      "expected": ["预览页正确显示网络 Celestia", "代币 TIA", "金额 0.0002", "交易提交成功"]
+    },
+    {
+      "id": "WALLET-001",
+      "scenarioId": "create-mnemonic-wallet-with-backup",
+      "title": "创建助记词钱包并备份（KeyTag）",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "wallet", "onboarding", "backup", "mnemonic"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "当前无助记词钱包或需要新增"],
+      "data": {
+        "walletType": "mnemonic",
+        "backupMethod": "OneKey KeyTag",
+        "password": "{app_password}"
+      },
+      "strategies": [
+        { "label": "primary", "backupMethod": "OneKey KeyTag" }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "open_account_selector", "ui_element": "walletSelector", "description": "点击账户选择器 'Account #1' 打开钱包列表" },
+        { "order": 2, "action": "click_add_wallet", "ui_element": "addWalletButton", "description": "点击添加钱包按钮" },
+        { "order": 3, "action": "select_wallet_type", "ui_element": "createMnemonicWalletOption", "description": "选择 '创建助记词钱包' 选项", "text": "创建助记词钱包" },
+        { "order": 4, "action": "wait_for_creation", "description": "等待钱包创建成功，页面自动跳转" },
+        { "order": 5, "action": "select_backup_method", "ui_element": "keyTagBackupButton", "description": "选择 OneKey KeyTag 备份方式", "text": "OneKey KeyTag" },
+        { "order": 6, "action": "focus_input", "ui_element": "passwordInput", "description": "点击密码输入框" },
+        { "order": 7, "action": "input_password", "ui_element": "passwordInput", "description": "输入应用密码以验证身份" },
+        { "order": 8, "action": "submit_password", "ui_element": "verifyingPassword", "description": "点击提交密码验证按钮" },
+        { "order": 9, "action": "view_mnemonic", "ui_element": "modal", "description": "查看助记词备份弹窗（显示 12 个助记词）" },
+        { "order": 10, "action": "confirm_backup_notice", "ui_element": "pageFooterConfirm", "description": "点击 '我明白了' 确认已备份", "text": "我明白了" },
+        { "order": 11, "action": "assert_wallet_created", "description": "验证钱包创建完成，回到主页" }
+      ],
+      "expected": ["钱包创建成功", "KeyTag 备份流程完成", "助记词页面显示 12 个单词", "主页正常显示"],
+      "recording": {
+        "source": "shared/recordings/create-wallet-confirmed.json",
+        "date": "2026-02-28",
+        "confirmedSteps": "1-10（步骤 11-13 属于 REFER-001）",
+        "screenshots": ["create-wallet-step0.png", "create-wallet-step1.png"]
+      }
+    },
+    {
+      "id": "REFER-001",
+      "scenarioId": "bind-invite-code",
+      "title": "绑定邀请码加入推荐计划",
+      "platform": "desktop",
+      "priority": "P1",
+      "tags": ["regression", "referral", "invite-code", "onboarding"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "钱包主页显示'加入 OneKey 推荐计划'卡片", "邀请码未绑定"],
+      "data": {
+        "inviteCode": "VIP999"
+      },
+      "strategies": [
+        { "label": "primary", "inviteCode": "VIP999" }
+      ],
+      "on_all_failed": "fail",
+      "steps": [
+        { "order": 1, "action": "assert_referral_card_visible", "description": "验证推荐计划卡片在钱包主页可见" },
+        { "order": 2, "action": "focus_input", "ui_element": "inviteCodeInput", "description": "点击邀请码输入框" },
+        { "order": 3, "action": "input_invite_code", "ui_element": "inviteCodeInput", "description": "输入邀请码", "value": "VIP999" },
+        { "order": 4, "action": "click_join", "ui_element": "inviteCodeJoinButton", "description": "点击加入按钮", "text": "加入" },
+        { "order": 5, "action": "assert_success_toast", "description": "验证底部出现'成功' toast 提示" },
+        { "order": 6, "action": "assert_referral_card_hidden", "description": "验证推荐计划卡片消失（已绑定）" }
+      ],
+      "expected": ["邀请码输入成功", "点击加入后显示成功 toast", "推荐计划卡片消失"],
+      "recording": {
+        "source": "shared/results/recording/steps.json",
+        "date": "2026-02-28",
+        "rawSteps": "22-29",
+        "screenshots": ["step-22.png", "step-28.png", "step-29.png"]
+      }
+    },
+    {
+      "id": "PERPS-001",
+      "scenarioId": "perps-add-to-favorites",
+      "title": "合约页添加代币到自选并验证顶部栏同步",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "perps", "favorites"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "合约页已打开"],
+      "steps": [
+        { "order": 1, "action": "navigate_to_perps", "description": "点击侧边栏'合约'进入合约页面" },
+        { "order": 2, "action": "open_pair_selector", "description": "点击当前交易对名称，打开交易对选择弹窗" },
+        { "order": 3, "action": "click_tab", "description": "点击'自选'标签", "param": "自选" },
+        { "order": 4, "action": "click_add_to_favorites", "description": "点击'添加到自选'，勾选代币" },
+        { "order": 5, "action": "dismiss_popover", "description": "关闭弹窗" },
+        { "order": 6, "action": "assert_topbar_favorites", "description": "验证顶部横栏显示已收藏的代币（>=3个）" }
+      ],
+      "expected": ["交易对选择弹窗正常打开", "自选标签可点击", "添加到自选后顶部栏同步显示收藏代币"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-03-05", "rawSteps": "2-5" }
+    },
+    {
+      "id": "PERPS-002",
+      "scenarioId": "perps-switch-pair-from-topbar",
+      "title": "顶部栏点击切换交易对，验证K线和数据同步",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "perps", "pair-switch"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "合约页已打开", "顶部栏有多个收藏代币"],
+      "steps": [
+        { "order": 1, "action": "record_current_state", "description": "记录当前交易对名称、价格、K线图源" },
+        { "order": 2, "action": "click_topbar_token", "description": "点击顶部栏中不同的代币切换交易对" },
+        { "order": 3, "action": "assert_pair_changed", "description": "验证交易对名称已变化" },
+        { "order": 4, "action": "assert_chart_changed", "description": "验证K线图数据源已切换（Hyperliquid标签变化）" },
+        { "order": 5, "action": "assert_price_changed", "description": "验证价格已更新为新交易对的价格" }
+      ],
+      "expected": ["交易对名称切换成功", "K线图数据源同步切换", "价格更新为对应代币"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-03-05", "rawSteps": "6-7" }
+    },
+    {
+      "id": "PERPS-003",
+      "scenarioId": "perps-bottom-display-modes",
+      "title": "底部展示模式切换（收藏/默认推荐/不展示）",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "perps", "display-mode"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "合约页已打开"],
+      "steps": [
+        { "order": 1, "action": "select_display_mode", "description": "点击底部设置图标，选择 Favorites", "param": "Favorites" },
+        { "order": 2, "action": "assert_ticker_visible", "description": "验证底部 ticker 栏可见，显示收藏代币数据" },
+        { "order": 3, "action": "select_display_mode", "description": "切换到 Popular", "param": "Popular" },
+        { "order": 4, "action": "assert_ticker_visible", "description": "验证底部 ticker 栏可见，显示系统推荐代币" },
+        { "order": 5, "action": "select_display_mode", "description": "切换到 No Preview", "param": "No Preview" },
+        { "order": 6, "action": "assert_ticker_hidden", "description": "验证底部 ticker 栏已隐藏" }
+      ],
+      "expected": ["Favorites 模式：底部显示收藏代币", "Popular 模式：底部显示推荐代币", "No Preview 模式：底部不显示"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-03-05", "rawSteps": "8-17" }
+    },
+    {
+      "id": "PERPS-004",
+      "scenarioId": "perps-dollar-percent-toggle",
+      "title": "底部 ticker 栏 $/% 显示模式切换",
+      "platform": "desktop",
+      "priority": "P1",
+      "tags": ["regression", "perps", "display-toggle"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "合约页已打开", "底部展示模式为 Favorites 或 Popular"],
+      "steps": [
+        { "order": 1, "action": "click_display_toggle", "description": "点击 $ 按钮切换为美元显示", "param": "$" },
+        { "order": 2, "action": "assert_dollar_mode", "description": "验证底部 ticker 显示价格数值（如 71270, 2079.1）" },
+        { "order": 3, "action": "click_display_toggle", "description": "点击 % 按钮切换为百分比显示", "param": "%" },
+        { "order": 4, "action": "assert_percent_mode", "description": "验证底部 ticker 显示涨跌百分比（如 -2.68%）" }
+      ],
+      "expected": ["$ 模式显示价格数值", "% 模式显示涨跌百分比"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-03-05", "rawSteps": "31-35" }
+    },
+    {
+      "id": "PERPS-005",
+      "scenarioId": "perps-favorites-sync-top-bottom",
+      "title": "收藏同步验证（顶部栏与底部Favorites栏一致）",
+      "platform": "desktop",
+      "priority": "P1",
+      "tags": ["regression", "perps", "favorites", "sync"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "合约页已打开", "底部展示模式为 Favorites"],
+      "steps": [
+        { "order": 1, "action": "select_display_mode", "description": "设置底部为 Favorites 模式", "param": "Favorites" },
+        { "order": 2, "action": "get_topbar_tokens", "description": "获取顶部横栏中的代币列表" },
+        { "order": 3, "action": "get_bottom_tokens", "description": "获取底部 ticker 栏中的代币列表" },
+        { "order": 4, "action": "assert_sync", "description": "断言顶部和底部的代币列表一致（sync ratio >= 50%）" }
+      ],
+      "expected": ["顶部栏和底部 Favorites 栏展示相同的收藏代币"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-03-05" }
+    },
+    {
+      "id": "SEARCH-001",
+      "scenarioId": "ticker-search-english-cross-tab",
+      "title": "英文搜索 + 跨 tab 联动验证",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "search", "ticker", "cross-tab"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "合约页已打开", "Token 选择器已打开"],
+      "data": { "searchKeyword": "BT", "startTab": "永续合约" },
+      "steps": [
+        { "order": 1, "action": "click_section_tab", "description": "确保在永续合约 tab", "param": "永续合约" },
+        { "order": 2, "action": "input_search", "ui_element": "nav-header-search", "description": "搜索 BT", "value": "BT" },
+        { "order": 3, "action": "assert_search_results", "description": "永续合约下 BT 有匹配（BTC）" },
+        { "order": 4, "action": "click_section_tab", "description": "保持搜索词，切换到加密货币", "param": "加密货币" },
+        { "order": 5, "action": "assert_tab_search_state", "description": "有匹配显示联想，无匹配显示空状态" },
+        { "order": 6, "action": "click_section_tab", "description": "切换到股票", "param": "股票" },
+        { "order": 7, "action": "assert_tab_search_state", "description": "有匹配显示联想，无匹配显示空状态" },
+        { "order": 8, "action": "repeat_for_all_tabs", "description": "依次切换贵金属/指数/大宗商品/外汇/预上线，每个 tab 验证搜索状态" },
+        { "order": 9, "action": "click_section_tab", "description": "切回永续合约", "param": "永续合约" },
+        { "order": 10, "action": "clear_search", "description": "清空搜索框" }
+      ],
+      "expected": ["永续合约下 BT 匹配 BTC", "每个 tab 有匹配显示联想列表，无匹配显示空状态提示", "全程搜索词保持不变"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-03-17", "rawSteps": "3-7" }
+    },
+    {
+      "id": "SEARCH-002",
+      "scenarioId": "ticker-search-chinese",
+      "title": "中文关键词搜索",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "search", "ticker", "chinese"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "Token 选择器已打开", "当前 tab 为永续合约"],
+      "data": { "keywords": ["比特", "以太"], "expectedMatches": { "比特": ["BTC", "BCH"], "以太": ["ETH", "ETC"] } },
+      "steps": [
+        { "order": 1, "action": "input_search", "description": "搜索「比特」", "value": "比特" },
+        { "order": 2, "action": "assert_search_results", "description": "匹配 BTC、BCH" },
+        { "order": 3, "action": "clear_search", "description": "清空搜索框" },
+        { "order": 4, "action": "input_search", "description": "搜索「以太」", "value": "以太" },
+        { "order": 5, "action": "assert_search_results", "description": "匹配 ETH、ETC" },
+        { "order": 6, "action": "clear_search", "description": "清空搜索框" }
+      ],
+      "expected": ["「比特」匹配 BTC/BCH", "「以太」匹配 ETH/ETC"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-03-17", "rawSteps": "8-10" }
+    },
+    {
+      "id": "SEARCH-003",
+      "scenarioId": "token-selector-tab-traverse",
+      "title": "版块 Tab 遍历",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "search", "section", "tab-traverse"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "Token 选择器已打开", "搜索框为空"],
+      "steps": [
+        { "order": 1, "action": "clear_search", "description": "确保搜索框为空" },
+        { "order": 2, "action": "traverse_all_tabs", "description": "逐个点击每个 tab，验证有代币或显示空状态" }
+      ],
+      "expected": ["每个 tab 有代币则显示列表，无代币则显示空状态提示", "不出现既无列表也无空状态的异常"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-03-17", "rawSteps": "11-21" }
+    }
+  ]
+}

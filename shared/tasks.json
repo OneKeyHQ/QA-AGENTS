@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-13T10:02:00.000Z",
+  "tasks": [
+    {
+      "id": "task-design-cosmos",
+      "title": "Design test cases for: Cosmos 系列网络转账",
+      "type": "design",
+      "status": "completed",
+      "priority": "high",
+      "assignee": "test-designer",
+      "dependencies": [],
+      "input": { "scenarioPath": "scenarios/cosmos-transfer.feature", "platform": "desktop" },
+      "result": { "testCaseCount": 9, "casesPath": "shared/test_cases.json", "caseIds": ["COSMOS-001", "COSMOS-002", "COSMOS-003", "COSMOS-004", "COSMOS-005", "COSMOS-006", "COSMOS-007", "COSMOS-008", "COSMOS-009"] },
+      "error": null,
+      "createdAt": "2026-02-13T10:00:00.000Z",
+      "updatedAt": "2026-02-13T10:02:00.000Z",
+      "completedAt": "2026-02-13T10:02:00.000Z"
+    }
+  ]
+}

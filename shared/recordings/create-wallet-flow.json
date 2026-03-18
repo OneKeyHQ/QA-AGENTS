@@ -1,0 +1,1899 @@
+{
+  "flow": "create-wallet",
+  "steps": [
+    {
+      "step": 0,
+      "label": "initial",
+      "timestamp": "2026-02-28T08:29:25.909Z",
+      "url": "file:///",
+      "title": "OneKey",
+      "headings": [],
+      "buttons": [
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "Account #1",
+          "testid": "AccountSelectorTriggerBase",
+          "tag": "DIV",
+          "rect": {
+            "x": 97,
+            "y": 73,
+            "w": 140,
+            "h": 32
+          }
+        },
+        {
+          "text": "Ethereum",
+          "testid": "account-network-trigger-button",
+          "tag": "DIV",
+          "rect": {
+            "x": 239,
+            "y": 73,
+            "w": 122,
+            "h": 32
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 364,
+            "y": 74,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 222,
+            "y": 152,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "发送",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 103,
+            "y": 215,
+            "w": 102,
+            "h": 50
+          }
+        },
+        {
+          "text": "接收",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 215,
+            "y": 215,
+            "w": 102,
+            "h": 50
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 327,
+            "y": 215,
+            "w": 102,
+            "h": 50
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 439,
+            "y": 215,
+            "w": 50,
+            "h": 50
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 350,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 638,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 926,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1214,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1502,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1790,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 87,
+            "y": 346,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1189,
+            "y": 346,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "充值",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 119,
+            "y": 647,
+            "w": 120,
+            "h": 50
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1178,
+            "y": 818,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "资产",
+          "testid": null,
+          "tag": "DIV",
+          "rect": {
+            "x": 117,
+            "y": 875,
+            "w": 38,
+            "h": 24
+          }
+        },
+        {
+          "text": "余额",
+          "testid": null,
+          "tag": "DIV",
+          "rect": {
+            "x": 615,
+            "y": 875,
+            "w": 38,
+            "h": 24
+          }
+        },
+        {
+          "text": "价格",
+          "testid": null,
+          "tag": "DIV",
+          "rect": {
+            "x": 883,
+            "y": 875,
+            "w": 38,
+            "h": 24
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 922,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 978,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 1034,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 1090,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 1146,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "添加代币",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 650,
+            "y": 1200,
+            "w": 100,
+            "h": 30
+          }
+        },
+        {
+          "text": "开始赚取收益",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 570,
+            "y": 1448,
+            "w": 166,
+            "h": 38
+          }
+        },
+        {
+          "text": "添加 4 个代币",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1082,
+            "y": 1578,
+            "w": 130,
+            "h": 30
+          }
+        },
+        {
+          "text": "查看更多",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1112,
+            "y": 1716,
+            "w": 100,
+            "h": 30
+          }
+        },
+        {
+          "text": "SOL5.80% APR可用：0",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 103,
+            "y": 1755,
+            "w": 266,
+            "h": 124
+          }
+        },
+        {
+          "text": "USDT3.74% APY可用：0",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 381,
+            "y": 1755,
+            "w": 266,
+            "h": 124
+          }
+        },
+        {
+          "text": "USDC3.20% APY可用：0",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 659,
+            "y": 1755,
+            "w": 266,
+            "h": 124
+          }
+        },
+        {
+          "text": "USDe1.62% APR可用：0",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 937,
+            "y": 1755,
+            "w": 266,
+            "h": 124
+          }
+        },
+        {
+          "text": "获取 Prime",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1095,
+            "y": 1982,
+            "w": 92,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "存款",
+          "testid": null,
+          "tag": "DIV",
+          "rect": {
+            "x": 1014,
+            "y": 11,
+            "w": 72,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1099,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "",
+          "testid": "perp-header-settings-button",
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1145,
+            "y": 11,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "",
+          "testid": "browser-shortcuts-button",
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        }
+      ],
+      "inputs": [
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        },
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        },
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        },
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        },
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        }
+      ],
+      "testids": [
+        {
+          "testid": "Desktop-AppSideBar-Container",
+          "tag": "DIV",
+          "text": "钱包市场交易合约DeFi设备推荐浏览器"
+        },
+        {
+          "testid": "Desktop-AppSideBar-Content-Container",
+          "tag": "DIV",
+          "text": "钱包市场交易合约DeFi设备推荐浏览器"
+        },
+        {
+          "testid": "home",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-active-item-WalletSolid",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "market",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-ChartTrendingUp2Outline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "swap",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-SwapHorOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "perp",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-TradingViewCandlesOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "earn",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-CoinsOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "devicemanagement",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-OnekeyProOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "referfriends",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-GiftOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "discovery",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-CompassCircleOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "AccountSelectorTriggerBase",
+          "tag": "DIV",
+          "text": "Account #1"
+        },
+        {
+          "testid": "account-network-trigger-button",
+          "tag": "DIV",
+          "text": "Ethereum"
+        },
+        {
+          "testid": "account-network-trigger-button-text",
+          "tag": "SPAN",
+          "text": "Ethereum"
+        },
+        {
+          "testid": "Wallet-Tab-Header",
+          "tag": "DIV",
+          "text": "$0.00发送接收兑换"
+        },
+        {
+          "testid": "Wallet-Token-List-Header",
+          "tag": "DIV",
+          "text": "资产余额价格"
+        },
+        {
+          "testid": "Wallet-DeFi-Empty",
+          "tag": "DIV",
+          "text": "开始赚取收益您的仓位将显示在这里"
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "perp-header-settings-button",
+          "tag": "BUTTON",
+          "text": ""
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "browser-shortcuts-button",
+          "tag": "BUTTON",
+          "text": ""
+        }
+      ],
+      "screenshot": "/Users/chole/onekey-agent-test/shared/recordings/create-wallet-step0.png",
+      "capturedEvents": []
+    },
+    {
+      "step": 1,
+      "label": "after-first-click",
+      "timestamp": "2026-02-28T08:31:56.520Z",
+      "url": "file:///",
+      "title": "OneKey",
+      "headings": [],
+      "buttons": [
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "Account #1",
+          "testid": "AccountSelectorTriggerBase",
+          "tag": "DIV",
+          "rect": {
+            "x": 97,
+            "y": 73,
+            "w": 140,
+            "h": 32
+          }
+        },
+        {
+          "text": "Ethereum",
+          "testid": "account-network-trigger-button",
+          "tag": "DIV",
+          "rect": {
+            "x": 239,
+            "y": 73,
+            "w": 122,
+            "h": 32
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 364,
+            "y": 74,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 222,
+            "y": 152,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "发送",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 103,
+            "y": 215,
+            "w": 102,
+            "h": 50
+          }
+        },
+        {
+          "text": "接收",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 215,
+            "y": 215,
+            "w": 102,
+            "h": 50
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 327,
+            "y": 215,
+            "w": 102,
+            "h": 50
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 439,
+            "y": 215,
+            "w": 50,
+            "h": 50
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 350,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 638,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 926,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1214,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1502,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1790,
+            "y": 310,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 87,
+            "y": 346,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1189,
+            "y": 346,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "充值",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 119,
+            "y": 647,
+            "w": 120,
+            "h": 50
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1178,
+            "y": 818,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "资产",
+          "testid": null,
+          "tag": "DIV",
+          "rect": {
+            "x": 117,
+            "y": 875,
+            "w": 38,
+            "h": 24
+          }
+        },
+        {
+          "text": "余额",
+          "testid": null,
+          "tag": "DIV",
+          "rect": {
+            "x": 615,
+            "y": 875,
+            "w": 38,
+            "h": 24
+          }
+        },
+        {
+          "text": "价格",
+          "testid": null,
+          "tag": "DIV",
+          "rect": {
+            "x": 883,
+            "y": 875,
+            "w": 38,
+            "h": 24
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 922,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 978,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 1034,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 1090,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "兑换",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1133,
+            "y": 1146,
+            "w": 50,
+            "h": 30
+          }
+        },
+        {
+          "text": "添加代币",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 650,
+            "y": 1200,
+            "w": 100,
+            "h": 30
+          }
+        },
+        {
+          "text": "开始赚取收益",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 570,
+            "y": 1448,
+            "w": 166,
+            "h": 38
+          }
+        },
+        {
+          "text": "添加 4 个代币",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1082,
+            "y": 1578,
+            "w": 130,
+            "h": 30
+          }
+        },
+        {
+          "text": "查看更多",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1112,
+            "y": 1716,
+            "w": 100,
+            "h": 30
+          }
+        },
+        {
+          "text": "SOL5.80% APR可用：0",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 103,
+            "y": 1755,
+            "w": 266,
+            "h": 124
+          }
+        },
+        {
+          "text": "USDT3.74% APY可用：0",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 381,
+            "y": 1755,
+            "w": 266,
+            "h": 124
+          }
+        },
+        {
+          "text": "USDC3.20% APY可用：0",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 659,
+            "y": 1755,
+            "w": 266,
+            "h": 124
+          }
+        },
+        {
+          "text": "USDe1.62% APR可用：0",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 937,
+            "y": 1755,
+            "w": 266,
+            "h": 124
+          }
+        },
+        {
+          "text": "获取 Prime",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1095,
+            "y": 1982,
+            "w": 92,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "存款",
+          "testid": null,
+          "tag": "DIV",
+          "rect": {
+            "x": 1014,
+            "y": 11,
+            "w": 72,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1099,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "",
+          "testid": "perp-header-settings-button",
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1145,
+            "y": 11,
+            "w": 30,
+            "h": 30
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "",
+          "testid": null,
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        },
+        {
+          "text": "",
+          "testid": "browser-shortcuts-button",
+          "tag": "BUTTON",
+          "rect": {
+            "x": 1183,
+            "y": 7,
+            "w": 38,
+            "h": 38
+          }
+        }
+      ],
+      "inputs": [
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        },
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        },
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        },
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        },
+        {
+          "type": "text",
+          "placeholder": "搜索任何内容",
+          "value": "",
+          "testid": "nav-header-search",
+          "rect": {
+            "x": 494,
+            "y": 11,
+            "w": 266
+          }
+        }
+      ],
+      "testids": [
+        {
+          "testid": "Desktop-AppSideBar-Container",
+          "tag": "DIV",
+          "text": "钱包市场交易合约DeFi设备推荐浏览器"
+        },
+        {
+          "testid": "Desktop-AppSideBar-Content-Container",
+          "tag": "DIV",
+          "text": "钱包市场交易合约DeFi设备推荐浏览器"
+        },
+        {
+          "testid": "home",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-active-item-WalletSolid",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "market",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-ChartTrendingUp2Outline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "swap",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-SwapHorOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "perp",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-TradingViewCandlesOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "earn",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-CoinsOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "devicemanagement",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-OnekeyProOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "referfriends",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-GiftOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "discovery",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "tab-modal-no-active-item-CompassCircleOutline",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "AccountSelectorTriggerBase",
+          "tag": "DIV",
+          "text": "Account #1"
+        },
+        {
+          "testid": "account-network-trigger-button",
+          "tag": "DIV",
+          "text": "Ethereum"
+        },
+        {
+          "testid": "account-network-trigger-button-text",
+          "tag": "SPAN",
+          "text": "Ethereum"
+        },
+        {
+          "testid": "Wallet-Tab-Header",
+          "tag": "DIV",
+          "text": "$0.00发送接收兑换"
+        },
+        {
+          "testid": "Wallet-Token-List-Header",
+          "tag": "DIV",
+          "text": "资产余额价格"
+        },
+        {
+          "testid": "Wallet-DeFi-Empty",
+          "tag": "DIV",
+          "text": "开始赚取收益您的仓位将显示在这里"
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "perp-header-settings-button",
+          "tag": "BUTTON",
+          "text": ""
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "nav-header-search",
+          "tag": "INPUT",
+          "text": ""
+        },
+        {
+          "testid": "",
+          "tag": "DIV",
+          "text": "⌘K"
+        },
+        {
+          "testid": "header-right-notification",
+          "tag": "DIV",
+          "text": ""
+        },
+        {
+          "testid": "browser-shortcuts-button",
+          "tag": "BUTTON",
+          "text": ""
+        }
+      ],
+      "screenshot": "/Users/chole/onekey-agent-test/shared/recordings/create-wallet-step1.png",
+      "capturedEvents": [
+        {
+          "type": "click",
+          "timestamp": 1772267379069,
+          "tag": "DIV",
+          "text": "Account #1",
+          "testid": "AccountSelectorTriggerBase",
+          "role": "button",
+          "className": "_bg-0hover-1146245805 _bg-0active-858255293 _dsp-flex _fb-auto _bxs-border-box _pos-relative _mih-0p",
+          "rect": {
+            "x": 97,
+            "y": 73,
+            "w": 140,
+            "h": 32
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267381589,
+          "tag": "DIV",
+          "text": "帐户",
+          "testid": "account-add-account",
+          "role": null,
+          "className": "_bg-0hover-1146245805 _bg-0active-858255293 _outlineWidth-0focus-visible-2px _outlineStyle-0focus-vi",
+          "rect": {
+            "x": 433,
+            "y": 254,
+            "w": 496,
+            "h": 48
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267418583,
+          "tag": "DIV",
+          "text": "Account #2",
+          "testid": "AccountSelectorTriggerBase",
+          "role": "button",
+          "className": "_bg-0hover-1146245805 _bg-0active-858255293 _dsp-flex _fb-auto _bxs-border-box _pos-relative _mih-0p",
+          "rect": {
+            "x": 97,
+            "y": 73,
+            "w": 142,
+            "h": 32
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267420058,
+          "tag": "BUTTON",
+          "text": "",
+          "testid": "add-wallet",
+          "role": "button",
+          "className": "_bg-0hover-141586071 _bg-0active-1937935975 _outlineColor-0focus-visible-641249282 _outlineStyle-0fo",
+          "rect": {
+            "x": 340,
+            "y": 641,
+            "w": 42,
+            "h": 42
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267421284,
+          "tag": "DIV",
+          "text": "创建助记词钱包了解更多最常使用助记词由 12 个单词组成助记词就像是「密码」需要自己妥善保管手写备份支持数百个网络",
+          "testid": null,
+          "role": null,
+          "className": "_btw-_themedark_1px _brw-_themedark_1px _bbw-_themedark_1px _blw-_themedark_1px _btc-_themedark_1347",
+          "rect": {
+            "x": 417,
+            "y": 559,
+            "w": 400,
+            "h": 167
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267479969,
+          "tag": "BUTTON",
+          "text": "",
+          "testid": null,
+          "role": "button",
+          "className": "_bg-0hover-715865674 _bg-0active-1545831002 _outlineColor-0focus-visible-641249282 _outlineStyle-0fo",
+          "rect": {
+            "x": 277,
+            "y": 416,
+            "w": 50,
+            "h": 50
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267480949,
+          "tag": "BUTTON",
+          "text": "OneKey KeyTag",
+          "testid": null,
+          "role": "button",
+          "className": "_pt-_md_1316331230 _pb-_md_1316331230 _btlr-_md_1307609967 _btrr-_md_1307609967 _bbrr-_md_1307609967",
+          "rect": {
+            "x": 281,
+            "y": 372,
+            "w": 216,
+            "h": 32
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267481812,
+          "tag": "INPUT",
+          "text": "",
+          "testid": "password-input",
+          "role": null,
+          "className": "css-11aywtz r-6taxm2 is_Input _fg-1 _fs-1 _fb-auto _pe-auto _h-44px _pt-1316331230 _pb-1316331230 _p",
+          "rect": {
+            "x": 438,
+            "y": 406,
+            "w": 270,
+            "h": 44
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267482719,
+          "tag": "INPUT",
+          "text": "",
+          "testid": "password-input",
+          "role": null,
+          "className": "css-11aywtz r-6taxm2 is_Input _fg-1 _fs-1 _fb-auto _pe-auto _h-44px _pt-1316331230 _pb-1316331230 _p",
+          "rect": {
+            "x": 438,
+            "y": 406,
+            "w": 270,
+            "h": 44
+          }
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483356,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "1"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483499,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "12"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483547,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "123"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483573,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "1234"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483602,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "12345"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483630,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "123456"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483654,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "1234567"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483690,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "12345678"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483710,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "123456789"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483735,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "1234567890"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483778,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "1234567890-"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267483992,
+          "tag": "INPUT",
+          "inputType": "password",
+          "testid": "password-input",
+          "placeholder": "输入密码",
+          "value": "1234567890-="
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267485484,
+          "tag": "DIV",
+          "text": "",
+          "testid": "verifying-password",
+          "role": null,
+          "className": "_bg-0hover-1146245805 _bg-0active-858255293 _outlineWidth-0focus-visible-2px _outlineStyle-0focus-vi",
+          "rect": {
+            "x": 752,
+            "y": 406,
+            "w": 44,
+            "h": 44
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267487732,
+          "tag": "DIV",
+          "text": "Wallet 4204810245122561286432168421123456789101112Front (#1 - 12)我已备份我明白了",
+          "testid": "APP-Modal-Screen",
+          "role": null,
+          "className": "_w-_gtMd_9037 _h-_gtMd_9037 _maw-_gtMd_1611763774 _mah-_gtMd_1611763774 _btlr-_gtMd_1307609998 _btrr",
+          "rect": {
+            "x": 297,
+            "y": 83,
+            "w": 640,
+            "h": 640
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267488522,
+          "tag": "BUTTON",
+          "text": "我明白了",
+          "testid": "page-footer-confirm",
+          "role": "button",
+          "className": "_bg-0hover-141586071 _bg-0active-1937935975 _outlineColor-0focus-visible-641249282 _outlineStyle-0fo",
+          "rect": {
+            "x": 823,
+            "y": 664,
+            "w": 94,
+            "h": 38
+          }
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267489896,
+          "tag": "INPUT",
+          "text": "",
+          "testid": null,
+          "role": null,
+          "className": "css-11aywtz r-6taxm2 is_Input _fg-1 _fs-1 _fb-auto _pe-auto _h-48px _pt-1316331230 _pb-1316331230 _p",
+          "rect": {
+            "x": 678,
+            "y": 644,
+            "w": 205,
+            "h": 48
+          }
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267492129,
+          "tag": "INPUT",
+          "inputType": "text",
+          "testid": null,
+          "placeholder": "邀请码",
+          "value": "V"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267492404,
+          "tag": "INPUT",
+          "inputType": "text",
+          "testid": null,
+          "placeholder": "邀请码",
+          "value": "VI"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267492571,
+          "tag": "INPUT",
+          "inputType": "text",
+          "testid": null,
+          "placeholder": "邀请码",
+          "value": "VIP"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267493117,
+          "tag": "INPUT",
+          "inputType": "text",
+          "testid": null,
+          "placeholder": "邀请码",
+          "value": "VIP9"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267493265,
+          "tag": "INPUT",
+          "inputType": "text",
+          "testid": null,
+          "placeholder": "邀请码",
+          "value": "VIP99"
+        },
+        {
+          "type": "input",
+          "timestamp": 1772267493394,
+          "tag": "INPUT",
+          "inputType": "text",
+          "testid": null,
+          "placeholder": "邀请码",
+          "value": "VIP999"
+        },
+        {
+          "type": "click",
+          "timestamp": 1772267494372,
+          "tag": "BUTTON",
+          "text": "加入",
+          "testid": null,
+          "role": "button",
+          "className": "_bg-0hover-715865674 _bg-0active-1545831002 _outlineColor-0focus-visible-641249282 _outlineStyle-0fo",
+          "rect": {
+            "x": 892,
+            "y": 647,
+            "w": 74,
+            "h": 50
+          }
+        }
+      ]
+    }
+  ],
+  "lastUpdated": "2026-02-28T08:31:56.523Z"
+}

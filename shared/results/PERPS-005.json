@@ -1,0 +1,27 @@
+{
+  "testId": "PERPS-005",
+  "status": "passed",
+  "duration": 32038,
+  "steps": [
+    {
+      "name": "推荐收藏 → 顶部无 SOL",
+      "status": "passed",
+      "detail": "top: BTC, ETH, BNB, HYPE, XRP, TURBO, INTC, TRUMP, COIN, RIVN, CL, SILVER, RENDER, HOOD, GOOGL, GOLD, EWY, EWJ, EUR, CRWV, CRCL, COPPER, BABA, AMZN, AMD, AAPL, XPL, XMR, XLM, XAI, WLFI, WLD, WIF, WCT, VVV, VINE, USUAL, USTC",
+      "time": "2026-03-13T14:56:12.193Z"
+    },
+    {
+      "name": "自选取消 HYPE",
+      "status": "passed",
+      "detail": "5 → 4",
+      "time": "2026-03-13T14:56:16.921Z"
+    },
+    {
+      "name": "自选同步（HYPE 已移除）",
+      "status": "passed",
+      "detail": "favorites: XRP, ETH, BTC, BNB",
+      "time": "2026-03-13T14:56:17.094Z"
+    }
+  ],
+  "errors": [],
+  "timestamp": "2026-03-13T14:56:18.756Z"
+}

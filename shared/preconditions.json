@@ -1,0 +1,119 @@
+{
+  "$schema": "../src/schemas/preconditions.schema.json",
+  "version": "1.0.0",
+  "lastUpdated": "2026-03-17T08:30:00.000Z",
+  "description": "公共前置条件数据库 — 所有用例执行前自动检查",
+
+  "environment": {
+    "cdp": {
+      "url": "http://127.0.0.1:9222",
+      "required": true,
+      "description": "OneKey 必须带 --remote-debugging-port=9222 启动"
+    },
+    "wallet": {
+      "unlocked": true,
+      "password_env": "WALLET_PASSWORD",
+      "description": "钱包必须处于解锁状态"
+    },
+    "network": {
+      "reachable": true,
+      "description": "需要网络连接以加载后台配置数据"
+    }
+  },
+
+  "data": {
+    "accounts": {
+      "piggy": {
+        "label": "piggy🐷",
+        "required_by": ["COSMOS-*", "WALLET-001"],
+        "description": "主测试账户"
+      },
+      "vault": {
+        "label": "vault😂",
+        "required_by": ["COSMOS-*"],
+        "description": "转账对手账户"
+      }
+    },
+
+    "balances": {
+      "description": "用例需要的最小余额。不足时策略 fallback 到 Max 或跳过。",
+      "requirements": [
+        { "account": "piggy", "network": "Akash",          "token": "AKT",  "min": "0.01",   "required_by": ["COSMOS-001"] },
+        { "account": "piggy", "network": "Cosmos",         "token": "ATOM", "min": "2",      "required_by": ["COSMOS-002"] },
+        { "account": "piggy", "network": "Crypto.org",     "token": "CRO",  "min": "0.01",   "required_by": ["COSMOS-003"] },
+        { "account": "piggy", "network": "Fetch.ai",       "token": "FET",  "min": "0.001",  "required_by": ["COSMOS-004"] },
+        { "account": "piggy", "network": "Juno",           "token": "JUNO", "min": "0.001",  "required_by": ["COSMOS-005"] },
+        { "account": "piggy", "network": "Osmosis",        "token": "OSMO", "min": "0.1",    "required_by": ["COSMOS-006"] },
+        { "account": "piggy", "network": "Osmosis",        "token": "ATOM", "min": "0.01",   "required_by": ["COSMOS-007"] },
+        { "account": "piggy", "network": "Secret Network", "token": "SCRT", "min": "0.001",  "required_by": ["COSMOS-008"] },
+        { "account": "piggy", "network": "Celestia",       "token": "TIA",  "min": "0.001",  "required_by": ["COSMOS-009"] }
+      ]
+    },
+
+    "search": {
+      "description": "搜索用例依赖后台配置的代币数据和多语言标签",
+      "probes": [
+        {
+          "query": "BT",
+          "type": "english",
+          "expected_tokens": ["BTC"],
+          "required_by": ["SEARCH-001", "SEARCH-005"],
+          "on_fail": "skip",
+          "message": "英文搜索「BT」需匹配 BTC，如不匹配请确认后台代币配置"
+        },
+        {
+          "query": "比特",
+          "type": "chinese",
+          "expected_tokens": ["BTC", "BCH"],
+          "required_by": ["SEARCH-002"],
+          "on_fail": "skip",
+          "message": "中文搜索「比特」需匹配 BTC/BCH，如不匹配请确认后台中文标签配置"
+        },
+        {
+          "query": "以太",
+          "type": "chinese",
+          "expected_tokens": ["ETH", "ETC"],
+          "required_by": ["SEARCH-002"],
+          "on_fail": "skip",
+          "message": "中文搜索「以太」需匹配 ETH/ETC，如不匹配请确认后台中文标签配置"
+        }
+      ]
+    },
+
+    "sections": {
+      "description": "Token 选择器版块 tab 依赖后台配置",
+      "expected_tabs": ["自选", "永续合约", "加密货币", "股票", "贵金属", "指数", "大宗商品", "外汇", "预上线"],
+      "required_by": ["SEARCH-003", "SEARCH-004", "SEARCH-005"],
+      "token_expectations": {
+        "贵金属": { "min_count": 1, "expected_tokens": ["SILVER", "GOLD", "PLATINUM", "COPPER"], "required_by": ["SEARCH-003"] },
+        "预上线": { "min_count": 1, "required_by": ["SEARCH-003"] },
+        "股票":   { "min_count": 0, "description": "股票版块可能为空，搜索 BT 预期无结果", "required_by": ["SEARCH-005"] }
+      },
+      "on_missing_tab": "skip",
+      "message": "版块 tab 缺失时将跳过对应用例，请确认后台版块配置"
+    },
+
+    "perps": {
+      "description": "合约页面自选功能依赖",
+      "default_tokens": ["BTCUSDC", "ETHUSDC", "BNBUSDC", "SOLUSDC", "HYPEUSDC", "XRPUSDC"],
+      "required_by": ["PERPS-*"],
+      "on_fail": "warn"
+    },
+
+    "referral": {
+      "description": "推荐码绑定（一次性操作）",
+      "invite_code": "VIP999",
+      "required_by": ["REFER-001"],
+      "precondition": "推荐计划卡片必须可见（未绑定状态）",
+      "on_fail": "skip",
+      "message": "邀请码已绑定或推荐卡片不可见时跳过"
+    }
+  },
+
+  "rules": {
+    "on_block": "abort",
+    "on_warn": "continue_with_skip",
+    "on_skip": "report_as_skipped",
+    "report_format": "precondition_report.json"
+  }
+}

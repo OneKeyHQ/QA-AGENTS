@@ -1,0 +1,117 @@
+{
+  "generatedAt": "2026-02-28T08:13:54.031Z",
+  "sourceRecording": "/Users/chole/onekey-agent-test/shared/results/recording",
+  "rawSteps": 29,
+  "actions": 13,
+  "flows": 1,
+  "proposedSteps": [
+    {
+      "order": 1,
+      "action": "open_account_selector",
+      "ui_element": "walletSelector"
+    },
+    {
+      "order": 2,
+      "action": "unknown_click",
+      "raw_testid": "add-wallet",
+      "raw_text": ""
+    },
+    {
+      "order": 3,
+      "action": "unknown_click",
+      "raw_testid": "APP-OnBoarding-Screen",
+      "raw_text": "创建助记词钱包了解更多"
+    },
+    {
+      "order": 4,
+      "action": "unknown_click",
+      "raw_testid": "",
+      "raw_text": ""
+    },
+    {
+      "order": 5,
+      "action": "select_from_contacts",
+      "ui_element": "contactsPopover",
+      "text": "OneKey KeyTag"
+    },
+    {
+      "order": 6,
+      "action": "unknown_click",
+      "raw_testid": "password-input",
+      "raw_text": ""
+    },
+    {
+      "order": 7,
+      "action": "unknown_click",
+      "raw_testid": "password-input",
+      "raw_text": ""
+    },
+    {
+      "order": 8,
+      "action": "input_amount",
+      "ui_element": "sendAmountInput",
+      "value": "1234567890-="
+    },
+    {
+      "order": 9,
+      "action": "select_token",
+      "ui_element": "modal",
+      "param": ""
+    },
+    {
+      "order": 10,
+      "action": "click_preview",
+      "ui_element": "pageFooterConfirm"
+    },
+    {
+      "order": 11,
+      "action": "unknown_click",
+      "raw_testid": "",
+      "raw_text": ""
+    },
+    {
+      "order": 12,
+      "action": "input_amount",
+      "ui_element": "sendAmountInput",
+      "value": "VIP999"
+    },
+    {
+      "order": 13,
+      "action": "unknown_click",
+      "raw_testid": "",
+      "raw_text": "加入"
+    }
+  ],
+  "newElements": {
+    "add-wallet": {
+      "tag": "svg",
+      "text": "",
+      "count": 1
+    },
+    "APP-OnBoarding-Screen": {
+      "tag": "DIV",
+      "text": "创建助记词钱包了解更多",
+      "count": 1
+    },
+    "password-input": {
+      "tag": "INPUT",
+      "text": "",
+      "count": 14
+    }
+  },
+  "route": [
+    "open_account_selector",
+    "unknown_click",
+    "unknown_click",
+    "unknown_click",
+    "contacts_popover_action",
+    "unknown_click",
+    "unknown_click",
+    "text_input",
+    "select_in_modal",
+    "click_preview_or_confirm",
+    "unknown_click",
+    "text_input",
+    "unknown_click"
+  ]
+}

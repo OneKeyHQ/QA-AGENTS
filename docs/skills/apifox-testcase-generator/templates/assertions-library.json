@@ -1,0 +1,106 @@
+{
+  "_comment": "断言库 - 根据数据类型生成对应的断言代码",
+  "assertions": {
+    "array": {
+      "notEmpty": {
+        "description": "{{field}} 是数组且不为空",
+        "code": "pm.expect(jsonData.data.{{field}}).to.be.an('array');\npm.expect(jsonData.data.{{field}}.length).to.be.above(0);"
+      },
+      "canBeEmpty": {
+        "description": "{{field}} 是数组",
+        "code": "pm.expect(jsonData.data.{{field}}).to.be.an('array');"
+      }
+    },
+    "object": {
+      "exists": {
+        "description": "返回 data.{{field}} 对象",
+        "code": "pm.expect(jsonData.data).to.have.property('{{field}}');\npm.expect(jsonData.data.{{field}}).to.be.an('object');"
+      },
+      "hasProperties": {
+        "description": "{{field}} 包含必要字段",
+        "code": "const obj = jsonData.data.{{field}};\n{{#each properties}}\npm.expect(obj).to.have.property('{{this}}');\n{{/each}}"
+      }
+    },
+    "string": {
+      "notEmpty": {
+        "description": "{{field}} 是非空字符串",
+        "code": "pm.expect(jsonData.data.{{field}}).to.be.a('string');\npm.expect(jsonData.data.{{field}}.length).to.be.above(0);"
+      },
+      "canBeEmpty": {
+        "description": "{{field}} 是字符串",
+        "code": "pm.expect(jsonData.data.{{field}}).to.be.a('string');"
+      }
+    },
+    "number": {
+      "positive": {
+        "description": "{{field}} 是正数",
+        "code": "pm.expect(jsonData.data.{{field}}).to.be.a('number');\npm.expect(jsonData.data.{{field}}).to.be.above(0);"
+      },
+      "nonNegative": {
+        "description": "{{field}} 是非负数",
+        "code": "pm.expect(jsonData.data.{{field}}).to.be.a('number');\npm.expect(jsonData.data.{{field}}).to.be.at.least(0);"
+      }
+    },
+    "boolean": {
+      "exists": {
+        "description": "{{field}} 是布尔值",
+        "code": "pm.expect(jsonData.data.{{field}}).to.be.a('boolean');"
+      },
+      "isTrue": {
+        "description": "{{field}} 为 true",
+        "code": "pm.expect(jsonData.data.{{field}}).to.be.true;"
+      },
+      "isFalse": {
+        "description": "{{field}} 为 false",
+        "code": "pm.expect(jsonData.data.{{field}}).to.be.false;"
+      }
+    },
+    "nested": {
+      "arrayItem": {
+        "description": "{{field}} 数组项包含必要字段",
+        "code": "const item = jsonData.data.{{field}}[0];\n{{#each properties}}\npm.expect(item).to.have.property('{{this}}');\n{{/each}}"
+      }
+    }
+  },
+  "commonPatterns": {
+    "listResponse": {
+      "description": "列表接口响应验证",
+      "assertions": [
+        {
+          "description": "返回 data.{{listField}} 是数组",
+          "code": "pm.expect(jsonData.data.{{listField}}).to.be.an('array');"
+        },
+        {
+          "description": "列表项包含必要字段",
+          "code": "if (jsonData.data.{{listField}}.length > 0) {\n    const item = jsonData.data.{{listField}}[0];\n    {{#each itemProperties}}\n    pm.expect(item).to.have.property('{{this}}');\n    {{/each}}\n}"
+        }
+      ]
+    },
+    "transactionBuild": {
+      "description": "交易构建接口响应验证",
+      "assertions": [
+        {
+          "description": "返回 data.tx 交易内容",
+          "code": "pm.expect(jsonData.data).to.have.property('tx');\npm.expect(jsonData.data.tx).to.be.a('string');\npm.expect(jsonData.data.tx.length).to.be.above(0);"
+        },
+        {
+          "description": "返回 data.orderId 订单ID",
+          "code": "pm.expect(jsonData.data).to.have.property('orderId');\npm.expect(jsonData.data.orderId).to.be.a('string');"
+        }
+      ]
+    },
+    "checkAmount": {
+      "description": "金额校验接口响应验证",
+      "assertions": [
+        {
+          "description": "返回 data.result 是布尔值",
+          "code": "pm.expect(jsonData.data).to.have.property('result');\npm.expect(jsonData.data.result).to.be.a('boolean');"
+        },
+        {
+          "description": "返回 data.alerts 是数组",
+          "code": "pm.expect(jsonData.data).to.have.property('alerts');\npm.expect(jsonData.data.alerts).to.be.an('array');"
+        }
+      ]
+    }
+  }
+}

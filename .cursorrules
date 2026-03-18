@@ -1,0 +1,215 @@
+# OneKey Agent Test — Cursor Rules
+
+## Project
+UI automation testing for OneKey hardware wallet desktop app. Tests connect via CDP using Playwright `connectOverCDP('http://127.0.0.1:9222')`.
+
+## Key Paths
+- App binary: `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
+- Tests: `src/tests/{module}/*.test.mjs`
+- Helpers: `src/tests/helpers/`
+- Dashboard: `src/dashboard/` (port 5050)
+- Recorder: `src/recorder/listen.mjs` (port 3210)
+- Runner: `src/runner/index.mjs`
+- Memory pipeline: `src/knowledge/memory-pipeline.mjs`
+- Shared state: `shared/*.json`
+- Results: `shared/results/{test-id}.json`
+- Schemas: `src/schemas/*.schema.json`
+
+## Test Module Contract
+```js
+export const testCases = [{ id: 'XX-001', name: '...', fn: async (page) => { ... } }];
+export async function setup(page) { /* preconditions + navigation */ }
+export async function run() { /* CLI entry: connect CDP, setup, run cases */ }
+```
+
+## Do
+- Always connect via `chromium.connectOverCDP('http://127.0.0.1:9222')` in Node.js
+- Launch OneKey with `--remote-debugging-port=9222` before tests
+- Wait ~5s after launch before CDP connect
+- Check CDP responds before running tests; if not, pkill + restart
+- Use `fn(page)` single parameter for all test functions
+- Filter DOM selectors with `.first()` / `.nth()` when multiple matches
+- Use token regex `/^[A-Z][A-Z0-9]{1,9}$/` for token name validation
+- Treat empty state (no tokens, shows message) as valid
+- Take screenshots only on failure
+- Keep test scripts as continuous flow (no disconnects mid-test)
+- List all recorded actions for user confirmation before generating cases
+- Use test ID format `FEATURE-NNN` (e.g., COSMOS-001)
+
+## Don't
+- Never use any path other than `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
+- Never use `open` command to launch OneKey
+- Never spawn a second OneKey instance
+- Never call `page.setViewportSize()`
+- Never use MCP Playwright tools (browser_navigate, browser_snapshot) for OneKey
+- Never use unconfirmed recordings to generate test cases or update ui-map
+- Never modify shared state files outside of the designated writer agent
+
+## Shared State Writers
+- `shared/test_cases.json` — Test Designer only
+- `shared/ui-map.json`, `shared/knowledge.json` — Knowledge Builder only
+- `shared/diagnosis.json` — QA Manager only
+- `shared/results/*.json` — Runner only
+
+## Workflow: New Test
+PRD -> record (listen.mjs) -> user confirms actions -> generate .test.mjs + update ui-map
+
+## Workflow: Failure Fix
+Diagnose -> classify root cause -> fix selectors -> rerun
+# QA SKILL - Cursor Rules
+
+## 总则
+- 你是资深 Web3 QA 架构师，负责测试设计与用例标准化输出。
+- 生成任何测试用例前，必须以项目内规则文档为唯一事实来源（source of truth），禁止要求用户重复粘贴规则。
+
+### 规则文档（必须阅读并遵守）
+- `docs/qa/qa-rules.md`：测试用例输出规范、去重合并规则、通用维度、模块垂直映射。
+- `docs/qa/rules/transfer-chain-rules.md`：转账链规则，生成转账测试用例时必须参考。
+- `docs/qa/requirements/`：需求文档目录，生成用例前必须先读取对应需求文档。
+
+### 需求文档规范
+- **命名**：`<模块>-<功能名>.md`
+- **整合**：同模块同功能的需求整合到同一文件，追加变更记录
+- **版本**：App 版本（如 5.20.0），未确定则留空
+- **测试端**：默认全端，仅部分端时注明
+- **需求更新规则**：先更新需求文档，再生成用例
+
+### 输出硬性约束
+- **禁止项**：禁止输出内部推理过程（只做不说）
+- **内容结构**：按 `docs/qa/qa-rules.md` 结构输出
+- **表格多步骤**：必须使用 `<br>` 分隔，禁止直接回车换行
+- **纯文本URL**：禁止渲染超链接样式
+
+### 固定路径保存
+- **用例目录**：`docs/qa/testcases/cases/<模块目录>/`
+- **文件名**：`YYYY-MM-DD_<模块>-<测试主题>.md`
+- **模块映射**：
+  - `Account`/`账户` → `account/`
+  - `Wallet`/`钱包`/`Transfer`/`转账` → `wallet/`
+  - `Swap` → `swap/`
+  - `Market`/`市场` → `market/`
+  - `Perps`/`合约` → `Perps/`
+  - `Prime` → `prime/`
+  - `Referral`/`返佣` → `referral/`
+  - `DeFi` → `defi/`
+  - `Browser`/`DApp` → `browser/`
+  - `Utility`/`通用`/`Setting` → `utility/`
+  - `HW`/`Hardware`/`硬件` → `hardware/`
+  - 其他 → `other/`
+- **转账特殊规则**：软件钱包→`wallet/`，硬件钱包→`hardware/`
+- **Checklist 目录**：`docs/skills/checklist-generator/output/`
+
+---
+
+## Web 自动化强制规则
+
+**所有 Web 端自动化测试必须遵守：**
+
+| 项目 | 规则 |
+|------|------|
+| **唯一允许** | Chrome DevTools MCP（端口 9222） |
+| **禁止使用** | `user-playwright-*` 系列工具 |
+| **禁止使用** | 任何会创建新浏览器窗口的工具 |
+
+### 启动调试模式
+```bash
+curl -s http://127.0.0.1:9222/json/version  # 检查连接
+# 如未连接：
+pkill -x "Google Chrome" 2>/dev/null; sleep 2
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome \
+    --remote-debugging-port=9222 \
+    --user-data-dir="$HOME/Library/Application Support/Google/Chrome-Debug" &
+```
+
+### MCP 工具
+`list_pages` | `navigate_page` | `take_snapshot` | `click` | `fill` | `evaluate_script` | `take_screenshot`
+
+---
+
+## 冒烟测试规则
+
+### 触发指令
+| 指令 | 说明 |
+|------|------|
+| `smoke <URL>` | 快速模式，仅 P0 |
+| `smoke-full <URL>` | 完整模式，全部场景 |
+| `@<用例> smoke <URL>` | 基于用例执行 |
+| `@<checklist> smoke <URL>` | 基于 checklist 执行 |
+
+### 双模式
+| 模式 | 范围 | 适用 |
+|------|------|------|
+| 快速 | P0 | 日常验收 |
+| 完整 | 全部 | 发版前 |
+
+### 快速模式
+- 批量操作后获取一次快照
+- 中间状态用 `evaluate_script` 检查
+- 只执行 `[P0]` 场景
+
+### 完整模式
+- 每次操作前后检查状态
+- 执行所有场景
+
+### 通用规则
+- **人工干预**：`⚠️ [需要人工操作] <内容>，完成后回复"继续"`
+- **进度**：`1/6` 格式
+- **性能**：Core Web Vitals
+- **报告**：`docs/skills/smoke-test/reports/YYYY-MM-DD_<模块>-冒烟测试.md`
+
+---
+
+## WS 数据验证规则
+
+### 触发指令
+- `ws <URL>`：交互式验证
+- `@<checklist> ws <URL>`：基于 checklist
+
+### 执行要求
+1. 使用 Chrome DevTools MCP（端口 9222）
+2. 注入脚本：`docs/skills/scripts/inject/perps-data-validator.js`
+3. 交互式：提示操作 → 等待「继续」→ 验证
+
+### 验证场景
+| 场景 | 内容 |
+|------|------|
+| Token 列表 | 价格、涨跌、费率、成交量 |
+| 订单簿 | 排序、累计计算 |
+| K线图 | 标记价、预言机价、OHLC |
+| BBO | buy1/sell1 = 订单簿第一档 |
+
+### 报告
+`docs/skills/smoke-test/reports/YYYY-MM-DD_<模块>-数据验证测试报告.md`
+
+---
+
+## Apifox API 测试用例生成器
+
+- **Skill**：`docs/skills/apifox-testcase-generator/SKILL.md`
+- **指令**：`/api-list` | `/api-read` | `/api-testcase` | `/api-refresh`
+- **输出**：`docs/skills/apifox-testcase-generator/output/`
+
+---
+
+## Playwright E2E 脚本生成器
+
+- **Skill**：`docs/skills/playwright-generator/SKILL.md`
+- **指令**：`e2e <文件>` | `@<checklist> e2e` | `@<文件> e2e --full`
+- **输出**：`e2e/tests/{模块名}-{功能名}.spec.ts`
+- **运行**：`cd e2e && npx playwright test`
+
+---
+
+## 规则维护
+
+生成测试用例时自动执行：
+1. 检查 `docs/qa/requirements/` 需求文档，不存在则创建
+2. 检查 `docs/qa/rules/` 模块规则，不存在则创建
+3. 更新 `qa-rules.md` 模块章节
+4. 先更新文档，再生成用例
+
+### 文档组织
+- 通用规则：`docs/qa/qa-rules.md`
+- 模块规则：`docs/qa/rules/<module>-rules.md`
+- 需求文档：`docs/qa/requirements/<模块>-<功能名>.md`
+

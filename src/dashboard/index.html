@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OneKey Test Runner</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232633;
+    --border: #2e3347; --text: #e4e7f1; --text2: #8b90a5;
+    --accent: #6c72cb; --green: #34d399; --red: #f87171;
+    --yellow: #fbbf24; --blue: #60a5fa; --purple: #a78bfa;
+    --orange: #fb923c; --cyan: #22d3ee;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); font-size: 13px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Header */
+  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .header h1 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .header h1 span { color: var(--accent); }
+  .connection-status { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text2); transition: background 0.3s; }
+  .conn-dot.connected { background: var(--green); animation: pulse 2s infinite; }
+  .conn-dot.disconnected { background: var(--red); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .conn-label { color: var(--text2); }
+  .conn-label.connected { color: var(--green); }
+  .conn-label.disconnected { color: var(--red); }
+
+  /* Control Bar */
+  .control-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+  .selected-count { font-size: 12px; color: var(--text2); min-width: 120px; }
+  .selected-count strong { color: var(--text); }
+  .ctrl-buttons { display: flex; gap: 8px; }
+  .ctrl-btn { border: none; border-radius: 6px; padding: 7px 16px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s, transform 0.1s; }
+  .ctrl-btn:hover { opacity: 0.85; }
+  .ctrl-btn:active { transform: scale(0.97); }
+  .ctrl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .ctrl-btn.start { background: var(--green); color: #0f1117; }
+  .ctrl-btn.stop { background: var(--red); color: #fff; }
+  .ctrl-btn.resume { background: var(--blue); color: #fff; }
+  .ctrl-btn.restart { background: var(--orange); color: #0f1117; }
+  .running-indicator { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--blue); }
+  .spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Progress Bar */
+  .progress-container { flex: 1; display: flex; align-items: center; gap: 10px; }
+  .progress-bar { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; display: flex; }
+  .progress-bar .seg-pass { background: var(--green); transition: width 0.3s; }
+  .progress-bar .seg-fail { background: var(--red); transition: width 0.3s; }
+  .progress-bar .seg-pending { background: var(--border); transition: width 0.3s; }
+  .progress-text { font-size: 11px; color: var(--text2); min-width: 60px; text-align: right; }
+
+  /* Main Layout */
+  .main { display: flex; flex: 1; overflow: hidden; }
+
+  /* Left Panel - Test Case Tree */
+  .left-panel { width: 320px; min-width: 320px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .panel-header h2 { font-size: 13px; font-weight: 600; }
+  .toggle-all-btn { background: none; border: 1px solid var(--border); border-radius: 4px; padding: 3px 10px; font-family: inherit; font-size: 11px; color: var(--text2); cursor: pointer; transition: all 0.2s; }
+  .toggle-all-btn:hover { border-color: var(--accent); color: var(--text); }
+
+  .tree-container { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .tree-container::-webkit-scrollbar { width: 6px; }
+  .tree-container::-webkit-scrollbar-track { background: transparent; }
+  .tree-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  .tree-container::-webkit-scrollbar-thumb:hover { background: var(--text2); }
+
+  /* Category (top-level directory) */
+  .category { margin-bottom: 4px; }
+  .category-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; user-select: none; transition: background 0.15s; border-bottom: 1px solid var(--border); }
+  .category-header:hover { background: var(--surface2); }
+  .category-chevron { font-size: 10px; color: var(--text2); transition: transform 0.2s; width: 14px; text-align: center; }
+  .category-chevron.expanded { transform: rotate(90deg); }
+  .category-checkbox { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+  .category-name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; text-transform: uppercase; letter-spacing: 0.5px; }
+  .category-badge { background: var(--surface2); border-radius: 10px; padding: 1px 7px; font-size: 10px; color: var(--text2); }
+  .category-children { overflow: hidden; transition: max-height 0.3s ease; }
+  .category-children.collapsed { max-height: 0 !important; }
+
+  /* Group (file-level) */
+  .group { margin-bottom: 2px; }
+  .group-header { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 28px; cursor: pointer; user-select: none; transition: background 0.15s; }
+  .group-header:hover { background: var(--surface2); }
+  .group-chevron { font-size: 10px; color: var(--text2); transition: transform 0.2s; width: 14px; text-align: center; }
+  .group-chevron.expanded { transform: rotate(90deg); }
+  .group-checkbox { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+  .group-name { font-size: 12px; font-weight: 600; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .group-badge { background: var(--surface2); border-radius: 10px; padding: 1px 7px; font-size: 10px; color: var(--text2); }
+
+  /* Case Item */
+  .group-cases { overflow: hidden; transition: max-height 0.25s ease; }
+  .group-cases.collapsed { max-height: 0 !important; }
+  .case-item { display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 52px; cursor: pointer; transition: background 0.15s; }
+  .case-item:hover { background: var(--surface2); }
+  .case-checkbox { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
+  .case-id { font-size: 11px; font-weight: 600; color: var(--cyan); min-width: 80px; }
+  .case-name { font-size: 12px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Right Panel - Execution Status */
+  .right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .right-panel .panel-header h2 { display: flex; align-items: center; gap: 8px; }
+  .status-badge { background: var(--surface2); border-radius: 10px; padding: 1px 7px; font-size: 10px; color: var(--text2); }
+
+  .status-container { flex: 1; overflow-y: auto; padding: 0; }
+  .status-container::-webkit-scrollbar { width: 6px; }
+  .status-container::-webkit-scrollbar-track { background: transparent; }
+  .status-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Empty State */
+  .empty-state { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text2); font-size: 13px; }
+
+  /* Status Row */
+  .status-row { padding: 10px 16px; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  .status-row:hover { background: rgba(108, 114, 203, 0.04); }
+  .status-row-main { display: flex; align-items: center; gap: 10px; }
+  .status-icon { font-size: 12px; width: 16px; text-align: center; flex-shrink: 0; }
+  .status-icon.pending { color: var(--text2); }
+  .status-icon.running { color: var(--blue); animation: pulse 1.2s infinite; }
+  .status-icon.passed { color: var(--green); }
+  .status-icon.failed { color: var(--red); }
+  .status-case-id { font-size: 11px; font-weight: 600; color: var(--cyan); min-width: 80px; }
+  .status-case-name { flex: 1; font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .status-duration { font-size: 11px; color: var(--text2); min-width: 50px; text-align: right; }
+  .status-error { margin-top: 6px; margin-left: 26px; padding: 8px 10px; background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 4px; font-size: 11px; color: var(--red); line-height: 1.5; word-break: break-word; }
+
+  /* Summary Bar */
+  .summary-bar { padding: 10px 16px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12px; color: var(--text2); flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
+  .summary-bar .pass-count { color: var(--green); font-weight: 600; }
+  .summary-bar .fail-count { color: var(--red); font-weight: 600; }
+  .summary-bar .total-count { color: var(--text); font-weight: 600; }
+  .summary-bar .sep { color: var(--border); }
+
+  /* Failed row clickable */
+  .status-row.clickable { cursor: pointer; }
+  .status-row.clickable:hover { background: rgba(248, 113, 113, 0.06); }
+
+  /* Modal Overlay */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+  .modal-overlay.visible { opacity: 1; pointer-events: auto; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; width: 560px; max-width: 90vw; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+  .modal-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .modal-header h3 .fail-dot { color: var(--red); }
+  .modal-close { background: none; border: none; color: var(--text2); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.15s; }
+  .modal-close:hover { background: var(--surface2); color: var(--text); }
+  .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
+  .modal-field { margin-bottom: 16px; }
+  .modal-field:last-child { margin-bottom: 0; }
+  .modal-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .modal-value { font-size: 13px; color: var(--text); }
+  .modal-value.mono { font-family: inherit; }
+  .modal-error-box { background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 6px; padding: 12px 14px; font-size: 12px; color: var(--red); line-height: 1.6; word-break: break-word; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1><span>&#9670;</span> OneKey Test Runner</h1>
+  <div class="connection-status">
+    <div class="conn-dot" id="connDot"></div>
+    <span class="conn-label" id="connLabel">connecting...</span>
+  </div>
+</div>
+
+<!-- Control Bar -->
+<div class="control-bar">
+  <div class="selected-count" id="selectedCount">已选择 <strong>0</strong> 个用例</div>
+  <div class="ctrl-buttons" id="ctrlButtons"></div>
+  <div class="running-indicator" id="runningIndicator" style="display:none;">
+    <div class="spinner"></div>
+    <span>正在执行...</span>
+  </div>
+  <div class="progress-container" id="progressContainer" style="display:none;">
+    <div class="progress-bar" id="progressBar">
+      <div class="seg-pass" id="segPass" style="width:0"></div>
+      <div class="seg-fail" id="segFail" style="width:0"></div>
+      <div class="seg-pending" id="segPending" style="width:0"></div>
+    </div>
+    <span class="progress-text" id="progressText">0/0</span>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="main">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="panel-header">
+      <h2>测试用例</h2>
+      <button class="toggle-all-btn" id="toggleAllBtn" onclick="toggleSelectAll()">全选</button>
+    </div>
+    <div class="tree-container" id="treeContainer">
+      <div class="empty-state">加载中...</div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="panel-header">
+      <h2>执行状态 <span class="status-badge" id="statusBadge">idle</span></h2>
+    </div>
+    <div class="status-container" id="statusContainer">
+      <div class="empty-state" id="emptyStatus">选择用例后点击开始执行</div>
+    </div>
+    <div class="summary-bar" id="summaryBar" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- Fail Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3><span class="fail-dot">&#9679;</span> <span id="modalTitle">失败详情</span></h3>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ---- State ----
+let state = 'idle'; // idle | running | paused | finished
+let registry = [];   // from /api/tests
+let selected = new Set();
+let queueItems = []; // { id, name, status, duration, error }
+let expandedGroups = new Set();
+let allSelected = false;
+let connectedSSE = false;
+let evtSource = null;
+let runStartTime = null;
+let runElapsed = 0;
+let timerInterval = null;
+
+// ---- Fetch Registry ----
+async function fetchRegistry() {
+  try {
+    const res = await fetch('/api/tests');
+    registry = await res.json();
+    // Expand all groups by default
+    registry.forEach(g => expandedGroups.add(g.file || g.group));
+    renderTree();
+    setConnection(true);
+  } catch (e) {
+    document.getElementById('treeContainer').innerHTML =
+      '<div class="empty-state" style="color:var(--red)">无法加载用例列表</div>';
+    setConnection(false);
+  }
+}
+
+// ---- Restore run state ----
+async function fetchRunState() {
+  try {
+    const res = await fetch('/api/run-state');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.state && data.state !== 'idle') {
+      state = data.state;
+      if (data.queue) {
+        queueItems = data.queue;
+      }
+      if (data.selected) {
+        selected = new Set(data.selected);
+      }
+      if (data.startTime) {
+        runStartTime = new Date(data.startTime).getTime();
+      }
+      renderTree();
+      renderControls();
+      renderStatus();
+    }
+  } catch (e) {
+    // No active run, that's fine
+  }
+}
+
+// ---- Connection Status ----
+function setConnection(connected) {
+  const dot = document.getElementById('connDot');
+  const label = document.getElementById('connLabel');
+  connectedSSE = connected;
+  dot.className = 'conn-dot ' + (connected ? 'connected' : 'disconnected');
+  label.className = 'conn-label ' + (connected ? 'connected' : 'disconnected');
+  label.textContent = connected ? '已连接' : '未连接';
+}
+
+// ---- Render Tree (two-level: category → group → cases) ----
+function renderTree() {
+  const container = document.getElementById('treeContainer');
+  if (!registry.length) {
+    container.innerHTML = '<div class="empty-state">暂无测试用例</div>';
+    return;
+  }
+
+  // Build category → groups map
+  const categories = new Map();
+  registry.forEach(group => {
+    const cat = group.category || group.group;
+    if (!categories.has(cat)) categories.set(cat, []);
+    categories.get(cat).push(group);
+  });
+
+  let html = '';
+  categories.forEach((groups, catName) => {
+    const catKey = 'cat_' + catName;
+    const allCatCases = groups.flatMap(g => g.cases || []);
+    const catTotal = allCatCases.length;
+    const isCatExpanded = expandedGroups.has(catKey);
+    const allCatSelected = catTotal > 0 && allCatCases.every(c => selected.has(c.id));
+    const someCatSelected = allCatCases.some(c => selected.has(c.id));
+
+    // Category header
+    html += `<div class="category">
+      <div class="category-header" onclick="toggleGroup('${catKey}')">
+        <span class="category-chevron ${isCatExpanded ? 'expanded' : ''}">&#9654;</span>
+        <input type="checkbox" class="category-checkbox" data-cat="${escAttr(catKey)}"
+          ${allCatSelected ? 'checked' : ''}
+          onclick="event.stopPropagation(); toggleCategorySelect('${escAttr(catKey)}', this.checked)" />
+        <span class="category-name">${escHtml(catName)}</span>
+        <span class="category-badge">${catTotal}</span>
+      </div>
+      <div class="category-children ${isCatExpanded ? '' : 'collapsed'}" style="max-height:${isCatExpanded ? (catTotal * 34 + groups.length * 30 + 20) + 'px' : '0'}">`;
+
+    // Groups within category
+    groups.forEach(group => {
+      const groupKey = group.file || group.group;
+      const cases = group.cases || [];
+      const isExpanded = expandedGroups.has(groupKey);
+      const allInGroupSelected = cases.length > 0 && cases.every(c => selected.has(c.id));
+      const someInGroupSelected = cases.some(c => selected.has(c.id));
+
+      html += `<div class="group">
+        <div class="group-header" onclick="toggleGroup('${escAttr(groupKey)}')">
+          <span class="group-chevron ${isExpanded ? 'expanded' : ''}">&#9654;</span>
+          <input type="checkbox" class="group-checkbox" data-group="${escAttr(groupKey)}"
+            ${allInGroupSelected ? 'checked' : ''}
+            onclick="event.stopPropagation(); toggleGroupSelect('${escAttr(groupKey)}', this.checked)" />
+          <span class="group-name">${escHtml(group.group || groupKey)}</span>
+          <span class="group-badge">${cases.length}</span>
+        </div>
+        <div class="group-cases ${isExpanded ? '' : 'collapsed'}" style="max-height:${isExpanded ? cases.length * 34 + 'px' : '0'}">`;
+
+      cases.forEach(c => {
+        const isSelected = selected.has(c.id);
+        html += `<div class="case-item" onclick="toggleCase('${c.id}')">
+          <input type="checkbox" class="case-checkbox" ${isSelected ? 'checked' : ''}
+            onclick="event.stopPropagation(); toggleCase('${c.id}')" />
+          <span class="case-id">${escHtml(c.id)}</span>
+          <span class="case-name">${escHtml(c.name || c.title || '')}</span>
+        </div>`;
+      });
+
+      html += '</div></div>';
+    });
+
+    html += '</div></div>';
+  });
+
+  container.innerHTML = html;
+
+  // Handle indeterminate state
+  container.querySelectorAll('.category-checkbox').forEach(cb => {
+    const catKey = cb.dataset.cat;
+    const catGroups = [];
+    const catName = catKey.replace('cat_', '');
+    registry.forEach(g => { if ((g.category || g.group) === catName) catGroups.push(g); });
+    const allCases = catGroups.flatMap(g => g.cases || []);
+    const allSel = allCases.length > 0 && allCases.every(c => selected.has(c.id));
+    const someSel = allCases.some(c => selected.has(c.id));
+    cb.indeterminate = someSel && !allSel;
+  });
+  container.querySelectorAll('.group-checkbox').forEach(cb => {
+    const groupKey = cb.dataset.group;
+    const group = registry.find(g => (g.file || g.group) === groupKey);
+    if (!group) return;
+    const cases = group.cases || [];
+    const allSel = cases.length > 0 && cases.every(c => selected.has(c.id));
+    const someSel = cases.some(c => selected.has(c.id));
+    cb.indeterminate = someSel && !allSel;
+  });
+
+  updateToggleAllBtn();
+  updateSelectedCount();
+}
+
+function toggleCategorySelect(catKey, checked) {
+  const catName = catKey.replace('cat_', '');
+  registry.forEach(group => {
+    if ((group.category || group.group) === catName) {
+      (group.cases || []).forEach(c => {
+        if (checked) selected.add(c.id); else selected.delete(c.id);
+      });
+    }
+  });
+  renderTree();
+}
+
+function escHtml(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function formatDuration(ms) {
+  if (ms == null) return '';
+  const totalSec = Math.floor(ms / 1000);
+  const min = String(Math.floor(totalSec / 60)).padStart(2, '0');
+  const sec = String(totalSec % 60).padStart(2, '0');
+  return `${min}:${sec}`;
+}
+
+function escAttr(s) {
+  return (s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ---- Fail Detail Modal ----
+function showFailDetail(id) {
+  const item = queueItems.find(q => q.id === id);
+  if (!item) return;
+  const duration = item.duration != null ? formatDuration(item.duration) : '-';
+  document.getElementById('modalTitle').textContent = '失败详情 — ' + item.id;
+  document.getElementById('modalBody').innerHTML =
+    `<div class="modal-field"><div class="modal-label">用例 ID</div><div class="modal-value mono">${escHtml(item.id)}</div></div>` +
+    `<div class="modal-field"><div class="modal-label">用例名称</div><div class="modal-value">${escHtml(item.name)}</div></div>` +
+    `<div class="modal-field"><div class="modal-label">执行耗时</div><div class="modal-value">${duration}</div></div>` +
+    `<div class="modal-field"><div class="modal-label">错误信息</div><div class="modal-error-box">${escHtml(item.error || '无错误信息')}</div></div>`;
+  document.getElementById('modalOverlay').classList.add('visible');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').classList.remove('visible');
+}
+
+// Close modal on Escape key
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') document.getElementById('modalOverlay').classList.remove('visible');
+});
+
+// ---- Group Toggle ----
+function toggleGroup(groupKey) {
+  if (expandedGroups.has(groupKey)) {
+    expandedGroups.delete(groupKey);
+  } else {
+    expandedGroups.add(groupKey);
+  }
+  renderTree();
+}
+
+// ---- Selection ----
+function toggleGroupSelect(groupKey, checked) {
+  const group = registry.find(g => (g.file || g.group) === groupKey);
+  if (!group) return;
+  group.cases.forEach(c => {
+    if (checked) selected.add(c.id);
+    else selected.delete(c.id);
+  });
+  renderTree();
+  renderControls();
+}
+
+function toggleCase(id) {
+  if (selected.has(id)) selected.delete(id);
+  else selected.add(id);
+  renderTree();
+  renderControls();
+}
+
+function toggleSelectAll() {
+  const allCases = registry.flatMap(g => g.cases || []);
+  if (allSelected) {
+    selected.clear();
+    allSelected = false;
+  } else {
+    allCases.forEach(c => selected.add(c.id));
+    allSelected = true;
+  }
+  renderTree();
+  renderControls();
+}
+
+function updateToggleAllBtn() {
+  const allCases = registry.flatMap(g => g.cases || []);
+  allSelected = allCases.length > 0 && allCases.every(c => selected.has(c.id));
+  document.getElementById('toggleAllBtn').textContent = allSelected ? '取消全选' : '全选';
+}
+
+function updateSelectedCount() {
+  document.getElementById('selectedCount').innerHTML =
+    `已选择 <strong>${selected.size}</strong> 个用例`;
+}
+
+// ---- Controls (State Machine) ----
+function renderControls() {
+  const container = document.getElementById('ctrlButtons');
+  const indicator = document.getElementById('runningIndicator');
+  const progressContainer = document.getElementById('progressContainer');
+  const badge = document.getElementById('statusBadge');
+
+  updateSelectedCount();
+  badge.textContent = { idle: 'idle', running: 'running', paused: 'paused', finished: 'finished' }[state] || state;
+
+  let btns = '';
+  indicator.style.display = 'none';
+  progressContainer.style.display = 'none';
+
+  switch (state) {
+    case 'idle':
+      btns = `<button class="ctrl-btn start" onclick="startRun()" ${selected.size === 0 ? 'disabled' : ''}>&#9654; 开始执行</button>`;
+      break;
+    case 'running':
+      btns = `<button class="ctrl-btn stop" onclick="stopRun()">&#9632; 停止</button>`;
+      indicator.style.display = 'flex';
+      progressContainer.style.display = 'flex';
+      break;
+    case 'paused':
+      btns = `<button class="ctrl-btn resume" onclick="resumeRun()">&#9654; 继续</button>
+              <button class="ctrl-btn restart" onclick="restartRun()">&#8635; 重新开始</button>`;
+      progressContainer.style.display = 'flex';
+      break;
+    case 'finished':
+      btns = `<button class="ctrl-btn restart" onclick="restartRun()">&#8635; 重新开始</button>`;
+      progressContainer.style.display = 'flex';
+      break;
+  }
+
+  container.innerHTML = btns;
+  updateProgressBar();
+}
+
+// ---- Progress Bar ----
+function updateProgressBar() {
+  if (queueItems.length === 0) return;
+  const total = queueItems.length;
+  const passed = queueItems.filter(q => q.status === 'passed').length;
+  const failed = queueItems.filter(q => q.status === 'failed').length;
+  const pending = total - passed - failed;
+
+  document.getElementById('segPass').style.width = (passed / total * 100) + '%';
+  document.getElementById('segFail').style.width = (failed / total * 100) + '%';
+  document.getElementById('segPending').style.width = (pending / total * 100) + '%';
+  document.getElementById('progressText').textContent = `${passed + failed}/${total}`;
+}
+
+// ---- Render Status Panel ----
+function renderStatus() {
+  const container = document.getElementById('statusContainer');
+  const emptyEl = document.getElementById('emptyStatus');
+  const summaryBar = document.getElementById('summaryBar');
+
+  if (queueItems.length === 0) {
+    container.innerHTML = '<div class="empty-state" id="emptyStatus">选择用例后点击开始执行</div>';
+    summaryBar.style.display = 'none';
+    return;
+  }
+
+  let html = '';
+  queueItems.forEach(item => {
+    const iconMap = {
+      pending: '<span class="status-icon pending">&#9675;</span>',
+      running: '<span class="status-icon running">&#9673;</span>',
+      passed: '<span class="status-icon passed">&#9679;</span>',
+      failed: '<span class="status-icon failed">&#9679;</span>',
+    };
+    const icon = iconMap[item.status] || iconMap.pending;
+    const duration = formatDuration(item.duration);
+
+    const isFailed = item.status === 'failed';
+    html += `<div class="status-row ${isFailed ? 'clickable' : ''}" ${isFailed ? `onclick="showFailDetail('${escAttr(item.id)}')"` : ''}>
+      <div class="status-row-main">
+        ${icon}
+        <span class="status-case-id">${escHtml(item.id)}</span>
+        <span class="status-case-name">${escHtml(item.name)}</span>
+        <span class="status-duration">${duration}</span>
+      </div>
+      ${item.error ? `<div class="status-error">${escHtml(item.error)}</div>` : ''}
+    </div>`;
+  });
+
+  container.innerHTML = html;
+
+  // Summary
+  const passed = queueItems.filter(q => q.status === 'passed').length;
+  const failed = queueItems.filter(q => q.status === 'failed').length;
+  const total = queueItems.length;
+  const done = passed + failed;
+
+  if (state === 'finished' || done > 0) {
+    const elapsed = formatDuration(runElapsed);
+    summaryBar.innerHTML =
+      `<span class="pass-count">${passed} 通过</span>` +
+      `<span class="sep">|</span>` +
+      `<span class="fail-count">${failed} 失败</span>` +
+      `<span class="sep">|</span>` +
+      `<span class="total-count">${total} 总计</span>` +
+      `<span class="sep">&mdash;</span>` +
+      `<span>耗时 ${elapsed}</span>`;
+    summaryBar.style.display = 'flex';
+  } else {
+    summaryBar.style.display = 'none';
+  }
+
+  updateProgressBar();
+
+  // Auto-scroll to running item
+  const runningRow = container.querySelector('.status-icon.running');
+  if (runningRow) {
+    runningRow.closest('.status-row').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ---- Timer ----
+function startTimer() {
+  stopTimer();
+  runStartTime = Date.now();
+  runElapsed = 0;
+  timerInterval = setInterval(() => {
+    runElapsed = Date.now() - runStartTime;
+    renderStatus();
+  }, 500);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+  if (runStartTime) {
+    runElapsed = Date.now() - runStartTime;
+  }
+}
+
+// ---- API Actions ----
+async function startRun() {
+  if (selected.size === 0) return;
+  try {
+    const res = await fetch('/api/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cases: [...selected] }),
+    });
+    if (res.ok) {
+      state = 'running';
+      queueItems = [...selected].map(id => {
+        const c = findCase(id);
+        return { id, name: c ? (c.name || c.title || '') : '', status: 'pending', duration: null, error: null };
+      });
+      startTimer();
+      renderControls();
+      renderStatus();
+    }
+  } catch (e) {
+    console.error('Failed to start run:', e);
+  }
+}
+
+async function stopRun() {
+  try {
+    await fetch('/api/stop', { method: 'POST' });
+  } catch (e) {
+    console.error('Failed to stop:', e);
+  }
+}
+
+async function resumeRun() {
+  try {
+    const res = await fetch('/api/resume', { method: 'POST' });
+    if (res.ok) {
+      state = 'running';
+      if (!timerInterval) {
+        runStartTime = Date.now() - runElapsed;
+        timerInterval = setInterval(() => {
+          runElapsed = Date.now() - runStartTime;
+          renderStatus();
+        }, 500);
+      }
+      renderControls();
+    }
+  } catch (e) {
+    console.error('Failed to resume:', e);
+  }
+}
+
+async function restartRun() {
+  try {
+    const res = await fetch('/api/restart', { method: 'POST' });
+    if (res.ok) {
+      state = 'running';
+      queueItems.forEach(q => { q.status = 'pending'; q.duration = null; q.error = null; });
+      startTimer();
+      renderControls();
+      renderStatus();
+    }
+  } catch (e) {
+    console.error('Failed to restart:', e);
+  }
+}
+
+function findCase(id) {
+  for (const g of registry) {
+    const c = (g.cases || []).find(c => c.id === id);
+    if (c) return c;
+  }
+  return null;
+}
+
+// ---- SSE ----
+function connectSSE() {
+  if (evtSource) evtSource.close();
+  evtSource = new EventSource('/api/events');
+
+  evtSource.onopen = () => setConnection(true);
+  evtSource.onerror = () => setConnection(false);
+
+  evtSource.addEventListener('queue', (e) => {
+    const data = JSON.parse(e.data);
+    queueItems = (data.cases || []).map(c => ({
+      id: c.id,
+      name: c.name || '',
+      status: 'pending',
+      duration: null,
+      error: null,
+    }));
+    state = 'running';
+    startTimer();
+    renderControls();
+    renderStatus();
+  });
+
+  evtSource.addEventListener('start', (e) => {
+    const data = JSON.parse(e.data);
+    state = 'running';
+    const item = queueItems.find(q => q.id === data.id);
+    if (item) {
+      item.status = 'running';
+      item.startedAt = Date.now();
+    }
+    renderControls();
+    renderStatus();
+  });
+
+  evtSource.addEventListener('pass', (e) => {
+    const data = JSON.parse(e.data);
+    const item = queueItems.find(q => q.id === data.id);
+    if (item) {
+      item.status = 'passed';
+      item.duration = data.duration || (item.startedAt ? Date.now() - item.startedAt : null);
+    }
+    renderControls();
+    renderStatus();
+  });
+
+  evtSource.addEventListener('fail', (e) => {
+    const data = JSON.parse(e.data);
+    const item = queueItems.find(q => q.id === data.id);
+    if (item) {
+      item.status = 'failed';
+      item.duration = data.duration || (item.startedAt ? Date.now() - item.startedAt : null);
+      item.error = data.error || 'Unknown error';
+    }
+    renderControls();
+    renderStatus();
+  });
+
+  evtSource.addEventListener('stopped', (e) => {
+    state = 'paused';
+    stopTimer();
+    renderControls();
+    renderStatus();
+  });
+
+  evtSource.addEventListener('done', (e) => {
+    state = 'finished';
+    stopTimer();
+    renderControls();
+    renderStatus();
+  });
+
+  // Generic message fallback
+  evtSource.onmessage = (e) => {
+    try {
+      const data = JSON.parse(e.data);
+      if (data.type) {
+        handleGenericEvent(data);
+      }
+    } catch (_) {}
+  };
+}
+
+function handleGenericEvent(data) {
+  switch (data.type) {
+    case 'queue':
+      queueItems = (data.cases || []).map(c => ({
+        id: c.id, name: c.name || '', status: 'pending', duration: null, error: null,
+      }));
+      state = 'running';
+      startTimer();
+      break;
+    case 'start': {
+      state = 'running';
+      const item = queueItems.find(q => q.id === data.id);
+      if (item) { item.status = 'running'; item.startedAt = Date.now(); }
+      break;
+    }
+    case 'pass': {
+      const item = queueItems.find(q => q.id === data.id);
+      if (item) { item.status = 'passed'; item.duration = data.duration || null; }
+      break;
+    }
+    case 'fail': {
+      const item = queueItems.find(q => q.id === data.id);
+      if (item) { item.status = 'failed'; item.duration = data.duration || null; item.error = data.error || 'Unknown error'; }
+      break;
+    }
+    case 'stopped':
+      state = 'paused';
+      stopTimer();
+      break;
+    case 'done':
+      state = 'finished';
+      stopTimer();
+      break;
+  }
+  renderControls();
+  renderStatus();
+}
+
+// ---- Init ----
+fetchRegistry();
+fetchRunState();
+connectSSE();
+renderControls();
+</script>
+</body>
+</html>

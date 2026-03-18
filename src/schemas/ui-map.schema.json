@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["version", "lastUpdated", "elements"],
+  "properties": {
+    "version": { "type": "string" },
+    "lastUpdated": { "type": "string", "format": "date-time" },
+    "elements": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["primary", "page"],
+        "properties": {
+          "primary": { "type": "string" },
+          "quick_fallbacks": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Known alternatives, <1s each"
+          },
+          "deep_search": {
+            "type": "object",
+            "properties": {
+              "enabled": { "type": "boolean" },
+              "search_text": { "type": "string" },
+              "search_role": { "type": "string" },
+              "search_scope": { "type": "string", "enum": ["modal", "page", "shadow"] }
+            }
+          },
+          "tier_stats": {
+            "type": "object",
+            "properties": {
+              "primary_hits": { "type": "number" },
+              "quick_hits": { "type": "number" },
+              "deep_hits": { "type": "number" },
+              "total_attempts": { "type": "number" }
+            }
+          },
+          "page": { "type": "string" },
+          "platform": { "type": "array", "items": { "type": "string" } },
+          "success_rate": { "type": "number" },
+          "last_verified": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

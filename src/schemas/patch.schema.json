@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["id", "timestamp", "files", "diff_summary", "expected_impact", "status"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^patch-\\d+$" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "files": { "type": "array", "items": { "type": "string" } },
+    "diff_summary": { "type": "string" },
+    "expected_impact": { "type": "string" },
+    "status": { "enum": ["pending_approval", "approved", "applied", "rolled_back", "rejected"] },
+    "previous_patch": { "type": ["string", "null"] }
+  }
+}

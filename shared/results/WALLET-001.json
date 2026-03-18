@@ -1,0 +1,31 @@
+{
+  "testId": "WALLET-001",
+  "status": "passed",
+  "duration": 68304,
+  "error": null,
+  "steps": [],
+  "screenshots": [
+    "/Users/chole/onekey-agent-test/shared/results/WALLET-001-start.png",
+    "/Users/chole/onekey-agent-test/shared/results/WALLET-001-done.png"
+  ],
+  "state_recoveries": [],
+  "timestamp": "2026-02-28T09:48:05.305Z",
+  "attemptLog": [
+    {
+      "strategy": "steps",
+      "status": "success",
+      "reason": null
+    }
+  ],
+  "amount_used": null,
+  "failure_reason": null,
+  "assertionResults": [
+    {
+      "step": 11,
+      "action": "assert_wallet_created",
+      "passed": true,
+      "account": "Account #1"
+    }
+  ],
+  "assertionSummary": "0/0 theme assertions passed"
+}

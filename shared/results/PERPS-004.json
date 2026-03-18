@@ -1,0 +1,39 @@
+{
+  "testId": "PERPS-004",
+  "status": "passed",
+  "duration": 5787,
+  "steps": [
+    {
+      "name": "顶部显示收藏代币",
+      "status": "passed",
+      "detail": "15: BTC, ETH, BNB, SOL, HYPE, XRP, TURBO, INTC, TRUMP, COIN, RIVN, CL, SILVER, RENDER, HOOD",
+      "time": "2026-03-13T14:55:39.649Z"
+    },
+    {
+      "name": "默认百分比模式",
+      "status": "passed",
+      "detail": "",
+      "time": "2026-03-13T14:55:39.661Z"
+    },
+    {
+      "name": "$/% 显示不同数据",
+      "status": "passed",
+      "detail": "",
+      "time": "2026-03-13T14:55:42.218Z"
+    },
+    {
+      "name": "切回 % 显示百分比",
+      "status": "passed",
+      "detail": "",
+      "time": "2026-03-13T14:55:42.218Z"
+    },
+    {
+      "name": "顶部点击代币跳转",
+      "status": "passed",
+      "detail": "BNBUSDC → BTCUSDC",
+      "time": "2026-03-13T14:55:45.234Z"
+    }
+  ],
+  "errors": [],
+  "timestamp": "2026-03-13T14:55:45.408Z"
+}
