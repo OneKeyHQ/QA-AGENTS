@@ -32,3 +32,6 @@ e2e/
 node_modules/
 superpowers-meta/
 superpowers/
+# 测试执行产物（截图、结果 JSON）
+shared/results/
+/tmp/chrome-*
