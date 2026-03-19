@@ -23,9 +23,8 @@ midscene_run/
 .chrome-mcp-user-data*/
 .idea/
 .vscode/
-AGENTS.md
+# AGENTS.md 保留推送（多 AI 平台共享的项目说明）
 claude/
-docs/AGENTS.md
 docs/requirements/
 docs/testcases/performance/
 e2e/
