@@ -1,356 +1,704 @@
 [
   {
-    "time": "2026-03-17T08:16:34.174Z",
+    "time": "2026-03-19T15:35:25.060Z",
     "type": "click",
     "tag": "SPAN",
-    "testid": "Desktop-AppSideBar-Content-Container",
-    "text": "合约",
+    "testid": "",
+    "text": "现货",
     "placeholder": "",
-    "x": 40,
-    "y": 311,
+    "x": 162,
+    "y": 169,
     "rect": {
-      "x": 25,
-      "y": 304,
-      "w": 22,
-      "h": 14
+      "x": 145,
+      "y": 163,
+      "w": 32,
+      "h": 24
     },
     "step": 1,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-01.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-01.png"
   },
   {
-    "time": "2026-03-17T08:16:40.403Z",
+    "time": "2026-03-19T15:35:29.460Z",
     "type": "click",
-    "tag": "DIV",
+    "tag": "SPAN",
     "testid": "",
-    "text": "SUIUSDC0 手续费",
+    "text": "更多",
     "placeholder": "",
-    "x": 353,
-    "y": 126,
+    "x": 1146,
+    "y": 239,
     "rect": {
-      "x": 117,
-      "y": 98,
-      "w": 265,
-      "h": 44
+      "x": 1122,
+      "y": 221,
+      "w": 28,
+      "h": 20
     },
     "step": 2,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-02.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-02.png"
   },
   {
-    "time": "2026-03-17T08:16:46.644Z",
-    "type": "input",
-    "tag": "INPUT",
-    "testid": "nav-header-search",
-    "placeholder": "搜索资产",
-    "value": "BT",
-    "x": 0,
-    "y": 0,
-    "step": 3,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-03.png"
-  },
-  {
-    "time": "2026-03-17T08:16:51.355Z",
+    "time": "2026-03-19T15:35:31.169Z",
     "type": "click",
     "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "永续合约",
+    "testid": "select-item-select-item-evm--1",
+    "text": "Ethereum",
     "placeholder": "",
-    "x": 220,
-    "y": 234,
+    "x": 934,
+    "y": 492,
     "rect": {
-      "x": 183,
-      "y": 220,
-      "w": 51,
-      "h": 18
+      "x": 867,
+      "y": 474,
+      "w": 264,
+      "h": 24
+    },
+    "step": 3,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-03.png"
+  },
+  {
+    "time": "2026-03-19T15:35:33.268Z",
+    "type": "click",
+    "tag": "DIV",
+    "testid": "list-column-name",
+    "text": "cbBTC0xcbb7...33bf",
+    "placeholder": "",
+    "x": 325,
+    "y": 344,
+    "rect": {
+      "x": 139,
+      "y": 305,
+      "w": 200,
+      "h": 60
     },
     "step": 4,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-04.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-04.png"
   },
   {
-    "time": "2026-03-17T08:16:53.719Z",
-    "type": "click",
-    "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "加密货币",
-    "placeholder": "",
-    "x": 284,
-    "y": 235,
-    "rect": {
-      "x": 258,
-      "y": 220,
-      "w": 51,
-      "h": 18
-    },
-    "step": 5,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-05.png"
-  },
-  {
-    "time": "2026-03-17T08:16:57.278Z",
-    "type": "click",
-    "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "股票",
-    "placeholder": "",
-    "x": 345,
-    "y": 230,
-    "rect": {
-      "x": 333,
-      "y": 220,
-      "w": 26,
-      "h": 18
-    },
-    "step": 6,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-06.png"
-  },
-  {
-    "time": "2026-03-17T08:17:00.208Z",
-    "type": "click",
-    "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "永续合约",
-    "placeholder": "",
-    "x": 213,
-    "y": 235,
-    "rect": {
-      "x": 183,
-      "y": 220,
-      "w": 51,
-      "h": 18
-    },
-    "step": 7,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-07.png"
-  },
-  {
-    "time": "2026-03-17T08:18:54.234Z",
-    "type": "input",
-    "tag": "INPUT",
-    "testid": "nav-header-search",
-    "placeholder": "搜索资产",
-    "value": "比特",
-    "x": 0,
-    "y": 0,
-    "step": 8,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-08.png"
-  },
-  {
-    "time": "2026-03-17T08:19:00.438Z",
-    "type": "input",
-    "tag": "INPUT",
-    "testid": "nav-header-search",
-    "placeholder": "搜索资产",
-    "value": "yi tai",
-    "x": 0,
-    "y": 0,
-    "step": 9,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-09.png"
-  },
-  {
-    "time": "2026-03-17T08:19:01.984Z",
-    "type": "input",
-    "tag": "INPUT",
-    "testid": "nav-header-search",
-    "placeholder": "搜索资产",
-    "value": "以太",
-    "x": 0,
-    "y": 0,
-    "step": 10,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-10.png"
-  },
-  {
-    "time": "2026-03-17T08:19:47.197Z",
+    "time": "2026-03-19T15:35:36.892Z",
     "type": "click",
     "tag": "svg",
-    "testid": "-clear",
+    "testid": "",
     "text": "",
     "placeholder": "",
-    "x": 875,
-    "y": 189,
+    "x": 836,
+    "y": 81,
     "rect": {
-      "x": 868,
-      "y": 173,
+      "x": 823,
+      "y": 68,
       "w": 24,
       "h": 24
     },
-    "step": 11,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-11.png"
+    "step": 5,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-05.png"
   },
   {
-    "time": "2026-03-17T08:19:49.293Z",
+    "time": "2026-03-19T15:35:38.567Z",
+    "type": "click",
+    "tag": "svg",
+    "testid": "nav-header-back",
+    "text": "",
+    "placeholder": "",
+    "x": 103,
+    "y": 25,
+    "rect": {
+      "x": 92,
+      "y": 14,
+      "w": 24,
+      "h": 24
+    },
+    "step": 6,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-06.png"
+  },
+  {
+    "time": "2026-03-19T15:35:40.375Z",
     "type": "click",
     "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "加密货币",
+    "testid": "",
+    "text": "自选",
     "placeholder": "",
-    "x": 281,
-    "y": 229,
+    "x": 114,
+    "y": 175,
     "rect": {
-      "x": 258,
-      "y": 220,
-      "w": 51,
-      "h": 18
+      "x": 93,
+      "y": 163,
+      "w": 32,
+      "h": 24
     },
-    "step": 12,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-12.png"
+    "step": 7,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-07.png"
   },
   {
-    "time": "2026-03-17T08:19:51.003Z",
+    "time": "2026-03-19T15:35:42.126Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "",
+    "text": "现货",
+    "placeholder": "",
+    "x": 170,
+    "y": 228,
+    "rect": {
+      "x": 154,
+      "y": 220,
+      "w": 28,
+      "h": 20
+    },
+    "step": 8,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-09.png"
+  },
+  {
+    "time": "2026-03-19T15:35:43.625Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "",
+    "text": "全部",
+    "placeholder": "",
+    "x": 117,
+    "y": 232,
+    "rect": {
+      "x": 104,
+      "y": 220,
+      "w": 28,
+      "h": 20
+    },
+    "step": 9,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-10.png"
+  },
+  {
+    "time": "2026-03-19T15:35:44.393Z",
     "type": "click",
     "tag": "DIV",
-    "testid": "TMPopover-ScrollView",
-    "text": "自选永续合约加密货币股票贵金属指数大宗商品外汇预上线",
+    "testid": "list-column-name",
+    "text": "cbBTC0xcbb7...33bf",
     "placeholder": "",
-    "x": 363,
-    "y": 226,
+    "x": 377,
+    "y": 338,
     "rect": {
-      "x": 117,
-      "y": 208,
-      "w": 800,
-      "h": 43
+      "x": 139,
+      "y": 303,
+      "w": 340,
+      "h": 60
+    },
+    "step": 10,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-10.png"
+  },
+  {
+    "time": "2026-03-19T15:35:47.894Z",
+    "type": "click",
+    "tag": "path",
+    "testid": "",
+    "text": "",
+    "placeholder": "",
+    "x": 834,
+    "y": 85,
+    "rect": {
+      "x": 824,
+      "y": 68,
+      "w": 22,
+      "h": 21
+    },
+    "step": 11,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-12.png"
+  },
+  {
+    "time": "2026-03-19T15:35:49.292Z",
+    "type": "click",
+    "tag": "svg",
+    "testid": "nav-header-back",
+    "text": "",
+    "placeholder": "",
+    "x": 91,
+    "y": 30,
+    "rect": {
+      "x": 92,
+      "y": 14,
+      "w": 24,
+      "h": 24
+    },
+    "step": 12,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-13.png"
+  },
+  {
+    "time": "2026-03-19T15:35:50.700Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "",
+    "text": "现货",
+    "placeholder": "",
+    "x": 164,
+    "y": 229,
+    "rect": {
+      "x": 154,
+      "y": 220,
+      "w": 28,
+      "h": 20
     },
     "step": 13,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-14.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-14.png"
   },
   {
-    "time": "2026-03-17T08:19:52.269Z",
+    "time": "2026-03-19T15:35:51.400Z",
     "type": "click",
-    "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "股票",
+    "tag": "DIV",
+    "testid": "",
+    "text": "全部",
     "placeholder": "",
-    "x": 353,
-    "y": 226,
+    "x": 95,
+    "y": 228,
     "rect": {
-      "x": 333,
-      "y": 220,
-      "w": 26,
-      "h": 18
+      "x": 94,
+      "y": 214,
+      "w": 48,
+      "h": 32
     },
     "step": 14,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-14.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-14.png"
   },
   {
-    "time": "2026-03-17T08:19:54.261Z",
+    "time": "2026-03-19T15:40:57.291Z",
     "type": "click",
-    "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "贵金属",
+    "tag": "DIV",
+    "testid": "",
+    "text": "",
     "placeholder": "",
-    "x": 398,
-    "y": 231,
+    "x": 573,
+    "y": 24,
     "rect": {
-      "x": 383,
-      "y": 220,
-      "w": 38,
-      "h": 18
+      "x": 481,
+      "y": 10,
+      "w": 320,
+      "h": 32
     },
     "step": 15,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-15.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-15.png"
   },
   {
-    "time": "2026-03-17T08:19:56.486Z",
-    "type": "click",
-    "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "指数",
-    "placeholder": "",
-    "x": 462,
-    "y": 229,
-    "rect": {
-      "x": 445,
-      "y": 220,
-      "w": 26,
-      "h": 18
-    },
+    "time": "2026-03-19T15:41:01.406Z",
+    "type": "input",
+    "tag": "INPUT",
+    "testid": "nav-header-search",
+    "placeholder": "搜索任何内容",
+    "value": "USDT",
+    "x": 0,
+    "y": 0,
     "step": 16,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-16.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-16.png"
   },
   {
-    "time": "2026-03-17T08:19:57.993Z",
+    "time": "2026-03-19T15:41:06.733Z",
     "type": "click",
-    "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "大宗商品",
+    "tag": "path",
+    "testid": "APP-Modal-Screen",
+    "text": "",
     "placeholder": "",
-    "x": 527,
-    "y": 229,
+    "x": 318,
+    "y": 272,
     "rect": {
-      "x": 495,
-      "y": 220,
-      "w": 51,
+      "x": 311,
+      "y": 257,
+      "w": 19,
       "h": 18
     },
     "step": 17,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-17.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-17.png"
   },
   {
-    "time": "2026-03-17T08:19:59.644Z",
+    "time": "2026-03-19T15:41:11.367Z",
     "type": "click",
-    "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "外汇",
+    "tag": "path",
+    "testid": "nav-header-close",
+    "text": "",
     "placeholder": "",
-    "x": 588,
-    "y": 233,
+    "x": 320,
+    "y": 63,
     "rect": {
-      "x": 570,
-      "y": 220,
-      "w": 26,
-      "h": 18
+      "x": 308,
+      "y": 52,
+      "w": 17,
+      "h": 17
     },
     "step": 18,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-19.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-18.png"
   },
   {
-    "time": "2026-03-17T08:20:01.027Z",
+    "time": "2026-03-19T15:41:16.439Z",
     "type": "click",
     "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "预上线",
+    "testid": "",
+    "text": "现货",
     "placeholder": "",
-    "x": 649,
-    "y": 227,
+    "x": 170,
+    "y": 235,
     "rect": {
-      "x": 619,
+      "x": 154,
       "y": 220,
-      "w": 38,
-      "h": 18
+      "w": 28,
+      "h": 20
     },
     "step": 19,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-19.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-19.png"
   },
   {
-    "time": "2026-03-17T08:20:04.071Z",
+    "time": "2026-03-19T15:41:18.140Z",
     "type": "click",
     "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "自选",
+    "testid": "",
+    "text": "全部",
     "placeholder": "",
-    "x": 137,
-    "y": 226,
+    "x": 131,
+    "y": 231,
     "rect": {
-      "x": 133,
+      "x": 104,
       "y": 220,
-      "w": 26,
-      "h": 18
+      "w": 28,
+      "h": 20
     },
     "step": 20,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-20.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-20.png"
   },
   {
-    "time": "2026-03-17T08:20:05.688Z",
+    "time": "2026-03-19T15:41:20.591Z",
     "type": "click",
-    "tag": "SPAN",
-    "testid": "TMPopover-ScrollView",
-    "text": "永续合约",
+    "tag": "DIV",
+    "testid": "",
+    "text": "",
     "placeholder": "",
-    "x": 210,
-    "y": 230,
+    "x": 574,
+    "y": 31,
     "rect": {
-      "x": 183,
-      "y": 220,
-      "w": 51,
-      "h": 18
+      "x": 481,
+      "y": 10,
+      "w": 320,
+      "h": 32
     },
     "step": 21,
-    "screenshot": "/Users/chole/onekey-agent-test/shared/results/recording/step-21.png"
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-21.png"
+  },
+  {
+    "time": "2026-03-19T15:41:25.311Z",
+    "type": "input",
+    "tag": "INPUT",
+    "testid": "nav-header-search",
+    "placeholder": "搜索任何内容",
+    "value": "USDT",
+    "x": 0,
+    "y": 0,
+    "step": 22,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-22.png"
+  },
+  {
+    "time": "2026-03-19T15:41:27.707Z",
+    "type": "click",
+    "tag": "path",
+    "testid": "APP-Modal-Screen",
+    "text": "",
+    "placeholder": "",
+    "x": 323,
+    "y": 269,
+    "rect": {
+      "x": 311,
+      "y": 257,
+      "w": 19,
+      "h": 18
+    },
+    "step": 23,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-23.png"
+  },
+  {
+    "time": "2026-03-19T15:41:30.024Z",
+    "type": "click",
+    "tag": "path",
+    "testid": "nav-header-close",
+    "text": "",
+    "placeholder": "",
+    "x": 313,
+    "y": 62,
+    "rect": {
+      "x": 308,
+      "y": 52,
+      "w": 17,
+      "h": 17
+    },
+    "step": 24,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-24.png"
+  },
+  {
+    "time": "2026-03-19T15:41:32.072Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "",
+    "text": "现货",
+    "placeholder": "",
+    "x": 179,
+    "y": 233,
+    "rect": {
+      "x": 154,
+      "y": 220,
+      "w": 28,
+      "h": 20
+    },
+    "step": 25,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-26.png"
+  },
+  {
+    "time": "2026-03-19T15:41:32.865Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "",
+    "text": "全部",
+    "placeholder": "",
+    "x": 127,
+    "y": 229,
+    "rect": {
+      "x": 104,
+      "y": 220,
+      "w": 28,
+      "h": 20
+    },
+    "step": 26,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-26.png"
+  },
+  {
+    "time": "2026-03-19T15:42:26.955Z",
+    "type": "click",
+    "tag": "DIV",
+    "testid": "tab-modal-no-active-item-Wallet4Outline",
+    "text": "",
+    "placeholder": "",
+    "x": 36,
+    "y": 91,
+    "rect": {
+      "x": 16,
+      "y": 58,
+      "w": 40,
+      "h": 40
+    },
+    "step": 27,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-27.png"
+  },
+  {
+    "time": "2026-03-19T15:42:33.304Z",
+    "type": "click",
+    "tag": "path",
+    "testid": "list-column-symbol",
+    "text": "",
+    "placeholder": "",
+    "x": 102,
+    "y": 311,
+    "rect": {
+      "x": 94,
+      "y": 299,
+      "w": 19,
+      "h": 18
+    },
+    "step": 28,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-28.png"
+  },
+  {
+    "time": "2026-03-19T15:42:41.349Z",
+    "type": "click",
+    "tag": "svg",
+    "testid": "list-column-symbol",
+    "text": "",
+    "placeholder": "",
+    "x": 112,
+    "y": 376,
+    "rect": {
+      "x": 93,
+      "y": 359,
+      "w": 20,
+      "h": 20
+    },
+    "step": 29,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-29.png"
+  },
+  {
+    "time": "2026-03-19T15:42:44.516Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "Desktop-AppSideBar-Content-Container",
+    "text": "市场",
+    "placeholder": "",
+    "x": 39,
+    "y": 170,
+    "rect": {
+      "x": 25,
+      "y": 168,
+      "w": 22,
+      "h": 14
+    },
+    "step": 30,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-30.png"
+  },
+  {
+    "time": "2026-03-19T15:44:01.610Z",
+    "type": "click",
+    "tag": "SPAN",
+    "testid": "",
+    "text": "现货",
+    "placeholder": "",
+    "x": 165,
+    "y": 173,
+    "rect": {
+      "x": 145,
+      "y": 163,
+      "w": 32,
+      "h": 24
+    },
+    "step": 31,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-31.png"
+  },
+  {
+    "time": "2026-03-19T15:44:14.972Z",
+    "type": "click",
+    "tag": "DIV",
+    "testid": "list-column-name",
+    "text": "cbBTC0xcbb7...33bf",
+    "placeholder": "",
+    "x": 328,
+    "y": 337,
+    "rect": {
+      "x": 139,
+      "y": 305,
+      "w": 200,
+      "h": 60
+    },
+    "step": 32,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-32.png"
+  },
+  {
+    "time": "2026-03-19T15:44:20.071Z",
+    "type": "click",
+    "tag": "svg",
+    "testid": "",
+    "text": "",
+    "placeholder": "",
+    "x": 835,
+    "y": 87,
+    "rect": {
+      "x": 823,
+      "y": 68,
+      "w": 24,
+      "h": 24
+    },
+    "step": 33,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-33.png"
+  },
+  {
+    "time": "2026-03-19T15:44:22.280Z",
+    "type": "click",
+    "tag": "svg",
+    "testid": "nav-header-back",
+    "text": "",
+    "placeholder": "",
+    "x": 107,
+    "y": 22,
+    "rect": {
+      "x": 92,
+      "y": 14,
+      "w": 24,
+      "h": 24
+    },
+    "step": 34,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-34.png"
+  },
+  {
+    "time": "2026-03-19T15:44:30.843Z",
+    "type": "click",
+    "tag": "path",
+    "testid": "list-column-star",
+    "text": "",
+    "placeholder": "",
+    "x": 108,
+    "y": 335,
+    "rect": {
+      "x": 98,
+      "y": 325,
+      "w": 19,
+      "h": 18
+    },
+    "step": 35,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-35.png"
+  },
+  {
+    "time": "2026-03-19T15:44:34.683Z",
+    "type": "click",
+    "tag": "svg",
+    "testid": "list-column-star",
+    "text": "",
+    "placeholder": "",
+    "x": 108,
+    "y": 335,
+    "rect": {
+      "x": 97,
+      "y": 325,
+      "w": 20,
+      "h": 20
+    },
+    "step": 36,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-36.png"
+  },
+  {
+    "time": "2026-03-19T15:44:37.746Z",
+    "type": "click",
+    "tag": "DIV",
+    "testid": "",
+    "text": "",
+    "placeholder": "",
+    "x": 562,
+    "y": 26,
+    "rect": {
+      "x": 481,
+      "y": 10,
+      "w": 320,
+      "h": 32
+    },
+    "step": 37,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-37.png"
+  },
+  {
+    "time": "2026-03-19T15:44:42.787Z",
+    "type": "input",
+    "tag": "INPUT",
+    "testid": "nav-header-search",
+    "placeholder": "搜索任何内容",
+    "value": "cbbtc",
+    "x": 0,
+    "y": 0,
+    "step": 38,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-38.png"
+  },
+  {
+    "time": "2026-03-19T15:44:54.972Z",
+    "type": "click",
+    "tag": "svg",
+    "testid": "nav-header-close",
+    "text": "",
+    "placeholder": "",
+    "x": 316,
+    "y": 65,
+    "rect": {
+      "x": 305,
+      "y": 48,
+      "w": 24,
+      "h": 24
+    },
+    "step": 39,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-40.png"
+  },
+  {
+    "time": "2026-03-19T15:44:56.593Z",
+    "type": "click",
+    "tag": "DIV",
+    "testid": "",
+    "text": "自选",
+    "placeholder": "",
+    "x": 99,
+    "y": 188,
+    "rect": {
+      "x": 93,
+      "y": 153,
+      "w": 32,
+      "h": 44
+    },
+    "step": 40,
+    "screenshot": "/Users/chole/workspace/QA-AGENTS/shared/results/recording/step-40.png"
   }
 ]
