@@ -103,15 +103,48 @@ node src/tests/extension/market/search.test.mjs EXT-MARKET-SEARCH-003
 
 ### 方式三：Claude 快捷指令
 
-| 指令 | 说明 |
-|------|------|
-| `/qatest` | 一键启动 CDP + Dashboard，引导执行 |
-| `/onekey-test-designer` | 从 PRD 设计测试用例 |
-| `/onekey-recorder` | 启动录制器 |
-| `/onekey-record-from-file` | 读取用例文件，引导录制 |
-| `/onekey-qa-director` | 总调度：执行 → 诊断 → 修复 |
-| `/onekey-qa-manager` | 失败诊断分析 |
-| `/onekey-reporter` | 生成测试报告 |
+直接在 Claude Code 对话中输入以下指令即可触发对应功能，也支持中文自然语言触发：
+
+#### 执行用例
+
+| 指令 | 中文触发 | 说明 |
+|------|---------|------|
+| `/qatest` | `qatest 开始执行`、`打开执行面板`、`开始执行用例` | 一键启动 CDP + Dashboard，引导在面板勾选用例执行 |
+| `/onekey-runner` | `执行测试`、`run case`、`run test` | 通过 Dashboard 或 CLI 执行指定用例 |
+| `/onekey-qa-director` | `跑测试`、`执行用例`、`回归测试` | 总调度：启动执行 → 汇总结果 → 失败时协调诊断 |
+
+#### 录制用例
+
+| 指令 | 中文触发 | 说明 |
+|------|---------|------|
+| `/onekey-recorder` | `录制`、`record`、`开始录制` | 启动 CDP 录制器，捕获用户操作生成步骤清单 |
+| `/onekey-record-from-file` | `发文件开始录制`、`用例开始录制` | 读取用例文件（@引用），编排场景后引导录制 |
+| `/onekey-record-to-test` | `录制测试`、`录制到测试` | 完整流程：录制 → 确认操作 → 生成测试脚本 → 执行验证 |
+
+#### 设计与诊断
+
+| 指令 | 中文触发 | 说明 |
+|------|---------|------|
+| `/onekey-test-designer` | `设计用例`、`写用例`、`新增测试` | 从 PRD 分析需求 → 引导录制 → 生成测试脚本 |
+| `/onekey-qa-manager` | `诊断失败`、`分析结果`、`为什么失败` | 失败根因分析，只诊断不改代码 |
+| `/onekey-knowledge-builder` | `更新选择器`、`修复选择器`、`update ui-map` | 选择器修复、UI 映射维护 |
+| `/onekey-reporter` | `生成报告`、`测试报告`、`quality report` | 跨 feature 汇总报告、趋势分析 |
+
+#### 常用操作示例
+
+```
+# 打开执行面板
+> qatest 开始执行
+
+# 读取用例文件并开始录制
+> @docs/qa/testcases/cases/market/xxx.md 开始录制
+
+# 诊断失败原因
+> 诊断失败 MARKET-SEARCH-002
+
+# 跑全部桌面端用例
+> 跑测试
+```
 
 ---
 
