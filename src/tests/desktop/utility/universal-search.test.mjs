@@ -528,10 +528,12 @@ async function testSearchUtil001(page) {
   let returned = false;
   for (let i = 0; i < 3 && !returned; i++) {
     await clickBack(page);
-    const stillOnDetail = await page.evaluate(() =>
-      (document.body?.innerText || '').includes('余额详情')
-    );
-    if (!stillOnDetail) returned = true;
+    // 首页有钱包选择器 AccountSelectorTriggerBase，URL 钱包详情页没有
+    const onHome = await page.evaluate(() => {
+      const selector = document.querySelector('[data-testid="AccountSelectorTriggerBase"]');
+      return selector && selector.getBoundingClientRect().width > 0;
+    });
+    if (onHome) returned = true;
   }
   if (!returned) await resetToHome(page);
   t.add('返回钱包首页', 'passed', returned ? 'back button' : 'sidebar fallback');
