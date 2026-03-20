@@ -1,134 +1,96 @@
-// Market Chart Tests — MARKET-CHART-001 ~ MARKET-CHART-003
-// Web 端 (app.onekeytest.com) Market Token 详情页图表自动化测试
-// BTC (数据源: Hyperliquid), PUMP (数据源: OKX)
-//
-// 架构: 页面 → tradingview.onekey.so iframe → blob: iframe (TradingView charting library)
-// 时间区间按钮: 1分 / 15分 / 1小时 / 4小时 / 天
-// 指标按钮: "指标"
-// OHLC: 从 Hyperliquid / OKX API 获取参考数据做数值对比
+// Market Chart Tests (Desktop) — MARKET-CHART-001 ~ MARKET-CHART-003
+// Desktop 端 Market Token 详情页图表自动化测试
+// Connects via CDP port 9222 (OneKey desktop app).
+// TradingView chart structure is identical to web version.
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { chromium } from 'playwright-core';
+import {
+  connectCDP, sleep, RESULTS_DIR,
+  dismissOverlays, unlockWalletIfNeeded,
+} from '../../helpers/index.mjs';
 import {
   createStepTracker, safeStep, screenshot,
-  getTVFrame, waitForChartReady,
+  waitForChartReady,
   clickTimeInterval, clickIndicatorButton,
   getOHLCFromChart, getCanvasCount, getIndicatorLabels,
   fetchHyperliquidOHLC, fetchOKXOHLC, compareOHLC,
 } from '../../helpers/market-chart.mjs';
 
-const WEB_URL = process.env.WEB_URL || 'https://app.onekeytest.com';
-// Web tests use port 9223 by default to avoid conflict with OneKey desktop (9222)
-const CDP_URL = process.env.CDP_URL || 'http://127.0.0.1:9223';
-const RESULTS_DIR = resolve(import.meta.dirname, '../../../../shared/results');
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'market-chart');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+// ── Platform-specific: Desktop ───────────────────────────────
 
-// ── CDP Connection (Web) ─────────────────────────────────────
-
-async function ensureChromeRunning() {
-  for (let i = 0; i < 2; i++) {
-    try {
-      const resp = await fetch(`${CDP_URL}/json/version`);
-      if (resp.ok) { console.log('  Chrome CDP ready.'); return; }
-    } catch {}
-    if (i === 0) await sleep(500);
-  }
-  // Try to launch Chrome with CDP
-  console.log('  Chrome CDP not responding, launching Chrome...');
-  const { spawn } = await import('node:child_process');
-  const { existsSync } = await import('node:fs');
-  const chromePaths = [
-    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    '/Applications/Chromium.app/Contents/MacOS/Chromium',
-  ];
-  const chromeBin = chromePaths.find(p => existsSync(p));
-  if (!chromeBin) throw new Error(`Chrome not found. Please start Chrome manually:\n  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --remote-debugging-port=9223 ${WEB_URL}/market`);
-  const port = new URL(CDP_URL).port || '9223';
-  // Copy user's active Chrome profile to temp dir so CDP mode has login state & cookies
-  const { execSync } = await import('node:child_process');
-  const tmpProfile = '/tmp/chrome-cdp-profile';
-  if (!existsSync(`${tmpProfile}/Default/Preferences`)) {
-    const chromeDir = `${process.env.HOME}/Library/Application Support/Google/Chrome`;
-    let profileDir = null;
-    if (existsSync(chromeDir)) {
-      const { readdirSync } = await import('node:fs');
-      const entries = readdirSync(chromeDir);
-      const profiles = entries.filter(e => e.startsWith('Profile ')).sort();
-      profileDir = profiles.length > 0
-        ? `${chromeDir}/${profiles[profiles.length - 1]}`
-        : existsSync(`${chromeDir}/Default`) ? `${chromeDir}/Default` : null;
-    }
-    if (profileDir && existsSync(profileDir)) {
-      execSync(`mkdir -p "${tmpProfile}" && cp -r "${profileDir}" "${tmpProfile}/Default"`, { stdio: 'ignore' });
-      console.log(`  Copied Chrome profile (${profileDir.split('/').pop()}) to temp dir`);
-    }
-  }
-  const child = spawn(chromeBin, [`--remote-debugging-port=${port}`, `--user-data-dir=${tmpProfile}`, '--no-first-run', `${WEB_URL}/market`], { detached: true, stdio: 'ignore' });
-  child.unref();
-  for (let i = 0; i < 30; i++) {
-    await sleep(1000);
-    try {
-      const resp = await fetch(`${CDP_URL}/json/version`);
-      if (resp.ok) { console.log(`  Chrome ready after ${i + 1}s`); return; }
-    } catch {}
-  }
-  throw new Error('Chrome failed to start within 30s');
-}
-
-async function connectWebCDP() {
-  await ensureChromeRunning();
-  const browser = await chromium.connectOverCDP(CDP_URL);
-  const contexts = browser.contexts();
-  let page = null;
-
-  // Find existing tab with onekeytest.com
-  for (const ctx of contexts) {
-    for (const p of ctx.pages()) {
-      if (p.url().includes('onekeytest.com')) {
-        page = p;
-        break;
+async function goToMarket(page) {
+  const ok = await page.evaluate(() => {
+    const sidebar = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
+    if (!sidebar) return false;
+    const labels = new Set(['Market', '市场', 'マーケット', 'Mercado']);
+    for (const sp of sidebar.querySelectorAll('span')) {
+      const txt = sp.textContent?.trim();
+      if (!txt) continue;
+      if (!labels.has(txt)) continue;
+      const r = sp.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        sp.click();
+        return true;
       }
     }
-    if (page) break;
-  }
-
-  // If no tab found, find a real page (skip chrome:// internal pages)
-  if (!page) {
-    const allPages = contexts.flatMap(c => c.pages());
-    page = allPages.find(p => !p.url().startsWith('chrome://'));
-    if (!page) {
-      // Create a new page as last resort
-      const ctx = contexts[0] || await browser.newContext();
-      page = await ctx.newPage();
+    // Fallback: partial match
+    for (const sp of sidebar.querySelectorAll('span')) {
+      const txt = sp.textContent?.trim() || '';
+      if (!txt) continue;
+      if (txt.includes('Market') || txt.includes('市场')) {
+        const r = sp.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) {
+          sp.click();
+          return true;
+        }
+      }
     }
-    await page.goto(`${WEB_URL}/market`);
-    await sleep(5000);
-  }
-
-  return { browser, page };
+    return false;
+  });
+  if (!ok) throw new Error('Cannot navigate to Market via sidebar');
+  await sleep(2500);
 }
 
-// ── Navigation ───────────────────────────────────────────────
-
-// Token detail URL patterns
-const TOKEN_URLS = {
-  BTC: '/market/token/btc/?isNative=true',
-  PUMP: '/market/token/solana/pump',
-};
-
+/**
+ * Navigate to token detail page by clicking a token row in the Market list.
+ * Desktop has no URL bar, so we click through the UI.
+ */
 async function navigateToTokenDetail(page, tokenSymbol) {
-  const targetPath = TOKEN_URLS[tokenSymbol];
-  if (!targetPath) throw new Error(`Unknown token: ${tokenSymbol}`);
+  await goToMarket(page);
+  await sleep(2000);
 
-  const url = page.url();
-  if (url.includes(targetPath.split('?')[0])) return; // Already on the page
+  // Click the token row matching the symbol
+  const clicked = await page.evaluate((sym) => {
+    // Look for token symbol text in the market list
+    const allElements = document.querySelectorAll('span, div, p');
+    for (const el of allElements) {
+      const txt = el.textContent?.trim();
+      if (!txt) continue;
+      // Match exact symbol (e.g., "BTC" not "BTCB")
+      if (txt === sym) {
+        const r = el.getBoundingClientRect();
+        // Must be visible and in the main content area (not sidebar, not header)
+        if (r.width > 0 && r.height > 0 && r.x > 200 && r.y > 80) {
+          // Click the parent row to navigate to detail
+          const row = el.closest('[role="row"], tr, a') || el.closest('div[class]');
+          if (row) {
+            row.click();
+            return true;
+          }
+          el.click();
+          return true;
+        }
+      }
+    }
+    return false;
+  }, tokenSymbol);
 
-  await page.goto(`${WEB_URL}${targetPath}`);
-  await sleep(5000);
+  if (!clicked) throw new Error(`Token ${tokenSymbol} not found in Market list`);
+  await sleep(3000);
 }
 
 // ── Safe step wrapper (binds screenshot dir) ─────────────────
@@ -141,7 +103,6 @@ const _safeStep = (page, t, name, fn) =>
 async function testMarketChart001(page) {
   const t = createStepTracker('MARKET-CHART-001');
 
-  // Navigate to BTC token detail
   await navigateToTokenDetail(page, 'BTC');
   const tvFrame = await waitForChartReady(page);
 
@@ -170,7 +131,7 @@ async function testMarketChart001(page) {
     return `maxDiff: ${cmp.maxDiff}`;
   });
 
-  // 3. K-line type (candle is default, should be switchable)
+  // 3. K-line type (candle is default)
   await _safeStep(page, t, 'K 线类型默认蜡烛图', async () => {
     const canvasCount = await getCanvasCount(tvFrame);
     if (canvasCount === 0) throw new Error('No canvas rendered');
@@ -197,7 +158,6 @@ async function testMarketChart001(page) {
       return false;
     });
 
-    // Close the dialog with Escape
     await tvFrame.evaluate(() => {
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     });
@@ -311,11 +271,9 @@ export const testCases = [
 ];
 
 export async function setup(page) {
-  // Navigate to Market if not already there
-  if (!page.url().includes('onekeytest.com')) {
-    await page.goto(`${WEB_URL}/market`);
-    await sleep(3000);
-  }
+  await unlockWalletIfNeeded(page);
+  await dismissOverlays(page);
+  await goToMarket(page);
 }
 
 export async function run() {
@@ -326,15 +284,15 @@ export async function run() {
     return { status: 'error' };
   }
 
-  let { browser, page } = await connectWebCDP();
+  let { page } = await connectCDP();
 
   console.log('\n' + '='.repeat(60));
-  console.log(`  Market Chart Tests (Web) — ${casesToRun.length} case(s)`);
+  console.log(`  Market Chart Tests (Desktop) — ${casesToRun.length} case(s)`);
   console.log('='.repeat(60));
 
+  const results = [];
   await setup(page);
 
-  const results = [];
   for (const test of casesToRun) {
     const startTime = Date.now();
     console.log(`\n${'─'.repeat(60)}`);
@@ -342,37 +300,59 @@ export async function run() {
     console.log('─'.repeat(60));
 
     try {
+      if (page?.isClosed?.()) {
+        console.log('  Page was closed, reconnecting CDP...');
+        ({ page } = await connectCDP());
+        await setup(page);
+      }
       const result = await test.fn(page);
       const duration = Date.now() - startTime;
       const r = {
         testId: test.id,
-        name: test.name,
-        ...result,
+        status: result.status,
         duration,
+        steps: result.steps,
+        errors: result.errors,
+        timestamp: new Date().toISOString(),
       };
+      console.log(`>> ${test.id}: ${r.status.toUpperCase()} (${(duration / 1000).toFixed(1)}s)`);
+      writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
       results.push(r);
-
-      const icon = result.status === 'passed' ? 'PASSED' : 'FAILED';
-      console.log(`>> ${test.id}: ${icon} (${(duration / 1000).toFixed(1)}s)${result.errors?.length ? ' — ' + result.errors[0] : ''}`);
-
-      // Save result
-      const resultPath = resolve(RESULTS_DIR, `${test.id}.json`);
-      writeFileSync(resultPath, JSON.stringify(r, null, 2));
-    } catch (e) {
+    } catch (error) {
       const duration = Date.now() - startTime;
-      console.log(`>> ${test.id}: FAILED (${(duration / 1000).toFixed(1)}s) — ${e.message}`);
-      results.push({ testId: test.id, name: test.name, status: 'failed', errors: [e.message], duration });
+      const r = {
+        testId: test.id,
+        status: 'failed',
+        duration,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
+      console.error(`>> ${test.id}: FAILED (${(duration / 1000).toFixed(1)}s) — ${error.message}`);
+      if (page && !page?.isClosed?.()) {
+        await screenshot(page, SCREENSHOT_DIR, `${test.id}-error`);
+      }
+      writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
+      results.push(r);
     }
+
+    try { if (page && !page?.isClosed?.()) await dismissOverlays(page); } catch {}
+    await sleep(800);
   }
 
   const passed = results.filter(r => r.status === 'passed').length;
-  const failed = results.filter(r => r.status === 'failed').length;
+  const failed = results.filter(r => r.status !== 'passed').length;
+
   console.log(`\n${'='.repeat(60)}`);
   console.log(`SUMMARY: ${passed} passed, ${failed} failed, ${results.length} total`);
   console.log('='.repeat(60));
 
-  return { status: failed === 0 ? 'passed' : 'failed', results };
+  const summary = { timestamp: new Date().toISOString(), total: results.length, passed, failed, results };
+  writeFileSync(resolve(RESULTS_DIR, 'market-chart-desktop-summary.json'), JSON.stringify(summary, null, 2));
+
+  return { status: failed === 0 ? 'passed' : 'failed', passed, failed, total: results.length };
 }
 
-const isMain = !process.argv[1] || process.argv[1] === new URL(import.meta.url).pathname;
-if (isMain) run().catch(e => { console.error(e); process.exit(1); });
+if (import.meta.url === `file://${process.argv[1]}`) {
+  run().then(r => process.exit(r.status === 'passed' ? 0 : 1))
+    .catch(e => { console.error('Fatal:', e); process.exit(2); });
+}
