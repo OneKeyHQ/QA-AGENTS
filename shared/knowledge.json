@@ -1,6 +1,6 @@
 {
   "version": "2.1.0",
-  "lastUpdated": "2026-02-13T00:00:00Z",
+  "lastUpdated": "2026-03-23T00:00:00Z",
   "patterns": [
     {
       "id": "K-001",
@@ -41,6 +41,30 @@
       "pattern": "Modal scope required for element search",
       "details": "Always restrict element search to [data-testid=APP-Modal-Screen] when modal is open. Elements behind modal (wallet home) have matching text and are clickable but wrong.",
       "confidence": 0.95
+    },
+    {
+      "id": "K-006",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Recorder must be alive before each scene",
+      "details": "Before every recording scene, verify listen.mjs process is running and monitor endpoint is reachable. If recorder is down, restart first; otherwise steps.json may remain stale from previous scene.",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-007",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Observation-only scenes can have zero recorded actions",
+      "details": "Recorder captures click/input actions only. Pure watch steps (e.g., realtime data observation) may produce no new steps.json actions. Add one anchor click (such as selecting tab) when traceability is needed.",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-008",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Realtime update checks need multi-signal detection",
+      "details": "Do not rely on single before/after snapshot of top text values. Use 30s multi-sampling and DOM mutation observation in market list area; pass when either value-series changes or list text mutations occur.",
+      "confidence": 0.94
     }
   ]
 }
