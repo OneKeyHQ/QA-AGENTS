@@ -65,6 +65,9 @@
       "pattern": "Realtime update checks need multi-signal detection",
       "details": "Do not rely on single before/after snapshot of top text values. Use 30s multi-sampling and DOM mutation observation in market list area; pass when either value-series changes or list text mutations occur.",
       "confidence": 0.94
+    },
+    {
+      "id": "K-009",
       "category": "recording",
       "platform": "desktop",
       "pattern": "连续录制第二个用例时 CDP 连接不稳定",
@@ -72,7 +75,7 @@
       "confidence": 0.9
     },
     {
-      "id": "K-009",
+      "id": "K-010",
       "category": "recording",
       "platform": "desktop",
       "pattern": "滚动事件需要特殊处理",
@@ -80,7 +83,7 @@
       "confidence": 0.85
     },
     {
-      "id": "K-010",
+      "id": "K-011",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "生成脚本必须 1:1 对照测试用例文档的每条预期结果",
@@ -88,7 +91,7 @@
       "confidence": 0.95
     },
     {
-      "id": "K-011",
+      "id": "K-012",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "钱包接收按钮打开的是 Modal 弹窗而非 Tab 切换",
@@ -96,7 +99,7 @@
       "confidence": 0.95
     },
     {
-      "id": "K-012",
+      "id": "K-013",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "Binance 接收跳转是系统浏览器打开，弹窗会回退",
@@ -104,7 +107,7 @@
       "confidence": 0.9
     },
     {
-      "id": "K-013",
+      "id": "K-014",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "测试间需要清理弹窗和侧栏状态",
@@ -112,7 +115,7 @@
       "confidence": 0.95
     },
     {
-      "id": "K-014",
+      "id": "K-015",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "投资组合模式下网络选择器 UI 完全不同",
@@ -120,7 +123,7 @@
       "confidence": 0.95
     },
     {
-      "id": "K-015",
+      "id": "K-016",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "多网络模式 Binance 接收流程为 代币→网络（与单网络相反）",
