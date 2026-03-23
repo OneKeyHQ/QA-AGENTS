@@ -65,6 +65,67 @@
       "pattern": "Realtime update checks need multi-signal detection",
       "details": "Do not rely on single before/after snapshot of top text values. Use 30s multi-sampling and DOM mutation observation in market list area; pass when either value-series changes or list text mutations occur.",
       "confidence": 0.94
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "连续录制第二个用例时 CDP 连接不稳定",
+      "details": "录完第一个用例后继续录第二个，CDP 连接容易断开或事件丢失。原因：reconnect 时旧 event listener 未清理导致重复绑定，health check 和手动重连并发竞争。修复：命名事件处理函数 + reconnect 前 removeListener + reconnecting 锁。录完一个用例后点 Monitor UI 的 'New Session' 清空步骤再录下一个。",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-009",
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "滚动事件需要特殊处理",
+      "details": "录制器已支持 scroll 事件捕获（600ms 防抖合并连续滚动）。回放时用 page.mouse.wheel(0, deltaY) 模拟滚动，或对特定容器用 page.evaluate(() => el.scrollBy(0, deltaY))。如果目标元素在视口外，优先用 locator.scrollIntoViewIfNeeded() 自动滚动到可见。",
+      "confidence": 0.85
+    },
+    {
+      "id": "K-010",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "生成脚本必须 1:1 对照测试用例文档的每条预期结果",
+      "details": "之前生成的脚本大量使用 assertHasSomeTableLikeContent() 这种软断言，只检查'有东西'，不验证具体字段、格式、数值变化。正确做法：读取 docs/qa/testcases/cases/<module>/ 中的用例文档，逐条'预期结果'编写具体断言（字段验证、精确 delta 比较、跨入口状态同步、边界场景具体行为）。脚本头部必须含覆盖映射表注释。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-011",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "钱包接收按钮打开的是 Modal 弹窗而非 Tab 切换",
+      "details": "Wallet-Tab-Header 内的「接收」是一个 BUTTON（无独立 testid），点击后打开 APP-Modal-Screen 弹窗，不是切换页面 Tab。弹窗内包含「购买加密货币 / 从其他钱包接收 / 从交易所接收」。必须精确匹配 header 内的 button 而非整个 header 容器。后续所有操作在 modal 内定位。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-012",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Binance 接收跳转是系统浏览器打开，弹窗会回退",
+      "details": "桌面端选择代币后，OneKey 用系统默认浏览器打开 Binance 链接。弹窗自动从「选择币种」回退到「接收」首页。DOM 中不会残留 Binance 的 href 或跳转文字。断言方式：验证弹窗从代币列表回退到接收首页即可。",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-013",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "测试间需要清理弹窗和侧栏状态",
+      "details": "OKX/Coinbase 点击后跳转到浏览器 Tab，侧栏激活状态变为「浏览器」。下一个测试的 goToReceivePage 必须先 closeAllModals + clickWalletSidebar 回到钱包页，否则接收弹窗打开时会找不到交易所入口。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-014",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "投资组合模式下网络选择器 UI 完全不同",
+      "details": "单网络模式有 data-testid='account-network-trigger-button' 和 'account-network-trigger-button-text'。投资组合模式下这两个 testid 都不存在，取而代之的是链图标群和 '+N' 文字。切换时需要找 '+N' 的 span 来点击。getCurrentNetworkMode 需要兼容两种模式。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-015",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "多网络模式 Binance 接收流程为 代币→网络（与单网络相反）",
+      "details": "单网络模式：点击 Binance → 直接显示代币列表 → 选代币 → 跳转。多网络模式：点击 Binance → 代币列表(带'多链'标签) → 选代币 → 出现'选择网络'页 → 选网络 → 跳转。脚本需要兼容两种流程。",
+      "confidence": 0.95
     }
   ]
 }

@@ -1,26 +1,308 @@
 # OneKey Agent Test — Cursor Rules
 
 ## Project
-UI automation testing for OneKey hardware wallet desktop app. Tests connect via CDP using Playwright `connectOverCDP('http://127.0.0.1:9222')`.
+Three-layer multi-agent UI automation testing system for OneKey wallet.
+Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
+
+## Architecture（三层架构）
+
+### Decision Layer（决策层）
+- **QA Director** — 唯一入口，总协调者。渐进式技能加载，节流（最多并发 2），回滚（patch.json），审批门禁。
+
+### Intelligence Layer（智能层 — 串行固定顺序，不可重排）
+1. **Test Designer** — BDD → intent-only JSON（无 selector）
+2. **Knowledge Builder** — 唯一知识写入者（三阶段记忆管线）
+3. **QA Manager** — 诊断 only（不改代码，不写知识库）
+
+### Execution Layer（执行层）
+- **Runner** — 纯函数 `run_case(test_id, platform)`，只执行不决策
+- **Recorder** — 探索工具（非生产回归）
+- **Reporter** — 只读报告 + 趋势仪表盘
 
 ## Key Paths
 - App binary: `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
+- CDP: `http://127.0.0.1:9222`
+- Working dir: `/Users/chole/workspace/QA-AGENTS/`
 - Tests: `src/tests/{module}/*.test.mjs`
-- Helpers: `src/tests/helpers/`
-- Dashboard: `src/dashboard/` (port 5050)
+- Helpers: `src/tests/helpers/{index,navigation,accounts,network,transfer,preconditions}.mjs`
+- Dashboard server: `src/dashboard/server.ts` (port 5050)
+- Dashboard executor: `src/dashboard/test-executor.ts`
 - Recorder: `src/recorder/listen.mjs` (port 3210)
-- Runner: `src/runner/index.mjs`
+- Recording output: `shared/results/recording/steps.json`
+- Recording screenshots: `shared/results/recording/*.png`
+- CLI Runner: `src/tests/run.mjs`
 - Memory pipeline: `src/knowledge/memory-pipeline.mjs`
 - Shared state: `shared/*.json`
-- Results: `shared/results/{test-id}.json`
+- Results: `shared/results/<TEST-ID>.json`
+- Reports: `shared/reports/report-<YYYY-MM-DD>.md`
 - Schemas: `src/schemas/*.schema.json`
+- Android Recorder: `src/tests/android/recorder.mjs`
+- Android Tests: `src/tests/android/<category>/<name>.test.mjs`
+- **DEPRECATED**: `src/runner/index.mjs` — 已废弃，严禁引用
 
-## Test Module Contract
-```js
-export const testCases = [{ id: 'XX-001', name: '...', fn: async (page) => { ... } }];
-export async function setup(page) { /* preconditions + navigation */ }
-export async function run() { /* CLI entry: connect CDP, setup, run cases */ }
+## Shared State Files（独占写权限）
+
+| File | Exclusive Writer | Description |
+|------|-----------------|-------------|
+| `shared/test_cases.json` | Test Designer | Intent-only test cases |
+| `shared/ui-map.json` | Knowledge Builder | DOM selector mappings |
+| `shared/knowledge.json` | Knowledge Builder | Curated test patterns |
+| `shared/preconditions.json` | Knowledge Builder | 公共前置条件数据库 |
+| `shared/mem_cells.json` | Knowledge Builder | 原始记忆事件（MemCells） |
+| `shared/mem_scenes.json` | Knowledge Builder | 聚类场景（MemScenes） |
+| `shared/profile.json` | Knowledge Builder | Agent 能力画像 |
+| `shared/diagnosis.json` | QA Manager | 失败诊断结果 |
+| `shared/results/<id>.json` | Runner | 执行结果 |
+| `shared/reports/*.md` | Reporter | 质量报告 |
+
+**规则**：每个文件只有指定的 Writer 可以写入，其他角色只读。违反此规则会导致数据冲突。
+
+**自动积累经验**：录制、测试、调试过程中遇到的坑（如选择器失效、CDP 断连、弹窗拦截、时序问题等），自动追加到 `shared/knowledge.json`，无需用户额外指令。ID 递增（K-NNN），category 用 `recording` / `quirk` / `locator` / `timing` 等分类。
+
+**规则双写**：修改 `.cursorrules` 或 `.claude/CLAUDE.md` 中的规则时，必须同步更新另一个文件中的对应部分，保持两边一致。无需用户额外确认。
+
+## Memory Pipeline（三阶段记忆管线）
+
+由 Knowledge Builder 独占管理：
+
+1. **MemCells** (`mem_cells.json`) — 原始事件记录（点击、失败、DOM 快照）
+2. **MemScenes** (`mem_scenes.json`) — 聚类相似事件为场景（如"搜索流程"）
+3. **Recall** — 查询时从场景中检索相关知识
+
+## Test Module Contract（完整模板）
+
+每个 `.test.mjs` 文件必须遵循以下结构：
+
+```javascript
+// <测试描述>
+// Test IDs: SWAP-001, SWAP-002
+// Generated from recording session
+
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+import {
+  connectCDP, sleep, screenshot, RESULTS_DIR,
+  dismissOverlays, unlockWalletIfNeeded,
+} from '../helpers/index.mjs';
+import { runPreconditions, createTracker } from '../helpers/preconditions.mjs';
+
+const SCREENSHOT_DIR = resolve(RESULTS_DIR, '<feature>');
+mkdirSync(SCREENSHOT_DIR, { recursive: true });
+
+const ALL_TEST_IDS = ['SWAP-001', 'SWAP-002'];
+
+// 模块级缓存前置条件结果（避免用例间重复运行导致卡顿）
+let _preReport = null;
+
+// ── Test Cases ──────────────────────────────────
+export const testCases = [
+  {
+    id: 'SWAP-001',
+    name: '基础兑换流程',
+    fn: async (page) => {
+      // fn 只接收 page 一个参数（dashboard executor 兼容）
+      // 截图只在失败时
+      // 空状态（无代币但有提示文字）是正常的，不应标记 failed
+    },
+  },
+];
+
+// ── Setup ───────────────────────────────────────
+export async function setup(page) {
+  await unlockWalletIfNeeded(page);
+  await dismissOverlays(page);
+  _preReport = await runPreconditions(page, ALL_TEST_IDS);
+  return _preReport;
+}
+
+// ── CLI Entry ───────────────────────────────────
+export async function run() {
+  const { browser, page } = await connectCDP();
+  try {
+    const pre = await setup(page);
+    for (const tc of testCases) {
+      if (pre.shouldSkip(tc.id)) {
+        console.log(`  SKIP  ${tc.id}  ${tc.name}`);
+        continue;
+      }
+      console.log(`  RUN   ${tc.id}  ${tc.name}`);
+      const start = Date.now();
+      try {
+        await tc.fn(page);
+        const dur = ((Date.now() - start) / 1000).toFixed(1);
+        console.log(`  PASS  ${tc.id}  ${dur}s`);
+      } catch (err) {
+        const dur = ((Date.now() - start) / 1000).toFixed(1);
+        console.log(`  FAIL  ${tc.id}  ${dur}s  ${err.message}`);
+        await screenshot(page, resolve(SCREENSHOT_DIR, `${tc.id}-fail.png`));
+      }
+    }
+  } finally {
+    // Don't close browser — it's the user's OneKey instance
+  }
+}
+
+// Auto-run when executed directly
+const isMain = !process.argv[1] || process.argv[1] === new URL(import.meta.url).pathname;
+if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 ```
+
+**关键约束**：
+- `fn(page)` 只接收 `page` 一个参数 — Dashboard executor 兼容性要求
+- 前置条件在 `setup()` 中运行并缓存到模块级 `_preReport`，不在每个 fn 中重复运行
+- **永远不要关闭 browser** — 那是用户的 OneKey 实例
+- 脚本必须连贯执行：一个用例 = 一段连续操作流，不拆成多个孤立用例
+
+## 1:1 用例对照规则（生成脚本时最重要的规则）
+
+**生成脚本前必须先读取对应的测试用例文档**（`docs/qa/testcases/cases/<module>/`），逐条对照"预期结果"列编写断言。
+
+### 禁止软断言
+
+| 禁止写法 | 正确写法 |
+|---------|---------|
+| `assertHasSomeTableLikeContent(page)` — "有东西就行" | 验证具体字段：名称、价格、数量、格式 |
+| `afterCount !== beforeCount` — "变了就行" | `afterCount === beforeCount + 1` — 精确 delta |
+| `skip: no stable clickable row` 然后标 passed | 没找到元素就是 failed，不能跳过标通过 |
+| 只在一个入口验证状态 | 用例要求"多入口同步"时，每个入口都要验证 |
+| `不报错就行` 处理异常输入 | 验证具体行为：显示空状态文本？自动截断？ |
+
+### 用例编排与序号映射（录制前必须输出）
+
+读取用例文档后，先输出 **编排计划** 再引导录制：
+
+1. **列出所有用例序号和测试点**
+2. **分析可合并的用例**（操作连贯、前置条件相同、UI 上下文不切换的才可合并）
+3. **输出编排结果**：
+   ```
+   用例编排计划（共 10 个用例 → 6 段录制流）：
+
+   录制 1 → 用例 #1「打开 Market 页面」
+     测试点：页面加载、Tab 默认选中、列表展示
+
+   录制 2 → 用例 #2+#3+#4「搜索功能」（合并原因：连续搜索操作，无需切换页面）
+     #2 测试点：输入 BTC → 显示结果、价格格式、地址格式
+     #3 测试点：模糊搜索 bt → 匹配结果包含 BTC
+     #4 测试点：清空搜索 → 恢复默认列表
+
+   录制 3 → 用例 #5「异常输入」
+     测试点：空字符串、特殊字符、超长输入 → 各自预期行为
+   ...
+   请确认编排方案，确认后开始逐段录制。
+   ```
+4. 用户确认后，按录制段逐个引导录制
+5. 生成脚本时，id/name 必须对应原始序号：
+   ```javascript
+   // 覆盖映射：
+   // 录制 2 → 用例 #2+#3+#4「搜索功能」
+   //   #2 "输入 BTC 显示结果" → L45 searchAndAssertResult('BTC')
+   //   #3 "模糊搜索 bt" → L52 searchAndAssertResult('bt')
+   //   #4 "清空搜索恢复默认" → L58 clearAndAssertDefault()
+   {
+     id: 'MARKET-SEARCH-002',
+     name: '搜索功能（用例 #2+#3+#4）',
+     covers: ['#2 精确搜索', '#3 模糊搜索', '#4 清空恢复'],
+     fn: async (page) => { ... }
+   }
+   ```
+
+### 断言检查清单
+
+生成脚本后，对照用例文档逐条核对：
+1. 每个"预期结果"是否都有对应断言？
+2. 断言是验证具体值还是只检查"存在"？
+3. 边界场景（空输入、特殊字符、超长字符串）是否逐个测试？
+4. 跨入口/跨状态同步是否在所有指定入口验证？
+5. 数值变化是否用精确比较？
+
+## Result File Format
+
+`shared/results/<TEST-ID>.json`:
+
+```json
+{
+  "testId": "SEARCH-001",
+  "status": "pass",
+  "duration": 12345,
+  "timestamp": "2026-03-18T10:30:00Z",
+  "error": null,
+  "screenshot": null
+}
+```
+
+## CLI Runner 执行方式
+
+```bash
+# 列出所有可用测试
+node src/tests/run.mjs
+
+# 运行整个特性模块
+node src/tests/run.mjs perps
+
+# 运行子路径
+node src/tests/run.mjs settings/language-switch
+
+# 运行单个测试文件
+node src/tests/perps/token-search.test.mjs
+
+# 运行特定用例（如脚本支持）
+node src/tests/perps/token-search.test.mjs SEARCH-001
+```
+
+## Dashboard API
+
+```bash
+# 健康检查
+curl -s http://localhost:5050/api/status
+
+# 执行指定用例
+curl -X POST http://localhost:5050/api/run \
+  -H 'Content-Type: application/json' \
+  -d '{"cases": ["SEARCH-001", "SEARCH-002"]}'
+```
+
+Dashboard executor (`test-executor.ts`) 通过 `testCases.fn(page)` 或 `mod.run()` 调用。
+
+## ui-map.json 三层选择器策略
+
+```json
+{
+  "perps-search-input": {
+    "primary": "[data-testid=\"perps-search-input\"]",
+    "fallback": "input[placeholder*=\"搜索\"]",
+    "emergency": "document.querySelector('.search-container input')",
+    "description": "合约搜索输入框",
+    "lastVerified": "2026-03-23"
+  }
+}
+```
+
+| 层级 | 策略 | 说明 |
+|------|------|------|
+| primary | `data-testid` | 最稳定，首选 |
+| fallback | text/role/placeholder | testid 不可用时 |
+| emergency | JS evaluate | 最后手段，通过 `page.evaluate()` |
+
+## QA Director 失败路由逻辑
+
+测试失败后，按根因分类自动路由：
+
+| 根因分类 | 特征 | 路由到 | 处理方式 |
+|---------|------|--------|---------|
+| `selector_stale` | Element not found, selector timeout | Knowledge Builder | 更新 `ui-map.json` |
+| `data_missing` | 余额为 0, Token 未添加 | Knowledge Builder | 更新 `preconditions.json` |
+| `assertion_logic` | Expected X got Y, 正则不匹配 | 用户 | 提供代码修改建议（不自己改） |
+| `environment` | ECONNREFUSED, Browser closed | 自动 | 重启 OneKey |
+| `timing` | 间歇性失败, 加载中点击 | 用户 | 建议加 wait/轮询 |
+
+## Reporter 格式规则
+
+- 耗时格式：`MM:SS`（如 `3:45` = 3 分 45 秒）
+- 通过率保留一位小数（如 `80.0%`）
+- 失败用例必须附带错误信息摘要
+- 有截图的失败用例必须附带截图路径
+- 同一天多次运行覆盖同一报告文件
+- **永远不删除历史报告**（保留用于趋势分析）
 
 ## Do
 - Always connect via `chromium.connectOverCDP('http://127.0.0.1:9222')` in Node.js
@@ -28,34 +310,415 @@ export async function run() { /* CLI entry: connect CDP, setup, run cases */ }
 - Wait ~5s after launch before CDP connect
 - Check CDP responds before running tests; if not, pkill + restart
 - Use `fn(page)` single parameter for all test functions
+- Cache preconditions at module level (`_preReport`) — don't rerun in each fn
 - Filter DOM selectors with `.first()` / `.nth()` when multiple matches
-- Use token regex `/^[A-Z][A-Z0-9]{1,9}$/` for token name validation
-- Treat empty state (no tokens, shows message) as valid
-- Take screenshots only on failure
+- Use position filter `r.y < 100` for top bar selectors to avoid matching other areas
+- Use token regex `/^[A-Z][A-Z0-9]{1,9}$/` (tokens can contain digits like XYZ100)
+- Treat empty state (no tokens, shows "未找到"/"暂无代币") as valid, not failed
+- Take screenshots only on failure — screenshots severely slow down execution
 - Keep test scripts as continuous flow (no disconnects mid-test)
 - List all recorded actions for user confirmation before generating cases
 - Use test ID format `FEATURE-NNN` (e.g., COSMOS-001)
+- Restart Dashboard after modifying test scripts (`pkill -f "tsx src/dashboard"` then restart)
+- Verify selectors via CDP before adding to `ui-map.json`
 
 ## Don't
 - Never use any path other than `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
-- Never use `open` command to launch OneKey
-- Never spawn a second OneKey instance
-- Never call `page.setViewportSize()`
-- Never use MCP Playwright tools (browser_navigate, browser_snapshot) for OneKey
+- Never use `open` command to launch OneKey or open browser pages
+- Never spawn a second OneKey instance (pkill first, then restart)
+- Never call `page.setViewportSize()` — use user's current window size
+- Never use MCP Playwright tools (browser_navigate, browser_snapshot) for OneKey — it's a separate browser instance
 - Never use unconfirmed recordings to generate test cases or update ui-map
-- Never modify shared state files outside of the designated writer agent
+- Never modify shared state files outside of the designated writer (see table above)
+- Never use deprecated `src/runner/index.mjs` — use `src/tests/run.mjs` instead
+- Never use `nativeInputValueSetter` + `dispatchEvent` for React inputs
+- Never use `page.keyboard.type()` in CDP Electron — use `locator.pressSequentially()`
+- Never use `Meta+a` to clear inputs — triggers Electron global shortcuts
+- Never repeatedly click modal trigger elements — check if modal is already open first
+- Never use fixed `sleep()` for async results — use polling retry (8-10 attempts × 500ms)
+- Never close the browser connection — it's the user's OneKey instance
+- Never guess root cause without evidence — collect evidence first
+- Never skip precondition checks before test execution
+- Bug fixes require user approval — only output diagnosis + repair proposal, don't auto-fix
 
-## Shared State Writers
-- `shared/test_cases.json` — Test Designer only
-- `shared/ui-map.json`, `shared/knowledge.json` — Knowledge Builder only
-- `shared/diagnosis.json` — QA Manager only
-- `shared/results/*.json` — Runner only
+## Task Status Flow
+pending → in_progress → completed | failed | blocked
 
 ## Workflow: New Test
-PRD -> record (listen.mjs) -> user confirms actions -> generate .test.mjs + update ui-map
+Read `shared/knowledge.json` → record (listen.mjs) → user confirms actions → generate .test.mjs + update ui-map + update test_cases.json → if encountered issues, append to knowledge.json
 
 ## Workflow: Failure Fix
-Diagnose -> classify root cause -> fix selectors -> rerun
+Read results → classify root cause (5 types) → route to handler → fix → rerun → verify
+
+---
+
+## OneKey CDP 自动化（适用于所有 OneKey 相关操作）
+
+**任何涉及 OneKey 桌面端操作的指令，都必须先确保 CDP 连接就绪。这是自动行为，不需要询问用户。**
+
+```bash
+# Step 1: 检查 CDP
+curl -s http://127.0.0.1:9222/json/version
+
+# Step 2: 如果无响应，自动启动（唯一路径，严禁用其他路径）
+pkill -f "OneKey" 2>/dev/null; sleep 2
+/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey --remote-debugging-port=9222 &
+sleep 5
+
+# Step 3: 再次验证
+curl -s http://127.0.0.1:9222/json/version
+```
+
+**严禁行为：**
+- 不要问"请先启动 OneKey"或"CDP 是否已连接"— 直接检查并自动启动
+- 不要用 `open` 命令
+- 不要用其他路径启动 OneKey
+- 不要 spawn 第二个 OneKey 进程（先 pkill 再启动）
+
+---
+
+## Quick Commands（触发指令 — 必须自动执行，不要反问）
+
+以下指令被识别到时，**必须立即按步骤自动执行**，不要询问用户"是否要启动 CDP"、"是否要打开录制器"或"是否要启动 Dashboard"。
+
+---
+
+### 1. `qatest` / `开始执行` / `开始执行用例` / `打开执行面板`
+
+**角色**：QATest — 一键准备执行环境并引导执行。
+
+**自动执行步骤：**
+
+1. **确保 OneKey CDP 就绪**（见上方 CDP 自动化）
+2. **启动 Dashboard 执行面板（端口 5050）**：
+   ```bash
+   # 检查 Dashboard 是否已运行
+   curl -s http://localhost:5050/api/status
+   # 如果没运行，启动：
+   cd /Users/chole/workspace/QA-AGENTS && npx tsx src/dashboard/server.ts &
+   ```
+3. **健康检查**：
+   ```bash
+   curl -s -I http://localhost:5050 | head -n 5
+   ```
+4. **输出引导**：
+   ```
+   ✅ OneKey CDP 已连接（端口 9222）
+   ✅ Dashboard 执行面板已启动（端口 5050）
+
+   请在浏览器打开 http://localhost:5050
+   在面板中勾选要执行的测试用例，点击"运行"开始执行。
+   ```
+5. 如果用户指定了用例 ID（如 `qatest SEARCH-001 SEARCH-002`），提示优先勾选这些用例
+6. 执行结果查看：`shared/results/<TEST-ID>.json`
+
+---
+
+### 2. `@<用例文件> 开始录制` / `录制` / `record` / `开始录制`
+
+**角色**：Recorder — CDP 录制器，捕获用户在 OneKey 上的操作。
+
+**自动执行步骤：**
+
+1. 如有 @ 引用的用例文件，**读取文件**提取测试场景和操作步骤
+2. **确保 OneKey CDP 就绪**（见上方 CDP 自动化）
+3. **启动录制器**：
+   ```bash
+   cd /Users/chole/workspace/QA-AGENTS && nohup node src/recorder/listen.mjs > /tmp/recorder.log 2>&1 &
+   echo $!
+   ```
+   保存 PID 以便后续停止。
+4. **输出引导**：
+   ```
+   ✅ OneKey 已通过 CDP 连接（端口 9222）
+   ✅ 录制器已启动（监控 UI: http://localhost:3210）
+
+   📋 需要录制的场景：
+   [如有用例文件，列出提取的操作步骤；否则提示用户自由操作]
+
+   请在 OneKey 上按顺序操作，录制器会自动捕获。
+   操作完成后请说"录制完了"。
+   ```
+
+**连续录制多个用例**：录完一个用例后，在 Monitor UI 点 **"New Session"** 清空步骤再录下一个。CDP 断连时点 **"Reconnect"**，不需要重启 `listen.mjs`。
+
+---
+
+### 3. `@<用例文件> /onekey-record-from-file` / `发文件开始录制` / `用例开始录制`
+
+**角色**：Record From File — 读取用例文件 → 重编排场景 → 引导录制。
+
+**自动执行步骤：**
+
+1. **读取 @ 引用的用例文件**，提取可录制场景
+2. **场景重编排**（intent-only）：
+   - 每个场景 = 一段连续用户操作流
+   - 为每个场景生成：场景 ID（`MODULE-FEATURE-NNN`）、前置条件、录制步骤（只写行为意图，不写 selector）、关键验证点
+3. **覆盖检查**：
+   - 列出"用例要求"→"已归属到哪个场景/步骤/验证点"的映射
+   - 标注不稳定/难自动化点及替代断言方案
+   - 输出参数化覆盖清单（同一场景多个等价输入参数必须列出）
+4. **确保 OneKey CDP 就绪 + 启动录制器**（同上）
+5. **逐场景引导录制**：告诉用户当前录制的场景名 + 步骤
+6. 用户说"录完了" → 停止录制 → 列出操作清单 → 等用户确认
+
+---
+
+### 4. `录制完了` / `停止录制` / `录完了` / `recording done`
+
+**自动执行步骤：**
+
+1. 停止录制进程（通过保存的 PID）
+2. 读取录制输出：`shared/results/recording/steps.json`
+3. **列出所有操作清单**（强制，不可跳过）：
+   ```
+   录制步骤确认：
+   1. 点击 [元素描述] — selector: ...
+   2. 点击 [元素描述] — selector: ...
+   3. 输入 [内容] 到 [元素描述] — selector: ...
+   ...
+   请确认以上步骤顺序和完整性。
+   ```
+4. 用户反馈处理：
+   - **确认** → 进入生成测试阶段
+   - **删步骤**（"删掉 1 和 2"）→ 更新清单重新展示
+   - **改顺序**（"3 和 4 对调"）→ 更新清单重新展示
+   - **补充** → 记录并更新
+5. 确认后：
+   - **先读取对应的测试用例文档**（`docs/qa/testcases/cases/<module>/`）
+   - 逐条对照用例文档的"预期结果"编写断言（不允许软断言）
+   - 生成 `.test.mjs` 脚本（头部含覆盖映射表）
+   - 更新 `shared/ui-map.json` + `shared/test_cases.json`
+
+---
+
+### 5. `跑测试` / `执行用例` / `回归测试` / `@<文件> 执行测试` / `run test`
+
+**角色**：QA Director — 测试总调度。
+
+**自动执行步骤：**
+
+1. **确保 OneKey CDP 就绪**（见上方 CDP 自动化）
+2. **确保 Dashboard 在运行**（端口 5050），未运行则启动
+3. **前置条件检查**（如脚本有 `runPreconditions()`）
+4. **执行测试**（三种方式按优先级）：
+   - Dashboard API：`curl -X POST http://localhost:5050/api/run -H 'Content-Type: application/json' -d '{"cases": ["ID1", "ID2"]}'`
+   - CLI Runner：`node src/tests/run.mjs <module>`
+   - 单文件：`node src/tests/<feature>/<name>.test.mjs`
+5. **汇总结果**：
+   ```
+   测试执行报告
+   ═══════════════════════════════
+     PASS  SEARCH-001  英文搜索        12.3s
+     FAIL  SEARCH-002  中文搜索        8.1s   → selector_stale: .token-item not found
+     SKIP  SEARCH-003  版块遍历        -      → 前置条件不满足
+   ═══════════════════════════════
+   通过: 1 | 失败: 1 | 跳过: 1 | 总耗时: 20.4s
+   ```
+6. **失败自动诊断**（见 QA Manager 规则）
+
+---
+
+### 6. `设计用例` / `写用例` / `新增测试` / `@<需求文档> 生成用例`
+
+**角色**：Test Designer — 从 PRD 到可执行测试。
+
+**自动执行步骤：**
+
+1. 读取 @ 引用的需求文档（或 `docs/qa/requirements/` 对应文档）
+2. 读取 `docs/qa/qa-rules.md` + `docs/qa/rules/` 对应模块规则
+3. **提取可测试场景**，分配 Test ID（`FEATURE-NNN`），排优先级
+4. **分析前置条件**
+5. 按规范生成测试用例，保存到 `docs/qa/testcases/cases/<模块目录>/`
+6. 如需录制 → 自动启动 CDP + 录制器引导录制
+
+---
+
+### 7. `诊断失败` / `分析结果` / `为什么失败`
+
+**角色**：QA Manager — 只诊断不改代码。
+
+**自动执行步骤：**
+
+1. 读取 `shared/results/*.json` 中的失败用例
+2. **根因分类**（5 类）：
+   | 分类 | 特征 | 修复方向 |
+   |------|------|---------|
+   | `selector_stale` | Element not found, selector timeout | 更新 `shared/ui-map.json` |
+   | `data_missing` | 余额为 0, Token 未添加 | 更新 `shared/preconditions.json` |
+   | `assertion_logic` | Expected X got Y, 正则不匹配 | 提供代码修改建议（不自己改） |
+   | `environment` | ECONNREFUSED, Browser closed | 重启 OneKey |
+   | `timing` | 间歇性失败, 加载中点击 | 加 wait/轮询 |
+3. **输出诊断到 `shared/diagnosis.json`**
+4. 可选：通过 CDP 连接实时探测 DOM 对比预期 vs 实际
+5. **只诊断，不改代码，不改 ui-map**
+
+---
+
+### 8. `更新选择器` / `修复选择器` / `update ui-map`
+
+**角色**：Knowledge Builder — 唯一的知识写入者。
+
+**自动执行步骤：**
+
+1. 读取 `shared/diagnosis.json` 获取失败的选择器
+2. **通过 CDP 连接探测当前 DOM**，找到正确选择器
+3. **更新 `shared/ui-map.json`**，三层选择器策略：
+   ```json
+   {
+     "perps-search-input": {
+       "primary": "[data-testid=\"perps-search-input\"]",
+       "fallback": "input[placeholder*=\"搜索\"]",
+       "emergency": "document.querySelector('.search-container input')",
+       "description": "合约搜索输入框",
+       "lastVerified": "2026-03-23"
+     }
+   }
+   ```
+4. 如果测试脚本硬编码了选择器，同步更新脚本
+5. 验证：用新选择器在 CDP 中确认匹配
+
+---
+
+### 9. `生成报告` / `测试报告` / `quality report`
+
+**角色**：Reporter — 测试报告生成和趋势分析。
+
+**自动执行步骤：**
+
+1. 读取 `shared/results/*.json` 所有测试结果
+2. 生成汇总报告到 `shared/reports/report-<YYYY-MM-DD>.md`，包含：
+   - 概要（总用例/通过/失败/跳过/通过率/耗时）
+   - 详细结果表
+   - 失败分析（含截图路径）
+3. 趋势分析：对比多次运行结果，关注通过率下降/耗时增加/新增跳过
+4. **只读结果，不改测试代码**
+
+---
+
+### 10. `录制测试` / `record and test` / `录制到测试`（Android）
+
+**角色**：Record-to-Test — Android 录制 → 生成 Midscene 测试 → 执行验证。
+
+**前置条件**：Android 设备已 USB 连接（`adb devices` 可见），`.env` 已配置 AI 视觉模型。
+
+**自动执行步骤：**
+
+1. **启动 Android 录制器**：
+   ```bash
+   cd /Users/chole/workspace/QA-AGENTS && npx tsx src/tests/android/recorder.mjs 2>&1 &
+   ```
+   监控 UI: http://localhost:3210
+2. 用户操作手机，说"录完了"后 → 停止录制
+3. 读取 `midscene_run/recordings/session-<timestamp>/session.json`
+4. **列出操作清单**（强制确认，格式同桌面录制）
+5. 确认后 → 生成 Hybrid 测试脚本（UIAutomator 优先 + AI Vision fallback）
+6. 执行验证：`npx tsx src/tests/android/<category>/<name>.test.mjs`
+
+**Hybrid 代码生成规则**：
+- 有 text/contentDesc 的元素 → `hybridTap(device, agent, { text, aiAction })`
+- 无 text 的元素 → `agent.aiAction('...')`
+- slider/拖拽 → `agent.aiAction('drag ...')`（AI only）
+- 验证 → `hasText(agent, '...')` 优先
+- 每步后 `sleep(1000)`
+- 开头加 dismiss modal 步骤
+- AI action 描述必须使用页面上**实际可见的文字**，不要推测
+
+---
+
+## 弹窗/Modal 交互规则（生成测试脚本时强制检查）
+
+> 来源：Market 搜索脚本三大 bug 的复盘。**写脚本前必须逐条检查。**
+
+### Bug 1：触发元素 vs 弹窗内元素混淆
+
+OneKey 中很多交互是：点击头部/侧栏元素 → 弹出 `APP-Modal-Screen` 弹窗 → 弹窗内有独立的输入框/按钮。
+
+```javascript
+// ❌ 错误：反复点击触发元素来"刷新"弹窗
+await page.click('[data-testid="nav-header-search"]'); // 每次都重开弹窗
+
+// ✅ 正确：分离打开 vs 操作
+async function openSearchModal(page) {
+  const isOpen = await page.evaluate(() => {
+    const m = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    return m && m.getBoundingClientRect().width > 0;
+  });
+  if (isOpen) return; // 已打开则不重复触发
+  await page.click('[data-testid="nav-header-search"]');
+  await sleep(800);
+}
+// 后续操作定位到弹窗内部
+const modalInput = page.locator('[data-testid="APP-Modal-Screen"] input').first();
+```
+
+### Bug 2：React 输入方式不兼容
+
+OneKey 是 React 应用，常规输入方式无法触发 React 状态更新。
+
+```javascript
+// ❌ 错误
+nativeInputValueSetter.call(input, 'BTC'); // React 不响应
+await page.keyboard.type('BTC');           // CDP Electron 不可靠
+await page.keyboard.press('Meta+a');       // 触发 Electron 全局快捷键
+
+// ✅ 正确：唯一可靠方式
+await modalInput.pressSequentially('BTC', { delay: 40 });
+// 清空：input.select() + Backspace（不用 Meta+a）
+await page.evaluate(() => {
+  const input = document.querySelector('[data-testid="APP-Modal-Screen"] input');
+  if (input) { input.focus(); input.select(); }
+});
+await page.keyboard.press('Backspace');
+```
+
+### Bug 3：异步结果未轮询等待
+
+搜索/过滤结果通过 API 异步返回，固定 `sleep()` 不可靠。
+
+```javascript
+// ❌ 错误：固定等待
+await sleep(900);
+
+// ✅ 正确：轮询重试（最多 10 次 × 500ms）
+for (let i = 0; i < 10; i++) {
+  const ok = await page.evaluate(() => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const text = modal?.textContent || '';
+    return text.includes('$') || text.includes('未找到') || text.includes('暂无');
+  });
+  if (ok) return;
+  await sleep(500);
+}
+throw new Error('Results not loaded');
+```
+
+### Bug 4：弹窗 backdrop 拦截外部点击
+
+`APP-Modal-Screen` 打开时，`app-modal-stacks-backdrop` 覆盖全屏。需要操作弹窗外元素时，**必须先关闭弹窗**。
+
+### Dashboard 热更新注意
+
+修改测试脚本后**必须重启 Dashboard**（`pkill -f "tsx src/dashboard"` 后重启），否则执行的是旧代码。
+
+---
+
+## 参数化覆盖规则（生成测试脚本时强制）
+
+同一场景存在多个等价输入参数时（如搜索 BTC/ETH/SOL、异常输入、特殊字符），**必须参数化并展开覆盖**：
+
+1. 为每个场景列出 `params` 数组，说明每个参数的覆盖目的
+2. 输出覆盖矩阵：用例要求 → 场景 + 参数 + 断言口径
+3. 脚本循环执行参数集，复用稳定定位点
+4. 只有触发不同 UI 分支时才拆成独立 test case
+
+---
+
+## 录制一致性门禁（生成脚本前强制检查）
+
+1. **Strict Replay**：脚本必须按用户确认的录制清单顺序执行（允许补充不可录制的动作，但不允许替换/跳过已确认的动作）
+2. **定位收敛**：每个关键动作必须落到可稳定定位的实现（`data-testid` 优先 → `role/text` → `JS evaluate`）
+3. **可重复执行**：至少本地跑通一次
 # QA SKILL - Cursor Rules
 
 ## 总则
