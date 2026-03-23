@@ -20,6 +20,7 @@ const sseClients = [];
 // State: 'connecting' | 'recording' | 'paused' | 'disconnected'
 let recorderState = 'connecting';
 let cdpConnected = false;
+let reconnecting = false; // Lock to prevent concurrent reconnects
 
 function broadcastStep(step) {
   const data = `data: ${JSON.stringify(step)}\n\n`;
@@ -39,6 +40,11 @@ function saveSteps() {
 // ── CDP Connection ──────────────────────────────────────────
 
 async function connectCDP() {
+  if (reconnecting) {
+    console.log('  [CDP] Reconnect already in progress, skipping');
+    return false;
+  }
+  reconnecting = true;
   recorderState = 'connecting';
   cdpConnected = false;
   broadcastStatus();
@@ -76,6 +82,7 @@ async function connectCDP() {
           cdpConnected = false;
           broadcastStatus();
           console.log('  [CDP] OneKey restart failed');
+          reconnecting = false;
           return false;
         }
       } else {
@@ -83,6 +90,7 @@ async function connectCDP() {
         cdpConnected = false;
         broadcastStatus();
         console.log('  [CDP] OneKey binary not found');
+        reconnecting = false;
         return false;
       }
     } catch (e) {
@@ -90,12 +98,24 @@ async function connectCDP() {
       cdpConnected = false;
       broadcastStatus();
       console.log('  [CDP] Restart failed:', e.message);
+      reconnecting = false;
       return false;
     }
   }
 
   try {
-    if (browser) await browser.close().catch(() => {});
+    // Clean up old connection completely
+    if (page) {
+      page.removeListener('load', onPageLoad);
+      page.removeListener('console', handleConsoleMessage);
+      page = null;
+    }
+    if (browser) {
+      browser.removeListener('disconnected', onBrowserDisconnected);
+      await browser.close().catch(() => {});
+      browser = null;
+    }
+
     browser = await chromium.connectOverCDP(CDP_URL);
     page = browser.contexts()[0]?.pages()[0];
     if (!page) throw new Error('No page found');
@@ -106,32 +126,41 @@ async function connectCDP() {
 
     await injectListeners();
 
-    // Re-inject on page reload
-    page.on('load', async () => {
-      console.log('  [page reloaded, re-injecting listeners...]');
-      await injectListeners().catch(() => {});
-    });
+    // Re-inject on page reload (named function for cleanup)
+    page.on('load', onPageLoad);
 
-    // Listen to console for STEP events
+    // Listen to console for STEP events (named function for cleanup)
     page.on('console', handleConsoleMessage);
 
-    // Detect disconnect
-    browser.on('disconnected', () => {
-      console.log('  [CDP] Browser disconnected');
-      cdpConnected = false;
-      recorderState = 'disconnected';
-      broadcastStatus();
-    });
+    // Detect disconnect (named function for cleanup)
+    browser.on('disconnected', onBrowserDisconnected);
 
     console.log('  [CDP] Connected, recording active');
+    reconnecting = false;
     return true;
   } catch (e) {
     console.log(`  [CDP] Connection failed: ${e.message}`);
     recorderState = 'disconnected';
     cdpConnected = false;
     broadcastStatus();
+    reconnecting = false;
     return false;
   }
+}
+
+// Named handlers for proper cleanup on reconnect
+async function onPageLoad() {
+  console.log('  [page reloaded, re-injecting listeners...]');
+  await injectListeners().catch(() => {});
+}
+
+function onBrowserDisconnected() {
+  console.log('  [CDP] Browser disconnected');
+  cdpConnected = false;
+  recorderState = 'disconnected';
+  page = null;
+  browser = null;
+  broadcastStatus();
 }
 
 // ── Listener Injection ──────────────────────────────────────
@@ -199,6 +228,63 @@ async function injectListeners() {
         console.log('STEP:' + JSON.stringify(step));
       }, 800));
     }, true);
+
+    // ── Scroll capture (debounced, tracks which container scrolled) ──
+    let _scrollTimer = null;
+    let _scrollStart = null;  // scrollTop at start of scroll gesture
+    let _scrollTarget = null; // the element being scrolled
+
+    document.addEventListener('scroll', (e) => {
+      if (window.__recorderVersion !== V) return;
+      const target = e.target === document ? document.documentElement : e.target;
+      if (!target) return;
+
+      // Record starting position on first scroll event of this gesture
+      if (!_scrollStart || _scrollTarget !== target) {
+        _scrollStart = { top: target.scrollTop, left: target.scrollLeft };
+        _scrollTarget = target;
+      }
+
+      clearTimeout(_scrollTimer);
+      _scrollTimer = setTimeout(() => {
+        const deltaY = target.scrollTop - _scrollStart.top;
+        const deltaX = target.scrollLeft - _scrollStart.left;
+        // Ignore tiny scrolls (< 30px)
+        if (Math.abs(deltaY) < 30 && Math.abs(deltaX) < 30) {
+          _scrollStart = null;
+          _scrollTarget = null;
+          return;
+        }
+
+        // Identify the scroll container
+        const testid = target.getAttribute?.('data-testid')
+          || target.closest?.('[data-testid]')?.getAttribute('data-testid')
+          || '';
+        const tag = target.tagName || 'DOCUMENT';
+        const r = target.getBoundingClientRect?.() || { x: 0, y: 0, width: 0, height: 0 };
+
+        const step = {
+          time: new Date().toISOString(),
+          type: 'scroll',
+          tag,
+          testid,
+          text: '',
+          placeholder: '',
+          deltaX: Math.round(deltaX),
+          deltaY: Math.round(deltaY),
+          scrollTop: Math.round(target.scrollTop),
+          scrollLeft: Math.round(target.scrollLeft),
+          x: Math.round(r.x + r.width / 2),
+          y: Math.round(r.y + r.height / 2),
+          rect: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }
+        };
+        window.__recordedSteps.push(step);
+        console.log('STEP:' + JSON.stringify(step));
+
+        _scrollStart = null;
+        _scrollTarget = null;
+      }, 600); // 600ms debounce — merge continuous scrolling into one event
+    }, true);
   });
   console.log('  [listeners injected]');
 }
@@ -209,29 +295,50 @@ async function handleConsoleMessage(msg) {
   const text = msg.text();
   if (!text.startsWith('STEP:')) return;
 
+  let data;
+  try {
+    data = JSON.parse(text.substring(5));
+  } catch {
+    console.log('  [WARN] Failed to parse STEP event');
+    return;
+  }
+
   stepNum++;
-  const data = JSON.parse(text.substring(5));
   data.step = stepNum;
   allSteps.push(data);
 
   saveSteps();
   broadcastStep(data);
 
-  const icon = data.type === 'click' ? 'CLICK' : 'INPUT';
+  const iconMap = { click: 'CLICK', input: 'INPUT', scroll: 'SCROLL' };
+  const icon = iconMap[data.type] || data.type.toUpperCase();
   const testid = data.testid ? `testid="${data.testid}"` : 'no-testid';
-  const detail = data.type === 'input' ? `value="${data.value}"` : `text="${(data.text || '').substring(0, 40)}"`;
+  const detail = data.type === 'input'
+    ? `value="${data.value}"`
+    : data.type === 'scroll'
+    ? `deltaY=${data.deltaY} deltaX=${data.deltaX}`
+    : `text="${(data.text || '').substring(0, 40)}"`;
   console.log(`  [${stepNum}] ${icon}  ${data.tag}  ${testid}  ${detail}  @(${data.x},${data.y})`);
 
-  await new Promise(r => setTimeout(r, 1500));
-  const screenshotPath = `${RECORDING_DIR}/step-${String(stepNum).padStart(2, '0')}.png`;
-  await page.screenshot({ path: screenshotPath }).catch(() => {});
-  data.screenshot = screenshotPath;
-  saveSteps();
+  // Screenshot only if page is still connected
+  if (page && cdpConnected && recorderState === 'recording') {
+    await new Promise(r => setTimeout(r, 1500));
+    // Re-check after delay — connection may have dropped
+    if (page && cdpConnected) {
+      const screenshotPath = `${RECORDING_DIR}/step-${String(stepNum).padStart(2, '0')}.png`;
+      await page.screenshot({ path: screenshotPath }).catch((e) => {
+        console.log(`  [WARN] Screenshot failed: ${e.message}`);
+      });
+      data.screenshot = screenshotPath;
+      saveSteps();
+    }
+  }
 }
 
 // ── CDP Health Check ────────────────────────────────────────
 
 async function checkCDPHealth() {
+  if (reconnecting) return; // Don't interfere with active reconnect
   try {
     const resp = await fetch(`${CDP_URL}/json/version`);
     const wasConnected = cdpConnected;
@@ -242,6 +349,8 @@ async function checkCDPHealth() {
     }
     if (wasConnected && !cdpConnected) {
       recorderState = 'disconnected';
+      page = null;
+      browser = null;
     }
     broadcastStatus();
   } catch {
@@ -298,6 +407,7 @@ const MONITOR_HTML = `<!DOCTYPE html>
   .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
   .badge-click { background: #1f6feb33; color: #58a6ff; }
   .badge-input { background: #3fb95033; color: #3fb950; }
+  .badge-scroll { background: #d2992233; color: #d29922; }
   .testid { color: #d2a8ff; font-family: monospace; font-size: 12px; }
   .no-testid { color: #484f58; font-style: italic; }
   .content { max-width: 400px; word-break: break-all; }
@@ -337,6 +447,7 @@ const MONITOR_HTML = `<!DOCTYPE html>
     </div>
   </div>
   <button class="reconnect-btn" id="reconnectBtn" onclick="reconnect()">Reconnect</button>
+  <button class="reconnect-btn" id="clearBtn" onclick="clearSession()" style="background:#6e40c9;border-color:#8957e5;">New Session</button>
 </header>
 
 <div id="toast" class="toast"></div>
@@ -441,16 +552,19 @@ function connectSSE() {
 
     const tr = document.createElement('tr');
     tr.className = 'new-row';
-    const isClick = data.type === 'click';
-    const badgeClass = isClick ? 'badge-click' : 'badge-input';
-    const label = isClick ? 'CLICK' : 'INPUT';
+    const badgeMap = { click: 'badge-click', input: 'badge-input', scroll: 'badge-scroll' };
+    const labelMap = { click: 'CLICK', input: 'INPUT', scroll: 'SCROLL' };
+    const badgeClass = badgeMap[data.type] || 'badge-click';
+    const label = labelMap[data.type] || data.type.toUpperCase();
     const testid = data.testid
       ? '<span class="testid">' + escHtml(data.testid) + '</span>'
       : '<span class="no-testid">no testid</span>';
-    const content = isClick
-      ? escHtml((data.text || '').substring(0, 60))
-      : 'value="' + escHtml((data.value || '').substring(0, 60)) + '"';
-    const pos = isClick ? data.x + ', ' + data.y : '-';
+    const content = data.type === 'input'
+      ? 'value="' + escHtml((data.value || '').substring(0, 60)) + '"'
+      : data.type === 'scroll'
+      ? 'deltaY=' + data.deltaY + ' deltaX=' + (data.deltaX || 0)
+      : escHtml((data.text || '').substring(0, 60));
+    const pos = data.type === 'input' ? '-' : data.x + ', ' + data.y;
     const time = new Date(data.time).toLocaleTimeString();
 
     tr.setAttribute('data-step', data.step);
@@ -495,6 +609,23 @@ function reconnect() {
     });
 }
 
+function clearSession() {
+  if (!confirm('Clear all steps and start a new session?')) return;
+  fetch('/clear', { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        tbody.innerHTML = '';
+        count = 0;
+        stepCount.textContent = '0';
+        table.style.display = 'none';
+        empty.style.display = '';
+        showToast('Session cleared', 'success');
+      }
+    })
+    .catch(() => showToast('Clear failed', 'error'));
+}
+
 function delStep(stepNum, btn) {
   const tr = btn.closest('tr');
   tr.classList.add('deleting');
@@ -537,6 +668,18 @@ function startMonitorServer() {
       } catch (e) {
         res.end(JSON.stringify({ ok: false, error: e.message }));
       }
+      return;
+    }
+
+    if (url.pathname === '/clear' && req.method === 'POST') {
+      // Clear all steps for a new recording session
+      allSteps.length = 0;
+      stepNum = 0;
+      saveSteps();
+      broadcastStatus();
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end('{"ok":true}');
+      console.log('  [Session] Steps cleared for new recording');
       return;
     }
 
