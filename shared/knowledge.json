@@ -169,6 +169,22 @@
       "pattern": "Spot row click may not consistently navigate to detail page",
       "details": "In Market spot list, clicking a visible price row can occasionally not open detail (no nav-header-back shown). Treat detail round-trip as best-effort unless test objective specifically targets row navigation reliability.",
       "confidence": 0.9
+    },
+    {
+      "id": "K-022",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Perps TradingView 图表需要两层穿透：webview → blob: iframe",
+      "details": "Perps 页面的 TV 图表不是普通 iframe，而是 Electron <webview> 元素（src=tradingview.onekeytest.com），内部嵌套一个 blob: iframe（id=tradingview_XXXXX）。Playwright page.frames() 无法访问 webview。必须通过 page.evaluate → wv.executeJavaScript 穿透 webview 层，再通过 iframe.contentDocument 穿透 blob iframe 层才能读取 canvas、指标标签、工具栏按钮等 DOM。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-023",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Perps TV 时间周期列表是动态的，不可硬编码",
+      "details": "TV 图表工具栏的时间周期按钮（1分、15分、1小时等）可能随产品更新增减或调整。断言时应动态获取当前可用周期列表（querySelectorAll button[aria-label] 在 y<50 区域），不要硬编码具体周期值。验证「切换周期」时只需断言：点击后 active 状态切换 + OHLC 数据变化。",
+      "confidence": 0.95
     }
   ]
 }
