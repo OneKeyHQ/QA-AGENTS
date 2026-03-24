@@ -205,6 +205,12 @@ const SIDEBAR_TAB_MAP = {
   'Perps': 'sidebarPerps', '合约': 'sidebarPerps',
   'Wallet': 'sidebarWallet', '钱包': 'sidebarWallet',
   'Home': 'sidebarHome', '首页': 'sidebarHome',
+  'Swap': 'sidebarSwap', '交易': 'sidebarSwap',
+  'DeFi': 'sidebarDeFi',
+  'Discover': 'sidebarDiscover', '推荐': 'sidebarDiscover',
+  'Browser': 'sidebarBrowser', '浏览器': 'sidebarBrowser',
+  'Device': 'sidebarDevice', '设备': 'sidebarDevice',
+  'Menu': 'sidebarMenu', '菜单': 'sidebarMenu',
 };
 
 export async function clickSidebarTab(page, name) {
