@@ -98,3 +98,9 @@ export * from './accounts.mjs';
 export * from './network.mjs';
 export * from './transfer.mjs';
 export * from './preconditions.mjs';
+
+// ── UIRegistry + Components + Pages ──────────────────────────
+// Registry uses lazy init — no top-level await needed
+export { registry } from './ui-registry.mjs';
+export * from './components.mjs';
+export { MarketPage, PerpsPage, WalletPage } from './pages/index.mjs';
