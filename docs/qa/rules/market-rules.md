@@ -49,6 +49,20 @@ Market 模块包含以下核心功能：
 | 刷新频率 | 价格更新节流（防止闪烁） |
 | 离线处理 | 断网时显示缓存数据 + 离线提示 |
 
+### 2.4 首页网络选择器与分类榜单
+
+| 规则项 | 规则描述 |
+|-------|---------|
+| 网络选择器位置 | 位于右上角 |
+| 显示条件 | 仅「现货」Tab 显示网络选择器 |
+| 默认网络 | 默认选中「全部」 |
+| 快捷网络 | All Network / BSC / Solana / Base / Ethereum |
+| 更多网络 | 支持展开完整网络列表并切换 |
+| 时间区间交互 | 使用下拉菜单，选项为 5m / 1h / 4h / 24h，默认 1h |
+| 分类 Tab | Trending（默认）/ X Mentioned / Dashboard 分类（如 AI、Stocks、Precious metal） |
+| 接口联动 | 时间区间需同步 `timeFrame` 与 `rankingTimeFrame`；网络选择需同步 `chains` 或 `chainIndex` |
+| 双端适配 | Desktop 与 Mobile 首页保持一致的交互语义 |
+
 ---
 
 ## 3. 搜索功能规则
@@ -141,7 +155,21 @@ Market 模块包含以下核心功能：
 | 简介 | Token 项目简介 |
 | 官网/社交 | 官网、Twitter、Telegram 等链接 |
 
-### 6.2 操作入口
+### 6.2 股票代币 metadata 基本面展示
+
+> 针对证券化代币（Ondo tokenized securities），Token 详情页支持展示底层股票/ETF 基本面数据。
+
+| 规则项 | 规则描述 |
+|-------|---------|
+| 识别条件 | 后端返回 `is_tokenized_security=true`，且映射状态为 `confirmed` 或 `auto_verified` |
+| 展示策略 | 显示股票基本面模块（可替代或补充原链上 metadata） |
+| 字段范围 | Market Cap、Shares、PE Ratio、PB Ratio、24h Volume、Volume(Shares)、Turnover Rate、1y Avg Daily Volume、Dividend Yield、Last Dividend Amount、52W High/Low |
+| 非证券化代币 | 保持原链上 metadata 展示，不显示基本面模块 |
+| 空字段处理 | ETF 或数据源缺失导致个别指标为空时，字段显示占位，不隐藏整个模块 |
+| 降级策略 | 映射未命中、fallback 失败、金融数据 API 异常时，回退链上 metadata 展示 |
+| 缓存策略 | 基本面数据由后端缓存，每日更新；前端展示缓存结果 |
+
+### 6.3 操作入口
 
 | 操作 | 规则 |
 |-----|------|
@@ -149,6 +177,17 @@ Market 模块包含以下核心功能：
 | 收藏 | 添加到收藏列表 |
 | 分享 | 分享 Token 信息 |
 | 提醒 | 设置价格提醒（可选） |
+
+### 6.4 我的持仓（My position）
+
+| 规则项 | 规则描述 |
+|-------|---------|
+| 区域结构 | History 区域支持 `My position` 与 `Holders` 视图切换 |
+| 字段展示 | `My position` 视图展示 Token、Balance、Unrealized PnL、Total PnL |
+| 有持仓 | 显示持仓数量与估值，显示 Unrealized PnL / Total PnL 数值与百分比 |
+| 无持仓 | 不展示持仓字段有效内容（显示占位或空态） |
+| 买卖点 | 有持仓时在 K 线显示买卖点并支持悬浮查看；无持仓时不显示买卖点 |
+| 一致性 | 持仓与收益数据需与 OKX Dex 对账一致 |
 
 ---
 
@@ -293,3 +332,6 @@ Market 模块包含以下核心功能：
 | 2026-02-28 | 添加法币计价规则：全模块统一 USD，Token Details 次级法币展示 |
 | 2026-02-28 | 添加搜索逻辑规则：搜索结果与热门代币表格样式、表头固定、热门代币数据源与点击跳转、边缘 Case |
 | 2026-02-28 | 修正章节编号（5.1-8.4）、更新模块概述（首页主标签、合约、搜索）、更新列表分类规则 |
+| 2026-03-24 | 新增 Token 详情页股票代币 metadata 基本面展示规则：识别条件、字段范围、空字段处理、降级与缓存策略（OK-50643） |
+| 2026-03-24 | 新增首页网络选择器与分类榜单规则：显示条件、默认值、时间下拉、分类 Tab、双端适配（OK-51256/OK-51690） |
+| 2026-03-24 | 新增 Token 详情页我的持仓规则：有持仓/无持仓字段展示、买卖点显示、与 OKX Dex 一致性 |
