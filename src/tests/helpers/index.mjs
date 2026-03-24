@@ -93,7 +93,13 @@ export async function waitForReload(page, action) {
 }
 
 // Re-export domain helpers
-export * from './navigation.mjs';
+// Note: navigation.mjs delegates to components.mjs — use named exports to avoid
+// conflicting star exports (dismissOverlays, closeAllModals exist in both).
+export {
+  dismissOverlays, closeAllModals,
+  unlockWalletIfNeeded, handlePasswordPromptIfPresent,
+  goToWalletHome,
+} from './navigation.mjs';
 export * from './accounts.mjs';
 export * from './network.mjs';
 export * from './transfer.mjs';
@@ -102,5 +108,16 @@ export * from './preconditions.mjs';
 // ── UIRegistry + Components + Pages ──────────────────────────
 // Registry uses lazy init — no top-level await needed
 export { registry } from './ui-registry.mjs';
-export * from './components.mjs';
+// Re-export components.mjs but skip names already exported from navigation.mjs
+export {
+  createStepTracker, safeStep,
+  isModalVisible, waitForModal, closeModal,
+  // closeAllModals — already from navigation.mjs
+  // dismissOverlays — already from navigation.mjs
+  dismissBackdrop,
+  openSearchModal, getSearchInput, typeSearch, clearSearch, closeSearch,
+  clickSidebarTab,
+  unlockIfNeeded, handlePasswordPrompt, enterPassword,
+  openNetworkSelector, selectNetwork,
+} from './components.mjs';
 export { MarketPage, PerpsPage, WalletPage } from './pages/index.mjs';

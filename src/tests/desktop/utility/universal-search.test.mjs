@@ -20,10 +20,11 @@ import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
+import { openSearchModal, clickSidebarTab } from '../../helpers/components.mjs';
 import {
   createStepTracker, safeStep,
   isSearchModalOpen, getModalSearchInput,
-  openSearchModal, setSearchValueStrict, ensureSearchOpen,
+  setSearchValueStrict, ensureSearchOpen,
   clearSearch, closeSearch,
 } from '../../helpers/market-search.mjs';
 
@@ -96,30 +97,13 @@ const ALL_TEST_IDS = [
 
 // ── Platform-specific: Desktop ───────────────────────────────
 
-/** Desktop search trigger: click the header search input (NOT inside the modal). */
-async function openSearchTrigger(page) {
-  const pos = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    const inputs = Array.from(document.querySelectorAll('input[data-testid="nav-header-search"]'));
-    const input = inputs.find(el => {
-      if (modal && modal.contains(el)) return false;
-      const r = el.getBoundingClientRect();
-      return r.width > 0 && r.height > 0;
-    });
-    if (!input) {
-      // Fallback: click header search area by position
-      return { x: 676, y: 27 };
-    }
-    const r = input.getBoundingClientRect();
-    return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) };
-  });
-  await page.mouse.click(pos.x, pos.y);
-}
+// Search trigger wrapper for market-search.mjs functions that accept triggerFn
+const triggerSearch = (page) => openSearchModal(page);
 
-// Convenience wrappers that bind the desktop trigger
-const _open = (page) => openSearchModal(page, openSearchTrigger);
-const _ensure = (page) => ensureSearchOpen(page, openSearchTrigger);
-const _setStrict = (page, v) => setSearchValueStrict(page, v, openSearchTrigger);
+// Convenience wrappers that bind the search trigger via components
+const _open = (page) => openSearchModal(page);
+const _ensure = (page) => ensureSearchOpen(page, triggerSearch);
+const _setStrict = (page, v) => setSearchValueStrict(page, v, triggerSearch);
 
 // ── Universal Search Helper Functions ────────────────────────
 
@@ -133,22 +117,8 @@ async function resetToHome(page) {
   await sleep(300);
   await page.keyboard.press('Escape').catch(() => {});
   await sleep(300);
-  // Click wallet sidebar to go home
-  await page.evaluate(() => {
-    const sidebar = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
-    if (!sidebar) return;
-    for (const el of sidebar.querySelectorAll('span, div')) {
-      if (['钱包', 'Wallet'].includes(el.textContent?.trim())) {
-        const r = el.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) { el.click(); return; }
-      }
-    }
-    // Fallback: click wallet icon
-    const walletIcon = document.querySelector('[data-testid="tab-modal-no-active-item-Wallet4Outline"]')
-      || document.querySelector('[data-testid="tab-modal-active-item-Wallet4Solid"]');
-    if (walletIcon) walletIcon.click();
-  });
-  await sleep(1500);
+  // Navigate to wallet via sidebar using components
+  await clickSidebarTab(page, 'Wallet');
 }
 
 /**
