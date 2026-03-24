@@ -9,7 +9,7 @@
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
 | Architecture | Mixed mode: global functions + lightweight Page Objects | Global for cross-page ops (modal, search, sidebar); Page Object for page-specific ops |
-| ui-map loading | Startup load + fs.watch hot-reload | Performance + flexibility during recording sessions |
+| ui-map loading | Startup load + chokidar hot-reload | Performance + flexibility; chokidar is reliable on macOS (fs.watch has known issues with kqueue/FSEvents) |
 | Locator failure | Log + degrade (L1→L2→L3→error) with tier_stats update | Transparent debugging without blocking tests |
 | Migration | One-step full migration | All existing test files updated to use the new library |
 
@@ -38,15 +38,33 @@ Singleton class that manages ui-map loading, caching, hot-reload, and three-tier
 ```javascript
 class UIRegistry {
   constructor(filePath)       // Path to shared/ui-map.json
-  async init()                // Load file + start fs.watch
+  async init()                // Load file + start chokidar watcher + register process cleanup
   async resolve(page, elementName, opts = {})
     // opts.context: 'auto' | 'page' | 'modal' (default: 'auto')
     // opts.timeout: number (default: 5000)
+    // opts.params: { N: 0 } — template variable substitution for selectors like "account-item-index-{N}"
     // Returns: Playwright Locator or { x, y } coordinates
+  async resolveOrNull(page, elementName, opts = {})
+    // Same as resolve() but returns null instead of throwing on failure
+    // Use for optional interactions (e.g., dismissOverlays)
   async resolveMany(page, names, opts = {})
   reload()                    // Manual cache refresh
-  destroy()                   // Cleanup watcher
+  destroy()                   // Cleanup watcher + flush pending stats
 }
+```
+
+### Process Lifecycle
+
+`init()` registers `process.on('exit')` and `process.on('SIGTERM')` handlers that call `destroy()` automatically. No manual cleanup needed in test files.
+
+### Template Variables
+
+Selectors containing `{VAR}` placeholders (e.g., `[data-testid="account-item-index-{N}"]`) are substituted at resolve time:
+
+```javascript
+await registry.resolve(page, 'accountItemByIndex', { params: { N: 0 } });
+// → resolves [data-testid="account-item-index-0"]
+```
 ```
 
 ### Three-Tier Resolution Strategy
@@ -65,19 +83,28 @@ Solves the core problem of duplicate `data-testid="nav-header-search"` in header
 - `context: 'page'` — Excludes elements inside Modal
 - `context: 'auto'` — Detects modal visibility and chooses automatically
 
+### L3 Deep Search Retry
+
+L1/L2 use `page.locator()` with Playwright's built-in auto-wait. L3 uses `page.evaluate()` which is a one-shot DOM query. To compensate, L3 includes its own polling loop: up to 3 retries with 500ms intervals before declaring failure.
+
 ### Logging
 
+Includes context (modal/page) for disambiguation:
+
 ```
-[ui] searchInput ✓ primary (3ms)
-[ui] searchInput ✓ fallback#1 (15ms)
-[ui] searchInput ✓ deep (45ms)
+[ui] searchInput (page) ✓ primary (3ms)
+[ui] searchInput (modal) ✓ fallback#1 (15ms)
+[ui] searchInput (modal) ✓ deep (45ms)
 [ui] searchInput ✗ all strategies failed
 ```
 
 ### Stats Writeback
 
 - On each successful resolve, increment the corresponding `tier_stats` counter
-- Debounced flush to `ui-map.json` every 5 seconds to avoid excessive IO
+- Stats written to **separate file** `shared/results/ui-stats.json` (NOT `ui-map.json`)
+- `ui-map.json` remains read-only from test runtime, respecting Knowledge Builder's exclusive write ownership
+- Debounced flush every 5 seconds to avoid excessive IO
+- Knowledge Builder can consume `ui-stats.json` to inform curation decisions
 
 ## Module 2: Global Component Functions (`components.mjs`)
 
@@ -137,6 +164,23 @@ selectNetwork(page, name)
 
 Thin wrappers for page-specific operations. All locator resolution delegated to `registry.resolve()`. Common operations delegated to `components.mjs`.
 
+### Lifecycle: Page Object wraps `page`, global functions also accept `page`
+
+Page Objects hold a `page` reference via constructor. If CDP reconnects (page becomes stale), call `pageObj.setPage(newPage)` to update. All Page Object methods internally pass `this.page` to global component functions, so the caller never passes `page` twice:
+
+```javascript
+const market = new MarketPage(page);
+await market.navigate();           // internally: clickSidebarTab(this.page, 'Market')
+await market.openSearch();         // internally: openSearchModal(this.page)
+await market.typeSearch('BTC');    // internally: typeSearch(this.page, 'BTC')
+
+// CDP reconnect scenario:
+const { page: newPage } = await connectCDP();
+market.setPage(newPage);
+```
+
+When using global functions directly (without Page Object), pass `page` as first arg as before.
+
 ### MarketPage (`pages/market.mjs`)
 
 ```javascript
@@ -190,26 +234,30 @@ class WalletPage {
 | `src/tests/helpers/pages/wallet.mjs` | WalletPage |
 | `src/tests/helpers/pages/index.mjs` | Re-export Page Objects |
 
-### Modified Files (10)
+### Modified Files (14)
 
 | File | Change |
 |------|--------|
 | `helpers/index.mjs` | Init registry singleton, re-export components + pages |
 | `helpers/navigation.mjs` | Function bodies delegate to `components.mjs`, export names unchanged |
-| `helpers/market-search.mjs` | Search functions delegate to `components.mjs`, export names unchanged |
+| `helpers/market-search.mjs` | Search functions delegate to `components.mjs`; move `createStepTracker`/`safeStep` to `components.mjs`; export names unchanged |
 | `desktop/market/search.test.mjs` | Remove local `openSearchTrigger` + `goToMarket`, use components + MarketPage |
+| `desktop/market/home.test.mjs` | Remove local `goToMarket` + `openSearchTrigger`, use MarketPage |
+| `desktop/market/favorite.test.mjs` | Remove local `openSearchTrigger` variant, use components |
+| `desktop/market/chart.test.mjs` | Remove local `goToMarket`, use MarketPage |
 | `desktop/utility/universal-search.test.mjs` | Remove local `openSearchTrigger` + `resetToHome`, use components |
 | `desktop/perps/token-search.test.mjs` | Remove local `goToPerps` + `getCurrentPair`, use PerpsPage |
+| `desktop/perps/favorites.test.mjs` | Remove inline search input resolution, use components |
 | `web/market/search.test.mjs` | Sync migration |
 | `extension/market/search.test.mjs` | Sync migration |
 | `web/perps/token-search.test.mjs` | Sync migration |
 | `extension/perps/token-search.test.mjs` | Sync migration |
 
-### Untouched Files
+### Data Files to Update
 
-| File | Reason |
+| File | Change |
 |------|--------|
-| `shared/ui-map.json` | Data unchanged, now consumed by UIRegistry |
+| `shared/ui-map.json` | Add missing entries: `searchInput` (header+modal search), `sidebarMarket`, `sidebarPerps`, `sidebarWallet` |
 | `shared/knowledge.json` | Unchanged |
 | `helpers/preconditions.mjs` | Business preconditions, no component locators |
 | `helpers/transfer.mjs` | Transfer-specific, future migration |
