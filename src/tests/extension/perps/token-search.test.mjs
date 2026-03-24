@@ -8,14 +8,13 @@
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { sleep } from '../../helpers/constants.mjs';
 import { connectExtensionCDP, getExtensionId } from '../../helpers/extension-cdp.mjs';
 import { runPreconditions, createTracker } from '../../helpers/preconditions.mjs';
 
 const RESULTS_DIR = resolve(import.meta.dirname, '../../../../shared/results');
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'ext-perps-search');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
-
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 const ALL_TEST_IDS = ['EXT-PERPS-SEARCH-001', 'EXT-PERPS-SEARCH-002', 'EXT-PERPS-SEARCH-003'];
 

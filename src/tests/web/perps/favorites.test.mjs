@@ -11,14 +11,14 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright-core';
+import { sleep } from '../../helpers/constants.mjs';
+import { createStepTracker } from '../../helpers/components.mjs';
 
 const WEB_URL = process.env.WEB_URL || 'https://app.onekeytest.com';
 const CDP_URL = process.env.CDP_URL || 'http://127.0.0.1:9223';
 const RESULTS_DIR = resolve(import.meta.dirname, '../../../../shared/results');
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'web-perps-favorites');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
-
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 const DEFAULT_TOKENS = ['BTCUSDC', 'ETHUSDC', 'BNBUSDC', 'SOLUSDC', 'HYPEUSDC', 'XRPUSDC'];
 
@@ -99,24 +99,6 @@ async function connectWebCDP() {
   }
 
   return { browser, page };
-}
-
-// ── Step Tracking ─────────────────────────────────────────
-
-function createStepTracker(testId) {
-  const steps = [];
-  const errors = [];
-  return {
-    steps, errors,
-    add(name, status, detail = '') {
-      steps.push({ name, status, detail, time: new Date().toISOString() });
-      console.log(`  [${status === 'passed' ? 'OK' : 'FAIL'}] ${name}${detail ? ' — ' + detail : ''}`);
-      if (status === 'failed') errors.push(`${name}: ${detail}`);
-    },
-    result() {
-      return { status: errors.length === 0 ? 'passed' : 'failed', steps, errors };
-    },
-  };
 }
 
 // ── Screenshot (only on failure) ──────────────────────────

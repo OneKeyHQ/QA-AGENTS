@@ -9,6 +9,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { chromium } from 'playwright-core';
+import { sleep } from '../../helpers/constants.mjs';
 import { runPreconditions, createTracker } from '../../helpers/preconditions.mjs';
 
 const WEB_URL = process.env.WEB_URL || 'https://app.onekeytest.com';
@@ -16,8 +17,6 @@ const CDP_URL = process.env.CDP_URL || 'http://127.0.0.1:9223';
 const RESULTS_DIR = resolve(import.meta.dirname, '../../../../shared/results');
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'web-perps-search');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
-
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 const ALL_TEST_IDS = ['WEB-PERPS-SEARCH-001', 'WEB-PERPS-SEARCH-002', 'WEB-PERPS-SEARCH-003'];
 
