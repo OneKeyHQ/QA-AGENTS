@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "chalk": "^5.4.0",
+    "chokidar": "^5.0.0",
     "commander": "^13.0.0",
     "openai": "^6.25.0",
     "sharp": "^0.34.5",
