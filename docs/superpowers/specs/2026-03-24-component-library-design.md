@@ -65,7 +65,6 @@ Selectors containing `{VAR}` placeholders (e.g., `[data-testid="account-item-ind
 await registry.resolve(page, 'accountItemByIndex', { params: { N: 0 } });
 // → resolves [data-testid="account-item-index-0"]
 ```
-```
 
 ### Three-Tier Resolution Strategy
 
@@ -249,9 +248,16 @@ class WalletPage {
 | `desktop/perps/token-search.test.mjs` | Remove local `goToPerps` + `getCurrentPair`, use PerpsPage |
 | `desktop/perps/favorites.test.mjs` | Remove inline search input resolution, use components |
 | `web/market/search.test.mjs` | Sync migration |
-| `extension/market/search.test.mjs` | Sync migration |
+| `web/market/chart.test.mjs` | Sync migration |
 | `web/perps/token-search.test.mjs` | Sync migration |
+| `web/perps/favorites.test.mjs` | Sync migration |
+| `web/utility/universal-search.test.mjs` | Sync migration |
+| `extension/market/search.test.mjs` | Sync migration |
+| `extension/market/chart.test.mjs` | Sync migration |
 | `extension/perps/token-search.test.mjs` | Sync migration |
+| `extension/perps/favorites.test.mjs` | Sync migration |
+| `extension/utility/universal-search.test.mjs` | Sync migration |
+| `helpers/market-chart.mjs` | Remove duplicate `createStepTracker`, import from `components.mjs` |
 
 ### Data Files to Update
 
