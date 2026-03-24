@@ -119,14 +119,18 @@ class UIRegistry {
       ? page.locator('[data-testid="APP-Modal-Screen"]')
       : page;
 
+    // When context is 'page', only use #resolveExcludingModal if a modal is actually open.
+    // Otherwise use page.locator() directly (supports Playwright selector syntax like >> text=).
+    const modalIsOpen = resolvedContext === 'page' ? await this.#detectContext(page) === 'modal' : false;
+
     // L1: primary selector
     try {
       const sel = substitute(entry.primary);
-      const locator = resolvedContext === 'page'
-        ? await this.#resolveExcludingModal(page, sel, timeout)
-        : scope.locator(sel).first();
-
-      if (resolvedContext !== 'page') {
+      let locator;
+      if (resolvedContext === 'page' && modalIsOpen) {
+        locator = await this.#resolveExcludingModal(page, sel, timeout);
+      } else {
+        locator = scope.locator(sel).first();
         await locator.waitFor({ state: 'visible', timeout });
       }
 
@@ -140,11 +144,11 @@ class UIRegistry {
     for (let i = 0; i < fallbacks.length; i++) {
       try {
         const sel = substitute(fallbacks[i]);
-        const locator = resolvedContext === 'page'
-          ? await this.#resolveExcludingModal(page, sel, timeout)
-          : scope.locator(sel).first();
-
-        if (resolvedContext !== 'page') {
+        let locator;
+        if (resolvedContext === 'page' && modalIsOpen) {
+          locator = await this.#resolveExcludingModal(page, sel, timeout);
+        } else {
+          locator = scope.locator(sel).first();
           await locator.waitFor({ state: 'visible', timeout });
         }
 

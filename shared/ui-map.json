@@ -760,9 +760,9 @@
       "notes": "Exists in both header and modal — use context:'page' for header trigger, context:'modal' for modal input"
     },
     "sidebarMarket": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] :text(\"Market\")",
-      "quick_fallbacks": ["text=Market", "text=市场", "text=マーケット"],
-      "deep_search": {"enabled": true, "search_text": "Market", "search_role": "tab", "search_scope": "page"},
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=市场",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Market", "text=市场", "text=Market"],
+      "deep_search": {"enabled": true, "search_text": "市场", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar",
       "platform": ["desktop"],
@@ -771,9 +771,9 @@
       "notes": "Multi-language: Market, 市场, マーケット, Mercado"
     },
     "sidebarPerps": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] :text(\"Perps\")",
-      "quick_fallbacks": ["text=Perps", "text=合约"],
-      "deep_search": {"enabled": true, "search_text": "Perps", "search_role": "tab", "search_scope": "page"},
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=合约",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Perps", "text=合约", "text=Perps"],
+      "deep_search": {"enabled": true, "search_text": "合约", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar",
       "platform": ["desktop"],
@@ -781,9 +781,9 @@
       "last_verified": "2026-03-24T00:00:00Z"
     },
     "sidebarWallet": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] :text(\"Wallet\")",
-      "quick_fallbacks": ["text=Wallet", "text=钱包"],
-      "deep_search": {"enabled": true, "search_text": "Wallet", "search_role": "tab", "search_scope": "page"},
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=钱包",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Wallet", "text=钱包", "text=Wallet"],
+      "deep_search": {"enabled": true, "search_text": "钱包", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar",
       "platform": ["desktop"],
