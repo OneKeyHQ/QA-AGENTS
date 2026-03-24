@@ -4,52 +4,23 @@
 // Platform-specific concerns (CDP connection, navigation, search trigger)
 // are injected via parameters; all search-modal logic is shared.
 
-import { sleep } from './index.mjs';
+import { sleep } from './constants.mjs';
+import {
+  isModalVisible,
+  openSearchModal as _openSearchModal,
+  getSearchInput,
+  clearSearch as _clearSearch,
+  closeSearch as _closeSearch,
+} from './components.mjs';
 
 // ── Step Tracker ─────────────────────────────────────────────
 
-export function createStepTracker(testId) {
-  const steps = [];
-  const errors = [];
-  return {
-    testId,
-    steps,
-    errors,
-    add(name, status, detail = '') {
-      steps.push({ name, status, detail, time: new Date().toISOString() });
-      const icon = status === 'passed' ? 'OK' : 'FAIL';
-      console.log(`  [${icon}] ${name}${detail ? ` — ${detail}` : ''}`);
-      if (status === 'failed') errors.push(`${name}: ${detail}`);
-    },
-    result() {
-      return { status: errors.length === 0 ? 'passed' : 'failed', steps, errors };
-    },
-  };
-}
-
-export async function safeStep(page, t, name, fn, screenshotFn) {
-  try {
-    const detail = await fn();
-    t.add(name, 'passed', detail || '');
-    return true;
-  } catch (e) {
-    t.add(name, 'failed', e.message || String(e));
-    if (screenshotFn) {
-      await screenshotFn(page, `${t.testId || 'unknown'}-${name.replace(/\s+/g, '-').slice(0, 40)}-fail`);
-    }
-    return false;
-  }
-}
+export { createStepTracker, safeStep } from './components.mjs';
 
 // ── Search Modal Primitives ──────────────────────────────────
 
 export async function isSearchModalOpen(page) {
-  return page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    if (!modal) return false;
-    const r = modal.getBoundingClientRect();
-    return r.width > 0 && r.height > 0;
-  });
+  return isModalVisible(page);
 }
 
 export function getModalSearchInput(page) {
@@ -59,18 +30,18 @@ export function getModalSearchInput(page) {
 /**
  * Open the search modal if not already open.
  * @param {import('playwright-core').Page} page
- * @param {(page: import('playwright-core').Page) => Promise<void>} triggerFn
+ * @param {(page: import('playwright-core').Page) => Promise<void>} [triggerFn]
  *   Platform-specific function that clicks the search trigger element.
+ *   When omitted, delegates to components.mjs openSearchModal (registry-based).
  */
 export async function openSearchModal(page, triggerFn) {
+  if (!triggerFn) {
+    return _openSearchModal(page);
+  }
   await page.bringToFront().catch(() => {});
-
   if (await isSearchModalOpen(page)) return;
-
   await triggerFn(page);
   await sleep(800);
-
-  // Verify modal opened; retry once if not
   if (!(await isSearchModalOpen(page))) {
     await triggerFn(page);
     await sleep(1000);
