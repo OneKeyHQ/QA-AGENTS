@@ -1,6 +1,6 @@
 {
   "version": "2.1.0",
-  "lastUpdated": "2026-03-23T00:00:00Z",
+  "lastUpdated": "2026-03-24T03:17:53Z",
   "patterns": [
     {
       "id": "K-001",
@@ -129,6 +129,46 @@
       "pattern": "多网络模式 Binance 接收流程为 代币→网络（与单网络相反）",
       "details": "单网络模式：点击 Binance → 直接显示代币列表 → 选代币 → 跳转。多网络模式：点击 Binance → 代币列表(带'多链'标签) → 选代币 → 出现'选择网络'页 → 选网络 → 跳转。脚本需要兼容两种流程。",
       "confidence": 0.95
+    },
+    {
+      "id": "K-017",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "Market header search input click can be intercepted by overlay",
+      "details": "In Market page, locator.click on [data-testid='nav-header-search'] may fail with pointer interception from UniversalSearchInput overlay div. Stable approach: compute header input center in page.evaluate (excluding APP-Modal-Screen input) and click via page.mouse.click(x,y).",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-018",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Same data-testid nav-header-search exists both in header and modal",
+      "details": "When search modal opens, input[data-testid='nav-header-search'] appears inside APP-Modal-Screen. Any trigger logic must exclude modal-contained input when locating the header trigger, otherwise actions may target wrong input.",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-019",
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "MARKET-HOME-003 requires strict replay with horizontal filter scroll",
+      "details": "Re-recorded flow for MARKET-HOME-003: All Networks -> BNB Chain -> horizontal scroll right -> Ethereum -> horizontal scroll right -> horizontal scroll left -> All Networks. This sequence is more stable than asserting data signature delta only.",
+      "confidence": 0.94
+    },
+    {
+      "id": "K-020",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Network filter assertion should validate interaction + valid list state, not hard value-delta",
+      "details": "For Market spot network switching, list values may not always change per sample window. Preferred assertion: each filter click succeeds and resulting list is in a valid state (has rows or explicit empty-state text), then return to All Networks.",
+      "confidence": 0.93
+    },
+    {
+      "id": "K-021",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Spot row click may not consistently navigate to detail page",
+      "details": "In Market spot list, clicking a visible price row can occasionally not open detail (no nav-header-back shown). Treat detail round-trip as best-effort unless test objective specifically targets row navigation reliability.",
+      "confidence": 0.9
     }
   ]
 }
