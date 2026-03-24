@@ -268,15 +268,25 @@ async function testPerpsChart001(page) {
     return `${canvases} canvases`;
   });
 
-  // 重置布局确保默认状态
-  await _ssStep(page, t, '重置布局', async () => {
+  // 重置布局确保默认状态，然后刷新让 TV 彻底清理
+  await _ssStep(page, t, '重置布局 + 刷新', async () => {
     await clickResetLayout(page);
-    await sleep(2000);
+    await sleep(3000);
+    // 刷新页面确保 TV webview 完全重载，清除残留指标标签
+    await reloadAndWait(page);
   });
 
-  // 验证仅有 Volume 指标
+  // 验证仅有 Volume 指标（轮询等待 TV 清除完成）
   await _ssStep(page, t, '默认指标为 Volume', async () => {
-    const labels = await getIndicatorLabels(page);
+    let labels;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      labels = await getIndicatorLabels(page);
+      const hasNonDefault = labels.some(l =>
+        (/^MA\d/.test(l) || l === 'MA' || l.startsWith('MACD') || l.startsWith('RSI') || l.startsWith('BOLL'))
+        && !l.includes('Volume') && !l.includes('成交量'));
+      if (!hasNonDefault) break;
+      await sleep(2000);
+    }
     const hasVolume = labels.some(l => l.includes('Volume') || l.includes('成交量'));
     const hasMACD = hasIndicator(labels, 'MACD');
     const hasMA = labels.some(l => /^MA\d/.test(l) || l === 'MA');
