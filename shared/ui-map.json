@@ -1,6 +1,6 @@
 {
   "version": "2.2.0",
-  "lastUpdated": "2026-02-28T09:53:11.497Z",
+  "lastUpdated": "2026-03-24T10:00:00Z",
   "elements": {
     "sidebarHome": {
       "primary": "[data-testid=\"home\"]",
@@ -747,6 +747,58 @@
       "success_rate": 0.9,
       "last_verified": "2026-02-28T09:53:11.497Z",
       "notes": "Recording step 29 — join button next to invite code input"
+    },
+    "searchInput": {
+      "primary": "[data-testid=\"nav-header-search\"]",
+      "quick_fallbacks": ["input[placeholder*=\"搜索\"]", "input[placeholder*=\"Search\"]"],
+      "deep_search": {"enabled": true, "search_text": "搜索", "search_role": "textbox", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-nav",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z",
+      "notes": "Exists in both header and modal — use context:'page' for header trigger, context:'modal' for modal input"
+    },
+    "sidebarMarket": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] :text(\"Market\")",
+      "quick_fallbacks": ["text=Market", "text=市场", "text=マーケット"],
+      "deep_search": {"enabled": true, "search_text": "Market", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z",
+      "notes": "Multi-language: Market, 市场, マーケット, Mercado"
+    },
+    "sidebarPerps": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] :text(\"Perps\")",
+      "quick_fallbacks": ["text=Perps", "text=合约"],
+      "deep_search": {"enabled": true, "search_text": "Perps", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z"
+    },
+    "sidebarWallet": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] :text(\"Wallet\")",
+      "quick_fallbacks": ["text=Wallet", "text=钱包"],
+      "deep_search": {"enabled": true, "search_text": "Wallet", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z"
+    },
+    "searchClearButton": {
+      "primary": "[data-testid=\"-clear\"]",
+      "quick_fallbacks": ["[data-testid=\"APP-Modal-Screen\"] [data-testid=\"-clear\"]"],
+      "deep_search": {"enabled": false},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "search-modal",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z"
     },
     "createMnemonicWalletOption": {
       "primary": "text=创建助记词钱包",
