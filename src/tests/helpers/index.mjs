@@ -2,15 +2,10 @@
 // Re-exports navigation, accounts, network, transfer helpers for convenience
 import { chromium } from 'playwright-core';
 import { mkdirSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { spawn } from 'node:child_process';
 
-export const CDP_URL = process.env.CDP_URL || 'http://127.0.0.1:9222';
-export const WALLET_PASSWORD = process.env.WALLET_PASSWORD || '1234567890-=';
-export const ONEKEY_BIN = '/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey';
-export const RESULTS_DIR = resolve(import.meta.dirname, '../../../shared/results');
-
-export const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+import { CDP_URL, WALLET_PASSWORD, ONEKEY_BIN, RESULTS_DIR, sleep } from './constants.mjs';
+export { CDP_URL, WALLET_PASSWORD, ONEKEY_BIN, RESULTS_DIR, sleep };
 
 /**
  * Ensure OneKey is running with CDP enabled.
