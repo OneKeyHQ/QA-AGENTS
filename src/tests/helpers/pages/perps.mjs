@@ -1,4 +1,5 @@
 // PerpsPage — page-specific operations for Perps tab
+// Pair selector uses TMPopover-ScrollView popover (same component as favorites)
 import { clickSidebarTab } from '../components.mjs';
 import { sleep } from '../constants.mjs';
 
@@ -11,57 +12,145 @@ export class PerpsPage {
     await clickSidebarTab(this.page, 'Perps');
   }
 
+  /** Get current trading pair (e.g., "ETHUSDC" or "BTCUSDC"). */
   async getCurrentPair() {
     return this.page.evaluate(() => {
-      const pairs = document.querySelectorAll('span, div');
-      for (const el of pairs) {
-        const text = el.textContent?.trim() || '';
-        if (/^[A-Z]{2,10}\/[A-Z]{2,10}$/.test(text)) {
-          const r = el.getBoundingClientRect();
-          if (r.width > 0 && r.y < 200) return text;
+      for (const sp of document.querySelectorAll('span')) {
+        const text = sp.textContent?.trim();
+        // Match XXXUSDC format (Perps uses USDC as quote)
+        if (text && /^[A-Z]{2,10}USDC$/.test(text) && sp.children.length === 0) {
+          const r = sp.getBoundingClientRect();
+          if (r.width > 50 && r.height > 20) return text;
         }
       }
       return null;
     });
   }
 
+  /** Open the pair selector popover by clicking the current pair name. */
   async openPairSelector() {
     const pair = await this.getCurrentPair();
-    if (!pair) throw new Error('Cannot find current pair to click');
-    const clicked = await this.page.evaluate((pairText) => {
-      for (const el of document.querySelectorAll('span, div')) {
-        if (el.textContent?.trim() === pairText) {
-          const r = el.getBoundingClientRect();
-          if (r.width > 0 && r.y < 200) { el.click(); return true; }
+    if (!pair) throw new Error('Cannot detect current pair');
+    await this.page.evaluate((p) => {
+      for (const sp of document.querySelectorAll('span')) {
+        if (sp.textContent?.trim() === p && sp.getBoundingClientRect().width > 50) {
+          sp.click(); return;
         }
       }
-      return false;
     }, pair);
-    if (!clicked) throw new Error('Cannot click pair selector');
+    await sleep(1500);
+  }
+
+  /** Check if the pair selector popover is open. */
+  async isPairSelectorOpen() {
+    return this.page.evaluate(() => {
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      for (const p of pops) { if (p.getBoundingClientRect().width > 0) return true; }
+      return false;
+    });
+  }
+
+  /** Ensure pair selector is open. */
+  async ensurePairSelectorOpen() {
+    if (!(await this.isPairSelectorOpen())) {
+      await this.openPairSelector();
+    }
+  }
+
+  /** Dismiss the pair selector popover. */
+  async dismissPairSelector() {
+    await this.page.evaluate(() => {
+      const overlay = document.querySelector('[data-testid="ovelay-popover"]');
+      if (overlay) overlay.click();
+    });
     await sleep(1000);
   }
 
+  /** Search for a pair in the popover. Opens popover if needed. */
   async searchPair(keyword) {
-    await this.openPairSelector();
-    const input = this.page.locator('[data-testid="ovelay-popover"] input, [role="dialog"] input').first();
-    await input.waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
-    await input.click();
-    await input.pressSequentially(keyword, { delay: 40 });
-    await sleep(1500);
+    await this.ensurePairSelectorOpen();
+    // Use nativeInputValueSetter for React compatibility inside popover
+    await this.page.evaluate((q) => {
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      let input = null;
+      for (const pop of pops) {
+        if (pop.getBoundingClientRect().width === 0) continue;
+        const inp = pop.querySelector('input[data-testid="nav-header-search"]')
+          || pop.querySelector('input[placeholder*="搜索"]');
+        if (inp && inp.getBoundingClientRect().width > 0) { input = inp; break; }
+      }
+      if (!input) throw new Error('Search input not found in pair selector');
+      input.focus();
+      const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+      if (nativeSet) {
+        nativeSet.call(input, q);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }, keyword);
+    await sleep(1000);
   }
 
-  async selectPair(name) {
-    const clicked = await this.page.evaluate((pairName) => {
-      const popover = document.querySelector('[data-testid="ovelay-popover"]') || document.body;
-      for (const el of popover.querySelectorAll('span, div')) {
-        if (el.textContent?.trim().includes(pairName)) {
+  /**
+   * Select a pair from the popover list by clicking it.
+   * @param {string} symbol — e.g., "BTC", "ETH". Matches span text in popover.
+   */
+  async selectPair(symbol) {
+    await this.ensurePairSelectorOpen();
+    const clicked = await this.page.evaluate((sym) => {
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      for (const pop of pops) {
+        if (pop.getBoundingClientRect().width === 0) continue;
+        // Find the row containing the symbol and click it
+        for (const el of pop.querySelectorAll('span, div')) {
+          const text = el.textContent?.trim();
           const r = el.getBoundingClientRect();
-          if (r.width > 0 && r.height > 20) { el.click(); return true; }
+          if (text === sym && r.width > 0 && r.height > 10 && r.height < 30 && el.children.length === 0) {
+            // Click the parent row for better hit area
+            const row = el.closest('[class]');
+            if (row && row.getBoundingClientRect().height > 20) { row.click(); return true; }
+            el.click(); return true;
+          }
         }
       }
       return false;
-    }, name);
-    if (!clicked) throw new Error(`Pair "${name}" not found`);
-    await sleep(1500);
+    }, symbol);
+    if (!clicked) throw new Error(`Pair "${symbol}" not found in selector`);
+    await sleep(2000);
+  }
+
+  /**
+   * Switch to a different trading pair.
+   * Opens selector → finds pair → clicks it → waits for chart reload.
+   * @param {string} symbol — e.g., "BTC", "ETH"
+   */
+  async switchPair(symbol) {
+    await this.openPairSelector();
+    await sleep(500);
+    await this.selectPair(symbol);
+    // Verify pair changed
+    const newPair = await this.getCurrentPair();
+    if (newPair && !newPair.startsWith(symbol)) {
+      throw new Error(`Expected pair to start with ${symbol}, got ${newPair}`);
+    }
+  }
+
+  /** Click a tab in the pair selector popover (自选/永续合约/加密货币/股票...). */
+  async clickPairTab(tabName) {
+    await this.ensurePairSelectorOpen();
+    const clicked = await this.page.evaluate((txt) => {
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      for (const p of pops) {
+        if (p.getBoundingClientRect().width === 0) continue;
+        for (const sp of p.querySelectorAll('span')) {
+          if (sp.textContent?.trim() === txt && sp.getBoundingClientRect().width > 0) {
+            sp.click(); return true;
+          }
+        }
+      }
+      return false;
+    }, tabName);
+    if (!clicked) throw new Error(`Tab "${tabName}" not found`);
+    await sleep(1000);
   }
 }

@@ -491,7 +491,7 @@ async function testPerpsChart005(page) {
 
 // ┌──────────────────────────────────────────────────────────┐
 // │ PERPS-CHART-006: 画图跨交易对隔离                         │
-// │ 用例 #3+#8: 不同交易对画图数据独立存储                     │
+// │ 用例 #3+#8: 切换到两个不同交易对，验证画图数据独立存储      │
 // └──────────────────────────────────────────────────────────┘
 async function testPerpsChart006(page) {
   const t = createStepTracker('PERPS-CHART-006');
@@ -499,41 +499,68 @@ async function testPerpsChart006(page) {
   await navigateToPerps(page);
   await waitForTVReady(page);
 
-  await _ssStep(page, t, '跨交易对画图隔离', async () => {
+  const perps = new (await import('../../helpers/pages/index.mjs')).PerpsPage(page);
+
+  // 记录当前交易对及其画图数据
+  let pair1, pair1DrawingKey;
+  await _ssStep(page, t, '记录交易对 A 画图状态', async () => {
+    pair1 = await perps.getCurrentPair() || 'unknown';
+    const sym1 = pair1.replace('USDC', '').toLowerCase();
     const keys = await getDrawingKeys(page);
-    const perpsKeys = keys.filter(k => k.key.includes('perps_'));
-
-    // 提取 symbol 列表
-    const symbols = new Set();
-    perpsKeys.forEach(k => {
-      const match = k.key.match(/perps_(?:xyz_)?(\w+)$/);
-      if (match) symbols.add(match[1]);
-    });
-
-    if (symbols.size < 2) {
-      return `Only ${symbols.size} symbol(s) with drawings — need at least 2 for isolation test. Symbols: ${[...symbols].join(', ')}`;
-    }
-
-    // 验证每个 symbol 有独立的 key
-    const uniqueKeys = new Set(perpsKeys.map(k => k.key));
-    if (uniqueKeys.size !== perpsKeys.length) throw new Error('Duplicate drawing keys found');
-
-    return `${symbols.size} symbols with isolated drawings: ${[...symbols].slice(0, 8).join(', ')}${symbols.size > 8 ? '...' : ''}`;
+    pair1DrawingKey = keys.find(k => k.key.includes(`perps_${sym1}`));
+    return `Pair A: ${pair1} | Drawing: ${pair1DrawingKey ? `${pair1DrawingKey.len} bytes` : 'none'}`;
   });
 
-  // 验证存储格式
-  await _ssStep(page, t, '存储格式验证', async () => {
+  // 切换到不同交易对
+  const targetSymbol = pair1?.startsWith('BTC') ? 'ETH' : 'BTC';
+  await _ssStep(page, t, `切换到交易对 B (${targetSymbol})`, async () => {
+    await perps.switchPair(targetSymbol);
+    await sleep(2000);
+    await waitForTVReady(page);
+    const pair2 = await perps.getCurrentPair();
+    return `Switched to: ${pair2}`;
+  });
+
+  // 验证交易对 B 的画图数据独立
+  await _ssStep(page, t, '验证交易对 B 画图数据独立', async () => {
+    const pair2 = await perps.getCurrentPair() || 'unknown';
+    const sym2 = pair2.replace('USDC', '').toLowerCase();
+    const sym1 = pair1.replace('USDC', '').toLowerCase();
     const keys = await getDrawingKeys(page);
-    // 验证 key 格式: tradingview_drawings_<module>_<symbol>
-    const validFormat = keys.every(k => /^tradingview_drawings_(perps|market|token)_/.test(k.key));
-    if (!validFormat) {
-      const invalid = keys.filter(k => !/^tradingview_drawings_(perps|market|token)_/.test(k.key));
-      throw new Error(`Invalid key format: ${invalid.map(k => k.key).join(', ')}`);
+
+    const pair2Key = keys.find(k => k.key.includes(`perps_${sym2}`));
+    const pair1KeyStill = keys.find(k => k.key.includes(`perps_${sym1}`));
+
+    // 交易对 A 的画图数据应该仍然存在（不会因切换而丢失）
+    if (pair1DrawingKey && !pair1KeyStill) {
+      throw new Error(`Pair A (${sym1}) drawing data lost after switching to ${sym2}`);
     }
 
-    // 验证跨模块隔离（perps vs market vs token）
-    const modules = new Set(keys.map(k => k.key.match(/drawings_(\w+)_/)?.[1]).filter(Boolean));
-    return `Modules: ${[...modules].join(', ')} | All keys follow format: tradingview_drawings_<module>_<symbol>`;
+    // 两个交易对的 key 必须不同
+    if (pair2Key && pair1KeyStill && pair2Key.key === pair1KeyStill.key) {
+      throw new Error(`Same drawing key for both pairs — not isolated!`);
+    }
+
+    return `A(${sym1}): ${pair1KeyStill?.len || 0} bytes | B(${sym2}): ${pair2Key?.len || 0} bytes | Isolated ✓`;
+  });
+
+  // 切回交易对 A，验证画图数据未丢失
+  const switchBackSymbol = pair1?.replace('USDC', '') || 'SOL';
+  await _ssStep(page, t, `切回交易对 A (${switchBackSymbol})`, async () => {
+    await perps.switchPair(switchBackSymbol);
+    await sleep(2000);
+    await waitForTVReady(page);
+    const sym1 = switchBackSymbol.toLowerCase();
+    const keys = await getDrawingKeys(page);
+    const pair1KeyNow = keys.find(k => k.key.includes(`perps_${sym1}`));
+
+    if (pair1DrawingKey && pair1DrawingKey.len > 200) {
+      if (!pair1KeyNow) throw new Error(`Pair A drawing data gone after round-trip`);
+      if (pair1KeyNow.len < pair1DrawingKey.len * 0.5) {
+        throw new Error(`Pair A drawing shrank: ${pair1DrawingKey.len} → ${pair1KeyNow.len}`);
+      }
+    }
+    return `Round-trip OK — ${switchBackSymbol}: ${pair1KeyNow?.len || 0} bytes`;
   });
 
   return t.result();
