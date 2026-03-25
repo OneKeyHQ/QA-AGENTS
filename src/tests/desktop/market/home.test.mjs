@@ -17,8 +17,10 @@ import {
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { runPreconditions, createTracker } from '../../helpers/preconditions.mjs';
+import { MarketPage } from '../../helpers/pages/index.mjs';
+import { openSearchModal } from '../../helpers/components.mjs';
 import {
-  openSearchModal, setSearchValueStrict, closeSearch,
+  setSearchValueStrict, closeSearch,
 } from '../../helpers/market-search.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'market-home');
@@ -39,59 +41,26 @@ function bodyText() {
   return (document.body?.textContent || '').replace(/\s+/g, ' ');
 }
 
+// ── Platform-specific: Desktop (via Page Objects + Components) ──
+
+const _marketPageCache = { page: null, mp: null };
+function getMarketPage(page) {
+  if (_marketPageCache.page !== page) {
+    _marketPageCache.mp = new MarketPage(page);
+    _marketPageCache.page = page;
+  }
+  return _marketPageCache.mp;
+}
+
 async function goToMarket(page) {
-  const clicked = await page.evaluate(() => {
-    const direct = document.querySelector('[data-testid="tab-modal-no-active-item-TradingViewCandlesOutline"]');
-    if (direct) {
-      const r = direct.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        direct.click();
-        return true;
-      }
-    }
-
-    const active = document.querySelector('[data-testid="tab-modal-active-item-TradingViewCandlesSolid"]');
-    if (active && active.getBoundingClientRect().width > 0) return true;
-
-    const side = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
-    if (!side) return false;
-    const labels = ['市场', 'Market'];
-    for (const sp of side.querySelectorAll('span')) {
-      const t = (sp.textContent || '').trim();
-      if (!labels.includes(t)) continue;
-      const r = sp.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        sp.click();
-        return true;
-      }
-    }
-    return false;
-  });
-
-  if (!clicked) throw new Error('Cannot open Market module');
-  await sleep(1400);
+  await getMarketPage(page).navigate();
 }
 
+// Search trigger wrapper for market-search.mjs functions that accept triggerFn
+const triggerSearch = (page) => openSearchModal(page);
 
-/** Desktop search trigger: click header search input (exclude modal input). */
-async function openSearchTrigger(page) {
-  const pos = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    const inputs = Array.from(document.querySelectorAll('input[data-testid="nav-header-search"]'));
-    const input = inputs.find((el) => {
-      if (modal && modal.contains(el)) return false;
-      const r = el.getBoundingClientRect();
-      return r.width > 0 && r.height > 0;
-    });
-    if (!input) throw new Error('Header nav-header-search not found');
-    const r = input.getBoundingClientRect();
-    return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) };
-  });
-  await page.mouse.click(pos.x, pos.y);
-}
-
-const _openSearch = (page) => openSearchModal(page, openSearchTrigger);
-const _setSearchStrict = (page, v) => setSearchValueStrict(page, v, openSearchTrigger);
+const _openSearch = (page) => openSearchModal(page);
+const _setSearchStrict = (page, v) => setSearchValueStrict(page, v, triggerSearch);
 
 async function clickMainTab(page, tab) {
   const ok = await page.evaluate((name) => {

@@ -169,6 +169,134 @@
       "pattern": "Spot row click may not consistently navigate to detail page",
       "details": "In Market spot list, clicking a visible price row can occasionally not open detail (no nav-header-back shown). Treat detail round-trip as best-effort unless test objective specifically targets row navigation reliability.",
       "confidence": 0.9
+    },
+    {
+      "id": "K-022",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Perps TradingView 图表需要两层穿透：webview → blob: iframe",
+      "details": "Perps 页面的 TV 图表不是普通 iframe，而是 Electron <webview> 元素（src=tradingview.onekeytest.com），内部嵌套一个 blob: iframe（id=tradingview_XXXXX）。Playwright page.frames() 无法访问 webview。必须通过 page.evaluate → wv.executeJavaScript 穿透 webview 层，再通过 iframe.contentDocument 穿透 blob iframe 层才能读取 canvas、指标标签、工具栏按钮等 DOM。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-023",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Perps TV 时间周期列表是动态的，不可硬编码",
+      "details": "TV 图表工具栏的时间周期按钮（1分、15分、1小时等）可能随产品更新增减或调整。断言时应动态获取当前可用周期列表（querySelectorAll button[aria-label] 在 y<50 区域），不要硬编码具体周期值。验证「切换周期」时只需断言：点击后 active 状态切换 + OHLC 数据变化。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-024",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "页面有多个 TMPopover-ScrollView，querySelector 只返回第一个（隐藏的）",
+      "details": "OneKey 页面同时存在 8+ 个 TMPopover-ScrollView 实例，大部分 width=0（隐藏）。querySelector 返回第一个（隐藏的 #0），导致误判为 popover 不存在。必须用 querySelectorAll 遍历所有实例，找 getBoundingClientRect().width > 0 的那个。perp-header-settings-button 可以通过 PointerEvent 序列（pointerdown→mousedown→pointerup→mouseup→click）打开，不需要用户手动点击。弹窗：360x164px，包含 3 个 data-state toggle（跳过订单确认/显示买卖点/显示仓位和订单）。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-025",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Playwright :text-is() 伪选择器在 CDP 模式下不可用",
+      "details": "通过 connectOverCDP 连接 Electron app 时，Playwright 的 :text-is('市场') 等伪选择器不生效（locator 找不到元素）。应改用 >> text=市场 语法（Playwright 的文本选择器）。CSS 原生的 :text-is 也不是标准规范，只有 Playwright 内部实现。同理 :has-text() 也不可靠，用 >> text= 代替。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-026",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "UIRegistry context:'page' 不应在无 Modal 时走 resolveExcludingModal",
+      "details": "UIRegistry.resolve() 的 context:'page' 原本总是走 #resolveExcludingModal（用 document.querySelectorAll），但该方法不支持 Playwright >> text= 语法（只支持原生 CSS）。修复：先检测 Modal 是否打开，无 Modal 时直接用 page.locator()（支持 Playwright 语法），只在 Modal 存在时才走排除逻辑。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-027",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "录制器无法捕获 webview 内部的操作事件",
+      "details": "src/recorder/listen.mjs 通过 CDP 注入事件监听，只能捕获主页面（file:///perps）的 DOM 事件。Electron <webview> 是独立的渲染进程，事件不冒泡到主页面。TV 图表内的操作（点击指标按钮、切换时间周期、画图等）无法被录制器捕获。变通方案：用户手动描述操作 + 脚本通过 wv.executeJavaScript 抓取状态变化。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-028",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "TV 指标标签包含实时数值，比较时需 strip 数值部分",
+      "details": "getIndicatorLabels() 返回的标签如 '成交量(Volume)272.5∅∅' 包含实时更新的数值。刷新前后同一个指标的数值会变化，导致字符串精确匹配失败。比较指标集合时，应先用正则去掉尾部数值：label.replace(/[\\d,.\\s∅]+$/, '').trim()，只比较指标名称部分。",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-029",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "TV 重置布局后需刷新页面才能完全清除指标残留",
+      "details": "点击 TV 工具栏的「重置布局」按钮后，非默认指标（如 MA）的标签可能短暂残留在 DOM 中。仅 sleep 等待不可靠。最稳定做法：重置后立即 page.reload() 再 waitForTVReady()，确保 webview 完全重载。然后用轮询检查指标标签是否只剩 Volume。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-030",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TV canvas 内容可用 getImageData hash 做开关前后对比",
+      "details": "TradingView 图表内容（买卖点标记、持仓线等）在 canvas 上渲染，DOM 中不可见。通过 canvas.getContext('2d').getImageData() 取像素数据计算 hash。重要：必须取 FULL canvas 尺寸（c.width, c.height），不能只取 200x200 区域——持仓线可能在图表中下部，小区域取样检测不到。用 step=100 的步长遍历避免超时。toggle 后需等 4 秒让 canvas 完成重绘。买卖点标记用小区域取样即可检测，但持仓线需要全量。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-031",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "ovelay-popover overlay 会拦截所有 Playwright locator.click",
+      "details": "当有 popover 打开时，[data-testid='ovelay-popover'] 作为全屏透明 backdrop 拦截所有点击。Playwright locator.click 会报 'ovelay-popover intercepts pointer events' 超时。解决：操作前先 dismissOverlays(page) 或 dismissPopover(page)，或者用 page.evaluate 内部 JS click 绕过。注意 app 中 testid 拼写是 'ovelay'（少一个 r），不是 'overlay'。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-032",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "侧栏 tab 无 data-testid，只能用文本匹配",
+      "details": "侧栏导航的 9 个 tab（钱包/市场/交易/合约/DeFi/推荐/浏览器/设备/菜单）均无 data-testid。文本 tab 用 [data-testid='Desktop-AppSideBar-Content-Container'] >> text=市场 定位。设备 tab 无文字，用 svg[data-sentry-component='SvgPhone'] 定位。菜单 tab 用 svg[data-sentry-component='SvgDotGrid']。当前 app 语言为中文时，primary selector 应用中文文本。",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-033",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "AccountSelectorTriggerBase 在 Perps 页面不可见，需先导航到钱包页",
+      "details": "账户选择器（data-testid=AccountSelectorTriggerBase）只在钱包首页可见。在 Perps/Market 等页面，locator.click 会报 'element is not visible' 超时。切换账户前必须先 clickSidebarTab(page, 'Wallet') 导航到钱包页，再操作账户选择器。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-034",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "账户选择器搜索框被 overlay div 拦截 Playwright click",
+      "details": "打开账户选择器后，搜索框（input[placeholder='搜索账户名称']）上方有一个 absolute 定位的 div 拦截所有 Playwright locator.click。必须用 page.evaluate 内部 JS focus + nativeInputValueSetter 方式输入文字，不能用 locator.click + pressSequentially。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-035",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "账户选择器按钱包类型分组，搜索只在当前选中的类型内生效",
+      "details": "账户选择器 modal 左侧有钱包类型列表（产品/观察钱包/硬件钱包等），搜索只在当前选中的类型内匹配。如果要搜索观察钱包 hl-99，必须先点击「观察钱包」tab，再搜索。否则在「产品」类型下搜索会显示「没有账户」。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-036",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Perps 交易对选择器搜索只在当前 tab 内生效",
+      "details": "交易对选择器 popover 有多个 tab（自选/永续合约/加密货币/股票/贵金属等），搜索只在当前选中的 tab 内匹配。switchPair 前必须先点击「永续合约」tab，否则搜索 BTC/ETH 等可能找不到结果。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-037",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "测试中不要重启 app，用页面刷新代替",
+      "details": "在 Dashboard 执行器中重启 OneKey app 会导致 CDP 连接断开，后续所有用例无法执行（connectOverCDP timeout）。跨会话持久化验证改用 page.reload() + reloadAndWait()，效果等同但不断连。只有真正需要验证冷启动场景时才手动重启。",
+      "confidence": 0.98
     }
   ]
 }

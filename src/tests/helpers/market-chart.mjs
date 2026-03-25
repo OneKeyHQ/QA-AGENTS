@@ -5,47 +5,10 @@
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-// ── Step Tracker ─────────────────────────────────────────────
+import { createStepTracker, safeStep } from './components.mjs';
+import { screenshot } from './index.mjs';
 
-export function createStepTracker(testId) {
-  const steps = [];
-  const errors = [];
-  return {
-    testId,
-    steps,
-    errors,
-    add(name, status, detail = '') {
-      steps.push({ name, status, detail, time: new Date().toISOString() });
-      const icon = status === 'passed' ? 'OK' : 'FAIL';
-      console.log(`  [${icon}] ${name}${detail ? ` — ${detail}` : ''}`);
-      if (status === 'failed') errors.push(`${name}: ${detail}`);
-    },
-    result() {
-      return { status: errors.length === 0 ? 'passed' : 'failed', steps, errors };
-    },
-  };
-}
-
-export async function safeStep(page, t, name, fn, screenshotDir) {
-  try {
-    const detail = await fn();
-    t.add(name, 'passed', detail || '');
-    return true;
-  } catch (e) {
-    t.add(name, 'failed', e.message || String(e));
-    await screenshot(page, screenshotDir, `${t.testId}-${name.replace(/\s+/g, '-').slice(0, 40)}-fail`);
-    return false;
-  }
-}
-
-export async function screenshot(page, dir, name) {
-  try {
-    const { mkdirSync } = await import('node:fs');
-    mkdirSync(dir, { recursive: true });
-    const path = `${dir}/${name}.png`;
-    await page.screenshot({ path });
-  } catch {}
-}
+export { createStepTracker, safeStep, screenshot };
 
 // ── TradingView Frame Access ─────────────────────────────────
 

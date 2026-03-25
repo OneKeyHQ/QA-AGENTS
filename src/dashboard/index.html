@@ -108,6 +108,7 @@
   .case-checkbox { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
   .case-id { font-size: 11px; font-weight: 600; color: var(--cyan); min-width: 80px; }
   .case-name { font-size: 12px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .skip-badge { font-size: 10px; color: #d29922; background: rgba(210,153,34,0.12); border: 1px solid rgba(210,153,34,0.3); border-radius: 3px; padding: 1px 5px; margin-left: 4px; flex-shrink: 0; cursor: help; }
 
   /* Right Panel - Execution Status */
   .right-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -135,6 +136,20 @@
   .status-case-name { flex: 1; font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .status-duration { font-size: 11px; color: var(--text2); min-width: 50px; text-align: right; }
   .status-error { margin-top: 6px; margin-left: 26px; padding: 8px 10px; background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 4px; font-size: 11px; color: var(--red); line-height: 1.5; word-break: break-word; }
+  .status-summary { font-size: 11px; color: var(--text2); margin-left: 8px; }
+
+  /* Step Log */
+  .step-log { margin-top: 6px; margin-left: 26px; padding: 6px 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 4px; font-size: 11px; font-family: monospace; max-height: 300px; overflow-y: auto; }
+  .step-line { padding: 2px 0; display: flex; align-items: baseline; gap: 6px; }
+  .step-line.step-passed { color: var(--green); }
+  .step-line.step-failed { color: var(--red); }
+  .step-line.step-skipped { color: #d29922; }
+  .step-ok { color: var(--green); font-weight: bold; }
+  .step-fail { color: var(--red); font-weight: bold; }
+  .step-skip { color: #d29922; font-weight: bold; }
+  .step-name { color: var(--text1); }
+  .step-detail { color: var(--text2); font-size: 10px; }
+  .skip-count { color: #d29922; font-weight: 600; }
 
   /* Summary Bar */
   .summary-bar { padding: 10px 16px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12px; color: var(--text2); flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
@@ -402,11 +417,16 @@ function renderTree() {
 
       cases.forEach(c => {
         const isSelected = selected.has(c.id);
+        const hasSkip = c.skipSteps && c.skipSteps.length > 0;
+        const skipBadge = hasSkip
+          ? `<span class="skip-badge" title="${escAttr(c.skipSteps.join(', '))}">${c.skipSteps.length} skip</span>`
+          : '';
         html += `<div class="case-item" onclick="toggleCase('${c.id}')">
           <input type="checkbox" class="case-checkbox" ${isSelected ? 'checked' : ''}
             onclick="event.stopPropagation(); toggleCase('${c.id}')" />
           <span class="case-id">${escHtml(c.id)}</span>
           <span class="case-name">${escHtml(c.name || c.title || '')}</span>
+          ${skipBadge}
         </div>`;
       });
 
@@ -652,15 +672,27 @@ function renderStatus() {
     const icon = iconMap[item.status] || iconMap.pending;
     const duration = formatDuration(item.duration);
 
-    const isFailed = item.status === 'failed';
-    html += `<div class="status-row ${isFailed ? 'clickable' : ''}" ${isFailed ? `onclick="showFailDetail('${escAttr(item.id)}')"` : ''}>
+    const isExpanded = item.status === 'running' || item.status === 'failed' || item.steps?.length > 0;
+    const summaryText = item.summary
+      ? `${item.summary.passed}✓ ${item.summary.failed}✗ ${item.summary.skipped}⊘`
+      : '';
+
+    html += `<div class="status-row ${item.status === 'failed' ? 'clickable' : ''}" ${item.status === 'failed' ? `onclick="showFailDetail('${escAttr(item.id)}')"` : ''}>
       <div class="status-row-main">
         ${icon}
         <span class="status-case-id">${escHtml(item.id)}</span>
         <span class="status-case-name">${escHtml(item.name)}</span>
+        ${summaryText ? `<span class="status-summary">${summaryText}</span>` : ''}
         <span class="status-duration">${duration}</span>
       </div>
       ${item.error ? `<div class="status-error">${escHtml(item.error)}</div>` : ''}
+      ${isExpanded && item.steps?.length > 0 ? `<div class="step-log">${item.steps.map((s, i) => {
+        const stepIcon = s.status === 'passed' ? '<span class="step-ok">✓</span>'
+          : s.status === 'skipped' ? '<span class="step-skip">⊘</span>'
+          : '<span class="step-fail">✗</span>';
+        const detail = s.detail ? `<span class="step-detail">${escHtml(s.detail)}</span>` : '';
+        return `<div class="step-line step-${s.status}">${stepIcon} <span class="step-name">${escHtml(s.name)}</span> ${detail}</div>`;
+      }).join('')}</div>` : ''}
     </div>`;
   });
 
@@ -672,12 +704,16 @@ function renderStatus() {
   const total = queueItems.length;
   const done = passed + failed;
 
+  // Count total skipped steps across all test cases
+  const totalSkippedSteps = queueItems.reduce((sum, q) => sum + (q.summary?.skipped || q.steps?.filter(s => s.status === 'skipped').length || 0), 0);
+
   if (state === 'finished' || done > 0) {
     const elapsed = formatDuration(runElapsed);
     summaryBar.innerHTML =
       `<span class="pass-count">${passed} 通过</span>` +
       `<span class="sep">|</span>` +
       `<span class="fail-count">${failed} 失败</span>` +
+      (totalSkippedSteps > 0 ? `<span class="sep">|</span><span class="skip-count">${totalSkippedSteps} 跳过</span>` : '') +
       `<span class="sep">|</span>` +
       `<span class="total-count">${total} 总计</span>` +
       `<span class="sep">&mdash;</span>` +
@@ -846,12 +882,35 @@ function connectSSE() {
     renderStatus();
   });
 
+  evtSource.addEventListener('step', (e) => {
+    const data = JSON.parse(e.data);
+    const item = queueItems.find(q => q.id === data.id);
+    if (item) {
+      if (!item.steps) item.steps = [];
+      item.steps.push({ name: data.stepName, status: data.stepStatus, detail: data.stepDetail || '' });
+    }
+    renderControls();
+    renderStatus();
+  });
+
+  evtSource.addEventListener('log', (e) => {
+    const data = JSON.parse(e.data);
+    const item = queueItems.find(q => q.id === data.id);
+    if (item) {
+      if (!item.logs) item.logs = [];
+      item.logs.push(data.stepDetail || '');
+    }
+    // Don't re-render for every log line (too frequent)
+  });
+
   evtSource.addEventListener('pass', (e) => {
     const data = JSON.parse(e.data);
     const item = queueItems.find(q => q.id === data.id);
     if (item) {
       item.status = 'passed';
       item.duration = data.duration || (item.startedAt ? Date.now() - item.startedAt : null);
+      if (data.steps) item.steps = data.steps;
+      if (data.summary) item.summary = data.summary;
     }
     renderControls();
     renderStatus();
@@ -864,6 +923,8 @@ function connectSSE() {
       item.status = 'failed';
       item.duration = data.duration || (item.startedAt ? Date.now() - item.startedAt : null);
       item.error = data.error || 'Unknown error';
+      if (data.steps) item.steps = data.steps;
+      if (data.summary) item.summary = data.summary;
     }
     renderControls();
     renderStatus();

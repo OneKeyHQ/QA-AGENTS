@@ -236,6 +236,13 @@
 - 还款资产输入 + 抵押资产输入
 - 显示可用抵押资产
 
+**Stepper 规则**：
+- 当本次 `With Collateral` 还款前需要额外支付 SOL 费用时，显示 Stepper
+- Stepper 为两步流程：`Refundable setup fee` → `Repay`
+- Stepper 显示时，第一步未完成前主按钮显示 `Setup`
+- 第一步完成后，Stepper 第一步显示完成态，主按钮显示 `Repay`
+- 当本次 `With Collateral` 还款不需要额外支付 SOL 费用时，不显示 Stepper，保持原单步 `Repay` 流程
+
 **高 Slippage 警告**：
 - 警告文字："Repay with collateral is enabled, high slippage may worsen your health factor..."
 - Health Factor 可能下降（如：1.50 -> 1.29）
@@ -247,6 +254,10 @@
 - 验证 "With Collateral" 标识正确显示
 - 验证还款资产和抵押资产输入正确
 - 验证可用抵押资产正确显示
+- 验证需要额外支付 SOL 费用时 Stepper 正确显示
+- 验证 Stepper 为 `Refundable setup fee` → `Repay` 两步
+- 验证第一步完成前主按钮为 `Setup`，完成后切换为 `Repay`
+- 验证不需要额外支付 SOL 费用时 Stepper 不显示
 - 验证高 Slippage 时警告正确显示
 - 验证 Health Factor 下降时警告正确显示
 - 验证 Health Factor 上升时拒绝兑换逻辑正确
@@ -290,6 +301,7 @@
 | 有效金额输入 | 启用 |
 | 超出 Cap | 禁用 |
 | Health Factor < 1.50（Borrow/Withdraw） | 启用（需确认对话框） |
+| `With Collateral` 且需要额外支付 SOL 费用 | 先显示 `Setup`，完成后显示 `Repay` |
 
 **测试要点**：
 - 验证金额为 0 时按钮禁用
@@ -411,7 +423,9 @@ Health Factor = (Total Collateral Value * Collateral Factor) / Total Borrow Valu
         → 用户输入金额 → 实时计算
         → 判断高 Slippage？ → 显示警告
         → 判断余额不足？ → 显示警告
-        → 点击 Repay → 提交交易
+        → 判断是否需要额外支付 SOL 费用？
+            → 是：显示 Stepper → 点击 Setup → Setup 完成 → 点击 Repay → 提交交易
+            → 否：隐藏 Stepper → 点击 Repay → 提交交易
 ```
 
 **测试要点**：
@@ -419,6 +433,8 @@ Health Factor = (Total Collateral Value * Collateral Factor) / Total Borrow Valu
 - 验证还款方式选择正确
 - 验证实时计算及时性
 - 验证警告显示时机正确
+- 验证 Stepper 显示/隐藏时机正确
+- 验证 `Setup` → `Repay` 步骤切换正确
 - 验证交易提交成功
 
 ---
@@ -660,6 +676,11 @@ Health Factor = (Total Collateral Value * Collateral Factor) / Total Borrow Valu
 ---
 
 ## 📅 变更记录
+
+### 2026-03-24
+- **补充** 1.4.2 Kamino `With Collateral` Stepper 规则：需要额外支付 SOL 费用时显示 Stepper，流程为 `Refundable setup fee` → `Repay`；不需要额外支付 SOL 费用时隐藏 Stepper，保持原单步流程
+- **补充** 1.5.2 按钮状态规则：`With Collateral` 且需要额外支付 SOL 费用时，主按钮先显示 `Setup`，完成后显示 `Repay`
+- **补充** 1.7 Repay 流程：增加 Stepper 显示/隐藏分支与 `Setup` → `Repay` 两步切换
 
 ### 2026-03-10
 - **补充** 2.12 Swap 法币价值边界：最大法币价值 $10,000,000、最小法币价值 $0.01，超出或低于时需提示或禁用

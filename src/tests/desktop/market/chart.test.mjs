@@ -9,6 +9,7 @@ import {
   connectCDP, sleep, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
+import { MarketPage } from '../../helpers/pages/index.mjs';
 import {
   createStepTracker, safeStep, screenshot,
   waitForChartReady,
@@ -20,39 +21,19 @@ import {
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'market-chart');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
-// ── Platform-specific: Desktop ───────────────────────────────
+// ── Platform-specific: Desktop (via Page Objects) ────────────
+
+const _marketPageCache = { page: null, mp: null };
+function getMarketPage(page) {
+  if (_marketPageCache.page !== page) {
+    _marketPageCache.mp = new MarketPage(page);
+    _marketPageCache.page = page;
+  }
+  return _marketPageCache.mp;
+}
 
 async function goToMarket(page) {
-  const ok = await page.evaluate(() => {
-    const sidebar = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
-    if (!sidebar) return false;
-    const labels = new Set(['Market', '市场', 'マーケット', 'Mercado']);
-    for (const sp of sidebar.querySelectorAll('span')) {
-      const txt = sp.textContent?.trim();
-      if (!txt) continue;
-      if (!labels.has(txt)) continue;
-      const r = sp.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        sp.click();
-        return true;
-      }
-    }
-    // Fallback: partial match
-    for (const sp of sidebar.querySelectorAll('span')) {
-      const txt = sp.textContent?.trim() || '';
-      if (!txt) continue;
-      if (txt.includes('Market') || txt.includes('市场')) {
-        const r = sp.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) {
-          sp.click();
-          return true;
-        }
-      }
-    }
-    return false;
-  });
-  if (!ok) throw new Error('Cannot navigate to Market via sidebar');
-  await sleep(2500);
+  await getMarketPage(page).navigate();
 }
 
 /**
