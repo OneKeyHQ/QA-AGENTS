@@ -125,13 +125,56 @@ export class PerpsPage {
 
   /**
    * Switch to a different trading pair.
-   * Opens selector → finds pair → clicks it → waits for chart reload.
-   * @param {string} symbol — e.g., "BTC", "ETH"
+   * Opens selector → searches pair → clicks it → waits for chart reload.
+   * Uses search to find pairs not visible in initial list.
+   * @param {string} symbol — e.g., "BTC", "ETH", "ENA"
    */
   async switchPair(symbol) {
+    // First try direct select (for common pairs visible in list)
     await this.openPairSelector();
     await sleep(500);
-    await this.selectPair(symbol);
+
+    const directClick = await this.page.evaluate((sym) => {
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      for (const pop of pops) {
+        if (pop.getBoundingClientRect().width === 0) continue;
+        for (const el of pop.querySelectorAll('span')) {
+          const text = el.textContent?.trim();
+          const r = el.getBoundingClientRect();
+          if (text === sym && r.width > 0 && r.height > 10 && r.height < 30 && el.children.length === 0) {
+            const row = el.closest('[class]');
+            if (row && row.getBoundingClientRect().height > 20) { row.click(); return true; }
+            el.click(); return true;
+          }
+        }
+      }
+      return false;
+    }, symbol);
+
+    if (!directClick) {
+      // Not in visible list — use search
+      await this.searchPair(symbol);
+      await sleep(1000);
+      const searchClick = await this.page.evaluate((sym) => {
+        const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+        for (const pop of pops) {
+          if (pop.getBoundingClientRect().width === 0) continue;
+          for (const el of pop.querySelectorAll('span, div')) {
+            const text = el.textContent?.trim();
+            const r = el.getBoundingClientRect();
+            if (text && text.includes(sym) && r.width > 0 && r.height > 15 && r.height < 50 && el.children.length < 3) {
+              const row = el.closest('[class]');
+              if (row && row.getBoundingClientRect().height > 20) { row.click(); return true; }
+              el.click(); return true;
+            }
+          }
+        }
+        return false;
+      }, symbol);
+      if (!searchClick) throw new Error(`Pair "${symbol}" not found even after search`);
+    }
+
+    await sleep(2000);
     // Verify pair changed
     const newPair = await this.getCurrentPair();
     if (newPair && !newPair.startsWith(symbol)) {
