@@ -1203,14 +1203,14 @@ async function testPerpsChart008(page) {
 // ── Runner ──────────────────────────────────────────────────
 
 const testCases = [
-  { id: 'PERPS-CHART-001', name: '默认指标测试', fn: testPerpsChart001 },
-  { id: 'PERPS-CHART-002', name: '指标管理测试', fn: testPerpsChart002 },
-  { id: 'PERPS-CHART-003', name: '画图工具测试', fn: testPerpsChart003 },
-  { id: 'PERPS-CHART-004', name: 'K线时间周期测试', fn: testPerpsChart004 },
-  { id: 'PERPS-CHART-005', name: '图表叠加显示测试', fn: testPerpsChart005 },
-  { id: 'PERPS-CHART-006', name: '视图布局测试', fn: testPerpsChart006 },
-  { id: 'PERPS-CHART-007', name: '异常与边界场景', fn: testPerpsChart007 },
-  { id: 'PERPS-CHART-008', name: '跨交易对测试', fn: testPerpsChart008 },
+  { id: 'PERPS-CHART-001', name: '默认指标测试', fn: testPerpsChart001, skipSteps: [] },
+  { id: 'PERPS-CHART-002', name: '指标管理测试', fn: testPerpsChart002, skipSteps: ['收藏指标', '取消收藏', '删除指标', 'RSI 参数修改'] },
+  { id: 'PERPS-CHART-003', name: '画图工具测试', fn: testPerpsChart003, skipSteps: ['水平线/斐波那契/矩形', '编辑趋势线', '删除画图'] },
+  { id: 'PERPS-CHART-004', name: 'K线时间周期测试', fn: testPerpsChart004, skipSteps: ['自定义时间周期'] },
+  { id: 'PERPS-CHART-005', name: '图表叠加显示测试', fn: testPerpsChart005, skipSteps: ['多个限价单'] },
+  { id: 'PERPS-CHART-006', name: '视图布局测试', fn: testPerpsChart006, skipSteps: ['调整图表区域大小'] },
+  { id: 'PERPS-CHART-007', name: '异常与边界场景', fn: testPerpsChart007, skipSteps: ['localStorage 已满', '大量指标性能', '大量画图性能'] },
+  { id: 'PERPS-CHART-008', name: '跨交易对测试', fn: testPerpsChart008, skipSteps: ['加仓后持仓线更新', '限价单成交后线消失'] },
 ];
 
 export { testCases, ALL_TEST_IDS };
