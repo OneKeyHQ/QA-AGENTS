@@ -1216,7 +1216,10 @@ const testCases = [
 export { testCases, ALL_TEST_IDS };
 
 // Direct execution
-const isDirectRun = !process.argv[1] || process.argv[1].includes('chart.test');
+// Only run directly when explicitly invoked via CLI, not when imported by Dashboard/registry
+// Dashboard sets no special env, but process.argv[1] will be the dashboard server, not this file
+const _thisFile = new URL(import.meta.url).pathname;
+const isDirectRun = process.argv[1] && process.argv[1].endsWith('chart.test.mjs');
 if (isDirectRun) {
   const selectedIds = process.argv.slice(2).filter(a => a.startsWith('PERPS-CHART-'));
   const toRun = selectedIds.length > 0

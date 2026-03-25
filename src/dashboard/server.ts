@@ -79,7 +79,8 @@ const server = createServer(async (req, res) => {
   // ── Test Execution APIs ──
 
   if (url.pathname === '/api/tests') {
-    if (!registryCache) registryCache = await getTestRegistry();
+    // Always re-scan to pick up code changes (skipSteps etc.)
+    registryCache = await getTestRegistry();
     res.writeHead(200, { 'Content-Type': 'application/json', ...cors });
     res.end(JSON.stringify(registryCache));
     return;
