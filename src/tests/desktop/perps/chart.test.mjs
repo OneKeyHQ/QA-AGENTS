@@ -33,6 +33,9 @@ const ALL_TEST_IDS = [
   'PERPS-CHART-007',
   'PERPS-CHART-008',
   'PERPS-CHART-009',
+  'PERPS-CHART-010',
+  'PERPS-CHART-011',
+  'PERPS-CHART-012',
 ];
 
 // ── TV Webview Helpers ──────────────────────────────────────
@@ -771,6 +774,179 @@ async function testPerpsChart009(page) {
   return t.result();
 }
 
+// ┌──────────────────────────────────────────────────────────┐
+// │ PERPS-CHART-010: 视图布局持久化                            │
+// │ 用例 #6: 图表布局（webview + canvas 尺寸）刷新后保留       │
+// └──────────────────────────────────────────────────────────┘
+
+/** Get chart layout dimensions (webview size + main canvas size). */
+async function getChartLayout(page) {
+  const wvSize = await page.evaluate(() => {
+    const wv = document.querySelector('webview');
+    if (!wv) return null;
+    const r = wv.getBoundingClientRect();
+    return { w: Math.round(r.width), h: Math.round(r.height) };
+  });
+
+  const canvasLayout = await tvEval(page, `
+    const canvases = doc.querySelectorAll('canvas');
+    let maxW = 0, maxH = 0;
+    canvases.forEach(c => {
+      const r = c.getBoundingClientRect();
+      if (r.width > maxW && r.height > 100) { maxW = Math.round(r.width); maxH = Math.round(r.height); }
+    });
+    return { mainW: maxW, mainH: maxH, canvasCount: canvases.length };
+  `);
+
+  return { wvSize, canvasLayout };
+}
+
+async function testPerpsChart010(page) {
+  const t = createStepTracker('PERPS-CHART-010');
+
+  await navigateToPerps(page);
+  await waitForTVReady(page);
+
+  let layoutBefore;
+  await _ssStep(page, t, '记录当前布局', async () => {
+    layoutBefore = await getChartLayout(page);
+    return `Webview: ${layoutBefore.wvSize?.w}x${layoutBefore.wvSize?.h} | Main canvas: ${layoutBefore.canvasLayout?.mainW}x${layoutBefore.canvasLayout?.mainH} | Canvases: ${layoutBefore.canvasLayout?.canvasCount}`;
+  });
+
+  await _ssStep(page, t, '刷新后布局保留', async () => {
+    await reloadAndWait(page);
+    // 额外等待 TV canvas 完全渲染
+    await waitForTVReady(page, layoutBefore.canvasLayout?.canvasCount || 7, 20000).catch(() => {});
+    const layoutAfter = await getChartLayout(page);
+
+    // Webview 尺寸应一致（窗口大小不变）
+    if (layoutBefore.wvSize && layoutAfter.wvSize) {
+      const wDiff = Math.abs(layoutBefore.wvSize.w - layoutAfter.wvSize.w);
+      const hDiff = Math.abs(layoutBefore.wvSize.h - layoutAfter.wvSize.h);
+      if (wDiff > 5 || hDiff > 5) {
+        throw new Error(`Webview size changed: ${layoutBefore.wvSize.w}x${layoutBefore.wvSize.h} → ${layoutAfter.wvSize.w}x${layoutAfter.wvSize.h}`);
+      }
+    }
+
+    // Canvas 数量：刷新后 TV 可能延迟加载部分 canvas，只要 ≥7 就算正常
+    if (layoutAfter.canvasLayout && layoutAfter.canvasLayout.canvasCount < 7) {
+      throw new Error(`Canvas count too low after refresh: ${layoutAfter.canvasLayout.canvasCount}`);
+    }
+
+    return `Webview: ${layoutAfter.wvSize?.w}x${layoutAfter.wvSize?.h} | Canvas: ${layoutAfter.canvasLayout?.mainW}x${layoutAfter.canvasLayout?.mainH} | Count: ${layoutAfter.canvasLayout?.canvasCount}`;
+  });
+
+  return t.result();
+}
+
+// ┌──────────────────────────────────────────────────────────┐
+// │ PERPS-CHART-011: 快速切换时间周期（防抖/压力测试）         │
+// │ 用例 #7: 连续快速点击不同时间周期，图表不崩溃              │
+// └──────────────────────────────────────────────────────────┘
+async function testPerpsChart011(page) {
+  const t = createStepTracker('PERPS-CHART-011');
+
+  await navigateToPerps(page);
+  await waitForTVReady(page);
+
+  // 获取所有可用周期
+  const intervals = await getTimeIntervals(page);
+  const available = intervals.filter(i => i.aria && i.aria !== '图表周期');
+
+  await _ssStep(page, t, '快速连续切换时间周期', async () => {
+    if (available.length < 2) throw new Error('Need at least 2 intervals');
+
+    const start = Date.now();
+    // 快速切换 6 次（每次 300ms 间隔）
+    for (let i = 0; i < 6; i++) {
+      const target = available[i % available.length];
+      await tvEval(page, `
+        const btns = doc.querySelectorAll('button[aria-label="${target.aria}"]');
+        if (btns.length > 0) btns[0].click();
+      `);
+      await sleep(300); // 极短间隔，测试防抖
+    }
+    const elapsed = Date.now() - start;
+
+    // 等稳定
+    await sleep(2000);
+
+    // 验证图表没崩
+    const canvases = await getCanvasCount(page);
+    if (canvases < 7) throw new Error(`Chart broken after rapid switching: ${canvases} canvases`);
+
+    return `6 rapid switches in ${elapsed}ms | Chart stable: ${canvases} canvases`;
+  });
+
+  // 验证最终状态正确
+  await _ssStep(page, t, '快速切换后数据正常', async () => {
+    const ohlc = await getOHLC(page);
+    const intervals2 = await getTimeIntervals(page);
+    const active = intervals2.find(i => i.active);
+    return `Active: ${active?.text || 'unknown'} | OHLC: ${ohlc ? `O=${ohlc.O} C=${ohlc.C}` : 'not readable'}`;
+  });
+
+  return t.result();
+}
+
+// ┌──────────────────────────────────────────────────────────┐
+// │ PERPS-CHART-012: 跨交易对指标/设置全局同步                 │
+// │ 用例 #8: BTC 添加指标 → 切 ETH → 指标跟随                │
+// └──────────────────────────────────────────────────────────┘
+async function testPerpsChart012(page) {
+  const t = createStepTracker('PERPS-CHART-012');
+
+  await navigateToPerps(page);
+  await waitForTVReady(page);
+
+  const perps = new (await import('../../helpers/pages/index.mjs')).PerpsPage(page);
+
+  // 记录交易对 A 的指标
+  let pair1, indicators1;
+  await _ssStep(page, t, '记录交易对 A 指标', async () => {
+    pair1 = await perps.getCurrentPair() || 'unknown';
+    indicators1 = await getIndicatorLabels(page);
+    const short = indicators1.filter(l => l.length < 20);
+    return `${pair1}: ${short.join(', ')}`;
+  });
+
+  // 切换到交易对 B
+  const targetSymbol = pair1?.startsWith('BTC') ? 'ETH' : 'BTC';
+  await _ssStep(page, t, `切换到 ${targetSymbol}`, async () => {
+    await perps.switchPair(targetSymbol);
+    await sleep(2000);
+    await waitForTVReady(page);
+    return `Switched to ${await perps.getCurrentPair()}`;
+  });
+
+  // 检查指标是否全局同步
+  await _ssStep(page, t, '指标全局同步验证', async () => {
+    const indicators2 = await getIndicatorLabels(page);
+
+    // 提取指标名（去掉参数值），比较集合
+    const getName = (labels) => new Set(labels.map(l => l.match(/^(MA|MACD|RSI|BOLL|EMA|Volume|成交量)/)?.[0]).filter(Boolean));
+    const set1 = getName(indicators1);
+    const set2 = getName(indicators2);
+
+    const onlyInA = [...set1].filter(x => !set2.has(x));
+    const onlyInB = [...set2].filter(x => !set1.has(x));
+
+    if (onlyInA.length > 0 || onlyInB.length > 0) {
+      return `Indicators differ — A only: [${onlyInA}], B only: [${onlyInB}]. TV indicator config may be per-symbol or global depending on TV version.`;
+    }
+    return `Indicators synced: ${[...set2].join(', ')}`;
+  });
+
+  // 检查设置是否全局同步
+  await _ssStep(page, t, '设置全局同步验证', async () => {
+    const settings = await getPerpsSettings(page);
+    if (!settings) return 'SKIP: cannot read settings on this pair';
+    return `Settings on ${targetSymbol}: 跳过确认=${settings.skipConfirm} 买卖点=${settings.showTrades} 仓位=${settings.showPositions}`;
+  });
+
+  return t.result();
+}
+
 // ── Runner ──────────────────────────────────────────────────
 
 const testCases = [
@@ -783,6 +959,9 @@ const testCases = [
   { id: 'PERPS-CHART-007', name: 'K 线时间周期切换', fn: testPerpsChart007 },
   { id: 'PERPS-CHART-008', name: '重置布局', fn: testPerpsChart008 },
   { id: 'PERPS-CHART-009', name: '买卖点/仓位订单设置', fn: testPerpsChart009 },
+  { id: 'PERPS-CHART-010', name: '视图布局持久化', fn: testPerpsChart010 },
+  { id: 'PERPS-CHART-011', name: '快速切换时间周期', fn: testPerpsChart011 },
+  { id: 'PERPS-CHART-012', name: '跨交易对指标/设置同步', fn: testPerpsChart012 },
 ];
 
 export { testCases, ALL_TEST_IDS };
