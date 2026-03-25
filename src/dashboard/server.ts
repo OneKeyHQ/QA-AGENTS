@@ -61,6 +61,7 @@ function buildAPIResponse() {
   };
 }
 
+// Registry cache — null means needs refresh. Reset on each server start.
 let registryCache: Awaited<ReturnType<typeof getTestRegistry>> | null = null;
 
 const MIME: Record<string, string> = {

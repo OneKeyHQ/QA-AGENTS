@@ -54,7 +54,7 @@ export async function getTestRegistry(): Promise<TestGroup[]> {
 
   for (const file of files) {
     try {
-      const mod = await import(pathToFileURL(file).href);
+      const mod = await import(`${pathToFileURL(file).href}?t=${Date.now()}`);
       if (!mod.testCases || !Array.isArray(mod.testCases)) continue;
 
       const rel = relative(TESTS_DIR, file);
