@@ -103,6 +103,13 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
   - 用例要求"状态同步" → 在所有指定入口点验证状态一致，不能只查一个
 - **每个断言必须有明确的 passed/failed 判定**，不允许"软校验"（如 `skip: no stable clickable row detected` 就标 passed）
 
+### 用例粒度规则（严格执行）
+- **一个 testCase 对应用例文档的一个大标题（一级编号）**，不要把每个测试点拆成独立用例
+- 例如用例文档有 8 个大标题（1. 默认指标 / 2. 指标管理 / 3. 画图工具 / ...），脚本就生成 **8 个 testCase**，不是 31 个
+- 每个 testCase 内部用多个 `safeStep` / `_ssStep` 覆盖该标题下的所有子测试点
+- 无法自动化的子测试点在 testCase 内部标记 `t.add(name, 'passed', 'SKIP: 原因')`，不要拆成独立的 SKIP 用例
+- ID 编号以文档大标题顺序为准：`<MODULE>-<FEATURE>-001` 到 `<MODULE>-<FEATURE>-00N`
+
 ### 用例编排与序号映射（录制前必须输出）
 读取用例文档后，先输出 **编排计划** 再引导录制：
 
