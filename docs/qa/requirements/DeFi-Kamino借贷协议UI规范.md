@@ -150,6 +150,13 @@
 - 还款资产输入 + 抵押资产输入
 - 显示可用抵押资产
 
+**Stepper 规则**：
+- 当本次 `With Collateral` 还款前需要额外支付 SOL 费用时，显示 Stepper
+- Stepper 为两步流程：`Refundable setup fee` → `Repay`
+- Stepper 显示时，第一步未完成前主按钮显示 `Setup`
+- 第一步完成后，Stepper 第一步显示完成态，主按钮显示 `Repay`
+- 当本次 `With Collateral` 还款不需要额外支付 SOL 费用时，不显示 Stepper，保持原单步 `Repay` 流程
+
 **高 Slippage 警告**：
 - 警告文字："Repay with collateral is enabled, high slippage may worsen your health factor..."
 - Health Factor 可能下降（如：1.50 -> 1.29）
@@ -186,6 +193,7 @@
 | 有效金额输入 | 启用 |
 | 超出 Cap | 禁用 |
 | Health Factor < 1.50（Borrow/Withdraw） | 启用（需确认对话框） |
+| `With Collateral` 且需要额外支付 SOL 费用 | 先显示 `Setup`，完成后显示 `Repay` |
 
 ### 5.3 警告 Banner 颜色
 
@@ -260,7 +268,9 @@ Health Factor = (Total Collateral Value * Collateral Factor) / Total Borrow Valu
         → 用户输入金额 → 实时计算
         → 判断高 Slippage？ → 显示警告
         → 判断余额不足？ → 显示警告
-        → 点击 Repay → 提交交易
+        → 判断是否需要额外支付 SOL 费用？
+            → 是：显示 Stepper → 点击 Setup → Setup 完成 → 点击 Repay → 提交交易
+            → 否：隐藏 Stepper → 点击 Repay → 提交交易
 ```
 
 ---
@@ -274,6 +284,8 @@ Health Factor = (Total Collateral Value * Collateral Factor) / Total Borrow Valu
 - 按钮启用/禁用逻辑
 - 确认对话框交互
 - 实时计算准确性
+- `With Collateral` 下 Stepper 显示/隐藏逻辑
+- `Setup` → `Repay` 两步流程切换逻辑
 
 ### 边界测试
 - Cap 阈值边界（99.9% / 99%）
@@ -298,8 +310,9 @@ Health Factor = (Total Collateral Value * Collateral Factor) / Total Borrow Valu
 | Borrow Cap | 资产借贷总量上限 |
 | Withdraw Cap | 资产提取总量上限 |
 | Slippage | 滑点，交易执行价格与预期价格的偏差 |
+| Stepper | `With Collateral` 需要额外支付 SOL 费用时显示的两步流程组件 |
 
 ---
 
-**文档版本**：v1.0  
-**最后更新**：2026-01-07
+**文档版本**：v1.1  
+**最后更新**：2026-03-24
