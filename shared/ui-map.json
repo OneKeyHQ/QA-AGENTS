@@ -949,6 +949,15 @@
       "last_verified": "2026-03-24T10:00:00Z",
       "notes": "钱包首页邀请卡片，无 testid，用文本匹配"
     },
+    "perpsSettingsButton": {
+      "primary": "[data-testid=\"perp-header-settings-button\"]",
+      "quick_fallbacks": [],
+      "deep_search": {"enabled": false},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "perps", "platform": ["desktop"], "success_rate": 0.95,
+      "last_verified": "2026-03-25T00:00:00Z",
+      "notes": "Perps 三个点菜单按钮。注意：JS click 无法触发弹窗（K-024），只有真实用户点击或轮询检测弹窗"
+    },
     "headerShareInvite": {
       "primary": "button:has(svg[data-sentry-component=\"SvgGift\"])",
       "quick_fallbacks": ["svg[data-sentry-component=\"SvgGift\"]"],

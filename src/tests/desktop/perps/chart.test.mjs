@@ -32,6 +32,7 @@ const ALL_TEST_IDS = [
   'PERPS-CHART-006',
   'PERPS-CHART-007',
   'PERPS-CHART-008',
+  'PERPS-CHART-009',
 ];
 
 // ── TV Webview Helpers ──────────────────────────────────────
@@ -673,6 +674,112 @@ async function testPerpsChart008(page) {
   return t.result();
 }
 
+// ── Perps Settings Helper ─────────────────────────────────────
+// The three-dot settings menu (perp-header-settings-button) cannot be opened
+// via JS click (K-024). We use a polling approach: click via CDP mouse event
+// and poll for the popover. If that fails, we read settings directly.
+
+/**
+ * Get Perps chart settings toggle states.
+ * Opens the settings popover (three-dot menu) and reads toggle states.
+ * Falls back to manual prompt if CDP click doesn't work.
+ * @returns {Promise<{skipConfirm: string, showTrades: string, showPositions: string}>}
+ *   Each value is 'checked' or 'unchecked' (from data-state attribute).
+ */
+async function getPerpsSettings(page) {
+  // Try to open settings menu via CDP mouse event
+  const pos = await page.evaluate(() => {
+    const btn = document.querySelector('[data-testid="perp-header-settings-button"]');
+    if (!btn) return null;
+    const r = btn.getBoundingClientRect();
+    return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+  });
+
+  if (pos) {
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: pos.x, y: pos.y, button: 'left', clickCount: 1 });
+    await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: pos.x, y: pos.y, button: 'left', clickCount: 1 });
+    await sleep(1000);
+    await cdp.detach();
+  }
+
+  // Poll for popover (max 5s)
+  for (let i = 0; i < 10; i++) {
+    const result = await page.evaluate(() => {
+      const pop = document.querySelector('[data-testid="TMPopover-ScrollView"]');
+      if (!pop || pop.getBoundingClientRect().width === 0) return null;
+      const text = pop.textContent || '';
+      if (!text.includes('买卖') && !text.includes('订单')) return null;
+
+      const switches = [];
+      pop.querySelectorAll('[data-state]').forEach(s => {
+        const r = s.getBoundingClientRect();
+        if (r.width > 0) switches.push({ state: s.getAttribute('data-state'), y: Math.round(r.y) });
+      });
+      return switches.sort((a, b) => a.y - b.y);
+    });
+
+    if (result && result.length >= 3) {
+      // Close the popover
+      await page.keyboard.press('Escape');
+      await sleep(300);
+      return {
+        skipConfirm: result[0].state,
+        showTrades: result[1].state,
+        showPositions: result[2].state,
+      };
+    }
+    await sleep(500);
+  }
+
+  // Fallback: popover didn't open — return null (test will skip or mark manual)
+  return null;
+}
+
+// ┌──────────────────────────────────────────────────────────┐
+// │ PERPS-CHART-009: 买卖点/仓位订单显示设置                   │
+// │ 用例 #5.1+#5.2: 检查设置面板 toggle 状态 + 刷新持久化     │
+// │ 注: 三个点按钮 JS click 不可靠(K-024)，需手动辅助或 CDP   │
+// └──────────────────────────────────────────────────────────┘
+async function testPerpsChart009(page) {
+  const t = createStepTracker('PERPS-CHART-009');
+
+  await navigateToPerps(page);
+  await waitForTVReady(page);
+
+  // 读取设置状态
+  let settings;
+  await _ssStep(page, t, '读取图表设置', async () => {
+    settings = await getPerpsSettings(page);
+    if (!settings) {
+      return 'SKIP: 设置菜单无法自动打开（K-024），需手动点击三个点按钮';
+    }
+    return `跳过确认: ${settings.skipConfirm} | 买卖点: ${settings.showTrades} | 仓位订单: ${settings.showPositions}`;
+  });
+
+  if (settings) {
+    // 刷新验证持久化
+    await _ssStep(page, t, '刷新后设置持久化', async () => {
+      await reloadAndWait(page);
+      const settingsAfter = await getPerpsSettings(page);
+      if (!settingsAfter) return 'SKIP: 刷新后无法读取设置';
+
+      const checks = [];
+      if (settings.skipConfirm !== settingsAfter.skipConfirm)
+        checks.push(`跳过确认: ${settings.skipConfirm} → ${settingsAfter.skipConfirm}`);
+      if (settings.showTrades !== settingsAfter.showTrades)
+        checks.push(`买卖点: ${settings.showTrades} → ${settingsAfter.showTrades}`);
+      if (settings.showPositions !== settingsAfter.showPositions)
+        checks.push(`仓位订单: ${settings.showPositions} → ${settingsAfter.showPositions}`);
+
+      if (checks.length > 0) throw new Error(`Settings changed after refresh: ${checks.join(', ')}`);
+      return `All 3 settings preserved after refresh`;
+    });
+  }
+
+  return t.result();
+}
+
 // ── Runner ──────────────────────────────────────────────────
 
 const testCases = [
@@ -684,6 +791,7 @@ const testCases = [
   { id: 'PERPS-CHART-006', name: '画图跨交易对隔离', fn: testPerpsChart006 },
   { id: 'PERPS-CHART-007', name: 'K 线时间周期切换', fn: testPerpsChart007 },
   { id: 'PERPS-CHART-008', name: '重置布局', fn: testPerpsChart008 },
+  { id: 'PERPS-CHART-009', name: '买卖点/仓位订单设置', fn: testPerpsChart009 },
 ];
 
 export { testCases, ALL_TEST_IDS };

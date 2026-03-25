@@ -185,6 +185,14 @@
       "pattern": "Perps TV 时间周期列表是动态的，不可硬编码",
       "details": "TV 图表工具栏的时间周期按钮（1分、15分、1小时等）可能随产品更新增减或调整。断言时应动态获取当前可用周期列表（querySelectorAll button[aria-label] 在 y<50 区域），不要硬编码具体周期值。验证「切换周期」时只需断言：点击后 active 状态切换 + OHLC 数据变化。",
       "confidence": 0.95
+    },
+    {
+      "id": "K-024",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "perp-header-settings-button 的 JS/synthetic click 无法触发 popover",
+      "details": "Perps 页面三个点按钮（data-testid=perp-header-settings-button）使用 React onPress 事件处理，el.click()、dispatchEvent(new MouseEvent('click'))、甚至 CDP Input.dispatchMouseEvent 都无法触发弹窗。只有真实用户鼠标点击才能打开。测试中需要用轮询方式等待用户手动点击，或者直接通过 page.evaluate 读写 toggle 的 data-state 属性来验证状态，跳过点击触发。弹窗容器: TMPopover-ScrollView + role=dialog, 360x164px。三个 toggle 用 data-state='checked'|'unchecked'。",
+      "confidence": 0.98
     }
   ]
 }
