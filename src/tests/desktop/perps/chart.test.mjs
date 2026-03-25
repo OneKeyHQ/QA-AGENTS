@@ -731,10 +731,60 @@ async function getPerpsSettings(page) {
   return null;
 }
 
+// ── Canvas Hash Helper ────────────────────────────────────────
+
+/** Get hash of the main (largest) canvas in TV chart. Used for visual diff. */
+async function getMainCanvasHash(page) {
+  return tvEval(page, `
+    let maxCanvas = null, maxArea = 0;
+    doc.querySelectorAll('canvas').forEach(c => {
+      const r = c.getBoundingClientRect();
+      const area = r.width * r.height;
+      if (area > maxArea && r.height > 100) { maxArea = area; maxCanvas = c; }
+    });
+    if (!maxCanvas) return null;
+    try {
+      const ctx = maxCanvas.getContext('2d');
+      const w = Math.min(maxCanvas.width, 200);
+      const h = Math.min(maxCanvas.height, 200);
+      const data = ctx.getImageData(0, 0, w, h).data;
+      let hash = 0;
+      for (let j = 0; j < data.length; j += 20) {
+        hash = ((hash << 5) - hash + data[j]) | 0;
+      }
+      return hash;
+    } catch(e) { return null; }
+  `);
+}
+
+/** Click the Nth settings toggle (0=skipConfirm, 1=showTrades, 2=showPositions). */
+async function clickSettingsToggle(page, index) {
+  // Open settings menu first
+  await openPerpsSettingsMenu(page);
+
+  await page.evaluate((idx) => {
+    const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+    let pop = null;
+    for (const pp of pops) { if (pp.getBoundingClientRect().width > 0) { pop = pp; break; } }
+    if (!pop) throw new Error('no visible popover');
+    const switches = [];
+    pop.querySelectorAll('[data-state]').forEach(s => {
+      if (s.getBoundingClientRect().width > 0) switches.push(s);
+    });
+    if (!switches[idx]) throw new Error('toggle ' + idx + ' not found');
+    switches[idx].click();
+  }, index);
+  await sleep(2000);
+
+  // Close settings menu
+  await dismissPopover(page);
+  await sleep(500);
+}
+
 // ┌──────────────────────────────────────────────────────────┐
 // │ PERPS-CHART-009: 买卖点/仓位订单显示设置                   │
-// │ 用例 #5.1+#5.2: 检查设置面板 toggle 状态 + 刷新持久化     │
-// │ 注: 三个点按钮 JS click 不可靠(K-024)，需手动辅助或 CDP   │
+// │ 用例 #5: toggle 状态 + canvas hash 验证 + 刷新持久化      │
+// │ 验证: OFF→canvas变化, ON→canvas恢复, 刷新→状态保留        │
 // └──────────────────────────────────────────────────────────┘
 async function testPerpsChart009(page) {
   const t = createStepTracker('PERPS-CHART-009');
@@ -742,35 +792,78 @@ async function testPerpsChart009(page) {
   await navigateToPerps(page);
   await waitForTVReady(page);
 
-  // 读取设置状态
+  // Step 1: 读取初始设置
   let settings;
   await _ssStep(page, t, '读取图表设置', async () => {
     settings = await getPerpsSettings(page);
-    if (!settings) {
-      return 'SKIP: 设置菜单无法自动打开（K-024），需手动点击三个点按钮';
-    }
+    if (!settings) throw new Error('无法读取设置菜单');
     return `跳过确认: ${settings.skipConfirm} | 买卖点: ${settings.showTrades} | 仓位订单: ${settings.showPositions}`;
   });
 
-  if (settings) {
-    // 刷新验证持久化
-    await _ssStep(page, t, '刷新后设置持久化', async () => {
-      await reloadAndWait(page);
-      const settingsAfter = await getPerpsSettings(page);
-      if (!settingsAfter) return 'SKIP: 刷新后无法读取设置';
+  // Step 2: 买卖点 toggle — canvas hash 对比
+  await _ssStep(page, t, '买卖点开关影响图表渲染', async () => {
+    // 确保买卖点是 ON 状态
+    if (settings.showTrades !== 'checked') {
+      await clickSettingsToggle(page, 1); // 开启
+      await sleep(1000);
+    }
 
-      const checks = [];
-      if (settings.skipConfirm !== settingsAfter.skipConfirm)
-        checks.push(`跳过确认: ${settings.skipConfirm} → ${settingsAfter.skipConfirm}`);
-      if (settings.showTrades !== settingsAfter.showTrades)
-        checks.push(`买卖点: ${settings.showTrades} → ${settingsAfter.showTrades}`);
-      if (settings.showPositions !== settingsAfter.showPositions)
-        checks.push(`仓位订单: ${settings.showPositions} → ${settingsAfter.showPositions}`);
+    const hashON = await getMainCanvasHash(page);
 
-      if (checks.length > 0) throw new Error(`Settings changed after refresh: ${checks.join(', ')}`);
-      return `All 3 settings preserved after refresh`;
-    });
-  }
+    // 关闭买卖点
+    await clickSettingsToggle(page, 1);
+    const hashOFF = await getMainCanvasHash(page);
+
+    if (hashON === hashOFF) throw new Error(`Canvas hash unchanged after toggling buy/sell markers OFF (hash=${hashON})`);
+
+    // 重新开启
+    await clickSettingsToggle(page, 1);
+    const hashRestored = await getMainCanvasHash(page);
+
+    return `ON=${hashON} → OFF=${hashOFF} (changed ✓) → ON=${hashRestored} ${hashON === hashRestored ? '(restored ✓)' : '(data updated, OK)'}`;
+  });
+
+  // Step 3: 仓位订单 toggle — canvas hash 对比（无持仓时可能无变化，标记为 info）
+  await _ssStep(page, t, '仓位订单开关影响图表渲染', async () => {
+    const currentSettings = await getPerpsSettings(page);
+    if (!currentSettings) return 'SKIP: cannot read settings';
+
+    if (currentSettings.showPositions !== 'checked') {
+      await clickSettingsToggle(page, 2);
+      await sleep(1000);
+    }
+
+    const hashON = await getMainCanvasHash(page);
+    await clickSettingsToggle(page, 2); // 关闭
+    const hashOFF = await getMainCanvasHash(page);
+
+    // 恢复
+    await clickSettingsToggle(page, 2);
+
+    if (hashON === hashOFF) {
+      return `Canvas unchanged — 当前账户可能无持仓/订单，无可见变化 (hash=${hashON})`;
+    }
+    return `ON=${hashON} → OFF=${hashOFF} (changed ✓)`;
+  });
+
+  // Step 4: 刷新验证持久化
+  await _ssStep(page, t, '刷新后设置持久化', async () => {
+    const settingsBefore = await getPerpsSettings(page);
+    if (!settingsBefore) throw new Error('无法读取设置');
+
+    await reloadAndWait(page);
+
+    const settingsAfter = await getPerpsSettings(page);
+    if (!settingsAfter) throw new Error('刷新后无法读取设置');
+
+    const checks = [];
+    if (settingsBefore.skipConfirm !== settingsAfter.skipConfirm) checks.push('跳过确认');
+    if (settingsBefore.showTrades !== settingsAfter.showTrades) checks.push('买卖点');
+    if (settingsBefore.showPositions !== settingsAfter.showPositions) checks.push('仓位订单');
+
+    if (checks.length > 0) throw new Error(`Settings changed after refresh: ${checks.join(', ')}`);
+    return `All 3 settings preserved after refresh`;
+  });
 
   return t.result();
 }
