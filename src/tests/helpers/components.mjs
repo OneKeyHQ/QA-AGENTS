@@ -13,12 +13,23 @@ export function createStepTracker(testId) {
     testId, steps, errors,
     add(name, status, detail = '') {
       steps.push({ name, status, detail, time: new Date().toISOString() });
-      const icon = status === 'passed' ? 'OK' : 'FAIL';
+      const icon = status === 'passed' ? 'OK' : status === 'skipped' ? 'SKIP' : 'FAIL';
       console.log(`  [${icon}] ${name}${detail ? ` — ${detail}` : ''}`);
       if (status === 'failed') errors.push(`${name}: ${detail}`);
     },
+    /** Mark a step as skipped with reason. */
+    skip(name, reason) {
+      this.add(name, 'skipped', reason);
+    },
     result() {
-      return { status: errors.length === 0 ? 'passed' : 'failed', steps, errors };
+      const passed = steps.filter(s => s.status === 'passed').length;
+      const failed = steps.filter(s => s.status === 'failed').length;
+      const skipped = steps.filter(s => s.status === 'skipped').length;
+      return {
+        status: errors.length === 0 ? 'passed' : 'failed',
+        steps, errors,
+        summary: { passed, failed, skipped, total: steps.length },
+      };
     },
   };
 }

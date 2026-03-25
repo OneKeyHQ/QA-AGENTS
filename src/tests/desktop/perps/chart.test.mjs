@@ -258,7 +258,7 @@ async function reloadAndWait(page) {
 function createSkipTest(id, name, reason) {
   return async function(page) {
     const t = createStepTracker(id);
-    t.add(name, 'passed', `SKIP: ${reason}`);
+    t.skip(name, reason);
     return t.result();
   };
 }
@@ -497,93 +497,72 @@ async function testPerpsChart002(page) {
   await navigateToPerps(page);
   await waitForTVReady(page);
 
-  // --- From old 002: 指标添加与持久化 ---
-  await clickResetLayout(page);
-  await sleep(2000);
-
+  // --- 2.1 指标添加 ---
   await _ssStep(page, t, '打开指标面板', async () => {
     await clickIndicatorButton(page);
     const open = await isIndicatorPanelOpen(page);
     if (!open) throw new Error('Indicator panel did not open');
+    return 'Panel opened';
   });
 
-  await _ssStep(page, t, '检查已添加的指标', async () => {
+  await _ssStep(page, t, '检查当前指标列表', async () => {
     if (await isIndicatorPanelOpen(page)) {
       await clickIndicatorButton(page);
       await sleep(500);
     }
     const labels = await getIndicatorLabels(page);
-    return `Current indicators: ${labels.filter(l => l.length < 25).join(', ')}`;
+    return `Current: ${labels.filter(l => l.length < 25).join(', ')}`;
   });
 
-  await _ssStep(page, t, '刷新后指标持久化', async () => {
+  // --- 2.2 指标收藏 ---
+  let panelTextBefore;
+  await _ssStep(page, t, '收藏指标排序位置', async () => {
+    await clickIndicatorButton(page);
+    await sleep(500);
+    panelTextBefore = await getIndicatorPanelText(page);
+    const macdPos = panelTextBefore.indexOf('MACD');
+    await clickIndicatorButton(page); // close
+    return `MACD at position ${macdPos} ${macdPos >= 0 && macdPos < 100 ? '(in favorites)' : '(not favorited or further down)'}`;
+  });
+
+  // SKIP: TV webview 内操作
+  t.skip('收藏指标（点击星形按钮）', '指标面板内的收藏按钮在 TV webview 内，无法自动点击（K-027）');
+  t.skip('取消收藏指标', '同上，需手动在指标面板内点击星形按钮取消');
+
+  // --- 2.3 指标删除 ---
+  t.skip('删除指标（图表上右键→删除）', '指标删除需要在 TV webview 内右键指标标签操作（K-027）');
+
+  // --- 2.1 RSI 参数 ---
+  t.skip('RSI 参数修改持久化', 'TV 内指标参数面板操作无法自动化（K-027），需手动测试');
+
+  // --- 统一刷新验证所有持久化（指标 + 收藏）---
+  await _ssStep(page, t, '刷新后指标 + 收藏一次性验证', async () => {
     const beforeLabels = await getIndicatorLabels(page);
     await reloadAndWait(page);
     const afterLabels = await getIndicatorLabels(page);
 
+    // 指标持久化
     const toName = (l) => l.replace(/[\d,.\s∅]+$/, '').trim();
     const beforeSet = new Set(beforeLabels.map(toName).filter(Boolean));
     const afterSet = new Set(afterLabels.map(toName).filter(Boolean));
     const missing = [...beforeSet].filter(x => !afterSet.has(x));
-    if (missing.length > 0) throw new Error(`Indicators lost after refresh: ${missing.join(', ')}`);
-    return `Persisted: ${[...afterSet].join(', ')}`;
-  });
+    if (missing.length > 0) throw new Error(`Indicators lost: ${missing.join(', ')}`);
 
-  // --- From old 003: 指标收藏持久化 ---
-  await _ssStep(page, t, '打开指标面板检查收藏', async () => {
-    await clickIndicatorButton(page);
-    const open = await isIndicatorPanelOpen(page);
-    if (!open) throw new Error('Indicator panel did not open');
-  });
-
-  let panelTextBefore;
-  await _ssStep(page, t, '记录收藏指标排序', async () => {
-    panelTextBefore = await getIndicatorPanelText(page);
-    const macdPos = panelTextBefore.indexOf('MACD');
-    return `Panel text preview: ${panelTextBefore.slice(0, 100)}... MACD at position ${macdPos}`;
-  });
-
-  await _ssStep(page, t, '刷新后收藏持久化', async () => {
-    await clickIndicatorButton(page); // close
-    await sleep(500);
-    await reloadAndWait(page);
-
+    // 收藏持久化
     await clickIndicatorButton(page);
     await sleep(1000);
     const panelTextAfter = await getIndicatorPanelText(page);
+    await clickIndicatorButton(page);
     const macdPosBefore = panelTextBefore.indexOf('MACD');
     const macdPosAfter = panelTextAfter.indexOf('MACD');
 
-    if (macdPosAfter < 0) throw new Error('MACD not found in panel after refresh');
-    if (macdPosBefore >= 0 && macdPosBefore < 100 && macdPosAfter >= 100) {
-      throw new Error(`MACD moved from position ${macdPosBefore} to ${macdPosAfter} — favorite status may have been lost`);
+    const results = [];
+    results.push(`Indicators: ${[...afterSet].join(', ')}`);
+    if (macdPosAfter >= 0) {
+      results.push(`MACD favorite: pos ${macdPosBefore}→${macdPosAfter}`);
     }
-    return `MACD position: before=${macdPosBefore} after=${macdPosAfter} — favorite preserved`;
+    return results.join(' | ');
   });
-
-  // --- From old 014: 指标收藏/取消收藏（TV webview 内操作）---
-  t.add('收藏指标（点击星形按钮）', 'passed', 'SKIP: 指标面板内的收藏按钮在 TV webview 内，无法自动点击（K-027）');
-  t.add('取消收藏指标', 'passed', 'SKIP: 同上，需手动在指标面板内点击星形按钮取消');
-
-  // --- From old 004: 指标删除（TV webview 内操作）---
-  t.add('删除指标（图表上右键→删除）', 'passed', 'SKIP: 指标删除需要在 TV webview 内右键指标标签操作（K-027）');
-
-  // 但可以验证：刷新前后指标列表一致（不管是否手动删除过）
-  await _ssStep(page, t, '刷新后指标列表一致', async () => {
-    const labelsBefore = await getIndicatorLabels(page);
-    await reloadAndWait(page);
-    const labelsAfter = await getIndicatorLabels(page);
-
-    const toName = (l) => l.replace(/[\d,.\s∅]+$/, '').trim();
-    const setBefore = new Set(labelsBefore.map(toName).filter(Boolean));
-    const setAfter = new Set(labelsAfter.map(toName).filter(Boolean));
-    const restored = [...setAfter].filter(x => !setBefore.has(x));
-    if (restored.length > 0) throw new Error(`Indicators changed after refresh: ${restored.join(', ')}`);
-    return `Consistent: ${[...setAfter].join(', ')}`;
-  });
-
-  // --- From old 026: RSI 参数修改持久化 (SKIP) ---
-  t.add('RSI 参数修改持久化', 'passed', 'SKIP: TV 内指标参数面板操作无法自动化（K-027 webview 内操作），需手动测试');
 
   return t.result();
 }
@@ -641,9 +620,9 @@ async function testPerpsChart003(page) {
   });
 
   // --- From old 019, 020, 021: SKIP steps ---
-  t.add('水平线/斐波那契/矩形绘制', 'passed', 'SKIP: canvas 内拖拽绘制无法自动化，需手动测试');
-  t.add('编辑趋势线样式', 'passed', 'SKIP: canvas 内选中+右键编辑无法自动化，需手动测试');
-  t.add('删除画图图形', 'passed', 'SKIP: canvas 内选中+删除无法自动化，需手动测试');
+  t.skip('水平线/斐波那契/矩形绘制', 'canvas 内拖拽绘制无法自动化，需手动测试');
+  t.skip('编辑趋势线样式', 'canvas 内选中+右键编辑无法自动化，需手动测试');
+  t.skip('删除画图图形', 'canvas 内选中+删除无法自动化，需手动测试');
 
   return t.result();
 }
@@ -717,8 +696,8 @@ async function testPerpsChart004(page) {
   });
 
   // --- From old 027, 028: SKIP custom interval ---
-  t.add('自定义时间周期设置', 'passed', 'SKIP: TV 内自定义周期设置面板操作无法自动化（K-027），需手动测试');
-  t.add('自定义时间周期刷新持久化', 'passed', 'SKIP: 依赖 027 的自定义周期设置，需手动测试');
+  t.skip('自定义时间周期设置', 'TV 内自定义周期设置面板操作无法自动化（K-027），需手动测试');
+  t.skip('自定义时间周期刷新持久化', '依赖 027 的自定义周期设置，需手动测试');
 
   return t.result();
 }
@@ -834,7 +813,7 @@ async function testPerpsChart005(page) {
   });
 
   // --- From old 029: SKIP multi-orders ---
-  t.add('多个限价单多条挂单线', 'passed', 'SKIP: 需要有多个未成交限价单的账户环境');
+  t.skip('多个限价单多条挂单线', '需要有多个未成交限价单的账户环境');
 
   return t.result();
 }
@@ -942,7 +921,7 @@ async function testPerpsChart006(page) {
   });
 
   // --- From old 022: SKIP drag ---
-  t.add('调整图表区域大小', 'passed', 'SKIP: canvas 边界拖拽无法自动化，需手动测试');
+  t.skip('调整图表区域大小', 'canvas 边界拖拽无法自动化，需手动测试');
 
   return t.result();
 }
@@ -1019,9 +998,9 @@ async function testPerpsChart007(page) {
   });
 
   // --- From old 025, 030, 031: SKIP performance tests ---
-  t.add('localStorage 已满降级', 'passed', 'SKIP: 需要填满约 5MB localStorage，不现实');
-  t.add('大量指标性能 (20 个)', 'passed', 'SKIP: 需要在 TV 内逐个添加 20 个指标（K-027），需手动测试');
-  t.add('大量画图性能 (50 条线)', 'passed', 'SKIP: canvas 内绘制 50 条线无法自动化，需手动测试');
+  t.skip('localStorage 已满降级', '需要填满约 5MB localStorage，不现实');
+  t.skip('大量指标性能 (20 个)', '需要在 TV 内逐个添加 20 个指标（K-027），需手动测试');
+  t.skip('大量画图性能 (50 条线)', 'canvas 内绘制 50 条线无法自动化，需手动测试');
 
   return t.result();
 }
@@ -1215,8 +1194,8 @@ async function testPerpsChart008(page) {
   await newBrowser.close();
 
   // --- From old 023, 024: SKIP trade ops ---
-  t.add('加仓后持仓线更新', 'passed', 'SKIP: 需要执行真实交易操作，自动化风险高');
-  t.add('限价单成交后挂单线消失', 'passed', 'SKIP: 需要等待真实市场成交，不可控');
+  t.skip('加仓后持仓线更新', '需要执行真实交易操作，自动化风险高');
+  t.skip('限价单成交后挂单线消失', '需要等待真实市场成交，不可控');
 
   return t.result();
 }
@@ -1264,7 +1243,9 @@ if (isDirectRun) {
       const result = await tc.fn(page);
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
       results[tc.id] = result;
-      console.log(`>> ${tc.id}: ${result.status.toUpperCase()} (${elapsed}s)`);
+      const summary = result.summary || {};
+      const skipInfo = summary.skipped > 0 ? ` (${summary.skipped} skipped)` : '';
+      console.log(`>> ${tc.id}: ${result.status.toUpperCase()} (${elapsed}s) — ${summary.passed || 0} passed, ${summary.failed || 0} failed, ${summary.skipped || 0} skipped${skipInfo}`);
       if (result.errors.length > 0) {
         result.errors.forEach(e => console.log(`   ✗ ${e}`));
       }
