@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 
 const TESTS_DIR = join(import.meta.dirname, '..', 'tests');
 
-type EventType = 'queue' | 'start' | 'pass' | 'fail' | 'skip' | 'stopped' | 'done';
+type EventType = 'queue' | 'start' | 'pass' | 'fail' | 'skip' | 'stopped' | 'done' | 'step' | 'log';
 
 export interface RunEvent {
   event: EventType;
@@ -17,6 +17,15 @@ export interface RunEvent {
   skipped?: number;
   total?: number;
   timestamp: string;
+  // step event fields
+  stepName?: string;
+  stepStatus?: 'passed' | 'failed' | 'skipped';
+  stepDetail?: string;
+  stepIndex?: number;
+  stepTotal?: number;
+  // result summary (sent with pass/fail)
+  steps?: { name: string; status: string; detail: string }[];
+  summary?: { passed: number; failed: number; skipped: number; total: number };
 }
 
 type EventCallback = (event: RunEvent) => void;
@@ -186,15 +195,53 @@ async function executeQueue() {
         if (item.file !== lastFile && mod.setup) {
           await mod.setup(page);
         }
-        const result = await tc.fn(page);
-        item.duration = Date.now() - startTime;
-        if (result?.status === 'failed') {
-          item.status = 'failed';
-          item.error = result.error || result.errors?.join('; ') || 'Test returned failed';
-        } else if (result?.status === 'skipped') {
-          item.status = 'skipped';
-        } else {
-          item.status = 'passed';
+
+        // Intercept console.log to capture step-level output and emit as events
+        const origLog = console.log;
+        const stepRegex = /^\s*\[(OK|FAIL|SKIP)\]\s+(.+?)(?:\s+—\s+(.*))?$/;
+        console.log = (...args: any[]) => {
+          origLog.apply(console, args);
+          const msg = args.map(String).join(' ');
+          const match = msg.match(stepRegex);
+          if (match) {
+            const [, status, stepName, detail] = match;
+            const stepStatus = status === 'OK' ? 'passed' : status === 'FAIL' ? 'failed' : 'skipped';
+            emit({
+              event: 'step',
+              id: item.id,
+              stepName,
+              stepStatus,
+              stepDetail: detail || '',
+              timestamp: new Date().toISOString(),
+            });
+          } else if (msg.includes('[ui]') || msg.startsWith('  ')) {
+            // Emit other log lines as generic log events
+            emit({
+              event: 'log',
+              id: item.id,
+              stepDetail: msg.trim(),
+              timestamp: new Date().toISOString(),
+            });
+          }
+        };
+
+        try {
+          const result = await tc.fn(page);
+          item.duration = Date.now() - startTime;
+          if (result?.status === 'failed') {
+            item.status = 'failed';
+            item.error = result.error || result.errors?.join('; ') || 'Test returned failed';
+          } else if (result?.status === 'skipped') {
+            item.status = 'skipped';
+          } else {
+            item.status = 'passed';
+          }
+
+          // Attach step details and summary to the completion event
+          (item as any)._steps = result?.steps;
+          (item as any)._summary = result?.summary;
+        } finally {
+          console.log = origLog;
         }
       } else if (mod.run) {
         // Strategy 2: call run() — file-level execution
@@ -218,8 +265,11 @@ async function executeQueue() {
     emit({
       event: item.status === 'passed' ? 'pass' : item.status === 'skipped' ? 'skip' : 'fail',
       id: item.id,
+      name: item.name,
       duration: item.duration,
       error: item.error,
+      steps: (item as any)._steps,
+      summary: (item as any)._summary,
       timestamp: new Date().toISOString(),
     });
 
