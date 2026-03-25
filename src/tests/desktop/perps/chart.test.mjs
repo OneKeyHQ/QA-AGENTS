@@ -675,39 +675,63 @@ async function testPerpsChart008(page) {
 }
 
 // ── Perps Settings Helper ─────────────────────────────────────
-// The three-dot settings menu (perp-header-settings-button) cannot be opened
-// via JS click (K-024). We use a polling approach: click via CDP mouse event
-// and poll for the popover. If that fails, we read settings directly.
+// IMPORTANT: Page has multiple TMPopover-ScrollView instances (8+).
+// querySelector returns the FIRST one (hidden). Must iterate ALL and find
+// the visible one (width > 0). The button works with Pointer Events dispatch.
+
+/**
+ * Open Perps settings menu (three-dot button) via synthetic pointer events.
+ * Playwright locator.click also works if no overlay is blocking.
+ */
+async function openPerpsSettingsMenu(page) {
+  // Dispatch pointer event sequence (React onPress compatible)
+  await page.evaluate(() => {
+    const btn = document.querySelector('[data-testid="perp-header-settings-button"]');
+    if (!btn) throw new Error('perp-header-settings-button not found');
+    const r = btn.getBoundingClientRect();
+    const x = r.x + r.width / 2, y = r.y + r.height / 2;
+    const opts = { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse', button: 0 };
+    btn.dispatchEvent(new PointerEvent('pointerover', opts));
+    btn.dispatchEvent(new PointerEvent('pointerenter', { ...opts, bubbles: false }));
+    btn.dispatchEvent(new PointerEvent('pointerdown', opts));
+    btn.dispatchEvent(new MouseEvent('mousedown', opts));
+    btn.dispatchEvent(new PointerEvent('pointerup', opts));
+    btn.dispatchEvent(new MouseEvent('mouseup', opts));
+    btn.dispatchEvent(new MouseEvent('click', opts));
+  });
+  await sleep(1000);
+}
+
+/**
+ * Find the visible TMPopover-ScrollView (there are 8+ instances, most hidden).
+ * Returns the popover element reference usable inside page.evaluate.
+ */
+function findVisiblePopoverJS() {
+  // This runs inside page.evaluate
+  return `
+    (() => {
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      for (const p of pops) { if (p.getBoundingClientRect().width > 0) return p; }
+      return null;
+    })()
+  `;
+}
 
 /**
  * Get Perps chart settings toggle states.
- * Opens the settings popover (three-dot menu) and reads toggle states.
- * Falls back to manual prompt if CDP click doesn't work.
- * @returns {Promise<{skipConfirm: string, showTrades: string, showPositions: string}>}
- *   Each value is 'checked' or 'unchecked' (from data-state attribute).
+ * Opens the settings popover and reads all 3 toggle states.
+ * @returns {Promise<{skipConfirm: string, showTrades: string, showPositions: string} | null>}
  */
 async function getPerpsSettings(page) {
-  // Try to open settings menu via CDP mouse event
-  const pos = await page.evaluate(() => {
-    const btn = document.querySelector('[data-testid="perp-header-settings-button"]');
-    if (!btn) return null;
-    const r = btn.getBoundingClientRect();
-    return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
-  });
+  await openPerpsSettingsMenu(page);
 
-  if (pos) {
-    const cdp = await page.context().newCDPSession(page);
-    await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: pos.x, y: pos.y, button: 'left', clickCount: 1 });
-    await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: pos.x, y: pos.y, button: 'left', clickCount: 1 });
-    await sleep(1000);
-    await cdp.detach();
-  }
-
-  // Poll for popover (max 5s)
+  // Poll for visible popover with settings content
   for (let i = 0; i < 10; i++) {
     const result = await page.evaluate(() => {
-      const pop = document.querySelector('[data-testid="TMPopover-ScrollView"]');
-      if (!pop || pop.getBoundingClientRect().width === 0) return null;
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      let pop = null;
+      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
+      if (!pop) return null;
       const text = pop.textContent || '';
       if (!text.includes('买卖') && !text.includes('订单')) return null;
 
@@ -721,8 +745,11 @@ async function getPerpsSettings(page) {
 
     if (result && result.length >= 3) {
       // Close the popover
-      await page.keyboard.press('Escape');
-      await sleep(300);
+      await page.evaluate(() => {
+        const overlay = document.querySelector('[data-testid="ovelay-popover"]');
+        if (overlay) overlay.click();
+      });
+      await sleep(500);
       return {
         skipConfirm: result[0].state,
         showTrades: result[1].state,
@@ -732,7 +759,6 @@ async function getPerpsSettings(page) {
     await sleep(500);
   }
 
-  // Fallback: popover didn't open — return null (test will skip or mark manual)
   return null;
 }
 

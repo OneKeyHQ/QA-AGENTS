@@ -190,8 +190,8 @@
       "id": "K-024",
       "category": "quirk",
       "platform": "desktop",
-      "pattern": "perp-header-settings-button 的 JS/synthetic click 无法触发 popover",
-      "details": "Perps 页面三个点按钮（data-testid=perp-header-settings-button）使用 React onPress 事件处理，el.click()、dispatchEvent(new MouseEvent('click'))、甚至 CDP Input.dispatchMouseEvent 都无法触发弹窗。只有真实用户鼠标点击才能打开。测试中需要用轮询方式等待用户手动点击，或者直接通过 page.evaluate 读写 toggle 的 data-state 属性来验证状态，跳过点击触发。弹窗容器: TMPopover-ScrollView + role=dialog, 360x164px。三个 toggle 用 data-state='checked'|'unchecked'。",
+      "pattern": "页面有多个 TMPopover-ScrollView，querySelector 只返回第一个（隐藏的）",
+      "details": "OneKey 页面同时存在 8+ 个 TMPopover-ScrollView 实例，大部分 width=0（隐藏）。querySelector 返回第一个（隐藏的 #0），导致误判为 popover 不存在。必须用 querySelectorAll 遍历所有实例，找 getBoundingClientRect().width > 0 的那个。perp-header-settings-button 可以通过 PointerEvent 序列（pointerdown→mousedown→pointerup→mouseup→click）打开，不需要用户手动点击。弹窗：360x164px，包含 3 个 data-state toggle（跳过订单确认/显示买卖点/显示仓位和订单）。",
       "confidence": 0.98
     }
   ]
