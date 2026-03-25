@@ -442,9 +442,10 @@ async function testPerpsChart004(page) {
     await reloadAndWait(page);
     const labelsAfter = await getIndicatorLabels(page);
 
-    // 刷新前后指标列表应一致（被删的不会恢复）
-    const setBefore = new Set(labelsBefore.filter(l => l.length < 20));
-    const setAfter = new Set(labelsAfter.filter(l => l.length < 20));
+    // Compare indicator names (strip numeric values) — e.g., "成交量(Volume)272.5∅∅" → "成交量(Volume)"
+    const toName = (l) => l.replace(/[\d,.\s∅]+$/, '').trim();
+    const setBefore = new Set(labelsBefore.map(toName).filter(Boolean));
+    const setAfter = new Set(labelsAfter.map(toName).filter(Boolean));
     const restored = [...setAfter].filter(x => !setBefore.has(x));
     if (restored.length > 0) throw new Error(`Deleted indicators restored after refresh: ${restored.join(', ')}`);
     return `Persisted: ${[...setAfter].join(', ')}`;
