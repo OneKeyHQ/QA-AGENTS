@@ -134,6 +134,20 @@ export class PerpsPage {
     await this.openPairSelector();
     await sleep(500);
 
+    // Ensure "永续合约" tab is selected (search only works within current tab)
+    await this.page.evaluate(() => {
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      for (const pop of pops) {
+        if (pop.getBoundingClientRect().width === 0) continue;
+        for (const sp of pop.querySelectorAll('span')) {
+          if (sp.textContent?.trim() === '永续合约' && sp.getBoundingClientRect().width > 0) {
+            sp.click(); return;
+          }
+        }
+      }
+    });
+    await sleep(500);
+
     const directClick = await this.page.evaluate((sym) => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       for (const pop of pops) {

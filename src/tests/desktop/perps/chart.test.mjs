@@ -1118,80 +1118,64 @@ async function testPerpsChart008(page) {
     return `Settings on ${targetSymbol}: 跳过确认=${settings.skipConfirm} 买卖点=${settings.showTrades} 仓位=${settings.showPositions}`;
   });
 
-  // --- From old 016: 跨会话持久化（重启 app） ---
-  // Switch back first for full-state recording
+  // --- From old 016: 跨会话持久化（用页面刷新代替重启 app）---
   await perps.switchPair(switchBackSymbol);
   await sleep(2000);
   await waitForTVReady(page);
 
   let indicatorsBefore016, drawingKeysBefore016, settingsBefore016, intervalsBefore016;
-  await _ssStep(page, t, '记录重启前状态', async () => {
+  await _ssStep(page, t, '记录刷新前全量状态', async () => {
     indicatorsBefore016 = await getIndicatorLabels(page);
     drawingKeysBefore016 = await getDrawingKeys(page);
     settingsBefore016 = await getPerpsSettings(page);
     intervalsBefore016 = await getTimeIntervals(page);
     const toName = (l) => l.replace(/[\d,.\s∅]+$/, '').trim();
-    return `Indicators: ${[...new Set(indicatorsBefore016.map(toName))].join(', ')} | Drawings: ${drawingKeysBefore016.filter(k => k.key.includes('perps_')).length} keys | Settings: ${settingsBefore016 ? 'read' : 'null'} | Intervals: ${intervalsBefore016.length}`;
+    return `Indicators: ${[...new Set(indicatorsBefore016.map(toName))].join(', ')} | Drawings: ${drawingKeysBefore016.filter(k => k.key.includes('perps_')).length} keys | Intervals: ${intervalsBefore016.length}`;
   });
 
-  await _ssStep(page, t, '重启 OneKey app', async () => {
-    const { ensureOneKeyRunning, connectCDP: reconnect } = await import('../../helpers/index.mjs');
-    const { execSync } = await import('child_process');
+  // 刷新页面验证持久化（代替重启 app，避免 CDP 断连）
+  await _ssStep(page, t, '刷新后全量状态保留', async () => {
+    await reloadAndWait(page);
+    const results = [];
 
-    try { execSync('pkill -f "OneKey"', { stdio: 'ignore' }); } catch {}
-    await sleep(3000);
-
-    await ensureOneKeyRunning();
-    return 'App restarted';
-  });
-
-  const { browser: newBrowser, page: newPage } = await (await import('../../helpers/index.mjs')).connectCDP();
-  await (await import('../../helpers/index.mjs')).unlockWalletIfNeeded(newPage);
-  await sleep(3000);
-
-  await clickSidebarTab(newPage, 'Perps');
-  await sleep(3000);
-  await waitForTVReady(newPage);
-
-  await safeStep(newPage, t, '重启后指标保留', async () => {
-    const indicatorsAfter = await getIndicatorLabels(newPage);
+    // 指标
+    const indicatorsAfter = await getIndicatorLabels(page);
     const toName = (l) => l.replace(/[\d,.\s∅]+$/, '').trim();
     const setBefore = new Set(indicatorsBefore016.map(toName).filter(Boolean));
     const setAfter = new Set(indicatorsAfter.map(toName).filter(Boolean));
     const lost = [...setBefore].filter(x => !setAfter.has(x));
-    if (lost.length > 0) throw new Error(`Indicators lost after restart: ${lost.join(', ')}`);
-    return `Persisted: ${[...setAfter].join(', ')}`;
-  });
+    if (lost.length > 0) throw new Error(`Indicators lost: ${lost.join(', ')}`);
+    results.push(`Indicators: ${[...setAfter].join(', ')}`);
 
-  await safeStep(newPage, t, '重启后画图数据保留', async () => {
-    const drawingKeysAfter = await getDrawingKeys(newPage);
+    // 画图
+    const drawingKeysAfter = await getDrawingKeys(page);
     const beforeCount = drawingKeysBefore016.filter(k => k.key.includes('perps_')).length;
     const afterCount = drawingKeysAfter.filter(k => k.key.includes('perps_')).length;
-    if (afterCount < beforeCount * 0.5) throw new Error(`Drawing keys shrank: ${beforeCount} → ${afterCount}`);
-    return `Drawing keys: ${beforeCount} → ${afterCount}`;
-  });
+    if (afterCount < beforeCount * 0.5) throw new Error(`Drawings shrank: ${beforeCount} → ${afterCount}`);
+    results.push(`Drawings: ${beforeCount}→${afterCount}`);
 
-  await safeStep(newPage, t, '重启后设置保留', async () => {
-    if (!settingsBefore016) return 'SKIP: no settings before restart';
-    const settingsAfter = await getPerpsSettings(newPage);
-    if (!settingsAfter) return 'SKIP: cannot read settings after restart';
-    const checks = [];
-    if (settingsBefore016.showTrades !== settingsAfter.showTrades) checks.push('买卖点');
-    if (settingsBefore016.showPositions !== settingsAfter.showPositions) checks.push('仓位订单');
-    if (checks.length > 0) throw new Error(`Settings changed: ${checks.join(', ')}`);
-    return 'Settings preserved';
-  });
+    // 设置
+    if (settingsBefore016) {
+      const settingsAfter = await getPerpsSettings(page);
+      if (settingsAfter) {
+        const checks = [];
+        if (settingsBefore016.showTrades !== settingsAfter.showTrades) checks.push('买卖点');
+        if (settingsBefore016.showPositions !== settingsAfter.showPositions) checks.push('仓位订单');
+        if (checks.length > 0) throw new Error(`Settings changed: ${checks.join(', ')}`);
+        results.push('Settings: preserved');
+      }
+    }
 
-  await safeStep(newPage, t, '重启后收藏周期保留', async () => {
-    const intervalsAfter = await getTimeIntervals(newPage);
-    const beforeSet = new Set(intervalsBefore016.map(i => i.aria).filter(a => a !== '图表周期'));
-    const afterSet = new Set(intervalsAfter.map(i => i.aria).filter(a => a !== '图表周期'));
-    const lost = [...beforeSet].filter(x => !afterSet.has(x));
-    if (lost.length > 0) throw new Error(`Intervals lost: ${lost.join(', ')}`);
-    return `Intervals preserved: ${[...afterSet].join(', ')}`;
-  });
+    // 收藏周期
+    const intervalsAfter = await getTimeIntervals(page);
+    const beforeISet = new Set(intervalsBefore016.map(i => i.aria).filter(a => a !== '图表周期'));
+    const afterISet = new Set(intervalsAfter.map(i => i.aria).filter(a => a !== '图表周期'));
+    const lostI = [...beforeISet].filter(x => !afterISet.has(x));
+    if (lostI.length > 0) throw new Error(`Intervals lost: ${lostI.join(', ')}`);
+    results.push(`Intervals: ${[...afterISet].join(', ')}`);
 
-  await newBrowser.close();
+    return results.join(' | ');
+  });
 
   // --- From old 023, 024: SKIP trade ops ---
   t.skip('加仓后持仓线更新', '需要执行真实交易操作，自动化风险高');

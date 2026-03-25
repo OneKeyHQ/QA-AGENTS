@@ -281,6 +281,22 @@
       "pattern": "账户选择器按钱包类型分组，搜索只在当前选中的类型内生效",
       "details": "账户选择器 modal 左侧有钱包类型列表（产品/观察钱包/硬件钱包等），搜索只在当前选中的类型内匹配。如果要搜索观察钱包 hl-99，必须先点击「观察钱包」tab，再搜索。否则在「产品」类型下搜索会显示「没有账户」。",
       "confidence": 0.98
+    },
+    {
+      "id": "K-036",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Perps 交易对选择器搜索只在当前 tab 内生效",
+      "details": "交易对选择器 popover 有多个 tab（自选/永续合约/加密货币/股票/贵金属等），搜索只在当前选中的 tab 内匹配。switchPair 前必须先点击「永续合约」tab，否则搜索 BTC/ETH 等可能找不到结果。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-037",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "测试中不要重启 app，用页面刷新代替",
+      "details": "在 Dashboard 执行器中重启 OneKey app 会导致 CDP 连接断开，后续所有用例无法执行（connectOverCDP timeout）。跨会话持久化验证改用 page.reload() + reloadAndWait()，效果等同但不断连。只有真正需要验证冷启动场景时才手动重启。",
+      "confidence": 0.98
     }
   ]
 }
