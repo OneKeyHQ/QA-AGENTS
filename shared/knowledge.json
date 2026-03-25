@@ -193,6 +193,70 @@
       "pattern": "页面有多个 TMPopover-ScrollView，querySelector 只返回第一个（隐藏的）",
       "details": "OneKey 页面同时存在 8+ 个 TMPopover-ScrollView 实例，大部分 width=0（隐藏）。querySelector 返回第一个（隐藏的 #0），导致误判为 popover 不存在。必须用 querySelectorAll 遍历所有实例，找 getBoundingClientRect().width > 0 的那个。perp-header-settings-button 可以通过 PointerEvent 序列（pointerdown→mousedown→pointerup→mouseup→click）打开，不需要用户手动点击。弹窗：360x164px，包含 3 个 data-state toggle（跳过订单确认/显示买卖点/显示仓位和订单）。",
       "confidence": 0.98
+    },
+    {
+      "id": "K-025",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Playwright :text-is() 伪选择器在 CDP 模式下不可用",
+      "details": "通过 connectOverCDP 连接 Electron app 时，Playwright 的 :text-is('市场') 等伪选择器不生效（locator 找不到元素）。应改用 >> text=市场 语法（Playwright 的文本选择器）。CSS 原生的 :text-is 也不是标准规范，只有 Playwright 内部实现。同理 :has-text() 也不可靠，用 >> text= 代替。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-026",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "UIRegistry context:'page' 不应在无 Modal 时走 resolveExcludingModal",
+      "details": "UIRegistry.resolve() 的 context:'page' 原本总是走 #resolveExcludingModal（用 document.querySelectorAll），但该方法不支持 Playwright >> text= 语法（只支持原生 CSS）。修复：先检测 Modal 是否打开，无 Modal 时直接用 page.locator()（支持 Playwright 语法），只在 Modal 存在时才走排除逻辑。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-027",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "录制器无法捕获 webview 内部的操作事件",
+      "details": "src/recorder/listen.mjs 通过 CDP 注入事件监听，只能捕获主页面（file:///perps）的 DOM 事件。Electron <webview> 是独立的渲染进程，事件不冒泡到主页面。TV 图表内的操作（点击指标按钮、切换时间周期、画图等）无法被录制器捕获。变通方案：用户手动描述操作 + 脚本通过 wv.executeJavaScript 抓取状态变化。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-028",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "TV 指标标签包含实时数值，比较时需 strip 数值部分",
+      "details": "getIndicatorLabels() 返回的标签如 '成交量(Volume)272.5∅∅' 包含实时更新的数值。刷新前后同一个指标的数值会变化，导致字符串精确匹配失败。比较指标集合时，应先用正则去掉尾部数值：label.replace(/[\\d,.\\s∅]+$/, '').trim()，只比较指标名称部分。",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-029",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "TV 重置布局后需刷新页面才能完全清除指标残留",
+      "details": "点击 TV 工具栏的「重置布局」按钮后，非默认指标（如 MA）的标签可能短暂残留在 DOM 中。仅 sleep 等待不可靠。最稳定做法：重置后立即 page.reload() 再 waitForTVReady()，确保 webview 完全重载。然后用轮询检查指标标签是否只剩 Volume。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-030",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TV canvas 内容可用 getImageData hash 做开关前后对比",
+      "details": "TradingView 图表内容（买卖点标记、持仓线等）在 canvas 上渲染，DOM 中不可见。但可以通过 canvas.getContext('2d').getImageData() 取像素数据计算 hash，开关前后对比 hash 是否变化来验证标记确实显示/隐藏了。注意：取样区域不要太大（200x200 足够），避免 executeJavaScript 超时。图表实时数据更新可能导致 hash 漂移，所以 ON→OFF→ON 不一定精确恢复，差异即可判定有效。",
+      "confidence": 0.94
+    },
+    {
+      "id": "K-031",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "ovelay-popover overlay 会拦截所有 Playwright locator.click",
+      "details": "当有 popover 打开时，[data-testid='ovelay-popover'] 作为全屏透明 backdrop 拦截所有点击。Playwright locator.click 会报 'ovelay-popover intercepts pointer events' 超时。解决：操作前先 dismissOverlays(page) 或 dismissPopover(page)，或者用 page.evaluate 内部 JS click 绕过。注意 app 中 testid 拼写是 'ovelay'（少一个 r），不是 'overlay'。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-032",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "侧栏 tab 无 data-testid，只能用文本匹配",
+      "details": "侧栏导航的 9 个 tab（钱包/市场/交易/合约/DeFi/推荐/浏览器/设备/菜单）均无 data-testid。文本 tab 用 [data-testid='Desktop-AppSideBar-Content-Container'] >> text=市场 定位。设备 tab 无文字，用 svg[data-sentry-component='SvgPhone'] 定位。菜单 tab 用 svg[data-sentry-component='SvgDotGrid']。当前 app 语言为中文时，primary selector 应用中文文本。",
+      "confidence": 0.96
     }
   ]
 }
