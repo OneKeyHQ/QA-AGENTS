@@ -18,7 +18,7 @@ import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
-import { createStepTracker, safeStep, clickSidebarTab } from '../../helpers/components.mjs';
+import { createStepTracker, safeStep, clickSidebarTab, clickWithPointerEvents, dismissPopover } from '../../helpers/components.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'perps-chart');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -680,41 +680,10 @@ async function testPerpsChart008(page) {
 // the visible one (width > 0). The button works with Pointer Events dispatch.
 
 /**
- * Open Perps settings menu (three-dot button) via synthetic pointer events.
- * Playwright locator.click also works if no overlay is blocking.
+ * Open Perps settings menu (three-dot button) via shared clickWithPointerEvents.
  */
 async function openPerpsSettingsMenu(page) {
-  // Dispatch pointer event sequence (React onPress compatible)
-  await page.evaluate(() => {
-    const btn = document.querySelector('[data-testid="perp-header-settings-button"]');
-    if (!btn) throw new Error('perp-header-settings-button not found');
-    const r = btn.getBoundingClientRect();
-    const x = r.x + r.width / 2, y = r.y + r.height / 2;
-    const opts = { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse', button: 0 };
-    btn.dispatchEvent(new PointerEvent('pointerover', opts));
-    btn.dispatchEvent(new PointerEvent('pointerenter', { ...opts, bubbles: false }));
-    btn.dispatchEvent(new PointerEvent('pointerdown', opts));
-    btn.dispatchEvent(new MouseEvent('mousedown', opts));
-    btn.dispatchEvent(new PointerEvent('pointerup', opts));
-    btn.dispatchEvent(new MouseEvent('mouseup', opts));
-    btn.dispatchEvent(new MouseEvent('click', opts));
-  });
-  await sleep(1000);
-}
-
-/**
- * Find the visible TMPopover-ScrollView (there are 8+ instances, most hidden).
- * Returns the popover element reference usable inside page.evaluate.
- */
-function findVisiblePopoverJS() {
-  // This runs inside page.evaluate
-  return `
-    (() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) return p; }
-      return null;
-    })()
-  `;
+  await clickWithPointerEvents(page, '[data-testid="perp-header-settings-button"]');
 }
 
 /**
@@ -745,11 +714,7 @@ async function getPerpsSettings(page) {
 
     if (result && result.length >= 3) {
       // Close the popover
-      await page.evaluate(() => {
-        const overlay = document.querySelector('[data-testid="ovelay-popover"]');
-        if (overlay) overlay.click();
-      });
-      await sleep(500);
+      await dismissPopover(page);
       return {
         skipConfirm: result[0].state,
         showTrades: result[1].state,

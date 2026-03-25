@@ -198,6 +198,69 @@ export async function closeSearch(page) {
   await sleep(800);
 }
 
+// ── Popover Helper ──────────────────────────────────────────
+// IMPORTANT (K-024): Page has 8+ TMPopover-ScrollView instances, most hidden.
+// ALWAYS use this helper instead of querySelector (which returns the first hidden one).
+
+/**
+ * JS snippet to find the visible TMPopover-ScrollView inside page.evaluate.
+ * Usage: const pop = eval(FIND_VISIBLE_POPOVER_JS); if (!pop) ...
+ * Returns the DOM element or null.
+ */
+export const FIND_VISIBLE_POPOVER_JS = `
+  (() => {
+    const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+    for (const p of pops) { if (p.getBoundingClientRect().width > 0) return p; }
+    return null;
+  })()
+`;
+
+/**
+ * Check if any TMPopover-ScrollView is visible.
+ */
+export async function isPopoverVisible(page) {
+  return page.evaluate(() => {
+    const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+    for (const p of pops) { if (p.getBoundingClientRect().width > 0) return true; }
+    return false;
+  });
+}
+
+/**
+ * Close visible popover by clicking the overlay backdrop.
+ */
+export async function dismissPopover(page) {
+  await page.evaluate(() => {
+    const overlay = document.querySelector('[data-testid="ovelay-popover"]');
+    if (overlay) overlay.click();
+  });
+  await sleep(500);
+}
+
+/**
+ * Open a button that uses React onPress (needs full PointerEvent sequence).
+ * Works for buttons where el.click() or Playwright locator.click() may not trigger React handlers.
+ * @param {import('playwright-core').Page} page
+ * @param {string} selector — CSS selector for the button
+ */
+export async function clickWithPointerEvents(page, selector) {
+  await page.evaluate((sel) => {
+    const btn = document.querySelector(sel);
+    if (!btn) throw new Error(`Button not found: ${sel}`);
+    const r = btn.getBoundingClientRect();
+    const x = r.x + r.width / 2, y = r.y + r.height / 2;
+    const opts = { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'mouse', button: 0 };
+    btn.dispatchEvent(new PointerEvent('pointerover', opts));
+    btn.dispatchEvent(new PointerEvent('pointerenter', { ...opts, bubbles: false }));
+    btn.dispatchEvent(new PointerEvent('pointerdown', opts));
+    btn.dispatchEvent(new MouseEvent('mousedown', opts));
+    btn.dispatchEvent(new PointerEvent('pointerup', opts));
+    btn.dispatchEvent(new MouseEvent('mouseup', opts));
+    btn.dispatchEvent(new MouseEvent('click', opts));
+  }, selector);
+  await sleep(800);
+}
+
 // ── Sidebar Navigation ──────────────────────────────────────
 
 const SIDEBAR_TAB_MAP = {

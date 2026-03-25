@@ -1,7 +1,15 @@
 // PerpsPage — page-specific operations for Perps tab
 // Pair selector uses TMPopover-ScrollView popover (same component as favorites)
-import { clickSidebarTab } from '../components.mjs';
+// IMPORTANT (K-024): Always use querySelectorAll + find visible, not querySelector
+import { clickSidebarTab, clickWithPointerEvents, dismissPopover } from '../components.mjs';
 import { sleep } from '../constants.mjs';
+
+/** Find the visible TMPopover inside page.evaluate. Inlined for use in evaluate(). */
+const _findPop = `
+  const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+  let _pop = null;
+  for (const p of pops) { if (p.getBoundingClientRect().width > 0) { _pop = p; break; } }
+`;
 
 export class PerpsPage {
   constructor(page) { this.page = page; }
@@ -59,11 +67,7 @@ export class PerpsPage {
 
   /** Dismiss the pair selector popover. */
   async dismissPairSelector() {
-    await this.page.evaluate(() => {
-      const overlay = document.querySelector('[data-testid="ovelay-popover"]');
-      if (overlay) overlay.click();
-    });
-    await sleep(1000);
+    await dismissPopover(this.page);
   }
 
   /** Search for a pair in the popover. Opens popover if needed. */
