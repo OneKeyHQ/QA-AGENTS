@@ -35,3 +35,6 @@ superpowers/
 shared/results/
 /tmp/chrome-*
 docs/superpowers/
+shared/recordings/
+shared/results/
+*.png
