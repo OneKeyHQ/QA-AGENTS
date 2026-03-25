@@ -194,5 +194,73 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
    - Dashboard (`src/dashboard/server.ts`) 使用 ESM `import()` 动态加载测试模块，Node.js 会缓存模块。
    - **修改测试脚本后必须重启 Dashboard**（`pkill -f "tsx src/dashboard"` 然后重新启动），否则执行的还是旧代码。
 
+### 公共组件自动提取规则（严格执行）
+> 来源：组件库建设和 Perps 图表录制过程中的经验总结。
+
+1. **录制/写脚本时发现重复定位逻辑 → 自动提取到公共库**
+   - 同一个元素定位代码出现在 2 个以上文件中 → 提取到 `components.mjs` 或对应的 Page Object
+   - 不需要询问用户，直接提取并更新调用方
+   - 提取后同步更新 `shared/ui-map.json`（如果是新元素）
+
+2. **新发现的通用元素 → 自动加入 `ui-map.json` + `components.mjs`**
+   - 录制过程中发现的可复用元素（侧栏 tab、弹窗按钮、设置开关等），直接加入 ui-map
+   - 对应的操作函数加入 `components.mjs` 或 Page Object
+   - 更新 `SIDEBAR_TAB_MAP` 等映射表
+
+3. **TMPopover-ScrollView 必须遍历所有实例**
+   - 页面有 8+ 个 TMPopover-ScrollView，`querySelector` 只返回第一个（隐藏的）
+   - **必须** `querySelectorAll` 遍历找 `getBoundingClientRect().width > 0` 的
+   - 公共方法：`isPopoverVisible(page)`、`dismissPopover(page)`、`FIND_VISIBLE_POPOVER_JS`
+
+### 元素定位策略选择规则（严格执行）
+> 根据元素所在的渲染层选择不同的定位和断言策略，避免卡住。
+
+#### 策略决策树：
+```
+元素在哪里？
+├── 主页面 DOM（有 data-testid 或文本）
+│   → 用 registry.resolve() 或 page.locator()
+│   → 断言：直接读 DOM 属性/文本
+│
+├── Electron <webview> 内（如 TradingView 图表）
+│   → 用 page.evaluate → wv.executeJavaScript → iframe.contentDocument
+│   → 封装为 tvEval(page, jsCode) helper
+│   → DOM 可读元素（指标标签、按钮）：直接读文本
+│   → Canvas 渲染内容（K线、持仓线、买卖点）：用 canvas hash 对比
+│
+├── TMPopover-ScrollView 弹窗
+│   → 必须 querySelectorAll 遍历找可见的（width > 0）
+│   → 弹窗内的 toggle 开关：读 data-state="checked"|"unchecked"
+│
+├── 被 overlay 拦截的按钮
+│   → 先 dismissOverlays(page) / dismissPopover(page)
+│   → 或用 clickWithPointerEvents(page, selector)
+│   → 或用 page.evaluate 内部 JS click
+│
+└── 无法通过 DOM/Canvas 断言的内容
+    → 标记 SKIP + 原因，不要硬编码假断言
+```
+
+#### Canvas Hash 断言规则（用于 TV 图表等 canvas 渲染内容）：
+- **适用场景**：买卖点标记、持仓线/挂单线/爆仓线、画图工具绑制的图形——这些在 canvas 上渲染，DOM 不可见
+- **方法**：`canvas.getContext('2d').getImageData()` 取像素数据计算 hash，开关前后对比
+- **必须取 FULL canvas 尺寸**（`c.width, c.height`），不能只取 200x200 区域——持仓线可能在图表中下部
+- **步长**：用 `step=100` 遍历避免 `executeJavaScript` 超时
+- **等待时间**：toggle 后等 4 秒让 canvas 完成重绘
+- **容错**：hash 不变可能表示当前账户无相关数据（无持仓/无交易历史），标记为 info 而非 fail
+
+#### Webview 穿透规则（TradingView 图表）：
+- Perps/Market 的 TV 图表是 Electron `<webview>`，不在 `page.frames()` 中
+- 访问路径：`page.evaluate → wv.executeJavaScript → iframe.contentDocument`
+- **executeJavaScript 内的代码不能太复杂**，否则会报 "Script failed to execute"，拆分为多次简单调用
+- 录制器（listen.mjs）**无法捕获 webview 内部事件**，TV 图表内的操作需要用脚本直接操作
+- 时间周期列表**动态获取**，不硬编码
+
+#### 账户切换规则：
+- 账户选择器（AccountSelectorTriggerBase）只在**钱包页**可见，操作前先 `clickSidebarTab(page, 'Wallet')`
+- 搜索框被 overlay 拦截，用 `page.evaluate` 内部 `nativeInputValueSetter` 输入
+- 搜索**只在当前选中的钱包类型内**生效，切换观察钱包需先点击「观察钱包」tab
+- 公共方法：`switchToAccount(page, 'hl-99', '观察钱包')`
+
 ## Task Status Flow
 pending → in_progress → completed | failed | blocked

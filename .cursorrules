@@ -341,6 +341,19 @@ Dashboard executor (`test-executor.ts`) 通过 `testCases.fn(page)` 或 `mod.run
 - Never skip precondition checks before test execution
 - Bug fixes require user approval — only output diagnosis + repair proposal, don't auto-fix
 
+### 公共组件自动提取规则
+- 同一元素定位代码出现在 2+ 文件 → 自动提取到 `components.mjs` 或 Page Object，不需要询问
+- 新发现的通用元素 → 自动加入 `ui-map.json` + `components.mjs`
+- TMPopover-ScrollView 必须 `querySelectorAll` 遍历找可见的（页面有 8+ 实例）
+
+### 元素定位策略选择规则
+- **主页面 DOM**：用 `registry.resolve()` 或 `page.locator()`
+- **Webview 内（TV 图表）**：`page.evaluate → wv.executeJavaScript → iframe.contentDocument`，封装为 `tvEval()`
+- **Canvas 渲染内容**（买卖点、持仓线）：用 `getImageData()` hash 对比，必须取 FULL canvas，toggle 后等 4s
+- **被 overlay 拦截的按钮**：先 `dismissOverlays()` 或用 `clickWithPointerEvents()`
+- **无法断言的内容**：标记 SKIP + 原因，不硬编码假断言
+- **账户切换**：先导航到钱包页 → 搜索只在当前钱包类型内生效 → 用 `switchToAccount(page, name, type)`
+
 ## Task Status Flow
 pending → in_progress → completed | failed | blocked
 
