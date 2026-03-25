@@ -257,6 +257,30 @@
       "pattern": "侧栏 tab 无 data-testid，只能用文本匹配",
       "details": "侧栏导航的 9 个 tab（钱包/市场/交易/合约/DeFi/推荐/浏览器/设备/菜单）均无 data-testid。文本 tab 用 [data-testid='Desktop-AppSideBar-Content-Container'] >> text=市场 定位。设备 tab 无文字，用 svg[data-sentry-component='SvgPhone'] 定位。菜单 tab 用 svg[data-sentry-component='SvgDotGrid']。当前 app 语言为中文时，primary selector 应用中文文本。",
       "confidence": 0.96
+    },
+    {
+      "id": "K-033",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "AccountSelectorTriggerBase 在 Perps 页面不可见，需先导航到钱包页",
+      "details": "账户选择器（data-testid=AccountSelectorTriggerBase）只在钱包首页可见。在 Perps/Market 等页面，locator.click 会报 'element is not visible' 超时。切换账户前必须先 clickSidebarTab(page, 'Wallet') 导航到钱包页，再操作账户选择器。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-034",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "账户选择器搜索框被 overlay div 拦截 Playwright click",
+      "details": "打开账户选择器后，搜索框（input[placeholder='搜索账户名称']）上方有一个 absolute 定位的 div 拦截所有 Playwright locator.click。必须用 page.evaluate 内部 JS focus + nativeInputValueSetter 方式输入文字，不能用 locator.click + pressSequentially。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-035",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "账户选择器按钱包类型分组，搜索只在当前选中的类型内生效",
+      "details": "账户选择器 modal 左侧有钱包类型列表（产品/观察钱包/硬件钱包等），搜索只在当前选中的类型内匹配。如果要搜索观察钱包 hl-99，必须先点击「观察钱包」tab，再搜索。否则在「产品」类型下搜索会显示「没有账户」。",
+      "confidence": 0.98
     }
   ]
 }
