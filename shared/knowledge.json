@@ -239,8 +239,8 @@
       "category": "assertion",
       "platform": "desktop",
       "pattern": "TV canvas 内容可用 getImageData hash 做开关前后对比",
-      "details": "TradingView 图表内容（买卖点标记、持仓线等）在 canvas 上渲染，DOM 中不可见。但可以通过 canvas.getContext('2d').getImageData() 取像素数据计算 hash，开关前后对比 hash 是否变化来验证标记确实显示/隐藏了。注意：取样区域不要太大（200x200 足够），避免 executeJavaScript 超时。图表实时数据更新可能导致 hash 漂移，所以 ON→OFF→ON 不一定精确恢复，差异即可判定有效。",
-      "confidence": 0.94
+      "details": "TradingView 图表内容（买卖点标记、持仓线等）在 canvas 上渲染，DOM 中不可见。通过 canvas.getContext('2d').getImageData() 取像素数据计算 hash。重要：必须取 FULL canvas 尺寸（c.width, c.height），不能只取 200x200 区域——持仓线可能在图表中下部，小区域取样检测不到。用 step=100 的步长遍历避免超时。toggle 后需等 4 秒让 canvas 完成重绘。买卖点标记用小区域取样即可检测，但持仓线需要全量。",
+      "confidence": 0.97
     },
     {
       "id": "K-031",

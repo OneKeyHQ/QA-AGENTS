@@ -746,7 +746,7 @@ async function getPerpsSettings(page) {
 
 // ── Canvas Hash Helper ────────────────────────────────────────
 
-/** Get hash of the main (largest) canvas in TV chart. Used for visual diff. */
+/** Get hash of the main (largest) canvas in TV chart. Uses full canvas pixels for accuracy. */
 async function getMainCanvasHash(page) {
   return tvEval(page, `
     let maxCanvas = null, maxArea = 0;
@@ -758,11 +758,10 @@ async function getMainCanvasHash(page) {
     if (!maxCanvas) return null;
     try {
       const ctx = maxCanvas.getContext('2d');
-      const w = Math.min(maxCanvas.width, 200);
-      const h = Math.min(maxCanvas.height, 200);
-      const data = ctx.getImageData(0, 0, w, h).data;
+      // Full canvas sampling with large step to avoid timeout (K-030)
+      const data = ctx.getImageData(0, 0, maxCanvas.width, maxCanvas.height).data;
       let hash = 0;
-      for (let j = 0; j < data.length; j += 20) {
+      for (let j = 0; j < data.length; j += 100) {
         hash = ((hash << 5) - hash + data[j]) | 0;
       }
       return hash;
@@ -787,11 +786,12 @@ async function clickSettingsToggle(page, index) {
     if (!switches[idx]) throw new Error('toggle ' + idx + ' not found');
     switches[idx].click();
   }, index);
-  await sleep(2000);
+  await sleep(1000);
 
   // Close settings menu
   await dismissPopover(page);
-  await sleep(500);
+  // Wait for canvas to fully re-render after toggle (position lines need time)
+  await sleep(4000);
 }
 
 // ┌──────────────────────────────────────────────────────────┐
