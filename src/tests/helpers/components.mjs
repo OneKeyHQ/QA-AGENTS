@@ -472,3 +472,109 @@ export async function selectNetwork(page, name) {
   if (!clicked) throw new Error(`Network "${name}" not found`);
   await sleep(1000);
 }
+
+// ── Account Switcher ────────────────────────────────────────
+
+/**
+ * Switch to a different account/wallet.
+ * Flow: navigate to Wallet → open account selector → (optional) click wallet type → search → click result.
+ *
+ * @param {import('playwright-core').Page} page
+ * @param {string} accountName — account name to search for (e.g., "hl-99", "Account #1")
+ * @param {string} [walletType] — wallet type tab to click first (e.g., "观察钱包", "产品").
+ *   If omitted, searches across the currently selected wallet type.
+ *   The account selector modal shows wallet types as tabs on the left.
+ */
+export async function switchToAccount(page, accountName, walletType) {
+  // Step 1: Navigate to wallet page (account selector is visible there)
+  await clickSidebarTab(page, 'Wallet');
+  await sleep(2000);
+
+  // Step 2: Open account selector
+  await page.evaluate(() => {
+    document.querySelector('[data-testid="AccountSelectorTriggerBase"]')?.click();
+  });
+  await sleep(2000);
+
+  // Step 3: If walletType specified, click the corresponding tab
+  if (walletType) {
+    await page.evaluate((type) => {
+      const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+      if (!modal) return;
+      for (const sp of modal.querySelectorAll('span')) {
+        if (sp.textContent?.trim() === type && sp.children.length === 0 && sp.getBoundingClientRect().width > 0) {
+          sp.click();
+          return;
+        }
+      }
+    }, walletType);
+    await sleep(1500);
+  }
+
+  // Step 4: Search for account name
+  // Use nativeInputValueSetter for React compatibility
+  await page.evaluate((name) => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    if (!modal) throw new Error('Account selector modal not found');
+    const input = modal.querySelector('input[placeholder*="搜索"]');
+    if (!input) throw new Error('Account search input not found');
+    input.focus();
+    const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    if (nativeSet) {
+      nativeSet.call(input, name);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+  }, accountName);
+  await sleep(2000);
+
+  // Step 5: Click the matching account
+  const clicked = await page.evaluate((name) => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    if (!modal) return null;
+    // Exact match first
+    for (const el of modal.querySelectorAll('span')) {
+      const text = el.textContent?.trim();
+      const r = el.getBoundingClientRect();
+      if (text === name && r.width > 0 && r.height > 10 && r.height < 35 && el.children.length === 0) {
+        el.click();
+        return text;
+      }
+    }
+    // Fuzzy match
+    for (const el of modal.querySelectorAll('span, div')) {
+      const text = el.textContent?.trim();
+      const r = el.getBoundingClientRect();
+      if (text && text.includes(name) && r.width > 0 && r.height > 10 && r.height < 50 && el.children.length < 3) {
+        el.click();
+        return text;
+      }
+    }
+    return null;
+  }, accountName);
+
+  if (!clicked) throw new Error(`Account "${accountName}" not found in selector${walletType ? ` (type: ${walletType})` : ''}`);
+  await sleep(3000);
+
+  // Verify account switched
+  const currentAccount = await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="AccountSelectorTriggerBase"]');
+    return el?.textContent?.trim()?.slice(0, 40) || null;
+  });
+
+  if (currentAccount && !currentAccount.includes(accountName)) {
+    throw new Error(`Account switch failed: expected "${accountName}", got "${currentAccount}"`);
+  }
+
+  return currentAccount;
+}
+
+/**
+ * Get current account name.
+ */
+export async function getCurrentAccount(page) {
+  return page.evaluate(() => {
+    const el = document.querySelector('[data-testid="AccountSelectorTriggerBase"]');
+    return el?.textContent?.trim()?.slice(0, 40) || null;
+  });
+}
