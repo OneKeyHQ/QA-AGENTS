@@ -143,7 +143,7 @@ export function restartRun() {
 
 async function executeQueue() {
   // Dynamic import helpers (ESM .mjs)
-  const helpers = await import(pathToFileURL(join(TESTS_DIR, 'helpers', 'index.mjs')).href);
+  const helpers = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'index.mjs')).href}?t=${Date.now()}`);
   const { connectCDP, sleep, dismissOverlays, unlockWalletIfNeeded } = helpers;
 
   let page: any;
@@ -163,9 +163,10 @@ async function executeQueue() {
     return;
   }
 
-  // Track which file module is loaded and its setup state
+  // Track which file module is loaded — cache cleared each run for fresh code
   let lastFile = '';
   const moduleCache = new Map<string, any>();
+  // Note: moduleCache is local to each executeQueue() call, so each run gets fresh imports
 
   while (currentIndex < queue.length) {
     if (stopRequested) {
@@ -182,8 +183,9 @@ async function executeQueue() {
     try {
       const filePath = join(TESTS_DIR, item.file);
       const fileUrl = pathToFileURL(filePath).href;
+      // Bust ESM cache with timestamp query param — ensures latest code is loaded after edits
       if (!moduleCache.has(item.file)) {
-        moduleCache.set(item.file, await import(fileUrl));
+        moduleCache.set(item.file, await import(`${fileUrl}?t=${Date.now()}`));
       }
       const mod = moduleCache.get(item.file)!;
 
