@@ -37,6 +37,9 @@ interface QueueItem {
   status: 'pending' | 'running' | 'passed' | 'failed' | 'skipped';
   duration?: number;
   error?: string;
+  // Step-level results — accumulated during execution for SSE and state recovery
+  steps?: { name: string; status: string; detail: string; time?: string }[];
+  summary?: { passed: number; failed: number; skipped: number; total: number };
 }
 
 interface TestGroup {
@@ -64,11 +67,15 @@ export function onEvent(cb: EventCallback) {
 }
 
 export function getState() {
+  const hasQueue = queue.length > 0;
+  const allDone = hasQueue && currentIndex >= queue.length && !running;
   return {
     running,
     stopRequested,
     currentIndex,
     queue: queue.map(q => ({ ...q })),
+    // Frontend-compatible fields
+    state: running ? 'running' : allDone ? 'finished' : hasQueue ? 'stopped' : 'idle',
   };
 }
 
@@ -208,6 +215,9 @@ async function executeQueue() {
           if (match) {
             const [, status, stepName, detail] = match;
             const stepStatus = status === 'OK' ? 'passed' : status === 'FAIL' ? 'failed' : 'skipped';
+            // Persist step into queue item so getState() can return them on reconnect
+            if (!item.steps) item.steps = [];
+            item.steps.push({ name: stepName, status: stepStatus, detail: detail || '' });
             emit({
               event: 'step',
               id: item.id,
@@ -239,9 +249,9 @@ async function executeQueue() {
             item.status = 'passed';
           }
 
-          // Attach step details and summary to the completion event
-          (item as any)._steps = result?.steps;
-          (item as any)._summary = result?.summary;
+          // Persist step details and summary into queue item
+          if (result?.steps) item.steps = result.steps;
+          if (result?.summary) item.summary = result.summary;
         } finally {
           console.log = origLog;
         }
@@ -270,8 +280,8 @@ async function executeQueue() {
       name: item.name,
       duration: item.duration,
       error: item.error,
-      steps: (item as any)._steps,
-      summary: (item as any)._summary,
+      steps: item.steps,
+      summary: item.summary,
       timestamp: new Date().toISOString(),
     });
 
