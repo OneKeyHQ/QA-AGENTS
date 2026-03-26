@@ -158,6 +158,7 @@
 - 数据一致性：K 线/列表/详情价格一致
 - 状态机：WS 断连→重连→补数据→防闪烁
 - 性能：长列表虚拟化、K 线交互帧率
+- Token 详情页 K 线（周期、OHLC、指标、十字光标/移动端点击、第三方对照）：`docs/qa/requirements/Market-图表.md`
 - **详细规则**：`docs/qa/rules/market-rules.md`
 
 ### DeFi

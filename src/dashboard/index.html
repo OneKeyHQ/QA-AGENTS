@@ -185,9 +185,15 @@
 <!-- Header -->
 <div class="header">
   <h1><span>&#9670;</span> OneKey Test Runner</h1>
-  <div class="connection-status">
-    <div class="conn-dot" id="connDot"></div>
-    <span class="conn-label" id="connLabel">connecting...</span>
+  <div style="display:flex; align-items:center; gap:20px;">
+    <div class="connection-status" title="CDP: OneKey 桌面端远程调试连接">
+      <div class="conn-dot" id="cdpDot"></div>
+      <span class="conn-label" id="cdpLabel">CDP ...</span>
+    </div>
+    <div class="connection-status" title="SSE: Dashboard 实时事件流">
+      <div class="conn-dot" id="connDot"></div>
+      <span class="conn-label" id="connLabel">SSE ...</span>
+    </div>
   </div>
 </div>
 
@@ -290,6 +296,7 @@ function switchPlatform(platform) {
   selected.clear();
   renderTree();
   renderControls();
+  renderCdpStatus();
 }
 
 function applyPlatformFilter() {
@@ -356,8 +363,47 @@ function setConnection(connected) {
   connectedSSE = connected;
   dot.className = 'conn-dot ' + (connected ? 'connected' : 'disconnected');
   label.className = 'conn-label ' + (connected ? 'connected' : 'disconnected');
-  label.textContent = connected ? '已连接' : '未连接';
+  label.textContent = connected ? 'SSE 已连接' : 'SSE 未连接';
 }
+
+// ---- CDP Status ----
+let cdpStatus = {};
+async function pollCdpStatus() {
+  try {
+    const resp = await fetch('/api/cdp-status');
+    cdpStatus = await resp.json();
+  } catch {
+    cdpStatus = {};
+  }
+  renderCdpStatus();
+}
+
+function renderCdpStatus() {
+  const dot = document.getElementById('cdpDot');
+  const label = document.getElementById('cdpLabel');
+  if (!dot || !label) return;
+
+  // Show status for the currently selected platform
+  const platformMap = { desktop: 'desktop', web: 'web', extension: 'extension' };
+  const key = platformMap[currentPlatform] || 'desktop';
+  const info = cdpStatus[key];
+  const ok = info && info.ok;
+
+  dot.className = 'conn-dot ' + (ok ? 'connected' : 'disconnected');
+  label.className = 'conn-label ' + (ok ? 'connected' : 'disconnected');
+  if (ok) {
+    const short = (info.browser || '').replace(/^.*?(Chrome|Electron|OneKey)/, '$1').slice(0, 30);
+    label.textContent = 'CDP ' + short;
+    label.title = info.browser || '';
+  } else {
+    label.textContent = 'CDP 未连接';
+    label.title = key + ' (port ' + ({desktop:9222, web:9223, extension:9224}[key]) + ') 无响应';
+  }
+}
+
+// Poll CDP every 5s
+setInterval(pollCdpStatus, 5000);
+pollCdpStatus();
 
 // ---- Render Tree (two-level: category → group → cases) ----
 function renderTree() {

@@ -287,6 +287,21 @@ const SIDEBAR_TAB_MAP = {
   'Menu': 'sidebarMenu', '菜单': 'sidebarMenu',
 };
 
+/**
+ * If on a sub/detail page (nav-header-back visible), click back to return
+ * to the module list page. No-op if already on a top-level page.
+ * Use in setup() before the first test case starts.
+ */
+export async function ensureOnListPage(page) {
+  const clicked = await page.evaluate(() => {
+    const btn = document.querySelector('[data-testid="nav-header-back"]');
+    if (btn && btn.getBoundingClientRect().width > 0) { btn.click(); return true; }
+    return false;
+  });
+  if (clicked) await sleep(1500);
+  return clicked;
+}
+
 export async function clickSidebarTab(page, name) {
   // Try registry-based resolution first
   const elementName = SIDEBAR_TAB_MAP[name];
