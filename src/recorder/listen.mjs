@@ -60,7 +60,7 @@ async function connectCDP() {
     try {
       const { execSync, spawn: spawnProc } = await import('node:child_process');
       const { existsSync } = await import('node:fs');
-      const ONEKEY_BIN = '/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey';
+      const ONEKEY_BIN = process.env.ONEKEY_BIN || '/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey';
       execSync('pkill -f "OneKey" 2>/dev/null', { stdio: 'ignore' }).toString();
       await new Promise(r => setTimeout(r, 2000));
       if (existsSync(ONEKEY_BIN)) {

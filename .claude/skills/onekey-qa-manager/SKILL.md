@@ -72,7 +72,7 @@ cat /Users/chole/onekey-agent-test/shared/results/SEARCH-001.json
 
 ```bash
 pkill -f "OneKey" 2>/dev/null; sleep 2
-/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey --remote-debugging-port=9222 &
+$ONEKEY_BIN --remote-debugging-port=9222 &
 ```
 
 ### 2.5 `timing` — 时序问题

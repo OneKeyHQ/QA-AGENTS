@@ -19,7 +19,7 @@ const SHARED_DIR = pathResolve(import.meta.dirname, '../../shared');
 const RESULTS_DIR = pathResolve(SHARED_DIR, 'results');
 const CDP_URL = process.env.CDP_URL || 'http://127.0.0.1:9222';
 const WALLET_PASSWORD = process.env.WALLET_PASSWORD || '1234567890-=';
-const ONEKEY_BIN = '/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey';
+const ONEKEY_BIN = process.env.ONEKEY_BIN || '/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey';
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 

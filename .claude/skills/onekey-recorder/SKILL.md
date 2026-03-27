@@ -24,7 +24,7 @@ curl -s http://127.0.0.1:9222/json/version
 
 # 如果没响应，启动
 pkill -f "OneKey" 2>/dev/null; sleep 2
-/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey --remote-debugging-port=9222 &
+$ONEKEY_BIN --remote-debugging-port=9222 &
 sleep 5
 ```
 
@@ -116,5 +116,5 @@ cd /Users/chole/onekey-agent-test && npx tsx src/tests/android/recorder.mjs
 - Android Recorder: `src/tests/android/recorder.mjs`
 - Recording output: `shared/results/recording/steps.json`
 - Screenshots: `shared/results/recording/*.png`
-- OneKey: `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
+- OneKey: `$ONEKEY_BIN`（env 可配，默认 TF 包路径）
 - CDP: `http://127.0.0.1:9222`
