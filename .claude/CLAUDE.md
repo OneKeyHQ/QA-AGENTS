@@ -5,10 +5,20 @@ Three-layer multi-agent UI automation testing system for OneKey wallet.
 Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
 ## OneKey Desktop App
-- **唯一可执行路径**: `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
-- **Launch command**: `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey --remote-debugging-port=9222`
-- **CDP URL**: `http://127.0.0.1:9222`
-- **严禁**使用其他路径（如 `OneKey 3.app`、`OneKey.app` 等），只用上面这个
+- **可执行路径可配置**：通过环境变量 `ONEKEY_BIN` 指定，默认 `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
+- **CDP URL 可配置**：通过环境变量 `CDP_URL` 指定，默认 `http://127.0.0.1:9222`
+- **Launch command**: `$ONEKEY_BIN --remote-debugging-port=9222`
+- 配置方式：在 `.env` 文件中设置 `ONEKEY_BIN=/your/path/to/OneKey`
+
+### 首次连接交互规则
+- **每次会话首次需要连接 OneKey 时**，如果 `.env` 中没有设置 `ONEKEY_BIN`（即被注释或不存在），先询问用户：
+  ```
+  请选择要连接的 OneKey 安装包：
+  1. TF 包（TestFlight）— /Applications/OneKey-3.localized/OneKey.app
+  2. MAS 包（Mac App Store）— 请提供路径
+  ```
+- 用户选择后，将对应路径的 `Contents/MacOS/OneKey` 写入 `.env` 的 `ONEKEY_BIN=` 并取消注释
+- 如果 `.env` 已配置了未注释的 `ONEKEY_BIN`，直接使用，不再询问
 
 ## CDP & 连接规则（严格执行）
 - **NEVER** use MCP Playwright (`browser_navigate`, `browser_snapshot`, etc.) to connect to OneKey. It's a separate browser instance, not the OneKey app.
@@ -47,6 +57,7 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 | `shared/diagnosis.json` | QA Manager | Failure diagnosis |
 | `shared/results/<id>.json` | Runner | Execution results |
 | `shared/reports/*.md` | Reporter | Quality reports |
+| `shared/reports/review-*.md` | QA Reviewer | Pre-commit review reports |
 
 ## Key Libraries
 - `src/knowledge/memory-pipeline.mjs` — Three-phase memory pipeline (MemCells → MemScenes → Recall)
@@ -63,6 +74,7 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 - Bug fixes require user approval — only diagnosis + repair proposal
 - **自动积累经验**：录制、测试、调试过程中遇到的坑（如选择器失效、CDP 断连、弹窗拦截、时序问题等），自动追加到 `shared/knowledge.json`，无需用户额外指令。ID 递增（K-NNN），category 用 `recording` / `quirk` / `locator` / `timing` 等分类
 - **规则双写**：修改 `.claude/CLAUDE.md` 或 `.cursorrules` 中的规则时，必须同步更新另一个文件中的对应部分，保持两边一致。无需用户额外确认
+- **提交前 QA 审查**：commit / PR 前自动执行 `/onekey-qa-review`，检查用例、规则、脚本、Skill 的规范性、一致性和安全性。安全问题硬拦截（不可跳过），其他 block 问题软拦截（可确认跳过）。审查报告保存到 `shared/reports/review-*.md`
 
 ## Default Workflow（写新用例时必须遵循，不要再问）
 0. **录制前必读 `shared/knowledge.json`** — 包含历次录制和测试中积累的经验，避免重复犯错
@@ -174,6 +186,48 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 - **截图只在失败时**：正常通过的步骤不截图，截图会严重拖慢执行速度
 - **Token 正则需兼容数字**：代币名可能包含数字（如 XYZ100），正则用 `/^[A-Z][A-Z0-9]{1,9}$/`
 - **DOM 选择器要限定区域**：顶部行情栏的选择器必须加 `r.y < 100` 位置过滤
+
+### Dashboard 实时日志规则（强制执行）
+> 所有用例必须在 Dashboard 执行面板中显示实时步骤日志。QA 能及时看到每步的执行状态和报错，不用等整个用例跑完。
+
+1. **必须使用 `createStepTracker` + `safeStep`**
+   - 每个 testCase 的 `fn(page)` 必须用 `createStepTracker(testId)` 创建步骤跟踪器
+   - 每个操作步骤用 `safeStep(page, t, '步骤名', async () => { ... }, SCREENSHOT_DIR)` 包裹
+   - `fn` 最后必须 `return t.result()` 返回步骤结果
+   - **禁止**使用自定义 `addStep()` 或直接 `console.log` 替代
+
+2. **步骤粒度要求**
+   - 每个有意义的操作（打开页面、输入搜索、点击按钮、验证结果）都必须是一个独立 step
+   - step 名称简洁描述做了什么（如 `搜索 BTC 有结果`、`点击收藏按钮`、`验证价格格式`）
+   - step detail 包含关键数据（如 `3 results`、`price=$1,234.56`、`navigated`）
+
+3. **错误和跳过必须有 detail**
+   - `t.add(name, 'failed', error.message)` — 失败步骤必须带错误信息
+   - `t.add(name, 'skipped', '原因')` — 跳过步骤必须说明原因
+   - **禁止**空 detail 的 failed/skipped 步骤
+
+4. **标准模板**（新用例必须遵循）
+   ```javascript
+   import { createStepTracker, safeStep } from '../../helpers/components.mjs';
+
+   async function testXxx001(page) {
+     const t = createStepTracker('XXX-001');
+     await safeStep(page, t, '步骤 1 描述', async () => {
+       // ... 操作代码
+       return '可选的 detail 信息';
+     }, SCREENSHOT_DIR);
+     await safeStep(page, t, '步骤 2 描述', async () => {
+       // ... 断言代码
+       return `found ${count} items`;
+     }, SCREENSHOT_DIR);
+     return t.result();
+   }
+   ```
+
+5. **日志机制**
+   - `t.add()` 输出 `[OK|FAIL|SKIP] name — detail` 被 executor 实时拦截 → SSE 推送到 Dashboard
+   - 普通 `console.log` 也会实时显示在日志面板中
+   - **只要用了 `createStepTracker` 就自动有实时日志**，无需额外配置
 
 ### 弹窗/Modal 交互规则（严格执行）
 > 来源：Market 搜索脚本三大 bug 的复盘总结。

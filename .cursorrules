@@ -20,8 +20,8 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 - **Reporter** — 只读报告 + 趋势仪表盘
 
 ## Key Paths
-- App binary: `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
-- CDP: `http://127.0.0.1:9222`
+- App binary: `$ONEKEY_BIN`（env 可配，默认 `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`）
+- CDP: `$CDP_URL`（env 可配，默认 `http://127.0.0.1:9222`）
 - Working dir: `/Users/chole/workspace/QA-AGENTS/`
 - Tests: `src/tests/{module}/*.test.mjs`
 - Helpers: `src/tests/helpers/{index,navigation,accounts,network,transfer,preconditions}.mjs`
@@ -152,6 +152,39 @@ if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 - 前置条件在 `setup()` 中运行并缓存到模块级 `_preReport`，不在每个 fn 中重复运行
 - **永远不要关闭 browser** — 那是用户的 OneKey 实例
 - 脚本必须连贯执行：一个用例 = 一段连续操作流，不拆成多个孤立用例
+
+## Dashboard 实时日志规则（强制执行）
+
+所有用例必须在 Dashboard 执行面板中显示实时步骤日志。QA 能及时看到每步的执行状态和报错，不用等整个用例跑完。
+
+1. **必须使用 `createStepTracker` + `safeStep`**
+   - 每个 testCase 的 `fn(page)` 必须用 `createStepTracker(testId)` 创建步骤跟踪器
+   - 每个操作步骤用 `safeStep(page, t, '步骤名', async () => { ... }, SCREENSHOT_DIR)` 包裹
+   - `fn` 最后必须 `return t.result()` 返回步骤结果
+   - **禁止**使用自定义 `addStep()` 或直接 `console.log` 替代
+
+2. **步骤粒度要求**
+   - 每个有意义的操作（打开页面、输入搜索、点击按钮、验证结果）都必须是一个独立 step
+   - step 名称简洁描述做了什么（如 `搜索 BTC 有结果`、`点击收藏`、`验证价格格式`）
+   - step detail 包含关键数据（如 `3 results`、`price=$1,234.56`）
+
+3. **错误和跳过必须有 detail**
+   - `t.add(name, 'failed', error.message)` — 失败必须带错误信息
+   - `t.add(name, 'skipped', '原因')` — 跳过必须说明原因
+   - **禁止**空 detail 的 failed/skipped 步骤
+
+4. **标准模板**（新用例必须遵循）
+   ```javascript
+   import { createStepTracker, safeStep } from '../../helpers/components.mjs';
+   async function testXxx001(page) {
+     const t = createStepTracker('XXX-001');
+     await safeStep(page, t, '步骤描述', async () => {
+       // 操作 + 断言
+       return 'detail 信息';
+     }, SCREENSHOT_DIR);
+     return t.result();
+   }
+   ```
 
 ## 1:1 用例对照规则（生成脚本时最重要的规则）
 
@@ -320,6 +353,7 @@ Dashboard executor (`test-executor.ts`) 通过 `testCases.fn(page)` 或 `mod.run
 - Filter DOM selectors with `.first()` / `.nth()` when multiple matches
 - Use position filter `r.y < 100` for top bar selectors to avoid matching other areas
 - Use token regex `/^[A-Z][A-Z0-9]{1,9}$/` (tokens can contain digits like XYZ100)
+- Run `/onekey-qa-review` before commit/PR — checks rules, test cases, scripts, skills, and security
 - Treat empty state (no tokens, shows "未找到"/"暂无代币") as valid, not failed
 - Take screenshots only on failure — screenshots severely slow down execution
 - Keep test scripts as continuous flow (no disconnects mid-test)
@@ -329,7 +363,7 @@ Dashboard executor (`test-executor.ts`) 通过 `testCases.fn(page)` 或 `mod.run
 - Verify selectors via CDP before adding to `ui-map.json`
 
 ## Don't
-- Never use any path other than `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
+- Never hardcode OneKey path — always通过 `ONEKEY_BIN` 环境变量或 constants.mjs 引用
 - Never use `open` command to launch OneKey or open browser pages
 - Never spawn a second OneKey instance (pkill first, then restart)
 - Never call `page.setViewportSize()` — use user's current window size
@@ -379,9 +413,9 @@ Read results → classify root cause (5 types) → route to handler → fix → 
 # Step 1: 检查 CDP
 curl -s http://127.0.0.1:9222/json/version
 
-# Step 2: 如果无响应，自动启动（唯一路径，严禁用其他路径）
+# Step 2: 如果无响应，自动启动（路径通过 $ONEKEY_BIN 环境变量配置）
 pkill -f "OneKey" 2>/dev/null; sleep 2
-/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey --remote-debugging-port=9222 &
+$ONEKEY_BIN --remote-debugging-port=9222 &
 sleep 5
 
 # Step 3: 再次验证
