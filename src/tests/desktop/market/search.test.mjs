@@ -17,10 +17,12 @@ import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
+import { MarketPage } from '../../helpers/pages/index.mjs';
+import { openSearchModal } from '../../helpers/components.mjs';
 import {
   createStepTracker, safeStep,
   isSearchModalOpen, getModalSearchInput,
-  openSearchModal, setSearchValueStrict, ensureSearchOpen,
+  setSearchValueStrict, ensureSearchOpen,
   setSearchValue, clearSearch, closeSearch,
   assertHasSomeTableLikeContent, clickShowMoreIfPresent,
   scrollToBottomAndAssert, clickFirstSuggestionIfPresent,
@@ -28,7 +30,6 @@ import {
   snapshotWatchlistCount,
   getSearchHistory, clickSearchResult, clickClearHistory,
 } from '../../helpers/market-search.mjs';
-import { runPreconditions, createTracker } from '../../helpers/preconditions.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'market-search');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -39,71 +40,32 @@ const ALL_TEST_IDS = [
   'MARKET-SEARCH-003',
   'MARKET-SEARCH-004',
   'MARKET-SEARCH-005',
-  'MARKET-SEARCH-006',
-  'MARKET-SEARCH-007',
-  'MARKET-SEARCH-008',
 ];
 
-let _preReport = null;
+// ── Platform-specific: Desktop (via Page Objects + Components) ──
 
-// ── Platform-specific: Desktop ───────────────────────────────
+const market = { page: null };
+function getMarketPage(page) {
+  if (!market.page || market.page !== page) {
+    market._mp = new MarketPage(page);
+    market.page = page;
+  }
+  return market._mp;
+}
 
 async function goToMarket(page) {
-  const ok = await page.evaluate(() => {
-    const sidebar = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
-    if (!sidebar) return false;
-    const labels = new Set(['Market', '市场', 'マーケット', 'Mercado']);
-    for (const sp of sidebar.querySelectorAll('span')) {
-      const txt = sp.textContent?.trim();
-      if (!txt) continue;
-      if (!labels.has(txt)) continue;
-      const r = sp.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
-        sp.click();
-        return true;
-      }
-    }
-    // Fallback: try partial match
-    for (const sp of sidebar.querySelectorAll('span')) {
-      const txt = sp.textContent?.trim() || '';
-      if (!txt) continue;
-      if (txt.includes('Market') || txt.includes('市场')) {
-        const r = sp.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) {
-          sp.click();
-          return true;
-        }
-      }
-    }
-    return false;
-  });
-  if (!ok) throw new Error('Cannot navigate to Market via sidebar');
-  await sleep(2500);
+  await getMarketPage(page).navigate();
 }
 
-/** Desktop search trigger: click the header search input (NOT inside the modal). */
-async function openSearchTrigger(page) {
-  const pos = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    const inputs = Array.from(document.querySelectorAll('input[data-testid="nav-header-search"]'));
-    const input = inputs.find(el => {
-      if (modal && modal.contains(el)) return false;
-      const r = el.getBoundingClientRect();
-      return r.width > 0 && r.height > 0;
-    });
-    if (!input) throw new Error('Header nav-header-search not found');
-    const r = input.getBoundingClientRect();
-    return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) };
-  });
-  await page.mouse.click(pos.x, pos.y);
-}
+// Search trigger wrapper for market-search.mjs functions that accept triggerFn
+const triggerSearch = (page) => openSearchModal(page);
 
-// Convenience wrappers that bind the desktop trigger
-const _open = (page) => openSearchModal(page, openSearchTrigger);
-const _ensure = (page) => ensureSearchOpen(page, openSearchTrigger);
-const _setStrict = (page, v) => setSearchValueStrict(page, v, openSearchTrigger);
-const _set = (page, v) => setSearchValue(page, v, openSearchTrigger);
-const _scrollBottom = (page, opts) => scrollToBottomAndAssert(page, opts, openSearchTrigger);
+// Convenience wrappers that bind the search trigger via components
+const _open = (page) => openSearchModal(page);
+const _ensure = (page) => ensureSearchOpen(page, triggerSearch);
+const _setStrict = (page, v) => setSearchValueStrict(page, v, triggerSearch);
+const _set = (page, v) => setSearchValue(page, v, triggerSearch);
+const _scrollBottom = (page, opts) => scrollToBottomAndAssert(page, opts, triggerSearch);
 const _safeStep = (page, t, name, fn) => safeStep(page, t, name, fn, (p, n) => screenshot(p, SCREENSHOT_DIR, n));
 
 // ── Test Cases ───────────────────────────────────────────────
@@ -299,7 +261,7 @@ async function testMarketSearch005(page) {
   }
 
   // Step 4: Search and click result to create new history
-  const clicked = await clickSearchResult(page, openSearchTrigger, 'ETH');
+  const clicked = await clickSearchResult(page, triggerSearch, 'ETH');
   t.add('搜索 ETH 并点击结果', clicked ? 'passed' : 'failed',
     clicked ? 'clicked' : 'no clickable result');
 
@@ -314,112 +276,18 @@ async function testMarketSearch005(page) {
   return t.result();
 }
 
-async function testMarketSearch006(page) {
-  const t = createTracker('MARKET-SEARCH-006', _preReport);
-
-  await goToMarket(page);
-  const before = await snapshotWatchlistCount(page);
-  await _ensure(page);
-  await _setStrict(page, 'USDT');
-  await toggleFavoriteOnFirstRow(page);
-  await closeSearch(page);
-  const afterAdd = await snapshotWatchlistCount(page);
-  t.add('收藏后观察列表数量变化', afterAdd !== before ? 'passed' : 'failed', `${before} -> ${afterAdd}`);
-
-  await _ensure(page);
-  await _setStrict(page, 'USDT');
-  await toggleFavoriteOnFirstRow(page);
-  await closeSearch(page);
-  const afterRemove = await snapshotWatchlistCount(page);
-  t.add('取消收藏后观察列表数量恢复', afterRemove !== afterAdd ? 'passed' : 'failed', `${afterAdd} -> ${afterRemove}`);
-
-  return t.result();
-}
-
-async function testMarketSearch007(page) {
-  const t = createTracker('MARKET-SEARCH-007', _preReport);
-
-  await goToMarket(page);
-  await _ensure(page);
-
-  const invalidInputs = [
-    'ABCDEFG123',
-    '0x123',
-    '()',
-    '🐶',
-    '🔥',
-    '1234567654323456765432345676543213456787654323456765432345676543234567654323456765434567876543456',
-  ];
-
-  for (const v of invalidInputs) {
-    await _set(page, v);
-    await assertHasSomeTableLikeContent(page);
-    t.add(`异常输入 ${JSON.stringify(v)} 已返回空状态或可展示结果`, 'passed');
-  }
-
-  await closeSearch(page);
-  t.add('关闭搜索界面', 'passed');
-  return t.result();
-}
-
-async function testMarketSearch008(page) {
-  const t = createTracker('MARKET-SEARCH-008', _preReport);
-
-  await goToMarket(page);
-  await _ensure(page);
-  await _setStrict(page, 'bt');
-  await assertHasSomeTableLikeContent(page);
-  t.add('输入 bt 展示建议或结果', 'passed');
-
-  const clicked = await clickSearchResult(page, openSearchTrigger, 'BT');
-  t.add('点击建议/结果项', clicked ? 'passed' : 'failed', clicked ? '' : '未找到可点击项');
-
-  await _ensure(page);
-  const history = await getSearchHistory(page);
-  t.add('重新打开后检查搜索历史区域', 'passed', history.hasHistory ? 'history visible' : 'history not visible');
-
-  let cleared = false;
-  if (history.hasHistory) {
-    cleared = await clickClearHistory(page);
-  } else {
-    cleared = await page.evaluate(() => {
-      const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-      if (!modal) return false;
-      const svgs = modal.querySelectorAll('svg');
-      for (const s of svgs) {
-        const r = s.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0 && r.y > 180 && r.y < 280 && r.x > 980) {
-          s.click();
-          return true;
-        }
-      }
-      return false;
-    });
-  }
-  t.add('清理历史或搜索记录入口检查完成', 'passed', cleared ? 'clicked' : 'entry not visible');
-
-  await closeSearch(page);
-  t.add('关闭搜索界面', 'passed');
-  return t.result();
-}
-
 export const testCases = [
   { id: 'MARKET-SEARCH-001', name: 'Market-搜索-入口与Trending跳转', fn: testMarketSearch001 },
   { id: 'MARKET-SEARCH-002', name: 'Market-搜索-Symbol搜索与滚动加载', fn: testMarketSearch002 },
   { id: 'MARKET-SEARCH-003', name: 'Market-搜索-合约地址与异常输入', fn: testMarketSearch003 },
   { id: 'MARKET-SEARCH-004', name: 'Market-搜索-收藏联动（自选Tab）', fn: testMarketSearch004 },
   { id: 'MARKET-SEARCH-005', name: 'Market-搜索-历史与建议', fn: testMarketSearch005 },
-  { id: 'MARKET-SEARCH-006', name: 'Market-搜索-收藏联动（重新录制）', fn: testMarketSearch006 },
-  { id: 'MARKET-SEARCH-007', name: 'Market-搜索-异常输入（重新录制）', fn: testMarketSearch007 },
-  { id: 'MARKET-SEARCH-008', name: 'Market-搜索-历史与建议（重新录制）', fn: testMarketSearch008 },
 ];
 
 export async function setup(page) {
   await unlockWalletIfNeeded(page);
   await dismissOverlays(page);
   await goToMarket(page);
-  _preReport = await runPreconditions(page, ALL_TEST_IDS);
-  return _preReport;
 }
 
 export async function run() {
@@ -437,13 +305,9 @@ export async function run() {
   console.log('='.repeat(60));
 
   const results = [];
-  let pre = await setup(page);
+  await setup(page);
 
   for (const test of casesToRun) {
-    if (pre?.shouldSkip?.(test.id)) {
-      console.log(`>> ${test.id}: SKIPPED (preconditions)`);
-      continue;
-    }
     const startTime = Date.now();
     console.log(`\n${'─'.repeat(60)}`);
     console.log(`[${test.id}] ${test.name}`);
@@ -453,7 +317,7 @@ export async function run() {
       if (page?.isClosed?.()) {
         console.log('  Page was closed, reconnecting CDP...');
         ({ page } = await connectCDP());
-        pre = await setup(page);
+        await setup(page);
       }
       const result = await test.fn(page);
       const duration = Date.now() - startTime;

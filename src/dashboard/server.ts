@@ -61,6 +61,7 @@ function buildAPIResponse() {
   };
 }
 
+// Registry cache — null means needs refresh. Reset on each server start.
 let registryCache: Awaited<ReturnType<typeof getTestRegistry>> | null = null;
 
 const MIME: Record<string, string> = {
@@ -77,8 +78,32 @@ const server = createServer(async (req, res) => {
 
   // ── Test Execution APIs ──
 
+  if (url.pathname === '/api/cdp-status') {
+    const cdpPorts = { desktop: 9222, web: 9223, extension: 9224 };
+    const results: Record<string, { ok: boolean; browser?: string }> = {};
+    await Promise.all(
+      Object.entries(cdpPorts).map(async ([name, port]) => {
+        try {
+          const resp = await fetch(`http://127.0.0.1:${port}/json/version`, { signal: AbortSignal.timeout(2000) });
+          if (resp.ok) {
+            const info = await resp.json() as { Browser?: string };
+            results[name] = { ok: true, browser: info.Browser };
+          } else {
+            results[name] = { ok: false };
+          }
+        } catch {
+          results[name] = { ok: false };
+        }
+      }),
+    );
+    res.writeHead(200, { 'Content-Type': 'application/json', ...cors });
+    res.end(JSON.stringify(results));
+    return;
+  }
+
   if (url.pathname === '/api/tests') {
-    if (!registryCache) registryCache = await getTestRegistry();
+    // Always re-scan to pick up code changes (skipSteps etc.)
+    registryCache = await getTestRegistry();
     res.writeHead(200, { 'Content-Type': 'application/json', ...cors });
     res.end(JSON.stringify(registryCache));
     return;

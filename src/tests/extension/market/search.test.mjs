@@ -4,8 +4,9 @@
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { sleep } from '../../helpers/constants.mjs';
+import { createStepTracker, safeStep, openSearchModal as componentOpenSearch } from '../../helpers/components.mjs';
 import {
-  createStepTracker, safeStep,
   isSearchModalOpen, getModalSearchInput,
   openSearchModal, setSearchValueStrict, ensureSearchOpen,
   setSearchValue, clearSearch, closeSearch,
@@ -20,8 +21,6 @@ import { connectExtensionCDP, getExtensionId } from '../../helpers/extension-cdp
 const RESULTS_DIR = resolve(import.meta.dirname, '../../../../shared/results');
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'ext-market-search');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
-
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 // ── Platform-specific: Extension ─────────────────────────────
 

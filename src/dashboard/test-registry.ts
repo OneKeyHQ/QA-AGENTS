@@ -8,6 +8,7 @@ const TESTS_DIR = join(import.meta.dirname, '..', 'tests');
 interface TestCase {
   id: string;
   name: string;
+  skipSteps?: string[];  // Steps that will be skipped (shown before execution)
 }
 
 interface TestGroup {
@@ -53,7 +54,7 @@ export async function getTestRegistry(): Promise<TestGroup[]> {
 
   for (const file of files) {
     try {
-      const mod = await import(pathToFileURL(file).href);
+      const mod = await import(`${pathToFileURL(file).href}?t=${Date.now()}`);
       if (!mod.testCases || !Array.isArray(mod.testCases)) continue;
 
       const rel = relative(TESTS_DIR, file);
@@ -76,7 +77,11 @@ export async function getTestRegistry(): Promise<TestGroup[]> {
         group,
         category,
         platform,
-        cases: mod.testCases.map((c: any) => ({ id: c.id, name: c.name })),
+        cases: mod.testCases.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+          ...(c.skipSteps?.length > 0 ? { skipSteps: c.skipSteps } : {}),
+        })),
       });
     } catch (e) {
       console.error(`[registry] Failed to load ${file}:`, (e as Error).message);

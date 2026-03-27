@@ -22,10 +22,12 @@ import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
+import { MarketPage } from '../../helpers/pages/index.mjs';
+import { openSearchModal } from '../../helpers/components.mjs';
 import {
   createStepTracker, safeStep,
   isSearchModalOpen, getModalSearchInput,
-  openSearchModal, setSearchValueStrict, ensureSearchOpen,
+  setSearchValueStrict, ensureSearchOpen,
   closeSearch, assertHasSomeTableLikeContent,
   toggleFavoriteOnFirstRow, snapshotWatchlistCount,
 } from '../../helpers/market-search.mjs';
@@ -43,31 +45,19 @@ const ALL_TEST_IDS = [
   'MARKET-FAV-007',
 ];
 
-// ── Platform-specific: Desktop ───────────────────────────────
+// ── Platform-specific: Desktop (via Page Objects + Components) ──
+
+const _marketPageCache = { page: null, mp: null };
+function getMarketPage(page) {
+  if (_marketPageCache.page !== page) {
+    _marketPageCache.mp = new MarketPage(page);
+    _marketPageCache.page = page;
+  }
+  return _marketPageCache.mp;
+}
 
 async function goToMarket(page) {
-  const ok = await page.evaluate(() => {
-    const sidebar = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
-    if (!sidebar) return false;
-    const labels = new Set(['Market', '市场', 'マーケット', 'Mercado']);
-    for (const sp of sidebar.querySelectorAll('span')) {
-      const txt = sp.textContent?.trim();
-      if (!txt) continue;
-      if (!labels.has(txt)) continue;
-      const r = sp.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) { sp.click(); return true; }
-    }
-    for (const sp of sidebar.querySelectorAll('span')) {
-      const txt = sp.textContent?.trim() || '';
-      if (txt.includes('Market') || txt.includes('市场')) {
-        const r = sp.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) { sp.click(); return true; }
-      }
-    }
-    return false;
-  });
-  if (!ok) throw new Error('Cannot navigate to Market via sidebar');
-  await sleep(2500);
+  await getMarketPage(page).navigate();
 }
 
 async function goToWallet(page) {
@@ -432,22 +422,8 @@ async function clickBack(page) {
   await sleep(1500);
 }
 
-/** Desktop search trigger: click the header search input (NOT inside the modal). */
-async function openSearchTrigger(page) {
-  const pos = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    const inputs = Array.from(document.querySelectorAll('input[data-testid="nav-header-search"]'));
-    const input = inputs.find(el => {
-      if (modal && modal.contains(el)) return false;
-      const r = el.getBoundingClientRect();
-      return r.width > 0 && r.height > 0;
-    });
-    if (!input) throw new Error('Header nav-header-search not found');
-    const r = input.getBoundingClientRect();
-    return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) };
-  });
-  await page.mouse.click(pos.x, pos.y);
-}
+// Search trigger wrapper for market-search.mjs functions that accept triggerFn
+const triggerSearch = (page) => openSearchModal(page);
 
 /**
  * Toggle star on the first search result row inside the search modal.
@@ -643,8 +619,8 @@ async function toggleStarForToken(page, tokenText) {
 
 // Convenience wrappers
 const _safeStep = (page, t, name, fn) => safeStep(page, t, name, fn, (p, n) => screenshot(p, SCREENSHOT_DIR, n));
-const _setStrict = (page, v) => setSearchValueStrict(page, v, openSearchTrigger);
-const _ensure = (page) => ensureSearchOpen(page, openSearchTrigger);
+const _setStrict = (page, v) => setSearchValueStrict(page, v, triggerSearch);
+const _ensure = (page) => ensureSearchOpen(page, triggerSearch);
 
 // ── Test Cases ───────────────────────────────────────────────
 

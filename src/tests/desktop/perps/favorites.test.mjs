@@ -17,29 +17,13 @@ import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
+import { PerpsPage } from '../../helpers/pages/index.mjs';
+import { createStepTracker } from '../../helpers/components.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'perps-favorites');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
 const DEFAULT_TOKENS = ['BTCUSDC', 'ETHUSDC', 'BNBUSDC', 'SOLUSDC', 'HYPEUSDC', 'XRPUSDC'];
-
-// ── Step Tracking ─────────────────────────────────────────
-
-function createStepTracker(testId) {
-  const steps = [];
-  const errors = [];
-  return {
-    steps, errors,
-    add(name, status, detail = '') {
-      steps.push({ name, status, detail, time: new Date().toISOString() });
-      console.log(`  [${status === 'passed' ? 'OK' : 'FAIL'}] ${name}${detail ? ' — ' + detail : ''}`);
-      if (status === 'failed') errors.push(`${name}: ${detail}`);
-    },
-    result() {
-      return { status: errors.length === 0 ? 'passed' : 'failed', steps, errors };
-    },
-  };
-}
 
 // ── Popover helper (inline, no eval) ──────────────────────
 
@@ -53,24 +37,19 @@ function findPopover() {
   return null;
 }
 
-// ── Helpers (all element-based, no coordinates) ───────────
+// ── Platform-specific: Desktop (via Page Objects) ────────────
 
-/** Navigate to perps page via sidebar */
+const _perpsCache = { page: null, pp: null };
+function getPerpsPage(page) {
+  if (_perpsCache.page !== page) {
+    _perpsCache.pp = new PerpsPage(page);
+    _perpsCache.page = page;
+  }
+  return _perpsCache.pp;
+}
+
 async function goToPerps(page) {
-  const clicked = await page.evaluate(() => {
-    const el = document.querySelector('[data-testid="perp"]');
-    if (el) { el.click(); return true; }
-    const container = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
-    if (!container) return false;
-    for (const sp of container.querySelectorAll('span')) {
-      if (['合约', 'Perps'].includes(sp.textContent.trim()) && sp.getBoundingClientRect().width > 0) {
-        sp.click(); return true;
-      }
-    }
-    return false;
-  });
-  if (!clicked) throw new Error('Cannot navigate to perps page');
-  await sleep(3000);
+  await getPerpsPage(page).navigate();
 }
 
 /** Click text in popover or document */
@@ -107,7 +86,7 @@ async function dismissPopover(page) {
   await sleep(1500);
 }
 
-/** Get current trading pair name (e.g. "BTCUSDC") */
+/** Get current trading pair name (e.g. "BTCUSDC") — file-specific USDC pair format */
 async function getCurrentPair(page) {
   return page.evaluate(() => {
     for (const sp of document.querySelectorAll('span')) {

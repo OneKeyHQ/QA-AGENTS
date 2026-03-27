@@ -11,6 +11,7 @@ import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
+import { PerpsPage } from '../../helpers/pages/index.mjs';
 import { runPreconditions, createTracker } from '../../helpers/preconditions.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'search');
@@ -20,23 +21,19 @@ const ALL_TEST_IDS = ['SEARCH-001', 'SEARCH-002', 'SEARCH-003'];
 
 let _preReport = null;
 
-// ── Helpers ─────────────────────────────────────────────────
+// ── Platform-specific: Desktop (via Page Objects) ────────────
+
+const _perpsCache = { page: null, pp: null };
+function getPerpsPage(page) {
+  if (_perpsCache.page !== page) {
+    _perpsCache.pp = new PerpsPage(page);
+    _perpsCache.page = page;
+  }
+  return _perpsCache.pp;
+}
 
 async function goToPerps(page) {
-  const clicked = await page.evaluate(() => {
-    const el = document.querySelector('[data-testid="perp"]');
-    if (el) { el.click(); return true; }
-    const container = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
-    if (!container) return false;
-    for (const sp of container.querySelectorAll('span')) {
-      if (['合约', 'Perps'].includes(sp.textContent.trim()) && sp.getBoundingClientRect().width > 0) {
-        sp.click(); return true;
-      }
-    }
-    return false;
-  });
-  if (!clicked) throw new Error('Cannot navigate to perps page');
-  await sleep(1500);
+  await getPerpsPage(page).navigate();
 }
 
 async function getCurrentPair(page) {

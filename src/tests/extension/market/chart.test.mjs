@@ -5,8 +5,10 @@
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { sleep } from '../../helpers/constants.mjs';
+import { createStepTracker, safeStep } from '../../helpers/components.mjs';
 import {
-  createStepTracker, safeStep, screenshot,
+  screenshot,
   waitForChartReady,
   clickTimeInterval, clickIndicatorButton,
   getOHLCFromChart, getCanvasCount, getIndicatorLabels,
@@ -17,8 +19,6 @@ import { connectExtensionCDP, getExtensionId } from '../../helpers/extension-cdp
 const RESULTS_DIR = resolve(import.meta.dirname, '../../../../shared/results');
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'ext-market-chart');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
-
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 // ── Platform-specific: Extension ─────────────────────────────
 
@@ -58,29 +58,23 @@ async function goToMarket(page) {
 
 /**
  * Navigate to token detail page in the extension.
- * Clicks on a token row in the Market list.
+ * Uses data-testid="list-column-name" cells to find and click the token row.
  */
 async function navigateToTokenDetail(page, tokenSymbol) {
   await goToMarket(page);
   await sleep(2000);
 
-  // Click the token row matching the symbol
+  // Use data-testid cells to find the token row by symbol
   const clicked = await page.evaluate((sym) => {
-    const allElements = document.querySelectorAll('span, div, p');
-    for (const el of allElements) {
-      const txt = el.textContent?.trim();
-      if (!txt) continue;
-      if (txt === sym) {
-        const r = el.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0 && r.y > 60) {
-          const row = el.closest('[role="row"], tr, a') || el.closest('div[class]');
-          if (row) {
-            row.click();
-            return true;
-          }
-          el.click();
-          return true;
-        }
+    const cells = document.querySelectorAll('[data-testid="list-column-name"]');
+    for (const cell of cells) {
+      const r = cell.getBoundingClientRect();
+      if (r.width === 0 || r.height < 30 || r.y < 60) continue;
+      const text = cell.textContent || '';
+      const re = new RegExp(`(^|\\s)${sym}(\\s|$|[^A-Za-z0-9])`);
+      if (re.test(text)) {
+        cell.click();
+        return true;
       }
     }
     return false;

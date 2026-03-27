@@ -1,6 +1,6 @@
 {
   "version": "2.2.0",
-  "lastUpdated": "2026-02-28T09:53:11.497Z",
+  "lastUpdated": "2026-03-24T10:00:00Z",
   "elements": {
     "sidebarHome": {
       "primary": "[data-testid=\"home\"]",
@@ -748,6 +748,58 @@
       "last_verified": "2026-02-28T09:53:11.497Z",
       "notes": "Recording step 29 — join button next to invite code input"
     },
+    "searchInput": {
+      "primary": "[data-testid=\"nav-header-search\"]",
+      "quick_fallbacks": ["input[placeholder*=\"搜索\"]", "input[placeholder*=\"Search\"]"],
+      "deep_search": {"enabled": true, "search_text": "搜索", "search_role": "textbox", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-nav",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z",
+      "notes": "Exists in both header and modal — use context:'page' for header trigger, context:'modal' for modal input"
+    },
+    "sidebarMarket": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=市场",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Market", "text=市场", "text=Market"],
+      "deep_search": {"enabled": true, "search_text": "市场", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z",
+      "notes": "Multi-language: Market, 市场, マーケット, Mercado"
+    },
+    "sidebarPerps": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=合约",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Perps", "text=合约", "text=Perps"],
+      "deep_search": {"enabled": true, "search_text": "合约", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z"
+    },
+    "sidebarWallet": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=钱包",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Wallet", "text=钱包", "text=Wallet"],
+      "deep_search": {"enabled": true, "search_text": "钱包", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z"
+    },
+    "searchClearButton": {
+      "primary": "[data-testid=\"-clear\"]",
+      "quick_fallbacks": ["[data-testid=\"APP-Modal-Screen\"] [data-testid=\"-clear\"]"],
+      "deep_search": {"enabled": false},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "search-modal",
+      "platform": ["desktop"],
+      "success_rate": 0.9,
+      "last_verified": "2026-03-24T00:00:00Z"
+    },
     "createMnemonicWalletOption": {
       "primary": "text=创建助记词钱包",
       "quick_fallbacks": [
@@ -824,6 +876,96 @@
       "success_rate": 1,
       "last_verified": "2026-02-14T16:33:05.486Z",
       "notes": "Recording step 11 — 'Light' theme option"
+    },
+    "sidebarSwap": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=交易",
+      "quick_fallbacks": ["text=交易", "text=Swap"],
+      "deep_search": {"enabled": true, "search_text": "交易", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
+      "last_verified": "2026-03-24T10:00:00Z",
+      "notes": "Sidebar tab 3 — 交易/Swap"
+    },
+    "sidebarDeFi": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=DeFi",
+      "quick_fallbacks": ["text=DeFi"],
+      "deep_search": {"enabled": true, "search_text": "DeFi", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
+      "last_verified": "2026-03-24T10:00:00Z",
+      "notes": "Sidebar tab 5 — DeFi"
+    },
+    "sidebarDiscover": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=推荐",
+      "quick_fallbacks": ["text=推荐", "text=Discover"],
+      "deep_search": {"enabled": true, "search_text": "推荐", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
+      "last_verified": "2026-03-24T10:00:00Z",
+      "notes": "Sidebar tab 6 — 推荐/Discover"
+    },
+    "sidebarBrowser": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=浏览器",
+      "quick_fallbacks": ["text=浏览器", "text=Browser"],
+      "deep_search": {"enabled": true, "search_text": "浏览器", "search_role": "tab", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
+      "last_verified": "2026-03-24T10:00:00Z",
+      "notes": "Sidebar tab 7 — 浏览器/Browser"
+    },
+    "sidebarDevice": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] svg[data-sentry-component=\"SvgPhone\"]",
+      "quick_fallbacks": ["svg[data-sentry-component=\"SvgPhone\"]"],
+      "deep_search": {"enabled": true, "search_text": "SvgPhone", "search_role": "button", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
+      "last_verified": "2026-03-24T10:00:00Z",
+      "notes": "Sidebar tab 8 — 设备（无文字，只有 SvgPhone 图标，y≈742）"
+    },
+    "sidebarMenu": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] svg[data-sentry-component=\"SvgDotGrid\"]",
+      "quick_fallbacks": ["svg[data-sentry-component=\"SvgDotGrid\"]"],
+      "deep_search": {"enabled": true, "search_text": "SvgDotGrid", "search_role": "button", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
+      "last_verified": "2026-03-24T10:00:00Z",
+      "notes": "Sidebar tab 9 — 菜单栏（九宫格图标 SvgDotGrid，y≈790）"
+    },
+    "headerNotification": {
+      "primary": "[data-testid=\"header-right-notification\"]",
+      "quick_fallbacks": [],
+      "deep_search": {"enabled": false},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "global-header", "platform": ["desktop"], "success_rate": 0.95,
+      "last_verified": "2026-03-24T10:00:00Z",
+      "notes": "Header 右侧通知入口"
+    },
+    "inviteCard": {
+      "primary": "text=邀请朋友赚取奖励",
+      "quick_fallbacks": ["text=Invite friends", "text=邀请朋友"],
+      "deep_search": {"enabled": true, "search_text": "邀请朋友", "search_role": "button", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "wallet-home", "platform": ["desktop"], "success_rate": 0.9,
+      "last_verified": "2026-03-24T10:00:00Z",
+      "notes": "钱包首页邀请卡片，无 testid，用文本匹配"
+    },
+    "perpsSettingsButton": {
+      "primary": "[data-testid=\"perp-header-settings-button\"]",
+      "quick_fallbacks": [],
+      "deep_search": {"enabled": false},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "perps", "platform": ["desktop"], "success_rate": 0.95,
+      "last_verified": "2026-03-25T00:00:00Z",
+      "notes": "Perps 三个点菜单按钮。注意：JS click 无法触发弹窗（K-024），只有真实用户点击或轮询检测弹窗"
+    },
+    "headerShareInvite": {
+      "primary": "button:has(svg[data-sentry-component=\"SvgGift\"])",
+      "quick_fallbacks": ["svg[data-sentry-component=\"SvgGift\"]"],
+      "deep_search": {"enabled": true, "search_text": "SvgGift", "search_role": "button", "search_scope": "page"},
+      "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
+      "page": "perps,defi", "platform": ["desktop"], "success_rate": 0.9,
+      "last_verified": "2026-03-24T10:00:00Z",
+      "notes": "Header 分享邀请按钮（礼物图标），仅在 Perps 和 DeFi 页面顶部可见"
     }
   }
 }

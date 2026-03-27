@@ -34,3 +34,7 @@ superpowers/
 # 测试执行产物（截图、结果 JSON）
 shared/results/
 /tmp/chrome-*
+docs/superpowers/
+shared/recordings/
+shared/results/
+*.png
