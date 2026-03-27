@@ -389,7 +389,7 @@ if (!isCex && !isContract && !isScam) {
 #### 5.1 生成前必读
 
 - **必须先阅读** `docs/qa/rules/swap-rules.md` 中的：**渠道与网络支持矩阵**、**兑换类型覆盖**、**多链测试覆盖原则**、**代币合约地址规则（不同网络维护的 USDC/USDT 等合约地址表）**。
-- **网络特性与代币合约地址**：如需确认某网络主币精度、交易费单位、常用代币合约地址，必须同步参考 `docs/qa/rules/swap-network-features.md`。
+- **网络特性与地址来源（强制）**：生成 Swap 用例时必须先读取 `docs/qa/rules/swap-network-features.md`；代币合约地址与账户地址以该文档为唯一维护来源（source of truth）。
 - 历史 JS 脚本中维护的代币地址、网络 ID（如 `scripts/swap-quote-sse/CHANNEL_CONFIG.js`）仅作**辅参考**，**以 `swap-rules.md` / `swap-network-features.md` 为最终准则**。
 
 #### 5.2 询价接口（GET /swap/v1/quote）
@@ -426,6 +426,14 @@ if (!isCex && !isContract && !isScam) {
 
 - **按渠道与兑换类型**：每个渠道下 3 条（主币<>代币、代币<>主币、代币<>代币），每条为单请求 + 单次断言。
 - **按兑换类型 + 多网络**：每条用例为一种兑换类型，用例内用脚本循环多网络（testCases 数组 + runCase），请求 URL 与脚本中 params 保持一致（含 denySingleSwapProvider），且主请求的 `url.query` 填默认参数。
+
+#### 5.7 渠道生成前探测（强制）
+
+- 生成渠道用例前，必须先用目标参数调用 `/swap/v1/quote` 做可用性探测，再落地用例。
+- **Exodus**：仅保留命中 `SwapExodusBridge` 且返回 `quoteResultCtx` 的组合。
+- **1inch Fusion**：仅保留命中 `Swap1inchFusion` 且返回 `quoteResultCtx` 的组合；仅生成 ERC20<>ERC20。
+- **Jupiter**：仅保留 Solana 网络组合，且 build 阶段必须验证返回 `data.tx`。
+- 探测失败（空路由/缺关键上下文）的组合，单独归档为预期失败，不混入成功用例。
 
 ---
 

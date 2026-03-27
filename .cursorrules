@@ -747,6 +747,7 @@ throw new Error('Results not loaded');
 ### 规则文档（必须阅读并遵守）
 - `docs/qa/qa-rules.md`：测试用例输出规范、去重合并规则、通用维度、模块垂直映射。
 - `docs/qa/rules/transfer-chain-rules.md`：转账链规则，生成转账测试用例时必须参考。
+- `docs/qa/rules/swap-network-features.md`：Swap 网络特性与地址基线；生成 Swap 用例时必须先读取，代币合约地址与账户地址以该文档为准。
 - `docs/qa/requirements/`：需求文档目录，生成用例前必须先读取对应需求文档。
 
 ### 需求文档规范
