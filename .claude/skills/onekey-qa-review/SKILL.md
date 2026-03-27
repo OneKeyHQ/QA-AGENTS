@@ -17,6 +17,8 @@ user-invocable: true
 - 每个问题标注级别（security/block/warn/info）、文件、行号
 - 输出精简版到对话 + 完整报告到 `shared/reports/`
 
+**Phase 跳过规则：** 如果某个 Phase 的适用范围内没有变更文件，直接跳过该 Phase 并在报告中标注 `N/A — 无相关变更文件`。
+
 ---
 
 ## Phase 1：确定审查范围
@@ -25,8 +27,9 @@ user-invocable: true
 
 运行以下命令获取变更文件列表：
 
-    git diff --name-only HEAD
-    git diff --name-only --cached
+    git diff --name-only              # 未暂存的修改
+    git diff --name-only --cached     # 已暂存的修改
+    git ls-files --others --exclude-standard  # 新增未跟踪文件
 
 如果是 PR 审查，改用：
 
@@ -91,7 +94,7 @@ user-invocable: true
 
 | 类型 | 检测模式 |
 |------|----------|
-| 私钥 | 64 位十六进制字符串（可含 `0x` 前缀） |
+| 私钥 | 64 位十六进制字符串（可含 `0x` 前缀），且出现在赋值语句或紧邻 `key`/`private`/`secret` 关键词附近（排除 git SHA、CSS hash 等无关匹配） |
 | 助记词 | 12/15/18/21/24 个英文单词，空格分隔（交叉验证 BIP39 词表） |
 | API Key | `sk-` 或 `sk_` 前缀 + 20 位以上字母数字串 |
 | JWT Token | `eyJ` 开头、三段 base64 用 `.` 分隔的字符串 |
@@ -197,6 +200,8 @@ user-invocable: true
 
     应当 | 正常 | 合理 | 成功 | 符合预期 | 方便用户 | 提升体验 | 正确地 | 尝试
 
+**注意：** 只扫描表格的第 4 列（预期结果），不扫描第 2 列（场景）。场景列中 "网络正常时"、"余额合理" 等描述是合法的前置条件，不应误报。
+
 对每个禁用词命中，输出：文件、行号、原文、建议改写示例。
 
 ### 4.4 用例质量（warn）
@@ -282,6 +287,7 @@ user-invocable: true
 - 过长 sleep（`await sleep(N)` 且 N ≥ 3000，无轮询等待）
 
 同时检查：变更脚本是否引用了相关的规则文档（注释中是否注明 source of truth）。
+如果脚本注释中标注了数据来源（如 `// source: swap-network-features.md`），该硬编码值降级为 **info** 而非 block。
 
 ### 5.6 Dashboard 反馈（block）
 
@@ -323,7 +329,7 @@ user-invocable: true
 
 扫描 Skill 正文中的文件路径引用：
 - [ ] OneKey 可执行文件使用 `$ONEKEY_BIN` 环境变量，不硬编码绝对路径
-- [ ] 项目目录使用相对路径或 `$PROJECT_ROOT`，不硬编码 `/Users/<username>/...`
+- [ ] 项目目录使用相对路径，不硬编码 `/Users/<username>/...` 等绝对用户路径（info 级别）
 
 ### 6.4 规则双写一致性（warn）
 
