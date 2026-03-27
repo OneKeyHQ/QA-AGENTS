@@ -97,7 +97,7 @@ curl -s http://127.0.0.1:9222/json/version
 
 ```bash
 pkill -f "OneKey" 2>/dev/null; sleep 2
-/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey --remote-debugging-port=9222 &
+$ONEKEY_BIN --remote-debugging-port=9222 &
 sleep 5
 ```
 
@@ -135,5 +135,5 @@ sleep 5
 - Tests: `src/tests/{cosmos,perps,wallet,referral,settings}/*.test.mjs`
 - Helpers: `src/tests/helpers/index.mjs` (connectCDP, sleep, screenshot)
 - Results: `shared/results/<TEST-ID>.json`
-- OneKey: `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
+- OneKey: `$ONEKEY_BIN`（env 可配，默认 TF 包路径）
 - CDP: `http://127.0.0.1:9222`

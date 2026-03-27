@@ -20,7 +20,7 @@ curl -s http://127.0.0.1:9222/json/version
 
 # 如果没响应，重启 OneKey（禁止 open，禁止第二实例）
 pkill -f "OneKey" 2>/dev/null; sleep 2
-/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey --remote-debugging-port=9222 &
+$ONEKEY_BIN --remote-debugging-port=9222 &
 sleep 5
 curl -s http://127.0.0.1:9222/json/version
 ```

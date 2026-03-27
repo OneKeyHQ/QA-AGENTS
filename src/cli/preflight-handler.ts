@@ -8,7 +8,7 @@ import { existsSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 
 const TESTS_DIR = join(import.meta.dirname, '..', 'tests');
-const ONEKEY_BIN = '/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey';
+const ONEKEY_BIN = process.env.ONEKEY_BIN ?? '/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey';
 const CDP_URL = process.env.CDP_URL ?? 'http://127.0.0.1:9222';
 
 interface PreflightCheck {
