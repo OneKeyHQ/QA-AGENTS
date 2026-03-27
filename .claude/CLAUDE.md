@@ -96,6 +96,7 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
 ### 1:1 用例对照（最重要的规则）
 - **生成脚本前必须先读取对应的测试用例文档**（`docs/qa/testcases/cases/<module>/`），逐条对照"预期结果"列编写断言
+- **生成 Swap 用例前必须先读取** `docs/qa/rules/swap-network-features.md`，其中代币合约地址与账户地址为唯一维护来源（source of truth）
 - **禁止使用笼统的软断言**，如 `assertHasSomeTableLikeContent(page)`（只检查"有东西"）。必须验证具体内容：
   - 用例要求"显示价格" → 断言找到价格元素且格式正确（如 `$1,234.56` 或 `¥1,234.56`）
   - 用例要求"地址格式 0x1234...abcd" → 断言正则匹配 `/^0x[\da-f]{4,6}\.{3}[\da-f]{4}$/i`

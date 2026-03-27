@@ -18,6 +18,39 @@ Swap 模块支持的网络按技术架构分为三类：
 
 ## 🔗 网络特性表
 
+## 🧾 账户地址与代币合约地址（维护基线）
+
+> 生成 Swap 用例时，账户地址与代币合约地址以本节为唯一维护来源（source of truth）。
+> 新增网络或新增渠道时，必须先补齐本节，再生成/更新用例。
+
+### 账户地址（待维护）
+
+| 网络 | 账户地址（用于 userAddress / receivingAddress） | 状态 |
+|------|-----------------------------------------------|------|
+| Ethereum | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
+| BSC | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
+| Avalanche | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
+| Base | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
+| Polygon | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
+| Solana | `5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52` | ✅ 已维护 |
+| Tron | `TPJkcqRHFfuE2xfgVzs6AA6tbJowz9pmH1` | ✅ 已维护 |
+| SUI | `0xe9f30f8341a465e854063ea7ae4d94ad1403164d37b0c72839e952b313d3db29` | ✅ 已维护 |
+
+### 代币合约地址（USDC / USDT）
+
+| 网络 | networkId | USDC | USDT |
+|------|-----------|------|------|
+| Ethereum | `evm--1` | `0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48` | `0xdac17f958d2ee523a2206206994597c13d831ec7` |
+| BSC | `evm--56` | `0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d` | `0x55d398326f99059ff775485246999027b3197955` |
+| Avalanche | `evm--43114` | `0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e` | `0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7` |
+| Base | `evm--8453` | `0x833589fcd6edb6e08f4c7c32d4f71b54bda02913` | `0xfde4c96c8593536e31f229ea8f37b2ada2699bb2` |
+| Polygon | `evm--137` | `0x3c499c542cef5e3811e1192ce70d8cc03d5c3359` | `0xc2132d05d31c914a87c6611c10748aeb04b58e8f` |
+| Solana | `sol--101` | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB` |
+| Tron | `tron--0` | `TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8` | `TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t` |
+| SUI | `sui--0` | `0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC` | `0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT` |
+
+---
+
 ### EVM 网络
 
 | 网络名称 | 主币符号 | 主币精度 | 交易费单位 | 是否需要授权 | 特殊规则 | 说明 |
@@ -212,6 +245,11 @@ Swap 模块支持的网络按技术架构分为三类：
 
 ## 🔄 更新记录
 
+### 2026-03-27
+- 新增「账户地址与代币合约地址（维护基线）」章节，作为 Swap 用例生成的地址唯一来源
+- 补充 Ethereum/BSC/Avalanche/Base/Polygon/Solana/Tron/SUI 的 USDC/USDT 地址
+- 新增账户地址待维护表，要求新增网络/渠道时同步补齐账户地址与代币地址
+
 ### 2026-01-08
 - 初始版本
 - 添加 EVM 网络特性表（14 个网络）
@@ -227,7 +265,7 @@ Swap 模块支持的网络按技术架构分为三类：
 
 ## 📌 注意事项
 
-1. **新增网络时**：必须及时更新本表，包括网络类型、主币信息、授权要求、交易费单位等
+1. **新增网络或新增渠道时**：必须及时更新本表，包括网络类型、主币信息、授权要求、交易费单位、账户地址、代币合约地址
 2. **测试用例生成**：生成测试用例前，必须先查阅本表，确认网络特性
 3. **授权逻辑**：
    - **EVM 网络**：必须包含授权相关测试（ERC20 代币）
