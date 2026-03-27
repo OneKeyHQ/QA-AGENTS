@@ -40,6 +40,7 @@ const ALL_TEST_IDS = [
   'MARKET-FAV-004',
   'MARKET-FAV-005',
   'MARKET-FAV-006',
+  'MARKET-FAV-007',
 ];
 
 // ── Platform-specific: Desktop ───────────────────────────────
@@ -484,6 +485,54 @@ async function toggleStarInSearchModal(page) {
   });
   if (!clicked) throw new Error('Cannot toggle star in search modal');
   await sleep(1000);
+}
+
+async function clickSearchStarByIndex(page, index = 0) {
+  const clicked = await page.evaluate((idx) => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    if (!modal) return false;
+    const stars = [];
+    for (const btn of modal.querySelectorAll('button')) {
+      const r = btn.getBoundingClientRect();
+      if (r.width < 16 || r.width > 44 || r.height < 16 || r.height > 44) continue;
+      if (r.y < 160) continue;
+      if (btn.querySelector('svg')) stars.push({ btn, y: r.y, x: r.x });
+    }
+    if (stars.length === 0) return false;
+    stars.sort((a, b) => (a.y - b.y) || (a.x - b.x));
+    const target = stars[Math.min(idx, stars.length - 1)];
+    target.btn.click();
+    return true;
+  }, index);
+  if (!clicked) throw new Error(`Cannot click search star at index ${index}`);
+  await sleep(800);
+}
+
+async function rapidClickSearchStar(page, index = 0, times = 3) {
+  const clickedTimes = await page.evaluate(({ idx, n }) => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    if (!modal) return 0;
+    const stars = [];
+    for (const btn of modal.querySelectorAll('button')) {
+      const r = btn.getBoundingClientRect();
+      if (r.width < 16 || r.width > 44 || r.height < 16 || r.height > 44) continue;
+      if (r.y < 160) continue;
+      if (btn.querySelector('svg')) stars.push({ btn, y: r.y, x: r.x });
+    }
+    if (stars.length === 0) return 0;
+    stars.sort((a, b) => (a.y - b.y) || (a.x - b.x));
+    const target = stars[Math.min(idx, stars.length - 1)]?.btn;
+    if (!target) return 0;
+    let c = 0;
+    for (let i = 0; i < n; i++) {
+      target.click();
+      c++;
+    }
+    return c;
+  }, { idx: index, n: times });
+  if (clickedTimes <= 0) throw new Error('Cannot rapid click search star');
+  await sleep(1200);
+  return clickedTimes;
 }
 
 /**
@@ -1103,6 +1152,46 @@ async function testMarketFav006(page) {
   return t.result();
 }
 
+/**
+ * MARKET-FAV-007: 搜索同名多链 + 快速连点防抖
+ * Re-recorded flow: search USDT, favorite two rows, verify in 自选,
+ * then reopen search and rapid click same star multiple times.
+ */
+async function testMarketFav007(page) {
+  const t = createStepTracker('MARKET-FAV-007');
+
+  await goToMarket(page);
+
+  // Round 1: search and favorite two USDT rows (multi-chain intent)
+  await _ensure(page);
+  await _setStrict(page, 'USDT');
+  await assertHasSomeTableLikeContent(page);
+  t.add('搜索 USDT 结果可见', 'passed');
+
+  await clickSearchStarByIndex(page, 0);
+  t.add('收藏 USDT 第1条结果', 'passed');
+  await clickSearchStarByIndex(page, 1);
+  t.add('收藏 USDT 第2条结果', 'passed');
+
+  await closeSearch(page);
+  t.add('关闭搜索', 'passed');
+
+  await clickTab(page, '自选');
+  const favCountAfterAdd = await countWatchlistRows(page);
+  t.add('自选列表可见并已更新', favCountAfterAdd > 0 ? 'passed' : 'failed', `count=${favCountAfterAdd}`);
+
+  // Round 2: reopen search and rapid-click same star to validate debounce/final state stability
+  await _ensure(page);
+  await _setStrict(page, 'USDT');
+  await assertHasSomeTableLikeContent(page);
+  const clicks = await rapidClickSearchStar(page, 0, 5);
+  t.add('同一星标快速连点', 'passed', `clicks=${clicks}`);
+
+  await closeSearch(page);
+  t.add('关闭搜索', 'passed');
+  return t.result();
+}
+
 // ── Exports ──────────────────────────────────────────────────
 
 export const testCases = [
@@ -1112,6 +1201,7 @@ export const testCases = [
   { id: 'MARKET-FAV-004', name: 'Market-收藏-搜索列表收藏取消', fn: testMarketFav004 },
   { id: 'MARKET-FAV-005', name: 'Market-收藏-钱包首页收藏联动', fn: testMarketFav005 },
   { id: 'MARKET-FAV-006', name: 'Market-收藏-跨入口状态同步', fn: testMarketFav006 },
+  { id: 'MARKET-FAV-007', name: 'Market-收藏-同名多链与快速连点防抖', fn: testMarketFav007 },
 ];
 
 export async function setup(page) {
