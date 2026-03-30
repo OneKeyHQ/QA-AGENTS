@@ -153,6 +153,7 @@
 - 风控：高滑点提醒、合约风险提示、最小收到保护
 - **详细规则**：`docs/qa/rules/swap-rules.md`
 - **网络特性**：`docs/qa/rules/swap-network-features.md`
+- **渠道/场景 Markdown 用例**（同链跨链分文件、P0-only、金额边界并入 §1、专项文档默认不收异常/账户限制章）：见 `swap-rules.md` 中「Swap 渠道/场景用例文档编写规范」
 
 ### Market
 - 数据一致性：K 线/列表/详情价格一致
@@ -486,7 +487,7 @@ docs/qa/testcases/cases/
 | --- | --- | --- |
 | Account | `docs/qa/rules/account-rules.md` | 账户模型规则（账户类型、派生路径、助记词管理） |
 | Wallet | `docs/qa/rules/wallet-rules.md` | Wallet 规则（转账、Token、NFT、历史记录） |
-| Swap | `docs/qa/rules/swap-rules.md` | Swap 规则（报价、构建订单、手续费、历史记录） |
+| Swap | `docs/qa/rules/swap-rules.md` | Swap 规则（报价、构建订单、手续费、历史记录；**渠道/场景 Markdown 用例编写规范**见文内专节） |
 | Swap | `docs/qa/rules/swap-network-features.md` | Swap 网络特性表（网络类型、主币、授权要求） |
 | Market | `docs/qa/rules/market-rules.md` | Market 规则（K 线、行情、Swap Pro Mode） |
 | DeFi | `docs/qa/rules/defi-rules.md` | DeFi 规则（借贷、质押、收益） |
