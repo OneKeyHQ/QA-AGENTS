@@ -255,6 +255,7 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 5. **Dashboard 热更新**
    - Dashboard (`src/dashboard/server.ts`) 使用 ESM `import()` 动态加载测试模块，Node.js 会缓存模块。
    - **修改测试脚本后必须重启 Dashboard**（`pkill -f "tsx src/dashboard"` 然后重新启动），否则执行的还是旧代码。
+   - **每次启动 Dashboard 前必须先杀旧进程**：无论 5050 端口是否有响应，都先执行 `pkill -f "tsx src/dashboard"`，等待 1~2 秒后再启动新实例。旧进程可能残留上次的执行状态（running/卡住），导致新执行无法正常启动。
 
 ### 公共组件自动提取规则（严格执行）
 > 来源：组件库建设和 Perps 图表录制过程中的经验总结。

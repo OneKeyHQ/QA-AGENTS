@@ -141,16 +141,32 @@ export async function openSearchModal(page) {
     if (hasSearchInput) return;
   }
 
-  // Click the header search trigger (NOT the one inside a modal)
-  // registry.resolve returns either a Locator or ClickablePoint — both have .click()
-  const trigger = await registry.resolve(page, 'searchInput', { context: 'page' });
-  await trigger.click();
+  // Click the header search trigger — the input is covered by an overlay div
+  // (UniversalSearchInput.tsx renders a pos-absolute div that intercepts pointer events)
+  // So we use JS click on the overlay or the input directly to bypass Playwright's actionability check.
+  const clicked = await page.evaluate(() => {
+    // Strategy 1: click the overlay div that covers the search input
+    const overlay = document.querySelector('[data-sentry-source-file*="UniversalSearchInput"] div[class*="_pos-absolute"]')
+      || document.querySelector('[data-testid="nav-header-search"]')?.parentElement?.querySelector('div[class*="_pos-absolute"]');
+    if (overlay) { overlay.click(); return 'overlay'; }
+    // Strategy 2: directly click the input element via JS
+    const input = document.querySelector('[data-testid="nav-header-search"]');
+    if (input) { input.click(); return 'input'; }
+    return null;
+  });
+  if (!clicked) {
+    // Fallback: try registry resolve with force click
+    const trigger = await registry.resolve(page, 'searchInput', { context: 'page' });
+    await trigger.click({ force: true });
+  }
   await sleep(800);
 
-  // Verify modal opened; retry once
+  // Verify modal opened; retry once with force click
   if (!(await isModalVisible(page))) {
-    const trigger2 = await registry.resolve(page, 'searchInput', { context: 'page' });
-    await trigger2.click();
+    await page.evaluate(() => {
+      const input = document.querySelector('[data-testid="nav-header-search"]');
+      if (input) input.click();
+    });
     await sleep(1000);
   }
 }
