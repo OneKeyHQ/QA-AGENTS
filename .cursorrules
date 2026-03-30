@@ -754,6 +754,8 @@ throw new Error('Results not loaded');
 
 修改测试脚本后**必须重启 Dashboard**（`pkill -f "tsx src/dashboard"` 后重启），否则执行的是旧代码。
 
+**每次启动 Dashboard 前必须先杀旧进程**：无论 5050 端口是否有响应，都先执行 `pkill -f "tsx src/dashboard"`，等待 1~2 秒后再启动新实例。旧进程可能残留上次的执行状态（running/卡住），导致新执行无法正常启动。
+
 ---
 
 ## 参数化覆盖规则（生成测试脚本时强制）

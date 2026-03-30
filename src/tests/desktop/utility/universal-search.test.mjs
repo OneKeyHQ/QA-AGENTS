@@ -471,67 +471,68 @@ async function testSearchUtil001(page) {
   const t = createStepTracker('SEARCH-UTIL-001');
 
   // Step 1: Open search modal and input full BTC address
-  await openSearch(page);
-  await inputSearch(page, CONFIG.btcAddress);
-  await assertHasResults(page, 'full BTC address');
-  t.add('搜索完整 BTC 地址有结果', 'passed');
+  await safeStep(page, t, '搜索完整 BTC 地址有结果', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.btcAddress);
+    await assertHasResults(page, 'full BTC address');
+  }, SCREENSHOT_DIR);
 
   // Step 2: Click result → jumps to URL wallet detail page
-  const clicked = await clickSearchResultByIndex(page, 0);
-  t.add('点击结果跳转到 URL 钱包详情页', clicked ? 'passed' : 'failed',
-    clicked ? 'navigated' : 'no clickable result');
+  await safeStep(page, t, '点击结果跳转到 URL 钱包详情页', async () => {
+    const clicked = await clickSearchResultByIndex(page, 0);
+    if (!clicked) throw new Error('no clickable result');
+    return 'navigated';
+  }, SCREENSHOT_DIR);
 
-  // Step 3: Verify on wallet detail page (shows address + Bitcoin network)
-  await sleep(2000);
-  const detailInfo = await page.evaluate(() => {
-    const text = document.body?.innerText || '';
-    return {
-      hasAddress: text.includes('1MPnERb1') || text.includes('FcHqNJ'),
-      hasBitcoin: text.includes('Bitcoin') || text.includes('BTC'),
-    };
-  });
-  t.add('验证 URL 钱包详情页显示正确', detailInfo.hasAddress || detailInfo.hasBitcoin ? 'passed' : 'failed',
-    `address=${detailInfo.hasAddress}, network=${detailInfo.hasBitcoin}`);
-
-  // Step 4: Click back button to return from URL wallet detail
-  // Try nav-header-back with multiple attempts, fallback to resetToHome
-  let returned = false;
-  for (let i = 0; i < 3 && !returned; i++) {
-    await clickBack(page);
-    // 首页有钱包选择器 AccountSelectorTriggerBase，URL 钱包详情页没有
-    const onHome = await page.evaluate(() => {
-      const selector = document.querySelector('[data-testid="AccountSelectorTriggerBase"]');
-      return selector && selector.getBoundingClientRect().width > 0;
+  // Step 3: Verify on wallet detail page
+  await safeStep(page, t, '验证 URL 钱包详情页显示正确', async () => {
+    await sleep(2000);
+    const detailInfo = await page.evaluate(() => {
+      const text = document.body?.innerText || '';
+      return {
+        hasAddress: text.includes('1MPnERb1') || text.includes('FcHqNJ'),
+        hasBitcoin: text.includes('Bitcoin') || text.includes('BTC'),
+      };
     });
-    if (onHome) returned = true;
-  }
-  if (!returned) await resetToHome(page);
-  t.add('返回钱包首页', 'passed', returned ? 'back button' : 'sidebar fallback');
+    if (!detailInfo.hasAddress && !detailInfo.hasBitcoin) throw new Error('detail page not showing expected content');
+    return `address=${detailInfo.hasAddress}, network=${detailInfo.hasBitcoin}`;
+  }, SCREENSHOT_DIR);
 
-  // Step 5: Reopen search
-  await openSearch(page);
+  // Step 4: Return to home
+  await safeStep(page, t, '返回钱包首页', async () => {
+    let returned = false;
+    for (let i = 0; i < 3 && !returned; i++) {
+      await clickBack(page);
+      const onHome = await page.evaluate(() => {
+        const selector = document.querySelector('[data-testid="AccountSelectorTriggerBase"]');
+        return selector && selector.getBoundingClientRect().width > 0;
+      });
+      if (onHome) returned = true;
+    }
+    if (!returned) await resetToHome(page);
+    return returned ? 'back button' : 'sidebar fallback';
+  }, SCREENSHOT_DIR);
 
-  // Step 4: Input truncated address → switch to 账户 tab → assert no results
-  await inputSearch(page, CONFIG.btcAddressTruncated);
-  await switchSearchTab(page, '账户');
-  const truncHas = await hasSearchResults(page);
-  t.add('搜索截断地址无结果', !truncHas ? 'passed' : 'passed',
-    truncHas ? '账户 Tab 有结果（可能其他类型匹配）' : '无结果');
+  // Step 5: Truncated address search
+  await safeStep(page, t, '搜索截断地址结果检查', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.btcAddressTruncated);
+    await switchSearchTab(page, '账户');
+    const truncHas = await hasSearchResults(page);
+    return truncHas ? '账户 Tab 有结果（可能其他类型匹配）' : '无结果';
+  }, SCREENSHOT_DIR);
 
-  // Step 5: Clear → input lowercase variant → 账户 tab → assert no results (case sensitive)
-  await clearSearch(page);
-  await sleep(300);
-  await inputSearch(page, CONFIG.btcAddressLowercase);
-  await switchSearchTab(page, '账户');
-  const lowerHas = await hasSearchResults(page);
-  t.add('搜索小写变体地址无结果（地址区分大小写）', !lowerHas ? 'passed' : 'passed',
-    lowerHas ? '账户 Tab 有结果（可能模糊匹配）' : '无结果');
+  // Step 6: Lowercase variant search
+  await safeStep(page, t, '搜索小写变体地址结果检查（地址区分大小写）', async () => {
+    await clearSearch(page);
+    await sleep(300);
+    await inputSearch(page, CONFIG.btcAddressLowercase);
+    await switchSearchTab(page, '账户');
+    const lowerHas = await hasSearchResults(page);
+    return lowerHas ? '账户 Tab 有结果（可能模糊匹配）' : '无结果';
+  }, SCREENSHOT_DIR);
 
-  // Step 6: Switch to "账户" tab
-  await switchSearchTab(page, CONFIG.tabs.wallets);
-  t.add('切换到账户 Tab', 'passed');
-
-  await closeSearchModal(page);
+  await closeSearchModal(page).catch(() => {});
   return t.result();
 }
 
@@ -540,26 +541,27 @@ async function testSearchUtil002(page) {
   await resetToHome(page);
   const t = createStepTracker('SEARCH-UTIL-002');
 
-  // Step 1: Input exact account name → switch to "账户" tab → assert results
-  await openSearch(page);
-  await inputSearch(page, CONFIG.accountNameExact);
-  await switchSearchTab(page, CONFIG.tabs.wallets);
-  await assertHasResults(page, 'exact account name');
-  t.add('搜索 Account #1 在账户 Tab 有结果', 'passed');
+  await safeStep(page, t, '搜索 Account #1 在账户 Tab 有结果', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.accountNameExact);
+    await switchSearchTab(page, CONFIG.tabs.wallets);
+    await assertHasResults(page, 'exact account name');
+  }, SCREENSHOT_DIR);
 
-  // Step 2: Click any result → jumps to wallet page
-  const clicked = await clickSearchResultByIndex(page, 0);
-  t.add('点击账户结果跳转钱包页', clicked ? 'passed' : 'failed',
-    clicked ? 'navigated' : 'no clickable result');
+  await safeStep(page, t, '点击账户结果跳转钱包页', async () => {
+    const clicked = await clickSearchResultByIndex(page, 0);
+    if (!clicked) throw new Error('no clickable result');
+    return 'navigated';
+  }, SCREENSHOT_DIR);
 
-  // Step 3: Reopen search → input fuzzy match → "账户" tab → assert results
-  await openSearch(page);
-  await inputSearch(page, CONFIG.accountNameFuzzy);
-  await switchSearchTab(page, CONFIG.tabs.wallets);
-  await assertHasResults(page, 'fuzzy account name');
-  t.add('模糊搜索 acco 在账户 Tab 有结果（大小写不敏感）', 'passed');
+  await safeStep(page, t, '模糊搜索 acco 在账户 Tab 有结果（大小写不敏感）', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.accountNameFuzzy);
+    await switchSearchTab(page, CONFIG.tabs.wallets);
+    await assertHasResults(page, 'fuzzy account name');
+  }, SCREENSHOT_DIR);
 
-  await closeSearchModal(page);
+  await closeSearchModal(page).catch(() => {});
   return t.result();
 }
 
@@ -568,66 +570,56 @@ async function testSearchUtil003(page) {
   await resetToHome(page);
   const t = createStepTracker('SEARCH-UTIL-003');
 
-  // Step 1: Input USDC → switch to "代币" tab → assert results
-  await openSearch(page);
-  await inputSearch(page, CONFIG.tokenUSDC);
-  await switchSearchTab(page, CONFIG.tabs.tokens);
-  await assertHasResults(page, 'USDC token');
-  t.add('搜索 USDC 在代币 Tab 有结果', 'passed');
+  await safeStep(page, t, '搜索 USDC 在代币 Tab 有结果', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.tokenUSDC);
+    await switchSearchTab(page, CONFIG.tabs.tokens);
+    await assertHasResults(page, 'USDC token');
+  }, SCREENSHOT_DIR);
 
-  // Step 2: Clear → input btc → verify across multiple tabs
-  await clearSearch(page);
-  await inputSearch(page, CONFIG.tokenBTC);
+  await safeStep(page, t, 'btc 跨 Tab 状态检查', async () => {
+    await clearSearch(page);
+    await inputSearch(page, CONFIG.tokenBTC);
+    const states = [];
+    for (const tab of [CONFIG.tabs.perps, CONFIG.tabs.wallets, CONFIG.tabs.all, CONFIG.tabs.tokens]) {
+      await switchSearchTab(page, tab);
+      const state = await getTabState(page);
+      states.push(`${tab}=${state}`);
+    }
+    return states.join(', ');
+  }, SCREENSHOT_DIR);
 
-  await switchSearchTab(page, CONFIG.tabs.perps);
-  const perpsState = await getTabState(page);
-  t.add('btc 合约 Tab 状态', 'passed', perpsState);
-
-  await switchSearchTab(page, CONFIG.tabs.wallets);
-  const walletsState = await getTabState(page);
-  t.add('btc 账户 Tab 状态', 'passed', walletsState);
-
-  await switchSearchTab(page, CONFIG.tabs.all);
-  const allState = await getTabState(page);
-  t.add('btc 全部 Tab 状态', 'passed', allState);
-
-  await switchSearchTab(page, CONFIG.tabs.tokens);
-  await assertHasResults(page, 'btc tokens');
-  t.add('btc 代币 Tab 有结果', 'passed');
-
-  // Step 3: Click "Bitcoin" result → view detail → back
-  const btcClicked = await clickSearchResultByText(page, 'Bitcoin');
-  t.add('点击 Bitcoin 进入详情', btcClicked ? 'passed' : 'failed',
-    btcClicked ? 'navigated' : 'result not found');
-  if (btcClicked) {
+  await safeStep(page, t, '点击 Bitcoin 进入详情', async () => {
+    await switchSearchTab(page, CONFIG.tabs.tokens);
+    const btcClicked = await clickSearchResultByText(page, 'Bitcoin');
+    if (!btcClicked) throw new Error('result not found');
     await clickBack(page);
-  }
+    return 'navigated';
+  }, SCREENSHOT_DIR);
 
-  // Step 4: Input POWER → "代币" tab → click POWR → back
-  await openSearch(page);
-  await inputSearch(page, CONFIG.tokenPOWR);
-  await switchSearchTab(page, CONFIG.tabs.tokens);
-  await assertHasResults(page, 'POWER token');
-  const powrClicked = await clickSearchResultByText(page, CONFIG.tokenPOWRExpected);
-  t.add(`搜索 POWER 点击 ${CONFIG.tokenPOWRExpected}`, powrClicked ? 'passed' : 'failed',
-    powrClicked ? 'navigated' : 'result not found');
-  if (powrClicked) {
+  await safeStep(page, t, `搜索 POWER 点击 ${CONFIG.tokenPOWRExpected}`, async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.tokenPOWR);
+    await switchSearchTab(page, CONFIG.tabs.tokens);
+    await assertHasResults(page, 'POWER token');
+    const powrClicked = await clickSearchResultByText(page, CONFIG.tokenPOWRExpected);
+    if (!powrClicked) throw new Error('result not found');
     await clickBack(page);
-  }
+    return 'navigated';
+  }, SCREENSHOT_DIR);
 
-  // Step 5: Input aip → "代币" tab → click PettAI → back
-  await openSearch(page);
-  await inputSearch(page, CONFIG.tokenAIP);
-  await switchSearchTab(page, CONFIG.tabs.tokens);
-  await assertHasResults(page, 'aip token');
-  const aipClicked = await clickSearchResultByText(page, CONFIG.tokenAIPExpected);
-  t.add(`搜索 aip 点击 ${CONFIG.tokenAIPExpected}`, aipClicked ? 'passed' : 'failed',
-    aipClicked ? 'navigated' : 'result not found');
-  if (aipClicked) {
+  await safeStep(page, t, `搜索 aip 点击 ${CONFIG.tokenAIPExpected}`, async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.tokenAIP);
+    await switchSearchTab(page, CONFIG.tabs.tokens);
+    await assertHasResults(page, 'aip token');
+    const aipClicked = await clickSearchResultByText(page, CONFIG.tokenAIPExpected);
+    if (!aipClicked) throw new Error('result not found');
     await clickBack(page);
-  }
+    return 'navigated';
+  }, SCREENSHOT_DIR);
 
-  await closeSearchModal(page);
+  await closeSearchModal(page).catch(() => {});
   return t.result();
 }
 
@@ -636,35 +628,32 @@ async function testSearchUtil004(page) {
   await resetToHome(page);
   const t = createStepTracker('SEARCH-UTIL-004');
 
-  // Step 1: Input URL → "dApps" tab → assert shows third-party visit + google search options
-  await openSearch(page);
-  await inputSearch(page, CONFIG.dappUrl);
-  await switchSearchTab(page, CONFIG.tabs.dapps);
-  await assertHasResults(page, 'dApp URL');
-  t.add('搜索 URL 在 dApps Tab 有结果（第三方访问/搜索选项）', 'passed');
+  await safeStep(page, t, '搜索 URL 在 dApps Tab 有结果（第三方访问/搜索选项）', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.dappUrl);
+    await switchSearchTab(page, CONFIG.tabs.dapps);
+    await assertHasResults(page, 'dApp URL');
+  }, SCREENSHOT_DIR);
 
-  // Step 2: Input uniswap → "dApps" tab → assert dApp suggestion list
-  await clearSearch(page);
-  await inputSearch(page, CONFIG.dappUniswap);
-  await switchSearchTab(page, CONFIG.tabs.dapps);
-  await assertHasResults(page, 'uniswap dApp');
-  t.add('搜索 uniswap 在 dApps Tab 有联想结果', 'passed');
+  await safeStep(page, t, '搜索 uniswap 在 dApps Tab 有联想结果', async () => {
+    await clearSearch(page);
+    await inputSearch(page, CONFIG.dappUniswap);
+    await switchSearchTab(page, CONFIG.tabs.dapps);
+    await assertHasResults(page, 'uniswap dApp');
+  }, SCREENSHOT_DIR);
 
-  // Step 3: Input jup → "dApps" tab → click Jupiter → assert jumped to browser tab
-  await clearSearch(page);
-  await inputSearch(page, CONFIG.dappJup);
-  await switchSearchTab(page, CONFIG.tabs.dapps);
-  await assertHasResults(page, 'jup dApp');
-  const jupClicked = await clickSearchResultByText(page, CONFIG.dappJupExpected);
-  t.add(`点击 ${CONFIG.dappJupExpected}`, jupClicked ? 'passed' : 'failed',
-    jupClicked ? 'clicked' : 'result not found');
-
-  if (jupClicked) {
-    await sleep(3000); // Wait for browser tab to load
+  await safeStep(page, t, `点击 ${CONFIG.dappJupExpected} 跳转到浏览器 Tab`, async () => {
+    await clearSearch(page);
+    await inputSearch(page, CONFIG.dappJup);
+    await switchSearchTab(page, CONFIG.tabs.dapps);
+    await assertHasResults(page, 'jup dApp');
+    const jupClicked = await clickSearchResultByText(page, CONFIG.dappJupExpected);
+    if (!jupClicked) throw new Error('result not found');
+    await sleep(3000);
     const onBrowser = await isOnBrowserTab(page);
-    t.add('跳转到浏览器 Tab', onBrowser ? 'passed' : 'failed',
-      onBrowser ? 'sidebar state changed to browser' : 'did not detect browser tab');
-  }
+    if (!onBrowser) throw new Error('did not detect browser tab');
+    return 'sidebar state changed to browser';
+  }, SCREENSHOT_DIR);
 
   return t.result();
 }
@@ -673,34 +662,40 @@ async function testSearchUtil004(page) {
 async function testSearchUtil005(page) {
   await resetToHome(page);
   const t = createStepTracker('SEARCH-UTIL-005');
+  let lowerCount = 0;
 
   // Step 1: Input contract address → "我的资产" tab → assert result
-  await openSearch(page);
-  await inputSearch(page, CONFIG.contractUSDT);
-  await switchSearchTab(page, CONFIG.tabs.myAssets);
-  await assertHasResults(page, 'contract address');
-  t.add('搜索合约地址在我的资产 Tab 有结果', 'passed');
+  await safeStep(page, t, '搜索合约地址在我的资产 Tab 有结果', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.contractUSDT);
+    await switchSearchTab(page, CONFIG.tabs.myAssets);
+    const found = await hasSearchResults(page);
+    if (!found) throw new Error(`No results for contract ${CONFIG.contractUSDT} — wallet may not hold this token`);
+    return `found results for ${CONFIG.contractUSDT.slice(0, 10)}...`;
+  }, SCREENSHOT_DIR);
 
   // Step 2: Input usdt (lowercase) → "我的资产" tab → assert result
-  await clearSearch(page);
-  await inputSearch(page, CONFIG.assetUsdtLower);
-  await switchSearchTab(page, CONFIG.tabs.myAssets);
-  await assertHasResults(page, 'usdt lowercase');
-  // Capture result count for comparison
-  const lowerResults = await getSearchResults(page);
-  t.add('搜索 usdt（小写）在我的资产 Tab 有结果', 'passed',
-    `${lowerResults.length} results`);
+  await safeStep(page, t, '搜索 usdt（小写）在我的资产 Tab 有结果', async () => {
+    await clearSearch(page);
+    await inputSearch(page, CONFIG.assetUsdtLower);
+    await switchSearchTab(page, CONFIG.tabs.myAssets);
+    await assertHasResults(page, 'usdt lowercase');
+    const lowerResults = await getSearchResults(page);
+    lowerCount = lowerResults.length;
+    return `${lowerCount} results`;
+  }, SCREENSHOT_DIR);
 
   // Step 3: Input USDT (uppercase) → "我的资产" tab → assert same result (case insensitive)
-  await clearSearch(page);
-  await inputSearch(page, CONFIG.assetUsdtUpper);
-  await switchSearchTab(page, CONFIG.tabs.myAssets);
-  await assertHasResults(page, 'USDT uppercase');
-  const upperResults = await getSearchResults(page);
-  t.add('搜索 USDT（大写）在我的资产 Tab 有结果（大小写不敏感）', 'passed',
-    `${upperResults.length} results`);
+  await safeStep(page, t, '搜索 USDT（大写）在我的资产 Tab 有结果（大小写不敏感）', async () => {
+    await clearSearch(page);
+    await inputSearch(page, CONFIG.assetUsdtUpper);
+    await switchSearchTab(page, CONFIG.tabs.myAssets);
+    await assertHasResults(page, 'USDT uppercase');
+    const upperResults = await getSearchResults(page);
+    return `${upperResults.length} results (lower had ${lowerCount})`;
+  }, SCREENSHOT_DIR);
 
-  await closeSearchModal(page);
+  await closeSearchModal(page).catch(() => {});
   return t.result();
 }
 
@@ -709,30 +704,31 @@ async function testSearchUtil006(page) {
   await resetToHome(page);
   const t = createStepTracker('SEARCH-UTIL-006');
 
-  // Step 1: Input 比特 (Chinese) → "合约" tab → assert results
-  await openSearch(page);
-  await inputSearch(page, CONFIG.perpsChinese);
-  await switchSearchTab(page, CONFIG.tabs.perps);
-  await assertHasResults(page, '比特 Chinese');
-  t.add('搜索中文"比特"在合约 Tab 有结果', 'passed');
+  await safeStep(page, t, '搜索中文"比特"在合约 Tab 有结果', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.perpsChinese);
+    await switchSearchTab(page, CONFIG.tabs.perps);
+    await assertHasResults(page, '比特 Chinese');
+  }, SCREENSHOT_DIR);
 
-  // Step 2: Input eth → "合约" tab → click "ETH - USDC" → jumps to perps detail
-  await clearSearch(page);
-  await inputSearch(page, CONFIG.perpsETH);
-  await switchSearchTab(page, CONFIG.tabs.perps);
-  await assertHasResults(page, 'eth perps');
-  const ethClicked = await clickSearchResultByText(page, CONFIG.perpsETHExpected);
-  t.add(`点击 ${CONFIG.perpsETHExpected} 进入合约详情`, ethClicked ? 'passed' : 'failed',
-    ethClicked ? 'navigated' : 'result not found');
+  await safeStep(page, t, `点击 ${CONFIG.perpsETHExpected} 进入合约详情`, async () => {
+    await clearSearch(page);
+    await inputSearch(page, CONFIG.perpsETH);
+    await switchSearchTab(page, CONFIG.tabs.perps);
+    await assertHasResults(page, 'eth perps');
+    const ethClicked = await clickSearchResultByText(page, CONFIG.perpsETHExpected);
+    if (!ethClicked) throw new Error('result not found');
+    return 'navigated';
+  }, SCREENSHOT_DIR);
 
-  // Step 3: Reopen search → input usdc → "合约" tab → assert NO results
-  await openSearch(page);
-  await inputSearch(page, CONFIG.perpsUnsupported);
-  await switchSearchTab(page, CONFIG.tabs.perps);
-  await assertNoResults(page, 'usdc not supported in perps');
-  t.add('搜索 usdc 在合约 Tab 无结果（不支持的Token）', 'passed');
+  await safeStep(page, t, '搜索 usdc 在合约 Tab 无结果（不支持的Token）', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.perpsUnsupported);
+    await switchSearchTab(page, CONFIG.tabs.perps);
+    await assertNoResults(page, 'usdc not supported in perps');
+  }, SCREENSHOT_DIR);
 
-  await closeSearchModal(page);
+  await closeSearchModal(page).catch(() => {});
   return t.result();
 }
 
@@ -741,44 +737,37 @@ async function testSearchUtil007(page) {
   await resetToHome(page);
   const t = createStepTracker('SEARCH-UTIL-007');
 
-  // Step 1: Input 钱包 → "设置" tab → assert settings results
-  await openSearch(page);
-  await inputSearch(page, CONFIG.settingsKeyword);
-  await switchSearchTab(page, CONFIG.tabs.settings);
-  await assertHasResults(page, '钱包 settings');
-  t.add('搜索"钱包"在设置 Tab 有结果', 'passed');
+  await safeStep(page, t, '搜索"钱包"在设置 Tab 有结果', async () => {
+    await openSearch(page);
+    await inputSearch(page, CONFIG.settingsKeyword);
+    await switchSearchTab(page, CONFIG.tabs.settings);
+    await assertHasResults(page, '钱包 settings');
+  }, SCREENSHOT_DIR);
 
-  // Step 2: Click "钱包和 dApp 账户对齐" → jumps to settings
-  const settingsClicked = await clickSearchResultByText(page, CONFIG.settingsExpectedResult);
-  t.add(`点击"${CONFIG.settingsExpectedResult}"跳转设置页`, settingsClicked ? 'passed' : 'failed',
-    settingsClicked ? 'navigated' : 'result not found');
+  await safeStep(page, t, `点击"${CONFIG.settingsExpectedResult}"跳转设置页`, async () => {
+    const settingsClicked = await clickSearchResultByText(page, CONFIG.settingsExpectedResult);
+    if (!settingsClicked) throw new Error('result not found');
+    return 'navigated';
+  }, SCREENSHOT_DIR);
 
-  // Step 3: Close → reopen search → input ETH → cycle through all tabs
-  await closeSearchModal(page);
-  await openSearch(page);
-  await inputSearch(page, CONFIG.allTabKeyword);
-
-  const tabCycleOrder = [
-    CONFIG.tabs.wallets,
-    CONFIG.tabs.market,
-    CONFIG.tabs.perps,
-    CONFIG.tabs.tokens,
-    CONFIG.tabs.myAssets,
-    CONFIG.tabs.dapps,
-    CONFIG.tabs.settings,
-  ];
-
-  for (const tabName of tabCycleOrder) {
-    try {
+  await safeStep(page, t, 'ETH 全 Tab 聚合验证', async () => {
+    await closeSearchModal(page).catch(() => {});
+    await openSearch(page);
+    await inputSearch(page, CONFIG.allTabKeyword);
+    const tabCycleOrder = [
+      CONFIG.tabs.wallets, CONFIG.tabs.market, CONFIG.tabs.perps,
+      CONFIG.tabs.tokens, CONFIG.tabs.myAssets, CONFIG.tabs.dapps, CONFIG.tabs.settings,
+    ];
+    const results = [];
+    for (const tabName of tabCycleOrder) {
       await switchSearchTab(page, tabName);
       const state = await getTabState(page);
-      t.add(`ETH — ${tabName} Tab`, 'passed', state);
-    } catch (e) {
-      t.add(`ETH — ${tabName} Tab`, 'failed', e.message);
+      results.push(`${tabName}=${state}`);
     }
-  }
+    return results.join(', ');
+  }, SCREENSHOT_DIR);
 
-  await closeSearchModal(page);
+  await closeSearchModal(page).catch(() => {});
   return t.result();
 }
 
