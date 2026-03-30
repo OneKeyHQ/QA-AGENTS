@@ -20,7 +20,7 @@ import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
-import { openSearchModal, clickSidebarTab } from '../../helpers/components.mjs';
+import { openSearchModal, clickSidebarTab, assertListRendered } from '../../helpers/components.mjs';
 import {
   createStepTracker, safeStep,
   isSearchModalOpen, getModalSearchInput,
@@ -475,6 +475,12 @@ async function testSearchUtil001(page) {
     await openSearch(page);
     await inputSearch(page, CONFIG.btcAddress);
     await assertHasResults(page, 'full BTC address');
+    const lr = await assertListRendered(page, {
+      testidPrefix: 'select-item-',
+      scope: '[data-testid="APP-Modal-Screen"]',
+      minCount: 1,
+    });
+    if (lr.errors.length > 0) throw new Error(`List render: ${lr.errors.join('; ')}`);
   }, SCREENSHOT_DIR);
 
   // Step 2: Click result → jumps to URL wallet detail page

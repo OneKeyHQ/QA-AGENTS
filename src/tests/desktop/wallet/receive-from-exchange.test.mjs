@@ -53,6 +53,7 @@ import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
+import { assertListRendered } from '../../helpers/components.mjs';
 import { runPreconditions } from '../../helpers/preconditions.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'wallet-receive-from-exchange');
@@ -908,6 +909,13 @@ export const testCases = [
       if (!networkPage.hasNetworks && networkPage.selectItemCount === 0) {
         throw new Error('选择代币后未显示网络选择页');
       }
+
+      const lr = await assertListRendered(page, {
+        testidPrefix: 'select-item-',
+        scope: '[data-testid="APP-Modal-Screen"]',
+        minCount: 3,
+      });
+      if (lr.errors.length > 0) throw new Error(`List render: ${lr.errors.join('; ')}`);
 
       // 选择 Ethereum 网络（用坐标点击，JS click 可能不触发 React 路由）
       const ethNetCoords = await page.evaluate(() => {

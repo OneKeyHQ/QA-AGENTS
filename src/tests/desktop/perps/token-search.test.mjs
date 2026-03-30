@@ -13,6 +13,7 @@ import {
 } from '../../helpers/index.mjs';
 import { PerpsPage } from '../../helpers/pages/index.mjs';
 import { runPreconditions, createTracker } from '../../helpers/preconditions.mjs';
+import { assertListRendered } from '../../helpers/components.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'search');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -220,6 +221,13 @@ async function testSearch001(page) {
   await clickTab(page, '永续合约');
   await searchAsset(page, 'BT');
 
+  // Assert search results list rendered
+  const lrSearch = await assertListRendered(page, {
+    selector: '[data-testid="TMPopover-ScrollView"] span',
+    minCount: 1,
+  });
+  if (lrSearch.errors.length > 0) throw new Error(`List render: ${lrSearch.errors.join('; ')}`);
+
   const perpsTokens = await getTokenList(page);
   t.add('永续合约搜索 BT 有结果', perpsTokens.length > 0 ? 'passed' : 'failed',
     `results: ${perpsTokens.join(', ') || 'none'}`, { dataKey: 'BT' });
@@ -229,6 +237,13 @@ async function testSearch001(page) {
   // Step 2: 保持 BT 搜索词，逐个切换其他 tab
   const tabs = await getSectionTabs(page);
   const otherTabs = tabs.filter(t => t !== '自选' && t !== '永续合约');
+
+  // Assert tab list rendered in popover before iterating
+  const lrTabs = await assertListRendered(page, {
+    selector: '[data-testid="TMPopover-ScrollView"] span',
+    minCount: 2,
+  });
+  if (lrTabs.errors.length > 0) throw new Error(`List render: ${lrTabs.errors.join('; ')}`);
 
   for (const tab of otherTabs) {
     await clickTab(page, tab);

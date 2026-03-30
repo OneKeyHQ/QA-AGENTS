@@ -18,7 +18,7 @@ import {
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { PerpsPage } from '../../helpers/pages/index.mjs';
-import { createStepTracker } from '../../helpers/components.mjs';
+import { createStepTracker, assertListRendered } from '../../helpers/components.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'perps-favorites');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -176,6 +176,12 @@ async function clearAndTriggerRecommendation(page) {
   await sleep(1000);
   await openPairSelector(page);
   await sleep(1500);
+  // Assert popover list rendered after opening pair selector
+  const lr = await assertListRendered(page, {
+    selector: '[data-testid="TMPopover-ScrollView"] span',
+    minCount: 3,
+  });
+  if (lr.errors.length > 0) throw new Error(`List render: ${lr.errors.join('; ')}`);
   // Click 自选 tab — recommendation list only appears here when favorites are empty
   await clickText(page, '自选');
   await sleep(1500);
@@ -497,6 +503,13 @@ async function testPerps002(page) {
   await searchAsset(page, 'BTC');
   await clickText(page, '永续合约');
   await sleep(1000);
+
+  // Assert search results list rendered
+  const lr = await assertListRendered(page, {
+    selector: '[data-testid="TMPopover-ScrollView"] span',
+    minCount: 1,
+  });
+  if (lr.errors.length > 0) throw new Error(`List render: ${lr.errors.join('; ')}`);
 
   await clickStarAtIndex(page, 0);
 
