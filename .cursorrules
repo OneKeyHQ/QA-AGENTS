@@ -405,9 +405,47 @@ Read results → classify root cause (5 types) → route to handler → fix → 
 
 ---
 
+## 测试平台选择规则（每次会话必须询问）
+
+**每次会话首次需要连接 OneKey 时，必须先询问用户要测试的平台**，不论 `.env` 是否已配置：
+
+```
+请选择要测试的平台：
+1. 桌面端 TF 包（TestFlight）— /Applications/OneKey-3.localized/OneKey.app
+2. 桌面端 MAS 包（Mac App Store）— 请提供路径
+3. 浏览器插件端 — 请提供插件 ID（Extension ID）+ Chrome 用户目录（User Data Dir）
+4. Web 端 — 请提供要使用的 Chrome 用户目录（User Data Dir）
+```
+
+- **桌面端（选项 1/2）**：用户选择后，将路径写入 `.env` 的 `ONEKEY_BIN=`，通过 CDP 连接
+- **插件端（选项 3）**：需要两个信息 — ①Extension ID ②Chrome Profile。自动扫描 `~/Library/Application Support/Google/Chrome/` 下的 Profile 目录，列出可选 profile 让用户选择（显示 profile 名称），然后再询问 Extension ID。Launch command: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/Library/Application Support/Google/Chrome" --profile-directory="<Profile N>"`
+- **Web 端（选项 4）**：自动扫描并列出可用 Chrome Profile 让用户选择，无需手动输入路径。Launch command: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/Library/Application Support/Google/Chrome" --profile-directory="<Profile N>"`
+- **Chrome Profile 自动扫描与选择逻辑**：
+  1. 扫描 `~/Library/Application Support/Google/Chrome/` 下所有 Profile 目录
+  2. **只有 1 个 profile → 直接使用，不询问**
+  3. **多个 profile → 列出编号让用户选择**：
+     ```
+     检测到以下 Chrome Profile：
+     1. Default → 个人
+     2. Profile 2 → 用户2
+     请选择要使用的 Profile（输入编号）：
+     ```
+  ```bash
+  for dir in ~/Library/Application\ Support/Google/Chrome/Profile* ~/Library/Application\ Support/Google/Chrome/Default; do
+    [ -d "$dir" ] && python3 -c "
+  import json, os
+  prefs = json.load(open(os.path.join('$dir', 'Preferences')))
+  print(f'$(basename \"$dir\")  →  {prefs.get(\"profile\",{}).get(\"name\",\"unnamed\")}')
+  " 2>/dev/null
+  done
+  ```
+- 用户选择后记住本次会话的平台选择，同一会话内不重复询问
+
+---
+
 ## OneKey CDP 自动化（适用于所有 OneKey 相关操作）
 
-**任何涉及 OneKey 桌面端操作的指令，都必须先确保 CDP 连接就绪。这是自动行为，不需要询问用户。**
+**确认平台后，必须确保 CDP 连接就绪。CDP 启动是自动行为，但平台选择必须先询问用户。**
 
 ```bash
 # Step 1: 检查 CDP
@@ -442,7 +480,8 @@ curl -s http://127.0.0.1:9222/json/version
 
 **自动执行步骤：**
 
-1. **确保 OneKey CDP 就绪**（见上方 CDP 自动化）
+1. **询问测试平台**（见上方"测试平台选择规则"，每次会话首次必须询问）
+2. **根据选择的平台确保 CDP 就绪**（见上方 CDP 自动化）
 2. **启动 Dashboard 执行面板（端口 5050）**：
    ```bash
    # 检查 Dashboard 是否已运行
