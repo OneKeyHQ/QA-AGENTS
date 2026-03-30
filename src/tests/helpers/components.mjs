@@ -141,16 +141,32 @@ export async function openSearchModal(page) {
     if (hasSearchInput) return;
   }
 
-  // Click the header search trigger (NOT the one inside a modal)
-  // registry.resolve returns either a Locator or ClickablePoint — both have .click()
-  const trigger = await registry.resolve(page, 'searchInput', { context: 'page' });
-  await trigger.click();
+  // Click the header search trigger — the input is covered by an overlay div
+  // (UniversalSearchInput.tsx renders a pos-absolute div that intercepts pointer events)
+  // So we use JS click on the overlay or the input directly to bypass Playwright's actionability check.
+  const clicked = await page.evaluate(() => {
+    // Strategy 1: click the overlay div that covers the search input
+    const overlay = document.querySelector('[data-sentry-source-file*="UniversalSearchInput"] div[class*="_pos-absolute"]')
+      || document.querySelector('[data-testid="nav-header-search"]')?.parentElement?.querySelector('div[class*="_pos-absolute"]');
+    if (overlay) { overlay.click(); return 'overlay'; }
+    // Strategy 2: directly click the input element via JS
+    const input = document.querySelector('[data-testid="nav-header-search"]');
+    if (input) { input.click(); return 'input'; }
+    return null;
+  });
+  if (!clicked) {
+    // Fallback: try registry resolve with force click
+    const trigger = await registry.resolve(page, 'searchInput', { context: 'page' });
+    await trigger.click({ force: true });
+  }
   await sleep(800);
 
-  // Verify modal opened; retry once
+  // Verify modal opened; retry once with force click
   if (!(await isModalVisible(page))) {
-    const trigger2 = await registry.resolve(page, 'searchInput', { context: 'page' });
-    await trigger2.click();
+    await page.evaluate(() => {
+      const input = document.querySelector('[data-testid="nav-header-search"]');
+      if (input) input.click();
+    });
     await sleep(1000);
   }
 }
@@ -207,6 +223,184 @@ export async function closeSearch(page) {
   }
   await page.keyboard.press('Escape');
   await sleep(800);
+}
+
+// ── List / Dropdown Visual Assertion ────────────────────────
+// Standard assertion for any visible item list: dropdown options, token rows,
+// search results, settings menu items, etc.
+// Checks: minimum count, non-zero size, no vertical overlap.
+
+/**
+ * Assert that a list of items renders correctly (visible, no overlap, min count).
+ *
+ * @param {import('playwright-core').Page} page
+ * @param {object} opts
+ * @param {string} [opts.testidPrefix]   — match elements whose data-testid starts with this
+ * @param {string} [opts.selector]       — CSS selector to match list items (alternative to testidPrefix)
+ * @param {string} [opts.scope]          — optional parent CSS selector to restrict search (e.g. '[data-testid="APP-Modal-Screen"]')
+ * @param {number} [opts.minCount=2]     — minimum number of visible items expected
+ * @param {number} [opts.overlapTolerance=2] — px tolerance for overlap detection
+ * @param {string[]} [opts.excludeTestids] — exact testid values to skip (e.g. ['select-item-'])
+ * @returns {{ count: number, items: Array<{text,y,h,w}>, errors: string[] }}
+ */
+export async function assertListRendered(page, opts = {}) {
+  const result = await page.evaluate((o) => {
+    const {
+      testidPrefix, selector, scope,
+      minCount = 2, overlapTolerance = 2,
+      excludeTestids = [],
+    } = o;
+
+    // Collect candidate elements
+    let els;
+    const root = scope ? document.querySelector(scope) || document.body : document.body;
+
+    if (testidPrefix) {
+      els = root.querySelectorAll(`[data-testid^="${testidPrefix}"]`);
+    } else if (selector) {
+      els = root.querySelectorAll(selector);
+    } else {
+      return { count: 0, items: [], errors: ['assertListRendered: must provide testidPrefix or selector'] };
+    }
+
+    // Filter to visible items, exclude unwanted testids
+    const items = [];
+    for (const el of els) {
+      const tid = el.getAttribute('data-testid') || '';
+      if (excludeTestids.includes(tid)) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        items.push({
+          text: el.textContent?.trim().substring(0, 40) || '',
+          x: Math.round(r.x),
+          y: Math.round(r.y),
+          w: Math.round(r.width),
+          h: Math.round(r.height),
+        });
+      }
+    }
+
+    // Sort by y position
+    items.sort((a, b) => a.y - b.y);
+
+    const errors = [];
+
+    // Check 1: minimum count
+    if (items.length < minCount) {
+      errors.push(`Expected ≥${minCount} visible items, found ${items.length}`);
+    }
+
+    // Check 2: no vertical overlap — each item's top must be ≥ previous item's bottom
+    for (let i = 1; i < items.length; i++) {
+      const prev = items[i - 1];
+      const curr = items[i];
+      const prevBottom = prev.y + prev.h;
+      if (curr.y < prevBottom - overlapTolerance) {
+        errors.push(
+          `Overlap: "${prev.text}" (bottom=${prevBottom}) ↔ "${curr.text}" (top=${curr.y}), gap=${curr.y - prevBottom}px`
+        );
+      }
+    }
+
+    // Check 3: each item has reasonable size (not collapsed/invisible)
+    for (const item of items) {
+      if (item.w < 20 || item.h < 10) {
+        errors.push(`"${item.text}" too small: ${item.w}×${item.h}px`);
+      }
+    }
+
+    return { count: items.length, items, errors };
+  }, opts);
+
+  return result;
+}
+
+/**
+ * Assert that a page/section has loaded successfully:
+ *  - No loading spinner visible
+ *  - Target content area has visible elements (not blank)
+ *  - Optional: specific testid or text is present
+ *
+ * @param {import('playwright-core').Page} page
+ * @param {object} opts
+ * @param {string} [opts.scope]           — CSS selector for the content area to check (default: body)
+ * @param {string} [opts.expectTestid]    — a data-testid that must be visible
+ * @param {string} [opts.expectText]      — text that must appear in the content
+ * @param {number} [opts.minVisibleEls=3] — minimum number of visible elements (non-blank page)
+ * @param {number} [opts.timeout=8000]    — max ms to wait for loading to finish
+ * @returns {{ loaded: boolean, hasSpinner: boolean, visibleCount: number, errors: string[] }}
+ */
+export async function assertPageLoaded(page, opts = {}) {
+  const { scope, expectTestid, expectText, minVisibleEls = 3, timeout = 8000 } = opts;
+
+  // Wait for spinners / skeleton to disappear
+  const start = Date.now();
+  let hasSpinner = true;
+  while (Date.now() - start < timeout) {
+    hasSpinner = await page.evaluate((s) => {
+      const root = s ? document.querySelector(s) || document.body : document.body;
+      // Common spinner / loading patterns
+      const spinnerSelectors = [
+        '[data-testid*="loading"]', '[data-testid*="Loading"]',
+        '[data-testid*="spinner"]', '[data-testid*="Spinner"]',
+        '[data-testid*="skeleton"]', '[data-testid*="Skeleton"]',
+        '.loading', '.spinner', '[role="progressbar"]',
+      ];
+      for (const sel of spinnerSelectors) {
+        const el = root.querySelector(sel);
+        if (el && el.getBoundingClientRect().width > 0) return true;
+      }
+      return false;
+    }, scope);
+    if (!hasSpinner) break;
+    await sleep(500);
+  }
+
+  // Collect page state
+  const result = await page.evaluate((o) => {
+    const root = o.scope ? document.querySelector(o.scope) || document.body : document.body;
+    const errors = [];
+
+    // Count visible elements with real content
+    let visibleCount = 0;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
+    let node;
+    while ((node = walker.nextNode())) {
+      const r = node.getBoundingClientRect();
+      if (r.width > 20 && r.height > 10 && node.children.length === 0) {
+        const text = node.textContent?.trim();
+        if (text && text.length > 0) visibleCount++;
+      }
+    }
+
+    if (visibleCount < o.minVisibleEls) {
+      errors.push(`Page looks blank: only ${visibleCount} visible text elements (expected ≥${o.minVisibleEls})`);
+    }
+
+    // Check for expected testid
+    if (o.expectTestid) {
+      const el = root.querySelector(`[data-testid="${o.expectTestid}"]`);
+      if (!el || el.getBoundingClientRect().width === 0) {
+        errors.push(`Expected testid "${o.expectTestid}" not visible`);
+      }
+    }
+
+    // Check for expected text
+    if (o.expectText) {
+      if (!root.textContent?.includes(o.expectText)) {
+        errors.push(`Expected text "${o.expectText}" not found`);
+      }
+    }
+
+    return { visibleCount, errors };
+  }, { scope, expectTestid, expectText, minVisibleEls });
+
+  return {
+    loaded: !hasSpinner && result.errors.length === 0,
+    hasSpinner,
+    visibleCount: result.visibleCount,
+    errors: hasSpinner ? [`Loading spinner still visible after ${timeout}ms`, ...result.errors] : result.errors,
+  };
 }
 
 // ── Popover Helper ──────────────────────────────────────────

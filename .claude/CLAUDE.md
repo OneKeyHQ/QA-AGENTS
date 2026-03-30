@@ -10,15 +10,41 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 - **Launch command**: `$ONEKEY_BIN --remote-debugging-port=9222`
 - 配置方式：在 `.env` 文件中设置 `ONEKEY_BIN=/your/path/to/OneKey`
 
-### 首次连接交互规则
-- **每次会话首次需要连接 OneKey 时**，如果 `.env` 中没有设置 `ONEKEY_BIN`（即被注释或不存在），先询问用户：
+### 测试平台选择规则（每次会话必须询问）
+- **每次会话首次需要连接 OneKey 时，必须询问用户要测试的平台**，不论 `.env` 是否已配置：
   ```
-  请选择要连接的 OneKey 安装包：
-  1. TF 包（TestFlight）— /Applications/OneKey-3.localized/OneKey.app
-  2. MAS 包（Mac App Store）— 请提供路径
+  请选择要测试的平台：
+  1. 桌面端 TF 包（TestFlight）— /Applications/OneKey-3.localized/OneKey.app
+  2. 桌面端 MAS 包（Mac App Store）— 请提供路径
+  3. 浏览器插件端 — 请提供插件 ID（Extension ID）+ Chrome 用户目录（User Data Dir）
+  4. Web 端 — 请提供要使用的 Chrome 用户目录（User Data Dir）
   ```
-- 用户选择后，将对应路径的 `Contents/MacOS/OneKey` 写入 `.env` 的 `ONEKEY_BIN=` 并取消注释
-- 如果 `.env` 已配置了未注释的 `ONEKEY_BIN`，直接使用，不再询问
+- **桌面端（选项 1/2）**：用户选择后，将对应路径的 `Contents/MacOS/OneKey` 写入 `.env` 的 `ONEKEY_BIN=`，通过 CDP 连接
+- **插件端（选项 3）**：需要两个信息 — ①Extension ID ②Chrome Profile。自动扫描 `~/Library/Application Support/Google/Chrome/` 下的 Profile 目录，列出可选 profile 让用户选择（显示 profile 名称），然后再询问 Extension ID。Launch command: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=9222 --user-data-dir=<Chrome根目录> --profile-directory=<Profile N>`
+- **Web 端（选项 4）**：自动扫描并列出可用 Chrome Profile 让用户选择，无需手动输入路径。Launch command: `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=9222 --user-data-dir=<Chrome根目录> --profile-directory=<Profile N>`
+- **Chrome Profile 自动扫描与选择逻辑**：
+  1. 扫描 `~/Library/Application Support/Google/Chrome/` 下的所有 Profile 目录（Default、Profile N）
+  2. 读取每个 Profile 的 `Preferences` 文件获取显示名称
+  3. **只有 1 个 profile → 直接使用，不询问**
+  4. **多个 profile → 列出编号让用户选择**：
+     ```
+     检测到以下 Chrome Profile：
+     1. Default → 个人
+     2. Profile 2 → 用户2
+     3. Profile 3 → 工作
+     请选择要使用的 Profile（输入编号）：
+     ```
+  ```bash
+  # 扫描脚本
+  for dir in ~/Library/Application\ Support/Google/Chrome/Profile* ~/Library/Application\ Support/Google/Chrome/Default; do
+    [ -d "$dir" ] && python3 -c "
+  import json, os
+  prefs = json.load(open(os.path.join('$dir', 'Preferences')))
+  print(f'$(basename "$dir")  →  {prefs.get(\"profile\",{}).get(\"name\",\"unnamed\")}')
+  " 2>/dev/null
+  done
+  ```
+- 用户选择后记住本次会话的平台选择，同一会话内不重复询问
 
 ## CDP & 连接规则（严格执行）
 - **NEVER** use MCP Playwright (`browser_navigate`, `browser_snapshot`, etc.) to connect to OneKey. It's a separate browser instance, not the OneKey app.
@@ -255,6 +281,7 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 5. **Dashboard 热更新**
    - Dashboard (`src/dashboard/server.ts`) 使用 ESM `import()` 动态加载测试模块，Node.js 会缓存模块。
    - **修改测试脚本后必须重启 Dashboard**（`pkill -f "tsx src/dashboard"` 然后重新启动），否则执行的还是旧代码。
+   - **每次启动 Dashboard 前必须先杀旧进程**：无论 5050 端口是否有响应，都先执行 `pkill -f "tsx src/dashboard"`，等待 1~2 秒后再启动新实例。旧进程可能残留上次的执行状态（running/卡住），导致新执行无法正常启动。
 
 ### 公共组件自动提取规则（严格执行）
 > 来源：组件库建设和 Perps 图表录制过程中的经验总结。

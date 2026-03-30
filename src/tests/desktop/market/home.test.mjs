@@ -18,7 +18,7 @@ import {
 } from '../../helpers/index.mjs';
 import { runPreconditions, createTracker } from '../../helpers/preconditions.mjs';
 import { MarketPage } from '../../helpers/pages/index.mjs';
-import { openSearchModal } from '../../helpers/components.mjs';
+import { openSearchModal, assertListRendered } from '../../helpers/components.mjs';
 import {
   setSearchValueStrict, closeSearch,
 } from '../../helpers/market-search.mjs';
@@ -351,6 +351,13 @@ async function testMarketHome001(page) {
   await assertAndTrack(page, t, '主标签现货->合约->自选切换', async () => {
     await clickMainTab(page, '现货');
     await waitListVisible(page);
+
+    const lrTab = await assertListRendered(page, {
+      selector: '[data-testid="list-column-name"]',
+      minCount: 3,
+    });
+    if (lrTab.errors.length > 0) throw new Error(`List render: ${lrTab.errors.join('; ')}`);
+
     await clickMainTab(page, '合约');
     await waitListVisible(page);
     await clickMainTab(page, '自选');
@@ -404,6 +411,12 @@ async function testMarketHome003(page) {
 
     await clickFilterChip(page, 'BNB Chain');
     await waitListVisible(page);
+
+    const lrFilter = await assertListRendered(page, {
+      selector: '[data-testid="list-column-name"]',
+      minCount: 3,
+    });
+    if (lrFilter.errors.length > 0) throw new Error(`List render: ${lrFilter.errors.join('; ')}`);
 
     await page.evaluate(() => {
       const bar = document.querySelector('div[style*="overflow"]') || document.querySelector('body');

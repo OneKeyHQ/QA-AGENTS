@@ -23,7 +23,7 @@ import {
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { MarketPage } from '../../helpers/pages/index.mjs';
-import { openSearchModal } from '../../helpers/components.mjs';
+import { openSearchModal, assertListRendered } from '../../helpers/components.mjs';
 import {
   createStepTracker, safeStep,
   isSearchModalOpen, getModalSearchInput,
@@ -742,6 +742,13 @@ async function testMarketFav002(page) {
   // Step 13: Go to 自选 tab to verify
   await clickTab(page, '自选');
   await sleep(1500);
+
+  const lrFav = await assertListRendered(page, {
+    selector: '[data-testid="list-column-name"]',
+    minCount: 1,
+  });
+  if (lrFav.errors.length > 0) throw new Error(`List render: ${lrFav.errors.join('; ')}`);
+
   t.add('自选 tab 验证收藏', 'passed');
 
   // Step 14-15: Verify sub-tabs have content
@@ -752,6 +759,13 @@ async function testMarketFav002(page) {
 
   // Step 16: Go back to 现货 to unfavorite
   await clickTab(page, '现货');
+
+  const lrSpot = await assertListRendered(page, {
+    selector: '[data-testid="list-column-name"]',
+    minCount: 3,
+  });
+  if (lrSpot.errors.length > 0) throw new Error(`List render: ${lrSpot.errors.join('; ')}`);
+
   t.add('切回现货 tab 准备取消收藏', 'passed');
 
   // Step 17: Unfavorite Solana token
@@ -812,6 +826,13 @@ async function testMarketFav003(page) {
 
   // Step 27: Click "cbBTC" token to enter detail
   await sleep(1000);
+
+  const lrNet = await assertListRendered(page, {
+    selector: '[data-testid="list-column-name"]',
+    minCount: 3,
+  });
+  if (lrNet.errors.length > 0) throw new Error(`List render: ${lrNet.errors.join('; ')}`);
+
   let targetToken = 'cbBTC';
   try {
     await clickTokenDetail(page, targetToken);

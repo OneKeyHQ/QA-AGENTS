@@ -703,8 +703,9 @@ async function testMarketChart006(page) {
     const before = await getIndicatorLabels(page);
     await reloadAndWait(page);
     const after = await getIndicatorLabels(page);
-    const beforeSet = new Set(before);
-    const afterSet = new Set(after);
+    const toName = (l) => l.replace(/[\d,.\s∅KMBTkmbt−+%]+$/, '').trim();
+    const beforeSet = new Set(before.map(toName).filter(Boolean));
+    const afterSet = new Set(after.map(toName).filter(Boolean));
     const missing = [...beforeSet].filter(x => !afterSet.has(x));
     if (missing.length > 0) throw new Error(`Indicators lost: ${missing.join(', ')}`);
     return `Before: ${before.length}, After: ${after.length}`;
