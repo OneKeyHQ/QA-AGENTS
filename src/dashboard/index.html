@@ -350,6 +350,14 @@ async function fetchRunState() {
       renderTree();
       renderControls();
       renderStatus();
+    } else {
+      // Server restarted or idle — clear stale results
+      state = 'idle';
+      queueItems = [];
+      runStartTime = 0;
+      renderTree();
+      renderControls();
+      renderStatus();
     }
   } catch (e) {
     // No active run, that's fine

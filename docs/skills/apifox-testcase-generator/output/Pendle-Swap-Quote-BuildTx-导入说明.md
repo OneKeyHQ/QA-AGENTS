@@ -1,7 +1,8 @@
 # Pendle 协议 - 代币列表 & 询价 & 构建交易 & Fee 验证 导入说明
 
 > 生成日期：2026-03-09<br>
-> 更新日期：2026-03-13（6.1.0 补充接口 + 压力/限频测试）<br>
+> 更新日期：2026-04-01（vault 改为集合变量 `pendle_vault_*`，规避 Apifox EIP-55 自动改写）<br>
+> 历史：2026-03-13（6.1.0 补充接口 + 压力/限频测试）<br>
 > 关联需求：`docs/qa/requirements/DeFi-Pendle协议.md`<br>
 > 规则文档：`docs/qa/rules/defi-rules.md`（第 2 章 Pendle）
 
@@ -140,8 +141,19 @@ Fee 数据来源：`transaction-confirmation` 响应的 `transactionDetails.data
 - **已到期市场**：接口不返回 onekey fee 字段，或 fee = 0（不收佣金）
 
 **注意事项：**
-- **inputToken/outputToken 合约地址必须全小写**，混合大小写（ERC-55 checksum）会导致 API 返回 "Token not found"
-- **vault 地址需保持原始大小写**（与 `available-assets` 返回的一致），部分 vault 地址为混合大小写
+- **inputToken/outputToken 合约地址必须全小写**，混合大小写（EIP-55 checksum）可能导致 API 返回 "Token not found"
+- **vault（Pendle）须全小写**，与 `docs/qa/rules/defi-rules.md` §2.15 一致；本集合已用 **集合变量** 承载小写地址（见下节），请勿在 Apifox 里把 `vault` 改回裸混写地址
+
+---
+
+## Apifox：`vault` 被自动改成混写（EIP-55）时怎么办
+
+Apifox 常在 Params 里把裸填的 `0x…` 识别为以太坊地址并格式化为 **EIP-55 混写**，与 Pendle 后端约定的小写 **不一致**。
+
+**本集合的规避方式**：在 Collection 根级定义了 12 个变量（`pendle_vault_usde`、`pendle_vault_susde`、`pendle_vault_weeth_1` …），各用例中 `vault` 的取值为 **`{{pendle_vault_xxx}}`**，`url.raw` 与 POST JSON `body` 中同样使用该占位符。Params 表格里看到的是**变量名**，一般不会触发地址格式化；**实际发出请求**时在服务端侧解析为变量里配置的 **全小写** hex。
+
+- 导入后可在 Apifox **集合 → 变量** 中查看这 12 个 `pendle_vault_*`，值应保持小写。
+- 若用例与「接口文档」绑定，**避免**用文档示例覆盖 `vault`，否则可能再次被改成混写。
 
 ---
 
@@ -178,5 +190,5 @@ Fee 数据来源：`transaction-confirmation` 响应的 `transactionDetails.data
 2. 选择 **Postman Collection v2** 格式
 3. 上传 `Pendle-Swap-Quote-BuildTx-Apifox-TestCases.json`
 4. 导入后在「测试用例」中查看分组
-5. 运行前确认集合变量 `baseUrl` 指向正确环境
+5. 运行前确认集合变量 `baseUrl` 指向正确环境；**勿删除** 根级 `pendle_vault_*` 变量（共 12 个），否则 `vault` 无法解析
 6. Header 使用 Apifox 全局 Header（**X-Onekey-Request-Version: 6.1.0**）

@@ -166,6 +166,7 @@
 - 状态机：授权→存入→计息→领取→赎回
 - 资金流：本金/收益拆分、APR/APY 口径、T+N 到账
 - 风控：高风险池提示、额度限制、重复操作保护
+- **接口 / Apifox 测试数据**：Pendle 相关 Earn 接口的请求参数 `vault`（合约地址）须为**全小写** hex；Apifox 易改写裸地址，可用集合变量 `{{pendle_vault_*}}` 引用小写值。**仅 Pendle 适用**。见 `docs/qa/rules/defi-rules.md` §2.15。
 - **详细规则**：`docs/qa/rules/defi-rules.md`
 
 ### Perps（合约）

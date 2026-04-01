@@ -625,6 +625,29 @@ Health Factor = (Total Collateral Value * Collateral Factor) / Total Borrow Valu
 
 **测试要点**：验证主币支付时无 Approve 步骤、代币支付时必有 Approve 且顺序正确；验证不同 decimals 代币输入与展示精度；验证 Max 扣款与余额一致；验证最小金额边界与错误提示。
 
+### 2.15 Pendle 接口测试数据约定（API / Apifox）
+
+> **适用范围**：仅 **Pendle** 渠道（请求中带 `provider=pendle` 或业务明确为 Pendle 固定收益）下的 Earn 相关接口，例如：
+> - `GET /earn/v2/stake-protocol/detail`
+> - `GET /earn/v1/asset-list`
+> - `GET /earn/v1/transaction-confirmation`
+> - `POST /earn/v2/stake`（及同类 build / 确认接口）
+>
+> **不适用**：Kamino、Aave 等其他 DeFi 渠道的接口与 Apifox 用例**不要求**按本条处理 `vault`（若其他渠道未来有独立约定，另起章节说明）。
+
+| 项目 | 规则 |
+|------|------|
+| `vault` 参数 | 合约地址须为 **全小写十六进制**：`0x` 后 40 位字符全部小写（不使用 EIP-55 混写）。 |
+| 多处一致 | 同一请求中：`url.raw` 里的 `vault=...`、`query` 里 `key` 为 `vault` 的 `value`、POST `body.raw`（JSON）里的 `"vault"` **须相同且均为小写**。 |
+
+**说明**：与服务端对 Pendle vault 地址的规范化一致，避免大小写不一致带来的缓存或匹配问题。
+
+**示例**：`0xa3336f04f7afbf26714331e395054f33b77c9b8d`（✅）；`0xA3336f04f7AfbF26714331e395054F33B77C9b8D`（❌，Pendle 用例导出中勿用）。
+
+**测试要点**：生成或维护 Pendle 相关 Apifox / Postman Collection 时，全量检查上述三处；导入前可用脚本对 JSON 做一次 `vault` 地址小写归一化（参考已维护集合：`docs/skills/apifox-testcase-generator/output/Pendle-Swap-Quote-BuildTx-Apifox-TestCases.json`）。
+
+**Apifox 规避 EIP-55 自动改写**：Apifox 在 Params 中直接编辑裸 `0x` 地址时，可能自动转为混写校验和。可在集合根级定义 **小写** 值的变量（如 `pendle_vault_usde`），用例里将 `vault` 写为 `{{pendle_vault_usde}}`，使表格展示为变量名而非地址字面量，发送请求时仍解析为小写 hex。上述 Pendle 集合已按此方式维护。
+
 ---
 
 ## 3. Aave（待补充）
@@ -676,6 +699,10 @@ Health Factor = (Total Collateral Value * Collateral Factor) / Total Borrow Valu
 ---
 
 ## 📅 变更记录
+
+### 2026-04-01
+- **新增** 2.15 Pendle 接口测试数据约定：`vault` 合约地址在 API / Apifox 用例中须全小写；**仅 Pendle** Earn 相关接口适用，其他 DeFi 渠道不适用
+- **补充** 2.15：Apifox 下用集合变量 `{{pendle_vault_*}}` 引用小写地址，避免客户端对裸地址做 EIP-55 改写
 
 ### 2026-03-24
 - **补充** 1.4.2 Kamino `With Collateral` Stepper 规则：需要额外支付 SOL 费用时显示 Stepper，流程为 `Refundable setup fee` → `Repay`；不需要额外支付 SOL 费用时隐藏 Stepper，保持原单步流程

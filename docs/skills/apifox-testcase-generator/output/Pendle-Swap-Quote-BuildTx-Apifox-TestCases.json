@@ -4,7 +4,56 @@
     "description": "按三层逻辑验证 Pendle 协议：\n1. 获取 Pendle 代币列表 + vault 信息\n2. 根据 vault 获取可 swap 代币列表\n3. 固定地址 + 不同代币询价，内嵌 OneKey Fee 验证\n4. 6.1.0 补充：APY 历史、推荐资产；压力/限频测试（询价、资产列表）\n\n关联需求：docs/qa/requirements/DeFi-Pendle协议.md\n规则文档：docs/qa/rules/defi-rules.md（第 2 章 Pendle）",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [],
+  "variable": [
+    {
+      "key": "pendle_vault_usde",
+      "value": "0xa3336f04f7afbf26714331e395054f33b77c9b8d"
+    },
+    {
+      "key": "pendle_vault_susde",
+      "value": "0x8dae8ece668cf80d348873f23d456448e8694883"
+    },
+    {
+      "key": "pendle_vault_weeth_1",
+      "value": "0x95a9504f246cd65bf91c2c550a53f7f415227ed1"
+    },
+    {
+      "key": "pendle_vault_wsteth_1",
+      "value": "0x34280882267ffa6383b363e278b027be083bbe3b"
+    },
+    {
+      "key": "pendle_vault_sena_1",
+      "value": "0xeab7b7c8353ba1cb4b29cf7ae9c166efdc57835f"
+    },
+    {
+      "key": "pendle_vault_unibtc_1",
+      "value": "0xd625528a8c912fe0b4ed0a73541e2a5db44976cb"
+    },
+    {
+      "key": "pendle_vault_weeth_42161",
+      "value": "0x46d62a8dede1bf2d0de04f2ed863245cbba5e538"
+    },
+    {
+      "key": "pendle_vault_wsteth_42161",
+      "value": "0xf78452e0f5c0b95fc5dc8353b8cd1e06e53fa25b"
+    },
+    {
+      "key": "pendle_vault_gusdc_42161",
+      "value": "0x0934e592cee932b04b3967162b3cd6c85748c470"
+    },
+    {
+      "key": "pendle_vault_slisbnb_56",
+      "value": "0x3c1a3d6b69a866444fe506f7d38a00a1c2d859c5"
+    },
+    {
+      "key": "pendle_vault_unibtc_56",
+      "value": "0x21558067e3ed5d3cdbe2dd3662bd9035a8e3315a"
+    },
+    {
+      "key": "pendle_vault_unibtc_8453",
+      "value": "0xb2ba97b3e4ecba5af1e098bf65f5d33c9e2a7525"
+    }
+  ],
   "item": [
     {
       "name": "1. Pendle 代币列表 + vault 信息（stake-protocol/detail）",
@@ -79,7 +128,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v2/stake-protocol/detail?provider=pendle&symbol=USDe&networkId=evm--1&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D",
+              "raw": "{{baseUrl}}/earn/v2/stake-protocol/detail?provider=pendle&symbol=USDe&networkId=evm--1&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&vault={{pendle_vault_usde}}",
               "query": [
                 {
                   "key": "provider",
@@ -99,7 +148,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                  "value": "{{pendle_vault_usde}}"
                 }
               ]
             }
@@ -161,7 +210,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v2/stake-protocol/detail?provider=pendle&symbol=sUSDe&networkId=evm--1&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883",
+              "raw": "{{baseUrl}}/earn/v2/stake-protocol/detail?provider=pendle&symbol=sUSDe&networkId=evm--1&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&vault={{pendle_vault_susde}}",
               "query": [
                 {
                   "key": "provider",
@@ -181,7 +230,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                  "value": "{{pendle_vault_susde}}"
                 }
               ]
             }
@@ -255,7 +304,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake",
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault={{pendle_vault_usde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake",
               "query": [
                 {
                   "key": "networkId",
@@ -271,7 +320,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                  "value": "{{pendle_vault_usde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -323,7 +372,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=sUSDe&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake",
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=sUSDe&vault={{pendle_vault_susde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake",
               "query": [
                 {
                   "key": "networkId",
@@ -339,7 +388,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                  "value": "{{pendle_vault_susde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -398,7 +447,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=unstake",
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault={{pendle_vault_usde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=unstake",
               "query": [
                 {
                   "key": "networkId",
@@ -414,7 +463,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                  "value": "{{pendle_vault_usde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -466,7 +515,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=sUSDe&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=unstake",
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=sUSDe&vault={{pendle_vault_susde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=unstake",
               "query": [
                 {
                   "key": "networkId",
@@ -482,7 +531,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                  "value": "{{pendle_vault_susde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -528,7 +577,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&action=stake",
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault={{pendle_vault_usde}}&action=stake",
               "query": [
                 {
                   "key": "networkId",
@@ -544,7 +593,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                  "value": "{{pendle_vault_usde}}"
                 },
                 {
                   "key": "action",
@@ -614,7 +663,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=5&inputTokenAddress=&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault={{pendle_vault_usde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=5&inputTokenAddress=&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -630,7 +679,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                  "value": "{{pendle_vault_usde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -715,7 +764,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0xdac17f958d2ee523a2206206994597c13d831ec7&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault={{pendle_vault_usde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0xdac17f958d2ee523a2206206994597c13d831ec7&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -731,7 +780,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                  "value": "{{pendle_vault_usde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -816,7 +865,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault={{pendle_vault_usde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -832,7 +881,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                  "value": "{{pendle_vault_usde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -917,7 +966,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=sUSDe&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputTokenAddress=0x3de0ff76e8b528c092d47b9dac775931cef80f49&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=sUSDe&vault={{pendle_vault_susde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&outputTokenAddress=0x3de0ff76e8b528c092d47b9dac775931cef80f49&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -933,7 +982,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                  "value": "{{pendle_vault_susde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1018,7 +1067,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=sUSDe&vault=0x8dAe8ECe668cf80d348873F23D456448E8694883&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=10&inputTokenAddress=0x514910771af9ca656af840dff83e8264ecf986ca&outputTokenAddress=0x3de0ff76e8b528c092d47b9dac775931cef80f49&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=sUSDe&vault={{pendle_vault_susde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=10&inputTokenAddress=0x514910771af9ca656af840dff83e8264ecf986ca&outputTokenAddress=0x3de0ff76e8b528c092d47b9dac775931cef80f49&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1034,7 +1083,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x8dAe8ECe668cf80d348873F23D456448E8694883"
+                  "value": "{{pendle_vault_susde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1119,7 +1168,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=weETH&vault=0x95a9504f246cd65bf91c2c550a53f7f415227ed1&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=1&inputTokenAddress=&outputTokenAddress=0x8e8b8d3b2dca78cb04b9914b7ec1ad72f671f96d&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=weETH&vault={{pendle_vault_weeth_1}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=1&inputTokenAddress=&outputTokenAddress=0x8e8b8d3b2dca78cb04b9914b7ec1ad72f671f96d&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1135,7 +1184,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x95a9504f246cd65bf91c2c550a53f7f415227ed1"
+                  "value": "{{pendle_vault_weeth_1}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1220,7 +1269,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=wstETH&vault=0x34280882267ffa6383B363E278B027Be083bBe3b&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=1&inputTokenAddress=&outputTokenAddress=0xb253eff1104802b97ac7e3ac9fdd73aece295a2c&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=wstETH&vault={{pendle_vault_wsteth_1}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=1&inputTokenAddress=&outputTokenAddress=0xb253eff1104802b97ac7e3ac9fdd73aece295a2c&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1236,7 +1285,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x34280882267ffa6383B363E278B027Be083bBe3b"
+                  "value": "{{pendle_vault_wsteth_1}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1321,7 +1370,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=sENA&vault=0xeab7b7c8353ba1cb4b29cf7ae9c166efdc57835f&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.5&inputTokenAddress=&outputTokenAddress=0x4552c668eb8dedeac53e00cfd05d873f11a80204&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=sENA&vault={{pendle_vault_sena_1}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.5&inputTokenAddress=&outputTokenAddress=0x4552c668eb8dedeac53e00cfd05d873f11a80204&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1337,7 +1386,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xeab7b7c8353ba1cb4b29cf7ae9c166efdc57835f"
+                  "value": "{{pendle_vault_sena_1}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1422,7 +1471,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=uniBTC-scaled18&vault=0xd625528a8c912fe0b4ed0a73541e2a5db44976cb&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.01&inputTokenAddress=&outputTokenAddress=0xba41c7e27abf380ab1d529bb1275fadfccdbf437&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=uniBTC-scaled18&vault={{pendle_vault_unibtc_1}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.01&inputTokenAddress=&outputTokenAddress=0xba41c7e27abf380ab1d529bb1275fadfccdbf437&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1438,7 +1487,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xd625528a8c912fe0b4ed0a73541e2a5db44976cb"
+                  "value": "{{pendle_vault_unibtc_1}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1523,7 +1572,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--42161&provider=pendle&symbol=weETH&vault=0x46d62a8dede1bf2d0de04f2ed863245cbba5e538&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.5&inputTokenAddress=&outputTokenAddress=0xab7f3837e6e721abbc826927b655180af6a04388&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--42161&provider=pendle&symbol=weETH&vault={{pendle_vault_weeth_42161}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.5&inputTokenAddress=&outputTokenAddress=0xab7f3837e6e721abbc826927b655180af6a04388&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1539,7 +1588,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x46d62a8dede1bf2d0de04f2ed863245cbba5e538"
+                  "value": "{{pendle_vault_weeth_42161}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1624,7 +1673,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--42161&provider=pendle&symbol=wstETH&vault=0xf78452e0f5c0b95fc5dc8353b8cd1e06e53fa25b&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.5&inputTokenAddress=&outputTokenAddress=0x71fbf40651e9d4278a74586afc99f307f369ce9a&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--42161&provider=pendle&symbol=wstETH&vault={{pendle_vault_wsteth_42161}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.5&inputTokenAddress=&outputTokenAddress=0x71fbf40651e9d4278a74586afc99f307f369ce9a&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1640,7 +1689,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xf78452e0f5c0b95fc5dc8353b8cd1e06e53fa25b"
+                  "value": "{{pendle_vault_wsteth_42161}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1725,7 +1774,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--42161&provider=pendle&symbol=gUSDC&vault=0x0934e592cee932b04b3967162b3cd6c85748c470&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0xaf88d065e77c8cc2239327c5edb3a432268e5831&outputTokenAddress=0x97c1a4ae3e0da8009aff13e3e3ee7ea5ee4afe84&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--42161&provider=pendle&symbol=gUSDC&vault={{pendle_vault_gusdc_42161}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=0xaf88d065e77c8cc2239327c5edb3a432268e5831&outputTokenAddress=0x97c1a4ae3e0da8009aff13e3e3ee7ea5ee4afe84&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1741,7 +1790,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x0934e592cee932b04b3967162b3cd6c85748c470"
+                  "value": "{{pendle_vault_gusdc_42161}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1826,7 +1875,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--56&provider=pendle&symbol=slisBNB&vault=0x3c1a3d6b69a866444fe506f7d38a00a1c2d859c5&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=1&inputTokenAddress=&outputTokenAddress=0xe052823b4aefc6e230faf46231a57d0905e30ae0&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--56&provider=pendle&symbol=slisBNB&vault={{pendle_vault_slisbnb_56}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=1&inputTokenAddress=&outputTokenAddress=0xe052823b4aefc6e230faf46231a57d0905e30ae0&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1842,7 +1891,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x3c1a3d6b69a866444fe506f7d38a00a1c2d859c5"
+                  "value": "{{pendle_vault_slisbnb_56}}"
                 },
                 {
                   "key": "accountAddress",
@@ -1927,7 +1976,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--56&provider=pendle&symbol=uniBTC-scaled18&vault=0x21558067e3ed5d3cdbe2dd3662bd9035a8e3315a&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.01&inputTokenAddress=&outputTokenAddress=0x0af2b242a526447fefd6e29cd531ecb89616afd2&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--56&provider=pendle&symbol=uniBTC-scaled18&vault={{pendle_vault_unibtc_56}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.01&inputTokenAddress=&outputTokenAddress=0x0af2b242a526447fefd6e29cd531ecb89616afd2&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -1943,7 +1992,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0x21558067e3ed5d3cdbe2dd3662bd9035a8e3315a"
+                  "value": "{{pendle_vault_unibtc_56}}"
                 },
                 {
                   "key": "accountAddress",
@@ -2028,7 +2077,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--8453&provider=pendle&symbol=uniBTC-scaled18&vault=0xb2ba97b3e4ecba5af1e098bf65f5d33c9e2a7525&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.01&inputTokenAddress=&outputTokenAddress=0xc45139488b7ab235affad981cbdb5c898581d04f&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--8453&provider=pendle&symbol=uniBTC-scaled18&vault={{pendle_vault_unibtc_8453}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=0.01&inputTokenAddress=&outputTokenAddress=0xc45139488b7ab235affad981cbdb5c898581d04f&slippage=0.5",
               "query": [
                 {
                   "key": "networkId",
@@ -2044,7 +2093,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xb2ba97b3e4ecba5af1e098bf65f5d33c9e2a7525"
+                  "value": "{{pendle_vault_unibtc_8453}}"
                 },
                 {
                   "key": "accountAddress",
@@ -2147,7 +2196,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.01",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault={{pendle_vault_usde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=100&inputTokenAddress=&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.01",
               "query": [
                 {
                   "key": "networkId",
@@ -2163,7 +2212,7 @@
                 },
                 {
                   "key": "vault",
-                  "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D"
+                  "value": "{{pendle_vault_usde}}"
                 },
                 {
                   "key": "accountAddress",
@@ -2226,7 +2275,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"\",\n    \"slippage\": 0.01,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"\",\n    \"slippage\": 0.01,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/stake"
@@ -2258,7 +2307,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/stake"
@@ -2290,7 +2339,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"0x8dAe8ECe668cf80d348873F23D456448E8694883\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"{{pendle_vault_susde}}\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/stake"
@@ -2325,7 +2374,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0x6b175474e89094c44da98b954eedeac495271d0f\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0x6b175474e89094c44da98b954eedeac495271d0f\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/stake"
@@ -2357,7 +2406,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xae7ab96520de3a18e5e111b5eaab095312d7fe84\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xae7ab96520de3a18e5e111b5eaab095312d7fe84\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/stake"
@@ -2389,7 +2438,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"0x8dAe8ECe668cf80d348873F23D456448E8694883\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"10\",\n    \"inputTokenAddress\": \"0x514910771af9ca656af840dff83e8264ecf986ca\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"{{pendle_vault_susde}}\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"10\",\n    \"inputTokenAddress\": \"0x514910771af9ca656af840dff83e8264ecf986ca\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/stake"
@@ -2426,7 +2475,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x4c9edd5852cd905f086c759e8383e09bff1e68b3\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x4c9edd5852cd905f086c759e8383e09bff1e68b3\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/unstake"
@@ -2458,7 +2507,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/unstake"
@@ -2490,7 +2539,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"0x8dAe8ECe668cf80d348873F23D456448E8694883\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x9d39a5de30e57443bff2a8307a4256c8797a3497\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"{{pendle_vault_susde}}\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0x9d39a5de30e57443bff2a8307a4256c8797a3497\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/unstake"
@@ -2522,7 +2571,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"0x8dAe8ECe668cf80d348873F23D456448E8694883\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"sUSDe\",\n    \"vault\": \"{{pendle_vault_susde}}\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0x3de0ff76e8b528c092d47b9dac775931cef80f49\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/unstake"
@@ -2554,7 +2603,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x2DB70019DB049Ae99566190b40748CcEa4E73A42\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\",\n    \"slippage\": 0.5,\n    \"outputTokenAddress\": \"\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/unstake"
@@ -2646,7 +2695,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"0\",\n    \"inputTokenAddress\": \"\",\n    \"slippage\": 0.01,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"0\",\n    \"inputTokenAddress\": \"\",\n    \"slippage\": 0.01,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/stake"
@@ -2674,7 +2723,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0x0000000000000000000000000000000000000001\",\n    \"slippage\": 0.01,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"100\",\n    \"inputTokenAddress\": \"0x0000000000000000000000000000000000000001\",\n    \"slippage\": 0.01,\n    \"outputTokenAddress\": \"0xaebf0bb9f57e89260d57f31af34eb58657d96ce0\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/stake"
@@ -2703,7 +2752,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"0xA3336f04f7AfbF26714331e395054F33B77C9b8D\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"\",\n    \"slippage\": 0.01\n}"
+              "raw": "{\n    \"networkId\": \"evm--1\",\n    \"provider\": \"pendle\",\n    \"symbol\": \"USDe\",\n    \"vault\": \"{{pendle_vault_usde}}\",\n    \"accountAddress\": \"0x5618207d27D78F09f61A5D92190d58c453feB4b7\",\n    \"amount\": \"1\",\n    \"inputTokenAddress\": \"\",\n    \"slippage\": 0.01\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/earn/v2/stake"
@@ -2752,9 +2801,18 @@
             "url": {
               "raw": "{{baseUrl}}/earn/v1/apy/history?networkId=evm--1&provider=pendle&symbol=sUSDe",
               "query": [
-                { "key": "networkId", "value": "evm--1" },
-                { "key": "provider", "value": "pendle" },
-                { "key": "symbol", "value": "sUSDe" }
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "sUSDe"
+                }
               ]
             }
           }
@@ -2842,18 +2900,48 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=5&inputTokenAddress=&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
+              "raw": "{{baseUrl}}/earn/v1/transaction-confirmation?networkId=evm--1&provider=pendle&symbol=USDe&vault={{pendle_vault_usde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake&amount=5&inputTokenAddress=&outputTokenAddress=0xaebf0bb9f57e89260d57f31af34eb58657d96ce0&slippage=0.5",
               "query": [
-                { "key": "networkId", "value": "evm--1" },
-                { "key": "provider", "value": "pendle" },
-                { "key": "symbol", "value": "USDe" },
-                { "key": "vault", "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D" },
-                { "key": "accountAddress", "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7" },
-                { "key": "action", "value": "stake" },
-                { "key": "amount", "value": "5" },
-                { "key": "inputTokenAddress", "value": "" },
-                { "key": "outputTokenAddress", "value": "0xaebf0bb9f57e89260d57f31af34eb58657d96ce0" },
-                { "key": "slippage", "value": "0.5" }
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "{{pendle_vault_usde}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                },
+                {
+                  "key": "amount",
+                  "value": "5"
+                },
+                {
+                  "key": "inputTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "outputTokenAddress",
+                  "value": "0xaebf0bb9f57e89260d57f31af34eb58657d96ce0"
+                },
+                {
+                  "key": "slippage",
+                  "value": "0.5"
+                }
               ]
             }
           }
@@ -2895,7 +2983,10 @@
             "url": {
               "raw": "{{baseUrl}}/earn/v2/available-assets?provider=pendle",
               "query": [
-                { "key": "provider", "value": "pendle" }
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                }
               ]
             }
           }
@@ -2934,14 +3025,32 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault=0xA3336f04f7AfbF26714331e395054F33B77C9b8D&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake",
+              "raw": "{{baseUrl}}/earn/v1/asset-list?networkId=evm--1&provider=pendle&symbol=USDe&vault={{pendle_vault_usde}}&accountAddress=0x5618207d27D78F09f61A5D92190d58c453feB4b7&action=stake",
               "query": [
-                { "key": "networkId", "value": "evm--1" },
-                { "key": "provider", "value": "pendle" },
-                { "key": "symbol", "value": "USDe" },
-                { "key": "vault", "value": "0xA3336f04f7AfbF26714331e395054F33B77C9b8D" },
-                { "key": "accountAddress", "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7" },
-                { "key": "action", "value": "stake" }
+                {
+                  "key": "networkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "provider",
+                  "value": "pendle"
+                },
+                {
+                  "key": "symbol",
+                  "value": "USDe"
+                },
+                {
+                  "key": "vault",
+                  "value": "{{pendle_vault_usde}}"
+                },
+                {
+                  "key": "accountAddress",
+                  "value": "0x5618207d27D78F09f61A5D92190d58c453feB4b7"
+                },
+                {
+                  "key": "action",
+                  "value": "stake"
+                }
               ]
             }
           }

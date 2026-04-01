@@ -62,6 +62,59 @@ export async function safeStep(page, t, name, fn, screenshotFnOrDir) {
   }
 }
 
+// ── Page Navigation Helpers ─────────────────────────────────
+
+/**
+ * Scroll page and all large scrollable containers to top.
+ * Call before interacting with header elements to ensure they're accessible.
+ */
+export async function scrollToTop(page) {
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+    for (const el of document.querySelectorAll('div')) {
+      if (el.scrollTop > 0 && el.scrollHeight > el.clientHeight) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 500 && r.height > 300) el.scrollTo(0, 0);
+      }
+    }
+  });
+  await sleep(300);
+}
+
+/**
+ * If currently on a sub-page (nav-header-back button visible), click back
+ * to return to the main page. Repeats until no back button or maxAttempts.
+ * @returns {number} number of back clicks performed
+ */
+export async function goBackToMainPage(page, maxAttempts = 3) {
+  let clicks = 0;
+  for (let i = 0; i < maxAttempts; i++) {
+    const hasBack = await page.evaluate(() => {
+      const back = document.querySelector('[data-testid="nav-header-back"]');
+      if (back && back.getBoundingClientRect().width > 0) {
+        back.click();
+        return true;
+      }
+      return false;
+    });
+    if (!hasBack) break;
+    clicks++;
+    await sleep(800);
+  }
+  return clicks;
+}
+
+/**
+ * Ensure page is in a clean state before starting a test:
+ * close modals/overlays, go back from sub-pages, scroll to top.
+ */
+export async function ensureCleanState(page) {
+  await dismissOverlays(page);
+  await closeAllModals(page);
+  await goBackToMainPage(page);
+  await scrollToTop(page);
+}
+
 // ── Modal Management ────────────────────────────────────────
 
 export async function isModalVisible(page) {
@@ -797,4 +850,103 @@ export async function getCurrentAccount(page) {
     const el = document.querySelector('[data-testid="AccountSelectorTriggerBase"]');
     return el?.textContent?.trim()?.slice(0, 40) || null;
   });
+}
+
+// ── Watch Wallet Import ─────────────────────────────────────
+
+/**
+ * Import a watch-only wallet by address.
+ *
+ * Flow: Wallet page → Account selector → add-wallet → 导入现有钱包 → 观察钱包 → paste address → 确认
+ *
+ * @param {import('playwright-core').Page} page
+ * @param {string} address — EVM address to import (e.g., "0xb308F51259aC794086C13d66e37fadeE8D8abf9a")
+ * @param {object} [options]
+ * @param {string} [options.name] — optional account name
+ * @param {string} [options.network] — network to select (default: auto-detect from address format)
+ * @returns {Promise<string>} — the account name shown after import
+ */
+export async function importWatchAddress(page, address, options = {}) {
+  // Step 1: Navigate to wallet page (account selector is only visible there)
+  await clickSidebarTab(page, 'Wallet');
+  await sleep(2000);
+
+  // Step 2: Open account selector
+  await page.evaluate(() => {
+    document.querySelector('[data-testid="AccountSelectorTriggerBase"]')?.click();
+  });
+  await sleep(2000);
+
+  // Step 3: Click add-wallet button (+ at bottom of wallet type list)
+  await page.evaluate(() => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    if (!modal) throw new Error('Account selector modal not found');
+    const btn = modal.querySelector('[data-testid="add-wallet"]');
+    if (!btn) throw new Error('add-wallet button not found');
+    btn.scrollIntoView({ behavior: 'instant', block: 'center' });
+    btn.click();
+  });
+  await sleep(2500);
+
+  // Step 4: Click "导入现有钱包" on the onboarding screen
+  const clickedImport = await page.evaluate(() => {
+    for (const el of document.querySelectorAll('div')) {
+      const t = el.textContent?.trim();
+      const r = el.getBoundingClientRect();
+      if (t === '导入现有钱包了解更多' && r.width > 200 && r.height > 60 && r.height < 120) {
+        el.click();
+        return true;
+      }
+    }
+    return false;
+  });
+  if (!clickedImport) throw new Error('Could not find "导入现有钱包" option');
+  await sleep(2000);
+
+  // Step 5: Click "观察地址" option
+  const clickedWatch = await page.evaluate(() => {
+    for (const el of document.querySelectorAll('span')) {
+      const t = el.textContent?.trim();
+      const r = el.getBoundingClientRect();
+      if (t === '观察地址' && r.width > 0 && r.y > 100) {
+        el.click();
+        return true;
+      }
+    }
+    return false;
+  });
+  if (!clickedWatch) throw new Error('Could not find "观察地址" option');
+  await sleep(2500);
+
+  // Step 6: Enter address via textarea[data-testid="import-address-input"]
+  const addrInput = page.locator('[data-testid="import-address-input"]');
+  await addrInput.click();
+  await addrInput.pressSequentially(address, { delay: 5 });
+  await sleep(1000);
+
+  // Step 6b: Set optional name if provided
+  if (options.name) {
+    const nameInput = page.locator('input[placeholder="账户名称"]');
+    await nameInput.click();
+    await nameInput.pressSequentially(options.name, { delay: 30 });
+    await sleep(500);
+  }
+
+  // Step 7: Click confirm
+  const confirmed = await page.evaluate(() => {
+    const btn = document.querySelector('[data-testid="page-footer-confirm"]');
+    if (btn && !btn.disabled) { btn.click(); return true; }
+    return false;
+  });
+  if (!confirmed) throw new Error('Confirm button not found or disabled');
+  await sleep(3000);
+
+  // Verify: check current account
+  const accountName = await page.evaluate(() => {
+    const el = document.querySelector('[data-testid="AccountSelectorTriggerBase"]');
+    return el?.textContent?.trim()?.slice(0, 40) || null;
+  });
+
+  console.log(`  [OK] Imported watch address → account: ${accountName}`);
+  return accountName;
 }

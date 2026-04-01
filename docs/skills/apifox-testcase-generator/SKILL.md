@@ -108,6 +108,8 @@ docs/testcases/api/
 
 > 💡 **不覆盖响应定义**：生成的用例不会覆盖接口的响应定义（返回响应、响应示例、响应字段说明等），这些是给前端看的参数定义，会完整保留。
 
+> **DeFi · Pendle 专用**：生成或维护 **`provider=pendle`** 的 Earn 用例（如 `stake-protocol/detail`、`asset-list`、`transaction-confirmation`、`/earn/v2/stake` 等）时，**实际请求中的** `vault` 须为 **全小写** hex。Apifox 易将 Params 里裸填的 `0x…` 自动改为 EIP-55 混写，建议在 Collection **根级变量**（如 `pendle_vault_usde`）存小写值，用例里写 **`{{pendle_vault_usde}}`**，使 `url.raw`、`query`、`body.raw` 一致且发送时仍为小写。参考：`docs/qa/rules/defi-rules.md` §2.15、`Pendle-Swap-Quote-BuildTx-Apifox-TestCases.json`。其他 DeFi 协议用例不要求本条。
+
 **测试用例结构**：
 ```json
 {
