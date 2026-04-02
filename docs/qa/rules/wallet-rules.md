@@ -129,6 +129,22 @@ Wallet 模块包含以下核心功能：
 
 ## 5. 历史记录规则
 
+### 5.0 最近转账
+
+| 规则项 | 规则描述 |
+|-------|---------|
+| 数据源优先级 | 优先读取 `transfer-recipient` API；EVM 无结果时回退本地链历史；仍无结果时回退 stored recipients；其他链可再从当前链历史提取 |
+| 条数上限 | 最近转账列表最多显示 20 条 |
+| 排序 | 按最近转账时间倒序 |
+| EVM 聚合 | EVM 链共享最近转账池，跨 EVM 链聚合 |
+| EVM 去重 | EVM 地址按 lowercase 去重，避免 checksum 差异导致重复 |
+| 链名展示 | EVM 聚合结果可展示最近一次转账所在链名称 |
+| 过滤规则 | scam tx、Failed/Dropped、functionCall、0 金额、自转自己、合约地址、`Call:` memo 不显示 |
+| Memo/Tag | 支持 memo / note / destinationTag 显示与带入 |
+| 搜索 | 支持按钱包名、地址簿名、地址、memo 相关字段过滤 |
+| 账户维度 | 最近转账与当前 accountId 相关，切换账户后应刷新为当前账户数据 |
+| 重装口径 | 不再默认依赖本地缓存是否存在；当前述数据源均无结果时显示空态 |
+
 ### 5.1 交易列表
 
 | 规则项 | 规则描述 |
@@ -310,3 +326,4 @@ Wallet 模块包含以下核心功能：
 | 2026-01-23 | 初始版本，整合 Wallet 模块规则，引用 transfer-chain-rules.md |
 | 2026-02-27 | 新增「从交易所接收」规则章节（Binance API、OKX、Coinbase） |
 | 2026-03-10 | 更新「从交易所接收」规则：入口默认展开、新增 ExchangeOpenRedirect 页面、OKX/Coinbase 流程重构 |
+| 2026-04-03 | 新增「最近转账」规则：数据源改为 API/链历史/存储多级回退，EVM 跨链聚合去重，补充 memo/tag、过滤和账户隔离规则 |
