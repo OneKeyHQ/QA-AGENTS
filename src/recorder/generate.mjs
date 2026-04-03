@@ -3,6 +3,7 @@
 //   1. Proposed test case JSON (for test_cases.json)
 //   2. New UI elements discovered (for ui-map.json / ui-semantic-map.json)
 //   3. Step-by-step route with semantic element mapping
+//   4. Compiled locator payload for stable runner replay
 //
 // Usage: node src/recorder/generate.mjs [recording_dir] [--apply]
 
@@ -24,8 +25,10 @@ if (!existsSync(stepsFile)) {
 const steps = JSON.parse(readFileSync(stepsFile, 'utf-8'));
 const uiMap = JSON.parse(readFileSync(resolve(SHARED_DIR, 'ui-map.json'), 'utf-8'));
 const semanticMap = JSON.parse(readFileSync(resolve(SHARED_DIR, 'ui-semantic-map.json'), 'utf-8'));
-const existingElements = uiMap.elements;
+const testIdIndex = JSON.parse(readFileSync(resolve(SHARED_DIR, 'generated/app-monorepo-testid-index.json'), 'utf-8'));
+const existingElements = uiMap.elements || {};
 const semanticElements = semanticMap.elements || {};
+const indexedTestIds = testIdIndex.testIds || {};
 
 const INTENT_RULES = [
   { testid: /ovelay-popover/, intent: 'dismiss_overlay', semanticKey: 'global.overlay.popover', uiElement: 'overlayPopover' },
@@ -142,6 +145,128 @@ function isKnownBySemanticMap(testid) {
   return semanticKeyByTestId.has(testid) || Boolean(inferSemanticKey(testid));
 }
 
+function cloneJSON(value) {
+  return value ? JSON.parse(JSON.stringify(value)) : value;
+}
+
+function compileLocatorFromSemantic(semanticKey) {
+  if (!semanticKey) return null;
+  const semantic = semanticElements[semanticKey];
+  if (!semantic) return null;
+
+  return {
+    source: 'ui-semantic-map',
+    semantic_key: semanticKey,
+    primary: semantic.primary || null,
+    quick_fallbacks: cloneJSON(semantic.quick_fallbacks || []),
+    deep_search: cloneJSON(semantic.deep_search || null),
+    source_testid: semantic.source_testid || null,
+    page: semantic.page || null,
+    feature: cloneJSON(semantic.feature || []),
+    platform: cloneJSON(semantic.platform || []),
+  };
+}
+
+function compileLocatorFromUi(uiElement) {
+  if (!uiElement) return null;
+  const ui = existingElements[uiElement];
+  if (!ui) return null;
+
+  return {
+    source: 'ui-map',
+    ui_element: uiElement,
+    primary: ui.primary || null,
+    quick_fallbacks: cloneJSON(ui.quick_fallbacks || []),
+    deep_search: cloneJSON(ui.deep_search || null),
+    tier_stats: cloneJSON(ui.tier_stats || null),
+  };
+}
+
+function compileLocatorFromTestId(testid) {
+  if (!testid) return null;
+  const indexed = indexedTestIds[testid];
+  if (!indexed) return null;
+
+  return {
+    source: 'app-monorepo-testid-index',
+    raw_testid: testid,
+    primary: indexed.selector || `[data-testid="${testid}"]`,
+    quick_fallbacks: [],
+    deep_search: null,
+    files: cloneJSON(indexed.files || []),
+    feature_hints: cloneJSON(indexed.featureHints || []),
+    occurrences: indexed.occurrences || 0,
+  };
+}
+
+function compileStepLocator(step) {
+  const semanticCompiled = compileLocatorFromSemantic(step.semantic_element);
+  if (semanticCompiled?.primary) {
+    return {
+      resolution: {
+        strategy: 'semantic',
+        semantic_element: step.semantic_element || null,
+        ui_element: step.ui_element || null,
+        raw_testid: step.raw_testid || null,
+      },
+      compiled_locator: semanticCompiled,
+    };
+  }
+
+  const uiCompiled = compileLocatorFromUi(step.ui_element);
+  if (uiCompiled?.primary) {
+    return {
+      resolution: {
+        strategy: 'legacy-ui-map',
+        semantic_element: step.semantic_element || null,
+        ui_element: step.ui_element || null,
+        raw_testid: step.raw_testid || null,
+      },
+      compiled_locator: uiCompiled,
+    };
+  }
+
+  const testid = step.raw_testid || step.param?.startsWith('index-') ? step.raw_testid : step.raw_testid;
+  const indexedCompiled = compileLocatorFromTestId(testid);
+  if (indexedCompiled?.primary) {
+    return {
+      resolution: {
+        strategy: 'app-testid-index',
+        semantic_element: step.semantic_element || null,
+        ui_element: step.ui_element || null,
+        raw_testid: step.raw_testid || null,
+      },
+      compiled_locator: indexedCompiled,
+    };
+  }
+
+  return {
+    resolution: {
+      strategy: 'unresolved',
+      semantic_element: step.semantic_element || null,
+      ui_element: step.ui_element || null,
+      raw_testid: step.raw_testid || null,
+    },
+    compiled_locator: null,
+  };
+}
+
+function classifyNewElement(testid, info) {
+  if (semanticKeyByTestId.has(testid)) {
+    return 'known-semantic-source';
+  }
+  if (info.recommendedSemanticKey) {
+    return 'semantic-candidate';
+  }
+  if (isKnownByUiMap(testid)) {
+    return 'known-legacy-ui';
+  }
+  if (indexedTestIds[testid]) {
+    return 'indexed-only';
+  }
+  return 'unresolved';
+}
+
 // ─── Step 1: Merge consecutive inputs ───
 const actions = [];
 let inputBuffer = null;
@@ -203,6 +328,7 @@ console.log('');
 
 console.log(`  Raw steps: ${steps.length}  →  Actions: ${actions.length}  →  Flows: ${flows.length}`);
 console.log(`  Semantic map loaded: ${Object.keys(semanticElements).length} elements`);
+console.log(`  App testid index loaded: ${Object.keys(indexedTestIds).length} elements`);
 console.log('');
 
 flows.forEach((flow, fi) => {
@@ -230,40 +356,40 @@ for (const c of classified) {
 
   switch (c.intent) {
     case 'dismiss_overlay':
-      step = { order: stepOrder, action: 'dismiss_overlays', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'dismiss_overlays', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'dismiss_modal':
-      step = { order: stepOrder, action: 'dismiss_overlays', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'dismiss_overlays', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'open_account_selector':
-      step = { order: stepOrder, action: 'open_account_selector', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'open_account_selector', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'select_account':
-      step = { order: stepOrder, action: 'select_account', semantic_element: c.semanticKey, ui_element: c.uiElement, param: `index-${c.index}` };
+      step = { order: stepOrder, action: 'select_account', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid, param: `index-${c.index}` };
       break;
     case 'open_network_selector':
-      step = { order: stepOrder, action: 'open_network_selector', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'open_network_selector', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'search_network':
-      step = { order: stepOrder, action: 'search_network', semantic_element: c.semanticKey, ui_element: c.uiElement, value: a.value || a.text || '' };
+      step = { order: stepOrder, action: 'search_network', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid, value: a.value || a.text || '' };
       break;
     case 'click_send':
-      step = { order: stepOrder, action: 'click_send', semantic_element: c.semanticKey, ui_element: c.uiElement, text: '发送' };
+      step = { order: stepOrder, action: 'click_send', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid, text: '发送' };
       break;
     case 'click_receive':
-      step = { order: stepOrder, action: 'click_receive', semantic_element: c.semanticKey, ui_element: c.uiElement, text: '接收' };
+      step = { order: stepOrder, action: 'click_receive', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid, text: '接收' };
       break;
     case 'select_in_modal':
-      step = { order: stepOrder, action: 'select_token', semantic_element: c.semanticKey, ui_element: c.uiElement, param: a.text?.substring(0, 20) };
+      step = { order: stepOrder, action: 'select_token', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid, param: a.text?.substring(0, 20) };
       break;
     case 'open_contacts':
-      step = { order: stepOrder, action: 'open_contacts', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'open_contacts', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'contacts_popover_action':
-      step = { order: stepOrder, action: 'select_from_contacts', semantic_element: c.semanticKey, ui_element: c.uiElement, text: a.text?.substring(0, 20) };
+      step = { order: stepOrder, action: 'select_from_contacts', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid, text: a.text?.substring(0, 20) };
       break;
     case 'click_amount_input':
-      step = { order: stepOrder, action: 'focus_amount', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'focus_amount', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'text_input':
       step = {
@@ -276,19 +402,19 @@ for (const c of classified) {
       };
       break;
     case 'click_max_amount':
-      step = { order: stepOrder, action: 'click_max', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'click_max', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'click_preview_or_confirm':
-      step = { order: stepOrder, action: 'click_preview', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'click_preview', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'click_cancel':
-      step = { order: stepOrder, action: 'click_cancel', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'click_cancel', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'nav_back':
-      step = { order: stepOrder, action: 'nav_back', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'nav_back', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     case 'nav_close':
-      step = { order: stepOrder, action: 'nav_close', semantic_element: c.semanticKey, ui_element: c.uiElement };
+      step = { order: stepOrder, action: 'nav_close', semantic_element: c.semanticKey, ui_element: c.uiElement, raw_testid: a.testid };
       break;
     default:
       step = {
@@ -301,21 +427,55 @@ for (const c of classified) {
       };
   }
 
+  const compiled = compileStepLocator(step);
+  step.resolution = compiled.resolution;
+  step.compiled_locator = compiled.compiled_locator;
+
   proposedSteps.push(step);
   const semanticStr = step.semantic_element ? ` semantic="${step.semantic_element}"` : '';
+  const resolutionStr = step.resolution?.strategy ? ` via=${step.resolution.strategy}` : '';
   const uiStr = step.ui_element ? ` ui="${step.ui_element}"` : (step.raw_testid ? ` raw="${step.raw_testid}"` : '');
   const paramStr = step.param ? ` param="${step.param}"` : (step.value ? ` value="${step.value}"` : (step.text ? ` text="${step.text}"` : ''));
-  console.log(`    ${String(step.order).padStart(3)}.  ${step.action.padEnd(24)}${semanticStr}${uiStr}${paramStr}`);
+  console.log(`    ${String(step.order).padStart(3)}.  ${step.action.padEnd(24)}${semanticStr}${uiStr}${paramStr}${resolutionStr}`);
 }
 
 console.log('');
+
+const compiledStats = {
+  semantic: proposedSteps.filter((s) => s.resolution?.strategy === 'semantic').length,
+  legacyUiMap: proposedSteps.filter((s) => s.resolution?.strategy === 'legacy-ui-map').length,
+  appTestidIndex: proposedSteps.filter((s) => s.resolution?.strategy === 'app-testid-index').length,
+  unresolved: proposedSteps.filter((s) => s.resolution?.strategy === 'unresolved').length,
+};
+
+console.log('  ── Compiled Locator Summary ──');
+console.log('');
+console.log(`    semantic:        ${compiledStats.semantic}`);
+console.log(`    legacy-ui-map:   ${compiledStats.legacyUiMap}`);
+console.log(`    app-testid-index:${compiledStats.appTestidIndex}`);
+console.log(`    unresolved:      ${compiledStats.unresolved}`);
+console.log('');
+
+const newElements = Object.fromEntries(newTestids);
+const newElementBuckets = {
+  semanticCandidates: {},
+  indexedOnly: {},
+  unresolved: {},
+};
+for (const [tid, info] of Object.entries(newElements)) {
+  const bucket = classifyNewElement(tid, info);
+  if (bucket === 'semantic-candidate') newElementBuckets.semanticCandidates[tid] = info;
+  else if (bucket === 'indexed-only') newElementBuckets.indexedOnly[tid] = info;
+  else newElementBuckets.unresolved[tid] = info;
+}
 
 if (newTestids.size > 0) {
   console.log('  ── New Elements (not in ui-map.json / ui-semantic-map.json) ──');
   console.log('');
   for (const [tid, info] of newTestids) {
     const suggested = info.recommendedSemanticKey ? `  suggested=${info.recommendedSemanticKey}` : '';
-    console.log(`    ${tid}  (${info.tag}, ${info.count}x)  text="${info.text}"${suggested}`);
+    const bucket = classifyNewElement(tid, info);
+    console.log(`    ${tid}  (${info.tag}, ${info.count}x)  text="${info.text}"  bucket=${bucket}${suggested}`);
   }
   console.log('');
 }
@@ -327,8 +487,11 @@ const output = {
   actions: actions.length,
   flows: flows.length,
   semanticMapElements: Object.keys(semanticElements).length,
+  appTestIdIndexElements: Object.keys(indexedTestIds).length,
+  compiledStats,
   proposedSteps,
-  newElements: Object.fromEntries(newTestids),
+  newElements,
+  newElementBuckets,
   route: classified.map((c) => ({ intent: c.intent, semanticKey: c.semanticKey || null, testid: c.action.testid || null })),
 };
 
@@ -343,15 +506,15 @@ if (shouldApply) {
 }
 
 console.log('');
-console.log('  Selector reference order:');
+console.log('  Selector compile order:');
 console.log('    1. shared/ui-semantic-map.json');
-console.log('    2. shared/generated/app-monorepo-testid-index.json');
-console.log('    3. shared/ui-map.json');
-console.log('    4. Runtime CDP/text/OCR fallback');
+console.log('    2. shared/ui-map.json');
+console.log('    3. shared/generated/app-monorepo-testid-index.json');
+console.log('    4. unresolved → human review');
 console.log('');
 console.log('  Complete pipeline:');
 console.log('    1. node src/recorder/listen.mjs    # Record your clicks');
 console.log('    2. node src/recorder/review.mjs    # Review steps + screenshots');
-console.log('    3. node src/recorder/generate.mjs  # Generate semantic-aware test case route');
+console.log('    3. node src/recorder/generate.mjs  # Generate semantic-aware compiled route');
 console.log('    4. Agent reviews generated.json → updates test_cases.json + ui-map/ui-semantic-map');
 console.log('');
