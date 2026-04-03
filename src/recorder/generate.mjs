@@ -634,6 +634,9 @@ if (shouldApply) {
     testCasesData.lastUpdated = new Date().toISOString();
     writeFileSync(testCasesPath, JSON.stringify(testCasesData, null, 2));
     console.log(`  Updated existing case: ${updated.id} (${updated.scenarioId})`);
+  } else if (applyCaseId) {
+    console.error(`Case not found for --case-id: ${applyCaseId}`);
+    process.exit(1);
   } else {
     const draftCase = buildDraftCase({ cases, recordingDir: RECORDING_DIR, proposedSteps });
     cases.push(draftCase);
