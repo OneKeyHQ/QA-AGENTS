@@ -8,13 +8,52 @@
 // Usage: node src/recorder/generate.mjs [recording_dir] [--apply]
 
 import { readFileSync, writeFileSync, existsSync } from 'fs';
-import { resolve } from 'path';
+import { resolve, basename, relative } from 'path';
 
-const RECORDING_DIR = process.argv[2]?.startsWith('--')
-  ? resolve(import.meta.dirname, '../../shared/results/recording')
-  : (process.argv[2] || resolve(import.meta.dirname, '../../shared/results/recording'));
+const REPO_ROOT = resolve(import.meta.dirname, '../..');
 const SHARED_DIR = resolve(import.meta.dirname, '../../shared');
-const shouldApply = process.argv.includes('--apply');
+const cliArgs = process.argv.slice(2);
+
+function getFlagValue(name) {
+  const exact = cliArgs.find((arg) => arg.startsWith(`${name}=`));
+  if (exact) return exact.slice(name.length + 1);
+  const idx = cliArgs.indexOf(name);
+  if (idx >= 0 && cliArgs[idx + 1] && !cliArgs[idx + 1].startsWith('--')) return cliArgs[idx + 1];
+  return null;
+}
+
+function getFlagValues(name) {
+  return cliArgs
+    .filter((arg, idx) => arg === name || arg.startsWith(`${name}=`) || (idx > 0 && cliArgs[idx - 1] === name))
+    .flatMap((arg, idx) => {
+      if (arg === name) return [];
+      if (arg.startsWith(`${name}=`)) return [arg.slice(name.length + 1)];
+      return [];
+    });
+}
+
+const positionalArgs = cliArgs.filter((arg, idx) => {
+  if (!arg.startsWith('--')) {
+    const prev = cliArgs[idx - 1];
+    if (prev && ['--scenario-id', '--case-id', '--title', '--platform', '--priority', '--id-prefix', '--test-cases-file'].includes(prev)) {
+      return false;
+    }
+    return true;
+  }
+  return false;
+});
+
+const RECORDING_DIR = positionalArgs[0]
+  ? resolve(positionalArgs[0])
+  : resolve(import.meta.dirname, '../../shared/results/recording');
+const shouldApply = cliArgs.includes('--apply');
+const applyScenarioId = getFlagValue('--scenario-id');
+const applyCaseId = getFlagValue('--case-id');
+const applyTitle = getFlagValue('--title');
+const applyPlatform = getFlagValue('--platform') || 'desktop';
+const applyPriority = getFlagValue('--priority') || 'P1';
+const applyIdPrefix = (getFlagValue('--id-prefix') || 'DRAFT').toUpperCase();
+const testCasesPath = resolve(getFlagValue('--test-cases-file') || resolve(SHARED_DIR, 'test_cases.json'));
 
 const stepsFile = resolve(RECORDING_DIR, 'steps.json');
 if (!existsSync(stepsFile)) {
@@ -267,6 +306,70 @@ function classifyNewElement(testid, info) {
   return 'unresolved';
 }
 
+function slugify(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    || 'recorded-flow';
+}
+
+function titleFromScenarioId(value) {
+  return String(value || 'Recorded Flow')
+    .split('-')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function nextCaseId(cases, prefix) {
+  const nums = cases
+    .map((c) => c.id || '')
+    .filter((id) => id.startsWith(`${prefix}-`))
+    .map((id) => Number(id.split('-')[1]))
+    .filter((n) => Number.isFinite(n));
+  const next = (nums.length ? Math.max(...nums) : 0) + 1;
+  return `${prefix}-${String(next).padStart(3, '0')}`;
+}
+
+function buildDraftCase({ cases, recordingDir, proposedSteps }) {
+  const recordingBase = basename(recordingDir);
+  const scenarioId = applyScenarioId || slugify(recordingBase);
+  const caseId = applyCaseId || nextCaseId(cases, applyIdPrefix);
+  const title = applyTitle || titleFromScenarioId(scenarioId);
+
+  const preconditions = [
+    '录制流程对应页面已打开',
+    '执行前请补充准确的业务前置条件',
+  ];
+  const expected = [
+    '请根据业务目标补充预期结果',
+  ];
+
+  return {
+    id: caseId,
+    scenarioId,
+    title,
+    platform: applyPlatform,
+    priority: applyPriority,
+    tags: ['draft', 'recorded'],
+    preconditions,
+    steps: proposedSteps.map((step) => ({
+      ...step,
+      description: step.description || `Auto-generated from recording: ${step.action}`,
+    })),
+    expected,
+    recording: {
+      source: relative(REPO_ROOT, resolve(recordingDir, 'steps.json')),
+      generated: relative(REPO_ROOT, resolve(recordingDir, 'generated.json')),
+      date: new Date().toISOString().slice(0, 10),
+      rawSteps: String(steps.length),
+      applyMode: 'auto-generated-draft',
+    },
+  };
+}
+
 // ─── Step 1: Merge consecutive inputs ───
 const actions = [];
 let inputBuffer = null;
@@ -501,8 +604,42 @@ console.log(`  Generated: ${outputPath}`);
 
 if (shouldApply) {
   console.log('');
-  console.log('  --apply: Writing to shared/ files...');
-  console.log('  (Auto-apply not yet implemented. Use generated.json as reference.)');
+  console.log(`  --apply: Writing to ${testCasesPath} ...`);
+
+  const testCasesData = JSON.parse(readFileSync(testCasesPath, 'utf-8'));
+  const cases = testCasesData.cases || [];
+  const matcher = (c) => (applyCaseId && c.id === applyCaseId) || (applyScenarioId && c.scenarioId === applyScenarioId);
+  const existingIndex = cases.findIndex(matcher);
+
+  if (existingIndex >= 0) {
+    const existing = cases[existingIndex];
+    const updated = {
+      ...existing,
+      steps: proposedSteps.map((step) => ({
+        ...step,
+        description: step.description || existing.steps?.find((s) => s.order === step.order)?.description || `Updated from recording: ${step.action}`,
+      })),
+      recording: {
+        ...(existing.recording || {}),
+        source: relative(REPO_ROOT, resolve(RECORDING_DIR, 'steps.json')),
+        generated: relative(REPO_ROOT, resolve(RECORDING_DIR, 'generated.json')),
+        date: new Date().toISOString().slice(0, 10),
+        rawSteps: String(steps.length),
+        applyMode: 'updated-from-recording',
+      },
+    };
+    cases[existingIndex] = updated;
+    testCasesData.lastUpdated = new Date().toISOString();
+    writeFileSync(testCasesPath, JSON.stringify(testCasesData, null, 2));
+    console.log(`  Updated existing case: ${updated.id} (${updated.scenarioId})`);
+  } else {
+    const draftCase = buildDraftCase({ cases, recordingDir: RECORDING_DIR, proposedSteps });
+    cases.push(draftCase);
+    testCasesData.cases = cases;
+    testCasesData.lastUpdated = new Date().toISOString();
+    writeFileSync(testCasesPath, JSON.stringify(testCasesData, null, 2));
+    console.log(`  Appended draft case: ${draftCase.id} (${draftCase.scenarioId})`);
+  }
 }
 
 console.log('');
