@@ -238,7 +238,6 @@ function main() {
   const payload = {
     version: '1.1.0',
     generatedAt: new Date().toISOString(),
-    sourceRoot: appRoot,
     sourceMode,
     sourceRef,
     scanRoots,

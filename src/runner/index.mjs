@@ -253,8 +253,19 @@ async function resolveStepLocator(page, step, fallbackElementName = null, opts =
   return resolve(page, uiElement, opts);
 }
 
+function isCssSafeSelector(selector) {
+  if (!selector || typeof selector !== 'string') return false;
+  return !selector.includes('>>')
+    && !selector.includes('text=')
+    && !selector.includes('role=')
+    && !selector.includes('xpath=')
+    && !selector.includes('nth=')
+    && !selector.includes('visible=true');
+}
+
 function getStepRawSelector(step, fallbackElementName = null) {
-  if (step?.compiled_locator?.primary) return step.compiled_locator.primary;
+  const compiledPrimary = step?.compiled_locator?.primary;
+  if (isCssSafeSelector(compiledPrimary)) return compiledPrimary;
   const uiElement = step?.ui_element || fallbackElementName;
   if (!uiElement) return null;
   return getRawSelector(uiElement);

@@ -22,16 +22,6 @@ function getFlagValue(name) {
   return null;
 }
 
-function getFlagValues(name) {
-  return cliArgs
-    .filter((arg, idx) => arg === name || arg.startsWith(`${name}=`) || (idx > 0 && cliArgs[idx - 1] === name))
-    .flatMap((arg, idx) => {
-      if (arg === name) return [];
-      if (arg.startsWith(`${name}=`)) return [arg.slice(name.length + 1)];
-      return [];
-    });
-}
-
 const positionalArgs = cliArgs.filter((arg, idx) => {
   if (!arg.startsWith('--')) {
     const prev = cliArgs[idx - 1];
@@ -265,7 +255,7 @@ function compileStepLocator(step) {
     };
   }
 
-  const testid = step.raw_testid || step.param?.startsWith('index-') ? step.raw_testid : step.raw_testid;
+  const testid = step.raw_testid;
   const indexedCompiled = compileLocatorFromTestId(testid);
   if (indexedCompiled?.primary) {
     return {
@@ -608,8 +598,20 @@ if (shouldApply) {
 
   const testCasesData = JSON.parse(readFileSync(testCasesPath, 'utf-8'));
   const cases = testCasesData.cases || [];
-  const matcher = (c) => (applyCaseId && c.id === applyCaseId) || (applyScenarioId && c.scenarioId === applyScenarioId);
-  const existingIndex = cases.findIndex(matcher);
+  let existingIndex = -1;
+  if (applyCaseId && applyScenarioId) {
+    const byCaseId = cases.findIndex((c) => c.id === applyCaseId);
+    const byScenarioId = cases.findIndex((c) => c.scenarioId === applyScenarioId);
+    if (byCaseId < 0 || byScenarioId < 0 || byCaseId !== byScenarioId) {
+      console.error(`--case-id (${applyCaseId}) and --scenario-id (${applyScenarioId}) must refer to the same existing case`);
+      process.exit(1);
+    }
+    existingIndex = byCaseId;
+  } else if (applyCaseId) {
+    existingIndex = cases.findIndex((c) => c.id === applyCaseId);
+  } else if (applyScenarioId) {
+    existingIndex = cases.findIndex((c) => c.scenarioId === applyScenarioId);
+  }
 
   if (existingIndex >= 0) {
     const existing = cases[existingIndex];
