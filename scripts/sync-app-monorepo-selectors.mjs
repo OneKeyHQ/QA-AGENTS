@@ -237,7 +237,6 @@ function main() {
   mkdirSync(OUTPUT_DIR, { recursive: true });
   const payload = {
     version: '1.1.0',
-    generatedAt: new Date().toISOString(),
     sourceMode,
     sourceRef,
     scanRoots,
