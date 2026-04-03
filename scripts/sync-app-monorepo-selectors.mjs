@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
@@ -42,6 +43,66 @@ function resolveAppMonorepoPath() {
   );
 }
 
+function runGit(appRoot, args) {
+  return execFileSync('git', args, {
+    cwd: appRoot,
+    encoding: 'utf-8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).trim();
+}
+
+function hasGitRef(appRoot, ref) {
+  try {
+    runGit(appRoot, ['rev-parse', '--verify', `${ref}^{commit}`]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function resolveSourceRef(appRoot) {
+  const candidates = [
+    process.env.APP_MONOREPO_REF,
+    'origin/x',
+    'x',
+  ].filter(Boolean);
+
+  for (const ref of candidates) {
+    if (hasGitRef(appRoot, ref)) {
+      return ref;
+    }
+  }
+
+  return null;
+}
+
+function shouldKeepFile(relPath) {
+  const normalized = relPath.replace(/\\/g, '/');
+  const parts = normalized.split('/');
+  if (parts.some((part) => SKIP_DIRS.has(part))) {
+    return false;
+  }
+  const ext = normalized.slice(normalized.lastIndexOf('.'));
+  return CODE_EXTENSIONS.has(ext);
+}
+
+function listFilesFromGitRef(appRoot, ref, scanRoots) {
+  const output = runGit(appRoot, ['ls-tree', '-r', '--name-only', ref, '--', ...scanRoots]);
+  return output
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter(shouldKeepFile);
+}
+
+function readFileFromGitRef(appRoot, ref, relPath) {
+  return execFileSync('git', ['show', `${ref}:${relPath}`], {
+    cwd: appRoot,
+    encoding: 'utf-8',
+    maxBuffer: 20 * 1024 * 1024,
+  });
+}
+
 function walkFiles(dir, files = []) {
   for (const name of readdirSync(dir)) {
     if (SKIP_DIRS.has(name)) continue;
@@ -57,6 +118,17 @@ function walkFiles(dir, files = []) {
     }
   }
   return files;
+}
+
+function listFilesFromWorkingTree(appRoot, scanRoots) {
+  return scanRoots
+    .map((segment) => resolve(appRoot, segment))
+    .filter((dir) => existsSync(dir))
+    .flatMap((dir) => walkFiles(dir).map((filePath) => relative(appRoot, filePath).replace(/\\/g, '/')));
+}
+
+function readFileFromWorkingTree(appRoot, relPath) {
+  return readFileSync(resolve(appRoot, relPath), 'utf-8');
 }
 
 function classifyFeature(relPath) {
@@ -106,44 +178,52 @@ function toOutputEntry(entry) {
 
 function main() {
   const appRoot = resolveAppMonorepoPath();
-  const scanRoots = ['apps', 'packages']
-    .map((segment) => resolve(appRoot, segment))
-    .filter((dir) => existsSync(dir));
+  const scanRoots = ['apps', 'packages'];
+  const sourceRef = resolveSourceRef(appRoot);
 
-  if (scanRoots.length === 0) {
+  let relFiles = [];
+  let readContent = null;
+  let sourceMode = 'working-tree';
+
+  if (sourceRef) {
+    relFiles = listFilesFromGitRef(appRoot, sourceRef, scanRoots);
+    readContent = (relPath) => readFileFromGitRef(appRoot, sourceRef, relPath);
+    sourceMode = 'git-ref';
+  } else {
+    relFiles = listFilesFromWorkingTree(appRoot, scanRoots);
+    readContent = (relPath) => readFileFromWorkingTree(appRoot, relPath);
+  }
+
+  if (relFiles.length === 0) {
     throw new Error(`No scan roots found under ${appRoot}`);
   }
 
   const entries = new Map();
   let filesScanned = 0;
 
-  for (const root of scanRoots) {
-    const files = walkFiles(root);
-    for (const filePath of files) {
-      filesScanned += 1;
-      const relPath = relative(appRoot, filePath).replace(/\\/g, '/');
-      const content = readFileSync(filePath, 'utf-8');
-      const featureHints = classifyFeature(relPath);
+  for (const relPath of relFiles) {
+    filesScanned += 1;
+    const content = readContent(relPath);
+    const featureHints = classifyFeature(relPath);
 
-      for (const match of content.matchAll(TEST_ID_PATTERN)) {
-        const attribute = match[1];
-        const id = match[3].trim();
-        if (!id || id.includes('${')) continue;
+    for (const match of content.matchAll(TEST_ID_PATTERN)) {
+      const attribute = match[1];
+      const id = match[3].trim();
+      if (!id || id.includes('${')) continue;
 
-        const current = entries.get(id) || {
-          id,
-          occurrences: 0,
-          attributes: new Set(),
-          files: new Set(),
-          featureHints: new Set(),
-        };
+      const current = entries.get(id) || {
+        id,
+        occurrences: 0,
+        attributes: new Set(),
+        files: new Set(),
+        featureHints: new Set(),
+      };
 
-        current.occurrences += 1;
-        current.attributes.add(attribute);
-        current.files.add(relPath);
-        for (const hint of featureHints) current.featureHints.add(hint);
-        entries.set(id, current);
-      }
+      current.occurrences += 1;
+      current.attributes.add(attribute);
+      current.files.add(relPath);
+      for (const hint of featureHints) current.featureHints.add(hint);
+      entries.set(id, current);
     }
   }
 
@@ -156,17 +236,25 @@ function main() {
 
   mkdirSync(OUTPUT_DIR, { recursive: true });
   const payload = {
-    version: '1.0.0',
+    version: '1.1.0',
     generatedAt: new Date().toISOString(),
     sourceRoot: appRoot,
-    scanRoots: scanRoots.map((dir) => relative(appRoot, dir).replace(/\\/g, '/')),
+    sourceMode,
+    sourceRef,
+    scanRoots,
     filesScanned,
     uniqueTestIds: Object.keys(sortedEntries).length,
     testIds: sortedEntries,
   };
 
   writeFileSync(OUTPUT_FILE, JSON.stringify(payload, null, 2) + '\n');
+
   console.log(`Synced ${payload.uniqueTestIds} unique testIDs from ${appRoot}`);
+  if (sourceRef) {
+    console.log(`Source ref: ${sourceRef}`);
+  } else {
+    console.log('Source ref: working tree fallback');
+  }
   console.log(`Output: ${relative(REPO_ROOT, OUTPUT_FILE)}`);
 }
 

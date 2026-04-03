@@ -52,6 +52,14 @@ APP_MONOREPO_PATH=/path/to/app-monorepo node scripts/sync-app-monorepo-selectors
 2. `/Users/onekey/Documents/Github/app-monorepo`
 3. `/Users/onekey/.openclaw/workspace/app-monorepo`
 
+找到仓库后，默认按以下优先级读取源码：
+
+1. `APP_MONOREPO_REF`
+2. `origin/x`
+3. 本地 `x`
+4. 当前 working tree（仅当前三者都不可用时兜底）
+
+> 也就是说，**默认同步来源是 app-monorepo 的 `x` 分支**，不要求人工先 checkout 到 `x`。
 ---
 
 ## 测试生成时的使用规则
@@ -121,9 +129,10 @@ page.locator('[data-testid="AccountSelectorTriggerBase"]')
 - 建立 QA-AGENTS 语义 locator map
 - 先用于测试生成和知识维护
 
-### Phase 2
-- 给 recorder / generator 增加 semantic lookup
-- 录制时自动建议已有公共元素
+### Phase 2（已补）
+- recorder / generator 增加 semantic lookup
+- 录制分析结果默认输出 `semantic_element`
+- 新 testid 会同时对照 `ui-semantic-map` / `ui-map`，并给出推荐 semantic key
 
 ### Phase 3
 - runner 灰度支持 semantic → ui-map fallback lookup

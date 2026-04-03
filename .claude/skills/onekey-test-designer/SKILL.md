@@ -174,6 +174,10 @@ if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 3. `shared/ui-map.json`
 4. 运行时 CDP 探测 / 文本 / OCR 兜底
 
+补充约束：
+- 同步 app-monorepo selector 时，默认以 `origin/x` / `x` 为源码基线，不依赖当前 checkout
+- 生成脚本时，优先在步骤里输出 `semantic_element`；只有语义层缺失时才直接退回原始 testid / selector
+
 1. **fn(page) 接收单个 page 参数** — 不传 browser
 2. **连续流** — 一个 test case = 一段连续操作，不重复导航
 3. **空状态是有效状态** — 没有 token 不是错误

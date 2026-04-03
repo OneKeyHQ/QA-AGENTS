@@ -1,13 +1,15 @@
 {
-  "version": "1.0.0",
-  "generatedAt": "2026-04-03T02:16:52.831Z",
+  "version": "1.1.0",
+  "generatedAt": "2026-04-03T02:35:46.933Z",
   "sourceRoot": "/Users/onekey/Documents/Github/app-monorepo",
+  "sourceMode": "git-ref",
+  "sourceRef": "origin/x",
   "scanRoots": [
     "apps",
     "packages"
   ],
-  "filesScanned": 6900,
-  "uniqueTestIds": 188,
+  "filesScanned": 7047,
+  "uniqueTestIds": 189,
   "testIds": {
     "account-add-account": {
       "selector": "[data-testid=\"account-add-account\"]",
@@ -840,7 +842,7 @@
     },
     "DAppAccountListStandAloneItem": {
       "selector": "[data-testid=\"DAppAccountListStandAloneItem\"]",
-      "occurrences": 2,
+      "occurrences": 3,
       "attributes": [
         "testID"
       ],
@@ -2068,6 +2070,19 @@
         "packages/kit/src/components/ApprovalListView/ApprovalListHeader.tsx"
       ],
       "featureHints": []
+    },
+    "Wallet-Approval-Unsupported-Empty": {
+      "selector": "[data-testid=\"Wallet-Approval-Unsupported-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Home/pages/ApprovalListPage.tsx"
+      ],
+      "featureHints": [
+        "wallet-home"
+      ]
     },
     "wallet-bound-referral-code-button": {
       "selector": "[data-testid=\"wallet-bound-referral-code-button\"]",

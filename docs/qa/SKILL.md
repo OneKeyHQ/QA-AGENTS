@@ -105,6 +105,8 @@ docs/qa/
 - 新生成脚本优先引用语义元素，而不是到处散写原始 selector
 - 当前阶段不要批量改历史用例；以新增参考、增量迁移为主
 - 如需同步 app-monorepo 最新 testID，运行：`node scripts/sync-app-monorepo-selectors.mjs`
+- 默认从 app-monorepo 的 `origin/x`（若不存在则本地 `x`）读取；只有 ref 不存在时才回退当前 working tree
+- 生成脚本、录制分析与新增步骤设计时，默认优先输出 `semantic_element`，避免散写原始 selector
 
 
 ### 规则文档组织原则

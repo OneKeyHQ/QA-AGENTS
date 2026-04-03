@@ -10,7 +10,7 @@ OneKey 钱包的 QA 工程仓库，包含两大核心能力：
 | **QA 规则库** | 各模块测试规则（Perps、Swap、DeFi 等） | `docs/qa/rules/` |
 | **API 用例生成** | Apifox 可导入的 API 测试用例 | `docs/skills/apifox-testcase-generator/` |
 | **UI 自动化测试** | CDP 录制 → 生成脚本 → Dashboard 执行 | `src/tests/` + http://localhost:5050 |
-| **公共定位语义层** | 从 `app-monorepo` 同步 testID，供测试生成/知识维护参考 | `shared/ui-semantic-map.json` + `shared/generated/` |
+| **公共定位语义层** | 默认从 `app-monorepo` 的 `origin/x` / `x` 同步 testID，供测试生成/知识维护默认引用 | `shared/ui-semantic-map.json` + `shared/generated/` |
 | **Agent 协作** | 7 个专职 Agent 覆盖设计、执行、诊断、修复 | `.claude/skills/` |
 
 ## 快速开始
@@ -85,8 +85,8 @@ node src/recorder/listen.mjs
 │   ├── test_cases.json             # 测试用例定义
 │   ├── preconditions.json          # 前置条件数据库
 │   ├── ui-map.json                 # 现有执行选择器映射
-│   ├── ui-semantic-map.json        # 新增公共语义定位层（供生成/维护参考）
-│   ├── generated/                  # app-monorepo 同步产物
+│   ├── ui-semantic-map.json        # 新增公共语义定位层（生成/维护默认优先引用）
+│   ├── generated/                  # app-monorepo x 分支同步产物
 │   └── results/                    # 执行结果
 ├── .claude/
 │   ├── CLAUDE.md                   # Claude Code 项目规则
