@@ -58,6 +58,60 @@ node src/tests/desktop/market/search.test.mjs MARKET-SEARCH-002
 node src/recorder/listen.mjs
 ```
 
+### 4. 从录制结果生成并写回 `test_cases.json`
+
+录制器默认输出到：
+
+- `shared/results/recording/steps.json`
+- `shared/results/recording/generated.json`
+
+推荐流程：
+
+```bash
+# 1) review 原始录制步骤
+node src/recorder/review.mjs shared/results/recording
+
+# 2) 生成 semantic-aware route + compiled locators
+node src/recorder/generate.mjs shared/results/recording
+
+# 3a) 按 scenarioId 更新已有 case
+node src/recorder/generate.mjs shared/results/recording \
+  --apply \
+  --scenario-id create-mnemonic-wallet-with-backup
+
+# 3b) 追加一个新的 draft case
+node src/recorder/generate.mjs shared/results/recording \
+  --apply \
+  --scenario-id wallet-send-token-smoke \
+  --title "Wallet Send Token Smoke" \
+  --id-prefix DRAFT
+```
+
+`generate.mjs` 在生成阶段会参考 `shared/ui-semantic-map.json`，为 step 编译出稳定的 `compiled_locator`；
+runner 在执行阶段优先消费 `compiled_locator`，没有时再回退 `ui_element + ui-map`，不会在 runtime 再读取 semantic map。
+
+常用参数：
+
+- `--apply`：把 `generated.json` 的 step 结果写回 `test_cases.json`
+- `--scenario-id`：按 `scenarioId` 更新已有 case；不存在时用于新 draft case 的 `scenarioId`
+- `--case-id`：按 `id` 精确更新已有 case
+- `--title`：新 draft case 标题
+- `--platform`：新 draft case 平台，默认 `desktop`
+- `--priority`：新 draft case 优先级，默认 `P1`
+- `--id-prefix`：新 draft case 编号前缀，默认 `DRAFT`
+- `--test-cases-file`：指定目标文件，适合先写临时副本验证
+
+安全建议：
+
+```bash
+# 先写到临时文件验证，再决定是否覆盖正式 shared/test_cases.json
+cp shared/test_cases.json /tmp/test_cases.json
+node src/recorder/generate.mjs shared/results/recording \
+  --apply \
+  --scenario-id create-mnemonic-wallet-with-backup \
+  --test-cases-file /tmp/test_cases.json
+```
+
 ## 项目结构
 
 ```
