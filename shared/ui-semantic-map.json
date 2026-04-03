@@ -1,8 +1,103 @@
 {
   "version": "1.1.0",
-  "lastUpdated": "2026-04-03T05:15:00Z",
+  "lastUpdated": "2026-04-03T05:45:00Z",
   "description": "Semantic locator registry for test generation and future runner integration. This file is additive only and does not replace shared/ui-map.json. Default source is app-monorepo origin/x unless APP_MONOREPO_REF overrides it.",
   "elements": {
+    "address_book.add_button": {
+      "primary": "[data-testid=\"address-book-add-icon\"]",
+      "source_testid": "address-book-add-icon",
+      "source": "app-monorepo",
+      "page": "address-book",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address_book.form.address": {
+      "primary": "[data-testid=\"address-form-address\"]",
+      "source_testid": "address-form-address",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.address_field": {
+      "primary": "[data-testid=\"address-form-address-field\"]",
+      "source_testid": "address-form-address-field",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.name": {
+      "primary": "[data-testid=\"address-form-name\"]",
+      "source_testid": "address-form-name",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.name_field": {
+      "primary": "[data-testid=\"address-form-name-field\"]",
+      "source_testid": "address-form-name-field",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.remove": {
+      "primary": "[data-testid=\"address-form-remove\"]",
+      "source_testid": "address-form-remove",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
     "address_book.search.empty_state": {
       "primary": "[data-testid=\"address-book-search-empty\"]",
       "source_testid": "address-book-search-empty",
@@ -287,6 +382,38 @@
         "discovery"
       ]
     },
+    "discovery.history.clear_all": {
+      "primary": "[data-testid=\"history-clear-all-button\"]",
+      "source_testid": "history-clear-all-button",
+      "source": "app-monorepo",
+      "page": "discovery-history",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "discovery",
+        "history"
+      ]
+    },
+    "discovery.history.list": {
+      "primary": "[data-testid=\"History-SectionList\"]",
+      "source_testid": "History-SectionList",
+      "source": "app-monorepo",
+      "page": "discovery-history",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "discovery",
+        "history"
+      ]
+    },
     "global.footer.cancel": {
       "primary": "[data-testid=\"page-footer-cancel\"]",
       "source_testid": "page-footer-cancel",
@@ -317,6 +444,52 @@
         "perps"
       ]
     },
+    "global.form.submit_button": {
+      "primary": "[data-testid=\"form-submit-button\"]",
+      "source_testid": "form-submit-button",
+      "source": "app-monorepo",
+      "page": "form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "global",
+        "form"
+      ]
+    },
+    "global.header.button_group": {
+      "primary": "[data-testid=\"Navigation-HeaderView-ButtonGroup\"]",
+      "source_testid": "Navigation-HeaderView-ButtonGroup",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "global-navigation",
+        "header"
+      ]
+    },
+    "global.header.navigation": {
+      "primary": "[data-testid=\"Header-Navigation\"]",
+      "source_testid": "Header-Navigation",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "header"
+      ]
+    },
     "global.header.notification": {
       "primary": "[data-testid=\"header-right-notification\"]",
       "source_testid": "header-right-notification",
@@ -328,6 +501,21 @@
       ],
       "feature": [
         "global-navigation"
+      ]
+    },
+    "global.header.notification_button": {
+      "primary": "[data-testid=\"headerNotificationButton\"]",
+      "source_testid": "headerNotificationButton",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "header",
+        "notification"
       ]
     },
     "global.modal.backdrop": {
@@ -396,6 +584,49 @@
       ],
       "notes": "Known blocking overlay in desktop flow."
     },
+    "global.sidebar.container": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Container\"]",
+      "source_testid": "Desktop-AppSideBar-Container",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "sidebar"
+      ]
+    },
+    "global.sidebar.content": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"]",
+      "source_testid": "Desktop-AppSideBar-Content-Container",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "sidebar"
+      ]
+    },
+    "global.tabbar.container": {
+      "primary": "[data-testid=\"Mobile-AppTabBar\"]",
+      "source_testid": "Mobile-AppTabBar",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "ios",
+        "android",
+        "mobile"
+      ],
+      "feature": [
+        "global-navigation",
+        "tabbar"
+      ]
+    },
     "market.action.button": {
       "primary": "[data-testid=\"action-button\"]",
       "source_testid": "action-button",
@@ -454,6 +685,22 @@
       "feature": [
         "onboarding",
         "wallets"
+      ]
+    },
+    "onboarding.finalize_wallet_setup": {
+      "primary": "[data-testid=\"finalize-wallet-setup\"]",
+      "source_testid": "finalize-wallet-setup",
+      "source": "app-monorepo",
+      "page": "onboarding",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "onboarding",
+        "wallet-setup"
       ]
     },
     "onboarding.screen": {
@@ -521,6 +768,22 @@
       ],
       "feature": [
         "perps"
+      ]
+    },
+    "security.password.confirm_input": {
+      "primary": "[data-testid=\"confirm-password\"]",
+      "source_testid": "confirm-password",
+      "source": "app-monorepo",
+      "page": "password-setup",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "security",
+        "password"
       ]
     },
     "security.password.input": {
@@ -739,6 +1002,20 @@
         "account-selector"
       ]
     },
+    "wallet.account.add_account_button.secondary": {
+      "primary": "[data-testid=\"account-add-account\"]",
+      "source_testid": "account-add-account",
+      "source": "app-monorepo",
+      "page": "wallet-details",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector",
+        "wallet-details"
+      ]
+    },
     "wallet.account.batch_create_button": {
       "primary": "[data-testid=\"batch-create-account-button-trigger\"]",
       "source_testid": "batch-create-account-button-trigger",
@@ -832,6 +1109,19 @@
         "account-selector"
       ],
       "notes": "Account selector container surfaced in swap review dialog."
+    },
+    "wallet.account.selector.name": {
+      "primary": "[data-testid=\"account-name\"]",
+      "source_testid": "account-name",
+      "source": "app-monorepo",
+      "page": "account-selector-trigger",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
     },
     "wallet.account.selector.trigger": {
       "primary": "[data-testid=\"AccountSelectorTriggerBase\"]",
@@ -941,6 +1231,23 @@
       ],
       "feature": [
         "defi"
+      ]
+    },
+    "wallet.derivation.path_selector.trigger": {
+      "primary": "[data-testid=\"wallet-derivation-path-selector-trigger\"]",
+      "source_testid": "wallet-derivation-path-selector-trigger",
+      "source": "app-monorepo",
+      "page": "wallet-derivation",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "account-selector",
+        "derivation",
+        "onboarding"
       ]
     },
     "wallet.history.empty_state": {
@@ -1175,6 +1482,23 @@
       ],
       "feature": [
         "send"
+      ]
+    },
+    "wallet.token_details.no_address_empty_state": {
+      "primary": "[data-testid=\"TokenDetailsViews__Wallet-No-Address-Empty\"]",
+      "source_testid": "TokenDetailsViews__Wallet-No-Address-Empty",
+      "source": "app-monorepo",
+      "page": "token-details",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "wallet",
+        "token-details",
+        "empty-state"
       ]
     },
     "wallet.token_list.header": {
