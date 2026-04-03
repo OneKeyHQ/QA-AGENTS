@@ -1,0 +1,2255 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-04-03T02:16:52.831Z",
+  "sourceRoot": "/Users/onekey/Documents/Github/app-monorepo",
+  "scanRoots": [
+    "apps",
+    "packages"
+  ],
+  "filesScanned": 6900,
+  "uniqueTestIds": 188,
+  "testIds": {
+    "account-add-account": {
+      "selector": "[data-testid=\"account-add-account\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/AccountSelectorStack/WalletDetails/AccountSelectorAddAccountButton.tsx"
+      ],
+      "featureHints": []
+    },
+    "account-generate-amount-input": {
+      "selector": "[data-testid=\"account-generate-amount-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/BatchCreateAccount/BatchCreateAccountFormBase.tsx"
+      ],
+      "featureHints": []
+    },
+    "account-item-value-address-splitter": {
+      "selector": "[data-testid=\"account-item-value-address-splitter\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/AccountSelectorStack/WalletDetails/AccountAddress.tsx"
+      ],
+      "featureHints": []
+    },
+    "account-key-input": {
+      "selector": "[data-testid=\"account-key-input\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/ExportKeys/ExportPrivateKeys.tsx"
+      ],
+      "featureHints": []
+    },
+    "account-name": {
+      "selector": "[data-testid=\"account-name\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/AccountSelector/AccountSelectorTrigger/AccountSelectorTriggerBase.tsx"
+      ],
+      "featureHints": [
+        "account-selector"
+      ]
+    },
+    "account-network-trigger-button": {
+      "selector": "[data-testid=\"account-network-trigger-button\"]",
+      "occurrences": 3,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/AccountSelector/NetworkSelectorTrigger/NetworkSelectorTrigger.tsx",
+        "packages/kit/src/components/TxHistoryListView/TxHistoryAddressInfo.tsx"
+      ],
+      "featureHints": [
+        "account-selector"
+      ]
+    },
+    "account-network-trigger-button-text": {
+      "selector": "[data-testid=\"account-network-trigger-button-text\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/AccountSelector/NetworkSelectorTrigger/NetworkSelectorTrigger.tsx"
+      ],
+      "featureHints": [
+        "account-selector"
+      ]
+    },
+    "account-search-bar-add-button": {
+      "selector": "[data-testid=\"account-search-bar-add-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/AccountSelectorStack/WalletDetails/WalletDetailsHeader/AccountSearchBar.tsx"
+      ],
+      "featureHints": []
+    },
+    "account-selector-accountList": {
+      "selector": "[data-testid=\"account-selector-accountList\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/AccountSelectorStack/WalletDetails/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "account-selector-address": {
+      "selector": "[data-testid=\"account-selector-address\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/AccountSelector/AccountSelectorActiveAccount.tsx"
+      ],
+      "featureHints": [
+        "account-selector"
+      ]
+    },
+    "account-selector-address-text": {
+      "selector": "[data-testid=\"account-selector-address-text\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/AccountSelector/AccountSelectorActiveAccount.tsx"
+      ],
+      "featureHints": [
+        "account-selector"
+      ]
+    },
+    "account-selector-header": {
+      "selector": "[data-testid=\"account-selector-header\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/AccountSelectorStack/WalletDetails/WalletDetailsHeader/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "account-selector-wallet-list": {
+      "selector": "[data-testid=\"account-selector-wallet-list\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/AccountSelectorStack/WalletList/AccountSelectorWalletListSideBar.tsx"
+      ],
+      "featureHints": []
+    },
+    "AccountSelector-WalletOption-Backup": {
+      "selector": "[data-testid=\"AccountSelector-WalletOption-Backup\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/components/WalletEdit/HdWalletBackupButton.tsx"
+      ],
+      "featureHints": []
+    },
+    "AccountSelectorTriggerBase": {
+      "selector": "[data-testid=\"AccountSelectorTriggerBase\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/AccountSelector/AccountSelectorTrigger/AccountSelectorTriggerBase.tsx"
+      ],
+      "featureHints": [
+        "account-selector"
+      ]
+    },
+    "acknowledged": {
+      "selector": "[data-testid=\"acknowledged\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/pages/ImportWallet/ImportWalletOptions.tsx"
+      ],
+      "featureHints": []
+    },
+    "action-list-item-rename": {
+      "selector": "[data-testid=\"action-list-item-rename\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/BookmarkListModal/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "add-account-button": {
+      "selector": "[data-testid=\"add-account-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/AccountSelectorStack/WalletDetails/WalletDetailsHeader/AccountSearchBar.tsx"
+      ],
+      "featureHints": []
+    },
+    "add-custom-token-modal-footer": {
+      "selector": "[data-testid=\"add-custom-token-modal-footer\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AssetList/pages/AddCustomTokenModal.tsx"
+      ],
+      "featureHints": []
+    },
+    "add-wallet": {
+      "selector": "[data-testid=\"add-wallet\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/AccountSelectorStack/WalletList/AccountSelectorCreateWalletButton.tsx"
+      ],
+      "featureHints": []
+    },
+    "address-book-add-icon": {
+      "selector": "[data-testid=\"address-book-add-icon\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AddressBook/pages/ListItem/index.tsx",
+        "packages/kit/src/views/AddressBook/pages/PickItem/index.tsx"
+      ],
+      "featureHints": [
+        "address-book"
+      ]
+    },
+    "address-book-search-empty": {
+      "selector": "[data-testid=\"address-book-search-empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AddressBook/components/AddressBookListContent.tsx"
+      ],
+      "featureHints": [
+        "address-book"
+      ]
+    },
+    "address-form-address": {
+      "selector": "[data-testid=\"address-form-address\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AddressBook/components/CreateOrEditContent.tsx"
+      ],
+      "featureHints": [
+        "address-book"
+      ]
+    },
+    "address-form-address-field": {
+      "selector": "[data-testid=\"address-form-address-field\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AddressBook/components/CreateOrEditContent.tsx"
+      ],
+      "featureHints": [
+        "address-book"
+      ]
+    },
+    "address-form-name": {
+      "selector": "[data-testid=\"address-form-name\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AddressBook/components/CreateOrEditContent.tsx"
+      ],
+      "featureHints": [
+        "address-book"
+      ]
+    },
+    "address-form-name-field": {
+      "selector": "[data-testid=\"address-form-name-field\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AddressBook/components/CreateOrEditContent.tsx"
+      ],
+      "featureHints": [
+        "address-book"
+      ]
+    },
+    "address-form-remove": {
+      "selector": "[data-testid=\"address-form-remove\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AddressBook/components/CreateOrEditContent.tsx"
+      ],
+      "featureHints": [
+        "address-book"
+      ]
+    },
+    "all-networks-manager-search-bar": {
+      "selector": "[data-testid=\"all-networks-manager-search-bar\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/ChainSelector/components/AllNetworksManager/NetworksSectionList.tsx"
+      ],
+      "featureHints": [
+        "chain-selector"
+      ]
+    },
+    "always-sign-only-send-tx": {
+      "selector": "[data-testid=\"always-sign-only-send-tx\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "APP-Modal-Screen": {
+      "selector": "[data-testid=\"APP-Modal-Screen\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Modal/createWebModalNavigator.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "app-notification-badge-menu": {
+      "selector": "[data-testid=\"app-notification-badge-menu\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "APP-OnBoarding-Screen": {
+      "selector": "[data-testid=\"APP-OnBoarding-Screen\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Modal/createOnBoardingNavigator.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "banner-close-button": {
+      "selector": "[data-testid=\"banner-close-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/composite/Banner/CloseButton.tsx"
+      ],
+      "featureHints": []
+    },
+    "batch-create-account-button-trigger": {
+      "selector": "[data-testid=\"batch-create-account-button-trigger\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/components/WalletEdit/BatchCreateAccountButton.tsx"
+      ],
+      "featureHints": []
+    },
+    "batch-create-account-preview-loading-icon": {
+      "selector": "[data-testid=\"batch-create-account-preview-loading-icon\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/BatchCreateAccount/BatchCreateAccountPreview.tsx"
+      ],
+      "featureHints": []
+    },
+    "batch-create-account-preview-page-next": {
+      "selector": "[data-testid=\"batch-create-account-preview-page-next\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/BatchCreateAccount/BatchCreateAccountPreview.tsx"
+      ],
+      "featureHints": []
+    },
+    "batch-create-account-preview-page-number": {
+      "selector": "[data-testid=\"batch-create-account-preview-page-number\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/BatchCreateAccount/BatchCreateAccountPreview.tsx"
+      ],
+      "featureHints": []
+    },
+    "batch-create-account-preview-page-number-input": {
+      "selector": "[data-testid=\"batch-create-account-preview-page-number-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/BatchCreateAccount/PreviewPageNumberDialog.tsx"
+      ],
+      "featureHints": []
+    },
+    "batch-create-account-preview-page-prev": {
+      "selector": "[data-testid=\"batch-create-account-preview-page-prev\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/BatchCreateAccount/BatchCreateAccountPreview.tsx"
+      ],
+      "featureHints": []
+    },
+    "blank-page": {
+      "selector": "[data-testid=\"blank-page\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/DeviceManagement/pages/DeviceGuideModal/DeviceGuideView.tsx"
+      ],
+      "featureHints": []
+    },
+    "blank-page-mobile-buttons": {
+      "selector": "[data-testid=\"blank-page-mobile-buttons\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/DeviceManagement/pages/DeviceGuideModal/DeviceGuideView.tsx"
+      ],
+      "featureHints": []
+    },
+    "blank-page-video": {
+      "selector": "[data-testid=\"blank-page-video\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/DeviceManagement/pages/DeviceGuideModal/DeviceGuideView.tsx"
+      ],
+      "featureHints": []
+    },
+    "browser-bar-add": {
+      "selector": "[data-testid=\"browser-bar-add\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/DesktopCustomTabBar/index.tsx",
+        "packages/kit/src/views/Discovery/pages/MobileTabListModal/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "browser-bar-go-back": {
+      "selector": "[data-testid=\"browser-bar-go-back\"]",
+      "occurrences": 3,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/components/HeaderLeftToolBar/index.tsx",
+        "packages/kit/src/views/Discovery/components/MobileBrowser/MobileBrowserBottomBar.android.tsx",
+        "packages/kit/src/views/Discovery/components/MobileBrowser/MobileBrowserBottomBar.ios.tsx"
+      ],
+      "featureHints": [
+        "android",
+        "discovery",
+        "ios"
+      ]
+    },
+    "browser-bar-go-forward": {
+      "selector": "[data-testid=\"browser-bar-go-forward\"]",
+      "occurrences": 3,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/components/HeaderLeftToolBar/index.tsx",
+        "packages/kit/src/views/Discovery/components/MobileBrowser/MobileBrowserBottomBar.android.tsx",
+        "packages/kit/src/views/Discovery/components/MobileBrowser/MobileBrowserBottomBar.ios.tsx"
+      ],
+      "featureHints": [
+        "android",
+        "discovery",
+        "ios"
+      ]
+    },
+    "browser-bar-home": {
+      "selector": "[data-testid=\"browser-bar-home\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/DesktopCustomTabBar/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "browser-bar-options": {
+      "selector": "[data-testid=\"browser-bar-options\"]",
+      "occurrences": 3,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Tab/TabBar/DesktopTabItem.tsx",
+        "packages/kit/src/views/Discovery/components/MobileBrowser/MobileBrowserBottomBar.android.tsx",
+        "packages/kit/src/views/Discovery/components/MobileBrowser/MobileBrowserBottomBar.ios.tsx"
+      ],
+      "featureHints": [
+        "android",
+        "discovery",
+        "global-navigation",
+        "ios"
+      ]
+    },
+    "browser-bar-refresh": {
+      "selector": "[data-testid=\"browser-bar-refresh\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/components/MobileBrowser/RefreshButton.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "browser-bar-tabs": {
+      "selector": "[data-testid=\"browser-bar-tabs\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/components/MobileBrowser/MobileBrowserBottomBar.android.tsx",
+        "packages/kit/src/views/Discovery/components/MobileBrowser/MobileBrowserBottomBar.ios.tsx"
+      ],
+      "featureHints": [
+        "android",
+        "discovery",
+        "ios"
+      ]
+    },
+    "browser-find-close-button": {
+      "selector": "[data-testid=\"browser-find-close-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/Browser/DesktopBrowserContent.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "browser-find-next-button": {
+      "selector": "[data-testid=\"browser-find-next-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/Browser/DesktopBrowserContent.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "browser-find-prev-button": {
+      "selector": "[data-testid=\"browser-find-prev-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/Browser/DesktopBrowserContent.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "browser-header-tabs": {
+      "selector": "[data-testid=\"browser-header-tabs\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TabPageHeader/HeaderRight.tsx"
+      ],
+      "featureHints": []
+    },
+    "browser-history-button": {
+      "selector": "[data-testid=\"browser-history-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/components/HistoryIconButton.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "browser-shortcuts-button": {
+      "selector": "[data-testid=\"browser-shortcuts-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/components/HeaderRightToolBar/ShortcutsActionButton.desktop.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "chain-selector": {
+      "selector": "[data-testid=\"chain-selector\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/ChainSelector/components/EditableChainSelector/ChainSelectorContent.tsx",
+        "packages/kit/src/views/ChainSelector/components/PureChainSelector/ChainSelectorSectionList.tsx"
+      ],
+      "featureHints": [
+        "chain-selector"
+      ]
+    },
+    "clear-address-book-data": {
+      "selector": "[data-testid=\"clear-address-book-data\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "clear-all": {
+      "selector": "[data-testid=\"clear-all\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/components/PhaseInputArea.tsx",
+        "packages/kit/src/views/Onboardingv2/components/PhaseInputArea.tsx"
+      ],
+      "featureHints": []
+    },
+    "clear-data-menu": {
+      "selector": "[data-testid=\"clear-data-menu\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "clear-discovery-data": {
+      "selector": "[data-testid=\"clear-discovery-data\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "clear-history": {
+      "selector": "[data-testid=\"clear-history\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "clear-password": {
+      "selector": "[data-testid=\"clear-password\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "clear-settings": {
+      "selector": "[data-testid=\"clear-settings\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "clear-wallets-data": {
+      "selector": "[data-testid=\"clear-wallets-data\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "confirm-on-device-toast-container": {
+      "selector": "[data-testid=\"confirm-on-device-toast-container\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/actions/Toast/ShowCustom.tsx"
+      ],
+      "featureHints": []
+    },
+    "confirm-password": {
+      "selector": "[data-testid=\"confirm-password\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Password/components/PasswordSetup.tsx"
+      ],
+      "featureHints": []
+    },
+    "copy-recovery-phrase-icon": {
+      "selector": "[data-testid=\"copy-recovery-phrase-icon\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/pages/CreateWalet/RecoveryPhrase.tsx"
+      ],
+      "featureHints": []
+    },
+    "CustomRpcItemContainer": {
+      "selector": "[data-testid=\"CustomRpcItemContainer\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/CustomRPC/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "DAppAccountListStandAloneItem": {
+      "selector": "[data-testid=\"DAppAccountListStandAloneItem\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/DAppConnection/components/DAppAccountList/DAppAccountListItem.tsx"
+      ],
+      "featureHints": []
+    },
+    "derive-type-input": {
+      "selector": "[data-testid=\"derive-type-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/pages/ImportWallet/ImportAddressCore.tsx"
+      ],
+      "featureHints": []
+    },
+    "desktop-api-proxy-test-menu": {
+      "selector": "[data-testid=\"desktop-api-proxy-test-menu\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "Desktop-AppSideBar-Container": {
+      "selector": "[data-testid=\"Desktop-AppSideBar-Container\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Tab/TabBar/DesktopLeftSideBar.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "Desktop-AppSideBar-Content-Container": {
+      "selector": "[data-testid=\"Desktop-AppSideBar-Content-Container\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Tab/TabBar/DesktopLeftSideBar.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "dev-button": {
+      "selector": "[data-testid=\"dev-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/provider/Container/FullWindowOverlayContainer/DevOverlayWindow.tsx"
+      ],
+      "featureHints": []
+    },
+    "dev-only-password": {
+      "selector": "[data-testid=\"dev-only-password\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "dev-unit-tests-menu": {
+      "selector": "[data-testid=\"dev-unit-tests-menu\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "device-details-content": {
+      "selector": "[data-testid=\"device-details-content\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/DeviceManagement/pages/DeviceDetailsModal/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "erase-data-input": {
+      "selector": "[data-testid=\"erase-data-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/hooks/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "explore-index-search": {
+      "selector": "[data-testid=\"explore-index-search\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/components/CustomHeaderTitle/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "explore-index-search-input": {
+      "selector": "[data-testid=\"explore-index-search-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/components/HeaderLeftToolBar/HeaderLeftToolBarInput.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "export-private-key": {
+      "selector": "[data-testid=\"export-private-key\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "finalize-wallet-setup": {
+      "selector": "[data-testid=\"finalize-wallet-setup\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/pages/FinalizeWalletSetup.tsx"
+      ],
+      "featureHints": []
+    },
+    "firmware-update-dev-settings-menu": {
+      "selector": "[data-testid=\"firmware-update-dev-settings-menu\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "form-submit-button": {
+      "selector": "[data-testid=\"form-submit-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/forms/Form/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "GlobalJotaiReady-not-ready-placeholder": {
+      "selector": "[data-testid=\"GlobalJotaiReady-not-ready-placeholder\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/GlobalJotaiReady/GlobalJotaiReady.tsx"
+      ],
+      "featureHints": []
+    },
+    "hardware-wallet": {
+      "selector": "[data-testid=\"hardware-wallet\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/pages/GetStarted/components/Actions.tsx",
+        "packages/kit/src/views/Onboarding/pages/ImportWallet/ImportWalletOptions.tsx"
+      ],
+      "featureHints": []
+    },
+    "Header-Navigation": {
+      "selector": "[data-testid=\"Header-Navigation\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TabPageHeader/components/WebHeaderNavigation/HeaderNavigation.tsx"
+      ],
+      "featureHints": []
+    },
+    "header-right-notification": {
+      "selector": "[data-testid=\"header-right-notification\"]",
+      "occurrences": 6,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TabPageHeader/DappHeader.tsx",
+        "packages/kit/src/components/TabPageHeader/HeaderRight.tsx",
+        "packages/kit/src/components/TabPageHeader/MDHeader.tsx",
+        "packages/kit/src/components/TabPageHeader/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "header-right-perp-trade-refresh": {
+      "selector": "[data-testid=\"header-right-perp-trade-refresh\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/PerpTrade/pages/PageWebviewPerpTrade.tsx"
+      ],
+      "featureHints": []
+    },
+    "headerNotificationButton": {
+      "selector": "[data-testid=\"headerNotificationButton\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Header/HeaderNotificationButton.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "headerRightPrimeButton": {
+      "selector": "[data-testid=\"headerRightPrimeButton\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Prime/components/PrimeHeaderIconButton/PrimeHeaderIconButton.tsx"
+      ],
+      "featureHints": []
+    },
+    "history-clear-all-button": {
+      "selector": "[data-testid=\"history-clear-all-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/HistoryListModal/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "history-details-body": {
+      "selector": "[data-testid=\"history-details-body\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AssetDetails/pages/HistoryDetails/HistoryDetails.tsx"
+      ],
+      "featureHints": []
+    },
+    "history-details-inputs-and-outputs": {
+      "selector": "[data-testid=\"history-details-inputs-and-outputs\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AssetDetails/pages/UTXODetails.tsx"
+      ],
+      "featureHints": []
+    },
+    "history-details-main-content": {
+      "selector": "[data-testid=\"history-details-main-content\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AssetDetails/pages/HistoryDetails/HistoryDetails.tsx"
+      ],
+      "featureHints": []
+    },
+    "history-details-what-assets-change": {
+      "selector": "[data-testid=\"history-details-what-assets-change\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AssetDetails/pages/HistoryDetails/HistoryDetails.tsx"
+      ],
+      "featureHints": []
+    },
+    "history-list-item-speed-up-and-cancel-buttons": {
+      "selector": "[data-testid=\"history-list-item-speed-up-and-cancel-buttons\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TxHistoryListView/TxHistoryListItem.tsx"
+      ],
+      "featureHints": []
+    },
+    "History-SectionList": {
+      "selector": "[data-testid=\"History-SectionList\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/HistoryListModal/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "hyperliquid-intro-confirmation-slide": {
+      "selector": "[data-testid=\"hyperliquid-intro-confirmation-slide\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Perp/components/HyperliquidTerms.tsx"
+      ],
+      "featureHints": [
+        "perps"
+      ]
+    },
+    "import-address-input": {
+      "selector": "[data-testid=\"import-address-input\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/pages/ImportWallet/ImportAddressCore.tsx"
+      ],
+      "featureHints": []
+    },
+    "LNHardware": {
+      "selector": "[data-testid=\"LNHardware\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/LightningNetwork/components/LNHardwareWalletAuth.tsx"
+      ],
+      "featureHints": []
+    },
+    "LNHardwareAuth": {
+      "selector": "[data-testid=\"LNHardwareAuth\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/LightningNetwork/components/LNHardwareWalletAuth.tsx"
+      ],
+      "featureHints": []
+    },
+    "market-banner-detail-notification": {
+      "selector": "[data-testid=\"market-banner-detail-notification\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketBannerDetail/MarketBannerDetail.tsx"
+      ],
+      "featureHints": []
+    },
+    "me-settings": {
+      "selector": "[data-testid=\"me-settings\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Developer/pages/TabDeveloper.tsx"
+      ],
+      "featureHints": []
+    },
+    "Mobile-AppTabBar": {
+      "selector": "[data-testid=\"Mobile-AppTabBar\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Tab/TabBar/MobileBottomTabBar.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "Mobile-AppTabBar-TabItem-Icon": {
+      "selector": "[data-testid=\"Mobile-AppTabBar-TabItem-Icon\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Tab/TabBar/MobileBottomTabBar.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "moreActions": {
+      "selector": "[data-testid=\"moreActions\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/MoreActionButton/index.tsx",
+        "packages/kit/src/components/TabPageHeader/DappHeader.tsx"
+      ],
+      "featureHints": []
+    },
+    "multi-avatar": {
+      "selector": "[data-testid=\"multi-avatar\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/components/HeaderRightToolBar/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "nav-header-back": {
+      "selector": "[data-testid=\"nav-header-back\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Header/HeaderBackButton.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "nav-header-close": {
+      "selector": "[data-testid=\"nav-header-close\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Header/HeaderBackButton.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "Navigation-HeaderView-ButtonGroup": {
+      "selector": "[data-testid=\"Navigation-HeaderView-ButtonGroup\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Header/HeaderButtonGroup.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "network-selector-input": {
+      "selector": "[data-testid=\"network-selector-input\"]",
+      "occurrences": 3,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/AccountSelector/NetworkSelectorTrigger/NetworkSelectorTrigger.tsx",
+        "packages/kit/src/components/ChainSelectorInput/index.tsx",
+        "packages/kit/src/views/AssetList/pages/AddCustomTokenModal.tsx"
+      ],
+      "featureHints": [
+        "account-selector"
+      ]
+    },
+    "network-selector-input-text": {
+      "selector": "[data-testid=\"network-selector-input-text\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/ChainSelectorInput/index.tsx",
+        "packages/kit/src/views/AssetList/pages/AddCustomTokenModal.tsx"
+      ],
+      "featureHints": []
+    },
+    "onboarding-create-or-import-wallet": {
+      "selector": "[data-testid=\"onboarding-create-or-import-wallet\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/pages/GetStarted/components/Actions.tsx"
+      ],
+      "featureHints": []
+    },
+    "onekey-id-button": {
+      "selector": "[data-testid=\"onekey-id-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TabPageHeader/components/OneKeyIdButton.tsx"
+      ],
+      "featureHints": []
+    },
+    "onekey-toast-messages": {
+      "selector": "[data-testid=\"onekey-toast-messages\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/actions/Toast/Toaster.tsx"
+      ],
+      "featureHints": []
+    },
+    "open-home-page": {
+      "selector": "[data-testid=\"open-home-page\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/provider/Container/FullWindowOverlayContainer/DevOverlayWindow.tsx"
+      ],
+      "featureHints": []
+    },
+    "open-settings-page": {
+      "selector": "[data-testid=\"open-settings-page\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/provider/Container/FullWindowOverlayContainer/DevOverlayWindow.tsx"
+      ],
+      "featureHints": []
+    },
+    "otp-input": {
+      "selector": "[data-testid=\"otp-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/forms/OTPInput/OtpEntry/OtpInput/OtpInput.tsx"
+      ],
+      "featureHints": []
+    },
+    "otp-input-hidden": {
+      "selector": "[data-testid=\"otp-input-hidden\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/forms/OTPInput/OtpEntry/OtpInput/OtpInput.tsx"
+      ],
+      "featureHints": []
+    },
+    "otp-input-stick": {
+      "selector": "[data-testid=\"otp-input-stick\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/forms/OTPInput/OtpEntry/OtpInput/VerticalStick.tsx"
+      ],
+      "featureHints": []
+    },
+    "ovelay-popover": {
+      "selector": "[data-testid=\"ovelay-popover\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/actions/Popover/PopoverContent.tsx"
+      ],
+      "featureHints": []
+    },
+    "page-footer-cancel": {
+      "selector": "[data-testid=\"page-footer-cancel\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Page/PageFooterActions.tsx",
+        "packages/kit/src/views/Perp/components/PerpMarketFooter.android.tsx"
+      ],
+      "featureHints": [
+        "android",
+        "perps"
+      ]
+    },
+    "page-footer-confirm": {
+      "selector": "[data-testid=\"page-footer-confirm\"]",
+      "occurrences": 3,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Page/PageFooterActions.tsx",
+        "packages/kit/src/views/ChainSelector/components/UnifiedNetworkSelector/index.tsx",
+        "packages/kit/src/views/Perp/components/PerpMarketFooter.android.tsx"
+      ],
+      "featureHints": [
+        "android",
+        "chain-selector",
+        "perps"
+      ]
+    },
+    "password": {
+      "selector": "[data-testid=\"password\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Password/components/PasswordSetup.tsx"
+      ],
+      "featureHints": []
+    },
+    "password-input": {
+      "selector": "[data-testid=\"password-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Password/components/PasswordVerify.tsx"
+      ],
+      "featureHints": []
+    },
+    "perp-bbo-toggle-button": {
+      "selector": "[data-testid=\"perp-bbo-toggle-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Perp/components/TradingPanel/panels/PerpTradingForm.tsx"
+      ],
+      "featureHints": [
+        "perps"
+      ]
+    },
+    "perp-header-settings-button": {
+      "selector": "[data-testid=\"perp-header-settings-button\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Perp/components/TradingPanel/components/PerpsHeaderRight.tsx",
+        "packages/kit/src/views/Perp/pages/Perp.tsx"
+      ],
+      "featureHints": [
+        "perps"
+      ]
+    },
+    "perp-mobile-settings-button": {
+      "selector": "[data-testid=\"perp-mobile-settings-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Perp/components/TickerBar/PerpTickerBarMobile.tsx"
+      ],
+      "featureHints": [
+        "perps"
+      ]
+    },
+    "perp-trading-form-mobile-deposit-button": {
+      "selector": "[data-testid=\"perp-trading-form-mobile-deposit-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Perp/components/TradingPanel/panels/PerpTradingForm.tsx"
+      ],
+      "featureHints": [
+        "perps"
+      ]
+    },
+    "phrase-length": {
+      "selector": "[data-testid=\"phrase-length\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/components/PhaseInputArea.tsx",
+        "packages/kit/src/views/Onboardingv2/components/PhaseInputArea.tsx"
+      ],
+      "featureHints": []
+    },
+    "pin-tab-divider": {
+      "selector": "[data-testid=\"pin-tab-divider\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/DesktopCustomTabBar/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "popover-btn-close": {
+      "selector": "[data-testid=\"popover-btn-close\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/actions/Popover/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "prime-features-pagination": {
+      "selector": "[data-testid=\"prime-features-pagination\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Prime/pages/PrimeFeatures/PagePrimeFeatures.tsx"
+      ],
+      "featureHints": []
+    },
+    "private-key-copy-check": {
+      "selector": "[data-testid=\"private-key-copy-check\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/pages/ExportKeys/showCopyPrivateKeysDialog.tsx"
+      ],
+      "featureHints": []
+    },
+    "refer-friends-edit-address-input": {
+      "selector": "[data-testid=\"refer-friends-edit-address-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/ReferFriends/pages/EditAddress/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "remote-device-password-input": {
+      "selector": "[data-testid=\"remote-device-password-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Prime/pages/PagePrimeTransfer/PagePrimeTransferPreview.tsx"
+      ],
+      "featureHints": []
+    },
+    "replace-tx-modal": {
+      "selector": "[data-testid=\"replace-tx-modal\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Send/pages/SendReplaceTx/SendReplaceTxContainer.tsx"
+      ],
+      "featureHints": [
+        "send"
+      ]
+    },
+    "scan-open-photo": {
+      "selector": "[data-testid=\"scan-open-photo\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/ScanQrCode/pages/ScanQrCodeModal.tsx"
+      ],
+      "featureHints": []
+    },
+    "search-input": {
+      "selector": "[data-testid=\"search-input\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/Dashboard/Welcome/SearchInput.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "send-recipient-amount-form": {
+      "selector": "[data-testid=\"send-recipient-amount-form\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Send/pages/SendDataInput/SendDataInputContainer.tsx"
+      ],
+      "featureHints": [
+        "send"
+      ]
+    },
+    "set-password": {
+      "selector": "[data-testid=\"set-password\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Password/components/PasswordSetup.tsx"
+      ],
+      "featureHints": []
+    },
+    "setting": {
+      "selector": "[data-testid=\"setting\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/AddressInput/AddressSecurityHeaderRightButton.tsx"
+      ],
+      "featureHints": []
+    },
+    "setting-erase-data": {
+      "selector": "[data-testid=\"setting-erase-data\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/CustomElement.tsx"
+      ],
+      "featureHints": []
+    },
+    "setting-version": {
+      "selector": "[data-testid=\"setting-version\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/CustomElement.tsx"
+      ],
+      "featureHints": []
+    },
+    "show-dev-overlay": {
+      "selector": "[data-testid=\"show-dev-overlay\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "sidebar-browser-section": {
+      "selector": "[data-testid=\"sidebar-browser-section\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/DesktopCustomTabBar/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "spotlight-content": {
+      "selector": "[data-testid=\"spotlight-content\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Spotlight/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "staking-info": {
+      "selector": "[data-testid=\"staking-info\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/SignatureConfirm/components/StakingInfo/StakingInfo.tsx"
+      ],
+      "featureHints": []
+    },
+    "suggested-category-info-button": {
+      "selector": "[data-testid=\"suggested-category-info-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/Dashboard/SuggestAndExploreSection/SuggestedView.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "swap-content-container": {
+      "selector": "[data-testid=\"swap-content-container\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Swap/pages/components/SwapMainLand.tsx"
+      ],
+      "featureHints": [
+        "swap"
+      ]
+    },
+    "swap-info": {
+      "selector": "[data-testid=\"swap-info\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/SignatureConfirm/components/SwapInfo/SwapInfo.tsx"
+      ],
+      "featureHints": []
+    },
+    "Swap-Pro-Position-List-Header": {
+      "selector": "[data-testid=\"Swap-Pro-Position-List-Header\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Swap/components/SwapProPositionListHeader.tsx"
+      ],
+      "featureHints": [
+        "swap"
+      ]
+    },
+    "swap-tx-action": {
+      "selector": "[data-testid=\"swap-tx-action\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TxAction/TxActionSwapInfo.tsx"
+      ],
+      "featureHints": []
+    },
+    "tab-container": {
+      "selector": "[data-testid=\"tab-container\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/MobileTabListModal/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "tab-list-modal-close-all": {
+      "selector": "[data-testid=\"tab-list-modal-close-all\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/MobileTabListModal/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "tab-list-modal-done": {
+      "selector": "[data-testid=\"tab-list-modal-done\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/MobileTabListModal/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "tab-more": {
+      "selector": "[data-testid=\"tab-more\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/layouts/Navigation/Tab/TabBar/DesktopLeftSideBar.tsx"
+      ],
+      "featureHints": [
+        "global-navigation"
+      ]
+    },
+    "tab-pined-container": {
+      "selector": "[data-testid=\"tab-pined-container\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/pages/MobileTabListModal/index.tsx"
+      ],
+      "featureHints": [
+        "discovery"
+      ]
+    },
+    "temper-address-book": {
+      "selector": "[data-testid=\"temper-address-book\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/AddressBookDevSetting.tsx"
+      ],
+      "featureHints": []
+    },
+    "TMPopover-ScrollView": {
+      "selector": "[data-testid=\"TMPopover-ScrollView\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/components/src/actions/Popover/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "TokenDetailsViews__Wallet-No-Address-Empty": {
+      "selector": "[data-testid=\"TokenDetailsViews__Wallet-No-Address-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AssetDetails/pages/TokenDetails/TokenDetailsView.tsx"
+      ],
+      "featureHints": []
+    },
+    "transfer": {
+      "selector": "[data-testid=\"transfer\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/pages/GetStarted/components/Actions.tsx"
+      ],
+      "featureHints": []
+    },
+    "transfer-tx-action": {
+      "selector": "[data-testid=\"transfer-tx-action\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TxAction/TxActionTransfer.tsx"
+      ],
+      "featureHints": []
+    },
+    "transfer-tx-amount": {
+      "selector": "[data-testid=\"transfer-tx-amount\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TxAction/TxActionTransfer.tsx"
+      ],
+      "featureHints": []
+    },
+    "tx-action-common-list-view": {
+      "selector": "[data-testid=\"tx-action-common-list-view\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TxAction/TxActionCommon.tsx"
+      ],
+      "featureHints": []
+    },
+    "tx-confirmation-body": {
+      "selector": "[data-testid=\"tx-confirmation-body\"]",
+      "occurrences": 2,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Send/pages/SendConfirm/SendConfirmContainer.tsx",
+        "packages/kit/src/views/SignatureConfirm/pages/TxConfirm/TxConfirm.tsx"
+      ],
+      "featureHints": [
+        "send"
+      ]
+    },
+    "UndistributedRewardCard": {
+      "selector": "[data-testid=\"UndistributedRewardCard\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/ReferFriends/pages/EarnReward/components/UndistributedRewardCard.tsx"
+      ],
+      "featureHints": []
+    },
+    "unlock-screen": {
+      "selector": "[data-testid=\"unlock-screen\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/provider/Container/AppStateLockContainer/components/AppStateLock.tsx"
+      ],
+      "featureHints": []
+    },
+    "v4-migration-dev-settings-menu": {
+      "selector": "[data-testid=\"v4-migration-dev-settings-menu\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "wallet_backup_backup_warning": {
+      "selector": "[data-testid=\"wallet_backup_backup_warning\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/WalletBackup/WalletBackupAlert.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-Approval-List-Header": {
+      "selector": "[data-testid=\"Wallet-Approval-List-Header\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/ApprovalListView/ApprovalListHeader.tsx"
+      ],
+      "featureHints": []
+    },
+    "wallet-bound-referral-code-button": {
+      "selector": "[data-testid=\"wallet-bound-referral-code-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/AccountManagerStacks/components/WalletEdit/WalletBoundReferralCodeButton.tsx"
+      ],
+      "featureHints": []
+    },
+    "wallet-connect-session": {
+      "selector": "[data-testid=\"wallet-connect-session\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/index.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-DeFi-Empty": {
+      "selector": "[data-testid=\"Wallet-DeFi-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Empty/EmptyDeFi.tsx"
+      ],
+      "featureHints": []
+    },
+    "wallet-derivation-path-selector-trigger": {
+      "selector": "[data-testid=\"wallet-derivation-path-selector-trigger\"]",
+      "occurrences": 3,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/AccountSelector/DeriveTypeSelectorTrigger.tsx",
+        "packages/kit/src/views/Onboarding/pages/ImportWallet/ImportSingleChainBase.tsx",
+        "packages/kit/src/views/Onboardingv2/pages/SelectPrivateKeyNetwork.tsx"
+      ],
+      "featureHints": [
+        "account-selector"
+      ]
+    },
+    "Wallet-No-Address-Empty": {
+      "selector": "[data-testid=\"Wallet-No-Address-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Empty/EmptyAccount.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-No-Approval-Empty": {
+      "selector": "[data-testid=\"Wallet-No-Approval-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Empty/EmptyApproval.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-No-History-Empty": {
+      "selector": "[data-testid=\"Wallet-No-History-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Empty/EmptyHistory.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-No-NFT-Empty": {
+      "selector": "[data-testid=\"Wallet-No-NFT-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Empty/EmptyNFT.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-No-Search-Empty": {
+      "selector": "[data-testid=\"Wallet-No-Search-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Empty/EmptySearch.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-No-Token-Empty": {
+      "selector": "[data-testid=\"Wallet-No-Token-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Empty/EmptyToken.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-No-Wallet-Empty": {
+      "selector": "[data-testid=\"Wallet-No-Wallet-Empty\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/Empty/EmptyWallet.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-Page-Header-Right": {
+      "selector": "[data-testid=\"Wallet-Page-Header-Right\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TabPageHeader/HeaderRight.tsx"
+      ],
+      "featureHints": []
+    },
+    "Wallet-Tab-Header": {
+      "selector": "[data-testid=\"Wallet-Tab-Header\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Home/pages/HomeHeaderContainer.tsx"
+      ],
+      "featureHints": [
+        "wallet-home"
+      ]
+    },
+    "Wallet-Token-List-Header": {
+      "selector": "[data-testid=\"Wallet-Token-List-Header\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/components/TokenListView/TokenListHeader.tsx"
+      ],
+      "featureHints": []
+    },
+    "webview-dev-tools": {
+      "selector": "[data-testid=\"webview-dev-tools\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/components/WebView/DesktopWebView.tsx"
+      ],
+      "featureHints": []
+    },
+    "wordIndex": {
+      "selector": "[data-testid=\"wordIndex\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Onboarding/pages/CreateWalet/VerifyRecoverPhrase.tsx"
+      ],
+      "featureHints": []
+    }
+  }
+}

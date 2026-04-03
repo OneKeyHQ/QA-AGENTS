@@ -168,14 +168,21 @@ if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 
 ### 3.2 代码生成规则
 
+生成脚本前，默认按以下顺序参考定位信息：
+1. `shared/ui-semantic-map.json`
+2. `shared/generated/app-monorepo-testid-index.json`
+3. `shared/ui-map.json`
+4. 运行时 CDP 探测 / 文本 / OCR 兜底
+
 1. **fn(page) 接收单个 page 参数** — 不传 browser
 2. **连续流** — 一个 test case = 一段连续操作，不重复导航
 3. **空状态是有效状态** — 没有 token 不是错误
 4. **截图仅在失败时** — 不要每步都截图
 5. **Token 正则**: `/^[A-Z][A-Z0-9]{1,9}$/`
 6. **DOM 选择器用位置过滤** — 如 `r.y < 100` 限定顶部栏
-7. **data-testid 优先** — 然后 text/role → 最后 JS evaluate
+7. **优先使用语义元素 / data-testid** — 然后 text/role → 最后 JS evaluate
 8. **不关闭 browser** — 那是用户的 OneKey 实例
+9. **不要因为有新语义层就批量改历史 case** — 新生成脚本优先参考即可
 
 ### 3.2.x 弹窗交互编码规范（强制 — 来自 Market Search 复盘）
 

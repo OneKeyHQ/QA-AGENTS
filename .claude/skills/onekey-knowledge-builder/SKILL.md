@@ -20,7 +20,9 @@ user-invocable: true
 
 | 文件 | 用途 |
 |------|------|
-| `shared/ui-map.json` | DOM 选择器映射 |
+| `shared/ui-map.json` | 当前执行层 DOM 选择器映射 |
+| `shared/ui-semantic-map.json` | 公共语义定位层（供生成/维护参考） |
+| `shared/generated/app-monorepo-testid-index.json` | app-monorepo testID 同步索引 |
 | `shared/knowledge.json` | 提炼的测试模式 |
 | `shared/preconditions.json` | 数据/状态前置条件 |
 | `shared/mem_cells.json` | 原始记忆事件 |
@@ -78,10 +80,11 @@ const result = await page.evaluate(() => {
 ### 1.3 更新流程
 
 1. 读取 `shared/diagnosis.json` 获取失败的选择器
-2. CDP 连接探测当前 DOM，找到正确选择器
-3. 更新 `shared/ui-map.json` 中对应条目
-4. 如果测试脚本硬编码了选择器，同步更新脚本
-5. 验证：用新选择器在 CDP 中执行确认匹配
+2. 优先检查 `shared/ui-semantic-map.json` 与 `shared/generated/app-monorepo-testid-index.json` 是否已有可复用公共定位
+3. 若无可复用项，再通过 CDP 连接探测当前 DOM，找到正确选择器
+4. 公共语义元素优先更新到 `shared/ui-semantic-map.json`；执行层需要落地时再同步 `shared/ui-map.json`
+5. 如果测试脚本硬编码了选择器，同步更新脚本
+6. 验证：用新选择器在 CDP 中执行确认匹配
 
 ## 任务 2: 前置条件维护
 
@@ -111,9 +114,11 @@ const result = await page.evaluate(() => {
 录制 session 完成并经用户确认后：
 
 1. 提取录制中发现的所有 `data-testid` 属性
-2. 更新 `shared/ui-map.json` 新增映射
-3. 标记 `lastVerified` 为当前日期
-4. 如果发现新的 token 命名模式，更新正则（当前: `/^[A-Z][A-Z0-9]{1,9}$/`）
+2. 若元素在 app-monorepo 中已有稳定来源，优先补到 `shared/ui-semantic-map.json`
+3. 对执行层马上需要使用且已验证稳定的元素，再更新 `shared/ui-map.json`
+4. 标记 `lastVerified` 为当前日期
+5. 如果发现新的 token 命名模式，更新正则（当前: `/^[A-Z][A-Z0-9]{1,9}$/`）
+6. 必要时先执行 `npm run sync:selectors` 刷新 app-monorepo testID 索引
 
 ## 任务 4: 记忆管线
 
