@@ -323,7 +323,7 @@ function nextCaseId(cases, prefix) {
   return `${prefix}-${String(next).padStart(3, '0')}`;
 }
 
-function buildDraftCase({ cases, recordingDir, proposedSteps }) {
+function buildDraftCase({ cases, recordingDir, proposedSteps, rawStepsCount }) {
   const recordingBase = basename(recordingDir);
   const scenarioId = applyScenarioId || slugify(recordingBase);
   const caseId = applyCaseId || nextCaseId(cases, applyIdPrefix);
@@ -354,7 +354,7 @@ function buildDraftCase({ cases, recordingDir, proposedSteps }) {
       source: relative(REPO_ROOT, resolve(recordingDir, 'steps.json')),
       generated: relative(REPO_ROOT, resolve(recordingDir, 'generated.json')),
       date: new Date().toISOString().slice(0, 10),
-      rawSteps: String(steps.length),
+      rawSteps: String(rawStepsCount),
       applyMode: 'auto-generated-draft',
     },
   };
@@ -638,7 +638,7 @@ if (shouldApply) {
     console.error(`Case not found for --case-id: ${applyCaseId}`);
     process.exit(1);
   } else {
-    const draftCase = buildDraftCase({ cases, recordingDir: RECORDING_DIR, proposedSteps });
+    const draftCase = buildDraftCase({ cases, recordingDir: RECORDING_DIR, proposedSteps, rawStepsCount: steps.length });
     cases.push(draftCase);
     testCasesData.cases = cases;
     testCasesData.lastUpdated = new Date().toISOString();
