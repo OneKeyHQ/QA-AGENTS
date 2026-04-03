@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "generatedAt": "2026-04-03T02:35:46.933Z",
+  "generatedAt": "2026-04-03T02:53:00.318Z",
   "sourceRoot": "/Users/onekey/Documents/Github/app-monorepo",
   "sourceMode": "git-ref",
   "sourceRef": "origin/x",
@@ -8,8 +8,8 @@
     "apps",
     "packages"
   ],
-  "filesScanned": 7047,
-  "uniqueTestIds": 189,
+  "filesScanned": 7274,
+  "uniqueTestIds": 205,
   "testIds": {
     "account-add-account": {
       "selector": "[data-testid=\"account-add-account\"]",
@@ -106,6 +106,19 @@
       ],
       "featureHints": []
     },
+    "account-selector": {
+      "selector": "[data-testid=\"account-selector\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Swap/pages/components/SwapReviewDialog.test.tsx"
+      ],
+      "featureHints": [
+        "swap"
+      ]
+    },
     "account-selector-accountList": {
       "selector": "[data-testid=\"account-selector-accountList\"]",
       "occurrences": 1,
@@ -197,6 +210,17 @@
       ],
       "files": [
         "packages/kit/src/views/Onboarding/pages/ImportWallet/ImportWalletOptions.tsx"
+      ],
+      "featureHints": []
+    },
+    "action-button": {
+      "selector": "[data-testid=\"action-button\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelContent.test.tsx"
       ],
       "featureHints": []
     },
@@ -615,6 +639,19 @@
         "android",
         "discovery",
         "ios"
+      ]
+    },
+    "browser-bar-translate": {
+      "selector": "[data-testid=\"browser-bar-translate\"]",
+      "occurrences": 1,
+      "attributes": [
+        "testID"
+      ],
+      "files": [
+        "packages/kit/src/views/Discovery/hooks/usePageTranslation.tsx"
+      ],
+      "featureHints": [
+        "discovery"
       ]
     },
     "browser-find-close-button": {
@@ -1212,6 +1249,19 @@
       ],
       "featureHints": []
     },
+    "initializer": {
+      "selector": "[data-testid=\"initializer\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Swap/pages/components/SwapReviewDialog.test.tsx"
+      ],
+      "featureHints": [
+        "swap"
+      ]
+    },
     "LNHardware": {
       "selector": "[data-testid=\"LNHardware\"]",
       "occurrences": 1,
@@ -1242,6 +1292,17 @@
       ],
       "files": [
         "packages/kit/src/views/Market/MarketBannerDetail/MarketBannerDetail.tsx"
+      ],
+      "featureHints": []
+    },
+    "market-review-dialog": {
+      "selector": "[data-testid=\"market-review-dialog\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelWrap.test.tsx"
       ],
       "featureHints": []
     },
@@ -1504,6 +1565,17 @@
         "perps"
       ]
     },
+    "panel-top": {
+      "selector": "[data-testid=\"panel-top\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelContent.test.tsx"
+      ],
+      "featureHints": []
+    },
     "password": {
       "selector": "[data-testid=\"password\"]",
       "occurrences": 1,
@@ -1615,6 +1687,19 @@
       ],
       "featureHints": []
     },
+    "pre-swap-dialog-content": {
+      "selector": "[data-testid=\"pre-swap-dialog-content\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Swap/pages/components/SwapReviewDialog.test.tsx"
+      ],
+      "featureHints": [
+        "swap"
+      ]
+    },
     "prime-features-pagination": {
       "selector": "[data-testid=\"prime-features-pagination\"]",
       "occurrences": 1,
@@ -1634,6 +1719,17 @@
       ],
       "files": [
         "packages/kit/src/views/AccountManagerStacks/pages/ExportKeys/showCopyPrivateKeysDialog.tsx"
+      ],
+      "featureHints": []
+    },
+    "rate-display": {
+      "selector": "[data-testid=\"rate-display\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelContent.test.tsx"
       ],
       "featureHints": []
     },
@@ -1672,6 +1768,32 @@
         "send"
       ]
     },
+    "review-confirm": {
+      "selector": "[data-testid=\"review-confirm\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Swap/pages/components/SwapReviewDialog.test.tsx"
+      ],
+      "featureHints": [
+        "swap"
+      ]
+    },
+    "review-done": {
+      "selector": "[data-testid=\"review-done\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Swap/pages/components/SwapReviewDialog.test.tsx"
+      ],
+      "featureHints": [
+        "swap"
+      ]
+    },
     "scan-open-photo": {
       "selector": "[data-testid=\"scan-open-photo\"]",
       "occurrences": 1,
@@ -1695,6 +1817,17 @@
       "featureHints": [
         "discovery"
       ]
+    },
+    "sell-selector": {
+      "selector": "[data-testid=\"sell-selector\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelContent.test.tsx"
+      ],
+      "featureHints": []
     },
     "send-recipient-amount-form": {
       "selector": "[data-testid=\"send-recipient-amount-form\"]",
@@ -1777,6 +1910,17 @@
         "discovery"
       ]
     },
+    "slippage": {
+      "selector": "[data-testid=\"slippage\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelContent.test.tsx"
+      ],
+      "featureHints": []
+    },
     "spotlight-content": {
       "selector": "[data-testid=\"spotlight-content\"]",
       "occurrences": 1,
@@ -1812,6 +1956,17 @@
         "discovery"
       ]
     },
+    "swap-action": {
+      "selector": "[data-testid=\"swap-action\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelWrap.test.tsx"
+      ],
+      "featureHints": []
+    },
     "swap-content-container": {
       "selector": "[data-testid=\"swap-content-container\"]",
       "occurrences": 1,
@@ -1844,6 +1999,19 @@
       ],
       "files": [
         "packages/kit/src/views/Swap/components/SwapProPositionListHeader.tsx"
+      ],
+      "featureHints": [
+        "swap"
+      ]
+    },
+    "swap-provider": {
+      "selector": "[data-testid=\"swap-provider\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Swap/pages/components/SwapReviewDialog.test.tsx"
       ],
       "featureHints": [
         "swap"
@@ -1925,17 +2093,6 @@
         "discovery"
       ]
     },
-    "temper-address-book": {
-      "selector": "[data-testid=\"temper-address-book\"]",
-      "occurrences": 1,
-      "attributes": [
-        "testID"
-      ],
-      "files": [
-        "packages/kit/src/views/Setting/pages/Tab/DevSettingsSection/AddressBookDevSetting.tsx"
-      ],
-      "featureHints": []
-    },
     "TMPopover-ScrollView": {
       "selector": "[data-testid=\"TMPopover-ScrollView\"]",
       "occurrences": 1,
@@ -1947,6 +2104,17 @@
       ],
       "featureHints": []
     },
+    "token-input": {
+      "selector": "[data-testid=\"token-input\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelContent.test.tsx"
+      ],
+      "featureHints": []
+    },
     "TokenDetailsViews__Wallet-No-Address-Empty": {
       "selector": "[data-testid=\"TokenDetailsViews__Wallet-No-Address-Empty\"]",
       "occurrences": 1,
@@ -1955,6 +2123,17 @@
       ],
       "files": [
         "packages/kit/src/views/AssetDetails/pages/TokenDetails/TokenDetailsView.tsx"
+      ],
+      "featureHints": []
+    },
+    "trade-type": {
+      "selector": "[data-testid=\"trade-type\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelContent.test.tsx"
       ],
       "featureHints": []
     },
@@ -2263,6 +2442,17 @@
       ],
       "files": [
         "packages/kit/src/views/Onboarding/pages/CreateWalet/VerifyRecoverPhrase.tsx"
+      ],
+      "featureHints": []
+    },
+    "wrap-action": {
+      "selector": "[data-testid=\"wrap-action\"]",
+      "occurrences": 1,
+      "attributes": [
+        "data-testid"
+      ],
+      "files": [
+        "packages/kit/src/views/Market/MarketDetailV2/components/SwapPanel/SwapPanelWrap.test.tsx"
       ],
       "featureHints": []
     }
