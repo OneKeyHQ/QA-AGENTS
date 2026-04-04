@@ -93,6 +93,22 @@ docs/qa/
 
 ## 🔧 规则维护
 
+### 公共定位参考层
+
+生成自动化测试或补充可执行步骤时，优先参考：
+
+1. `shared/ui-semantic-map.json` — 公共语义定位层
+2. `shared/generated/app-monorepo-testid-index.json` — app-monorepo 原始 testID 索引
+3. `shared/ui-map.json` — 当前执行层 selector 映射
+
+原则：
+- 新生成脚本优先引用语义元素，而不是到处散写原始 selector
+- 当前阶段不要批量改历史用例；以新增参考、增量迁移为主
+- 如需同步 app-monorepo 最新 testID，运行：`node scripts/sync-app-monorepo-selectors.mjs`
+- 默认从 app-monorepo 的 `origin/x`（若不存在则本地 `x`）读取；只有 ref 不存在时才回退当前 working tree
+- 生成脚本、录制分析与新增步骤设计时，默认优先输出 `semantic_element`，避免散写原始 selector
+
+
 ### 规则文档组织原则
 
 1. **核心规则**：`docs/qa/qa-rules.md`

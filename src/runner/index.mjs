@@ -3,8 +3,8 @@
 // This file is kept for backward compatibility with /onekey-runner skill references.
 //
 // Runner — Strategy-based test execution tool
-// Dumb executor: follows test_cases.json strategies + ui-map.json tiered selectors.
-// No hardcoded business logic. No direction reversal. No inline fallbacks.
+// Dumb executor: follows test_cases.json strategies + compiled locators / ui-map selectors.
+// No runtime semantic-map lookup. No hardcoded business logic. No direction reversal.
 // Unified entry: run_case(test_id, platform) → TestResult
 
 import { chromium } from 'playwright-core';
@@ -210,6 +210,65 @@ function getRawSelector(elementName) {
   const el = uiMap.elements[elementName];
   if (!el) return null;
   return el.primary;
+}
+
+function buildDeepSearchLocator(page, config) {
+  return deepSearch(page, config);
+}
+
+async function resolveCompiledLocator(page, compiledLocator, opts = {}) {
+  if (!compiledLocator?.primary) {
+    throw new Error('compiled_locator.primary is required');
+  }
+
+  const timeout = opts.timeout || 1000;
+  const primary = page.locator(compiledLocator.primary);
+  if (await primary.first().isVisible({ timeout }).catch(() => false)) {
+    return primary.first();
+  }
+
+  for (const fb of (compiledLocator.quick_fallbacks || [])) {
+    const loc = page.locator(fb);
+    if (await loc.first().isVisible({ timeout: 800 }).catch(() => false)) {
+      return loc.first();
+    }
+  }
+
+  if (compiledLocator.deep_search?.enabled) {
+    const found = await buildDeepSearchLocator(page, compiledLocator.deep_search);
+    if (found) return found;
+  }
+
+  throw new Error(`Compiled locator not found: ${compiledLocator.primary}`);
+}
+
+async function resolveStepLocator(page, step, fallbackElementName = null, opts = {}) {
+  if (step?.compiled_locator?.primary) {
+    return resolveCompiledLocator(page, step.compiled_locator, opts);
+  }
+  const uiElement = step?.ui_element || fallbackElementName;
+  if (!uiElement) {
+    throw new Error(`Step ${step?.order || '?'} has no compiled_locator or ui_element`);
+  }
+  return resolve(page, uiElement, opts);
+}
+
+function isCssSafeSelector(selector) {
+  if (!selector || typeof selector !== 'string') return false;
+  return !selector.includes('>>')
+    && !selector.includes('text=')
+    && !selector.includes('role=')
+    && !selector.includes('xpath=')
+    && !selector.includes('nth=')
+    && !selector.includes('visible=true');
+}
+
+function getStepRawSelector(step, fallbackElementName = null) {
+  const compiledPrimary = step?.compiled_locator?.primary;
+  if (isCssSafeSelector(compiledPrimary)) return compiledPrimary;
+  const uiElement = step?.ui_element || fallbackElementName;
+  if (!uiElement) return null;
+  return getRawSelector(uiElement);
 }
 
 // ════════════════════════════════════════════
@@ -1174,8 +1233,8 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
           break;
 
         case 'click_sidebar': {
-          // Click an element in the sidebar by testid
-          const el = await resolve(page, step.ui_element, { timeout: 3000 });
+          // Click an element in the sidebar by compiled locator or legacy ui-map
+          const el = await resolveStepLocator(page, step, null, { timeout: 3000 });
           await el.click();
           await sleep(1500);
           break;
@@ -1184,7 +1243,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
         case 'click_menu_item': {
           // Click a menu/tab item — may need to wait for popover/modal
           await sleep(1000);
-          const el = await resolve(page, step.ui_element, { timeout: 5000 });
+          const el = await resolveStepLocator(page, step, null, { timeout: 5000 });
           await el.click();
           await sleep(1500);
           break;
@@ -1196,19 +1255,19 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
           await closeAllModals(page);
           await goToWalletHome(page);
           await sleep(1000);
-          // Click wallet selector — use JS click to bypass any overlay interception
-          const walletSel = getRawSelector(step.ui_element || 'walletSelector');
-          const clicked = await page.evaluate((sel) => {
+          // Click wallet selector — use compiled selector if present, otherwise legacy ui-map
+          const walletSel = getStepRawSelector(step, 'walletSelector');
+          const clicked = walletSel ? await page.evaluate((sel) => {
             const el = document.querySelector(sel);
             if (el && el.getBoundingClientRect().width > 0) {
               el.click();
               return true;
             }
             return false;
-          }, walletSel);
+          }, walletSel) : false;
           if (!clicked) {
             // Fallback: resolve + force click
-            const el = await resolve(page, step.ui_element || 'walletSelector', { timeout: 5000 });
+            const el = await resolveStepLocator(page, step, 'walletSelector', { timeout: 5000 });
             await el.click({ force: true });
           }
           await sleep(2000);
@@ -1216,7 +1275,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
         }
 
         case 'click_add_wallet': {
-          const el = await resolve(page, step.ui_element || 'addWalletButton', { timeout: 5000 });
+          const el = await resolveStepLocator(page, step, 'addWalletButton', { timeout: 5000 });
           await el.click();
           await sleep(2000);
           break;
@@ -1226,11 +1285,11 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
           // Click the wallet type card — need to click the card container, not just text
           const targetText = step.text || '创建助记词钱包';
           // First try ui_element from ui-map (e.g., createMnemonicWalletOption)
-          if (step.ui_element) {
+          if (step.ui_element || step.compiled_locator) {
             try {
-              const el = await resolve(page, step.ui_element, { timeout: 5000 });
+              const el = await resolveStepLocator(page, step, null, { timeout: 5000 });
               await el.click();
-              console.log(`    Selected wallet type via ui-map: ${targetText}`);
+              console.log(`    Selected wallet type via compiled/ui-map selector: ${targetText}`);
               await sleep(3000);
               break;
             } catch { /* fallback to evaluate */ }
@@ -1315,7 +1374,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
 
         case 'click_backup_options': {
           // Click the "..." more options on backup card
-          const el = await resolve(page, step.ui_element || 'backupMoreOptions', { timeout: 5000 }).catch(() => null);
+          const el = await resolveStepLocator(page, step, 'backupMoreOptions', { timeout: 5000 }).catch(() => null);
           if (el) {
             await el.click();
           } else {
@@ -1407,11 +1466,11 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
 
           // Now try to click the method
           // Try ui-map resolve first
-          if (step.ui_element) {
+          if (step.ui_element || step.compiled_locator) {
             try {
-              const el = await resolve(page, step.ui_element, { timeout: 3000 });
+              const el = await resolveStepLocator(page, step, null, { timeout: 3000 });
               await el.click();
-              console.log(`    Selected backup method via ui-map: ${methodText}`);
+              console.log(`    Selected backup method via compiled/ui-map selector: ${methodText}`);
               await sleep(2000);
               break;
             } catch { /* fallback */ }
@@ -1444,7 +1503,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
         }
 
         case 'focus_input': {
-          const el = await resolve(page, step.ui_element, { timeout: 5000 });
+          const el = await resolveStepLocator(page, step, null, { timeout: 5000 });
           await el.click();
           await sleep(300);
           break;
@@ -1452,7 +1511,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
 
         case 'input_password': {
           const pwdValue = step.value || WALLET_PASSWORD;
-          const pwdSel = getRawSelector(step.ui_element || 'passwordInput');
+          const pwdSel = getStepRawSelector(step, 'passwordInput');
           const input = page.locator(pwdSel).first();
           await input.click();
           await sleep(200);
@@ -1464,7 +1523,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
 
         case 'submit_password': {
           // Click the arrow submit button or press Enter
-          const submitEl = await resolve(page, step.ui_element || 'verifyingPassword', { timeout: 3000 }).catch(() => null);
+          const submitEl = await resolveStepLocator(page, step, 'verifyingPassword', { timeout: 3000 }).catch(() => null);
           if (submitEl) {
             await submitEl.click();
           } else {
@@ -1478,7 +1537,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
 
         case 'view_mnemonic': {
           // Wait for mnemonic backup modal to appear (shows 12 seed words)
-          const mnemonicModal = await resolve(page, step.ui_element || 'modal', { timeout: 10000 });
+          const mnemonicModal = await resolveStepLocator(page, step, 'modal', { timeout: 10000 });
           if (mnemonicModal) {
             console.log('    Mnemonic backup modal visible');
             await takeScreenshot(page, testId, 'mnemonic-backup');
@@ -1518,7 +1577,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
           }
 
           // Now click "我明白了" — wait for it to become enabled
-          const confirmSel = getRawSelector(step.ui_element || 'pageFooterConfirm');
+          const confirmSel = getStepRawSelector(step, 'pageFooterConfirm');
           // Wait for button to be enabled (up to 5s)
           for (let i = 0; i < 10; i++) {
             const enabled = await page.evaluate((sel) => {
@@ -1566,7 +1625,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
 
         case 'input_invite_code': {
           const codeValue = step.value || testCase.data?.inviteCode || '';
-          const sel = getRawSelector(step.ui_element || 'inviteCodeInput');
+          const sel = getStepRawSelector(step, 'inviteCodeInput');
           const input = page.locator(sel).first();
           const vis = await input.isVisible({ timeout: 5000 }).catch(() => false);
           if (vis) {
@@ -1583,7 +1642,7 @@ async function executeSteps(page, testCase, testId, stateRecoveries = []) {
         }
 
         case 'click_join': {
-          const joinEl = await resolve(page, step.ui_element || 'inviteCodeJoinButton', { timeout: 5000 });
+          const joinEl = await resolveStepLocator(page, step, 'inviteCodeJoinButton', { timeout: 5000 });
           await joinEl.click();
           console.log('    Clicked join');
           await sleep(3000);

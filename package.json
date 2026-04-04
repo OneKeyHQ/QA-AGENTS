@@ -12,7 +12,8 @@
     "run-suite": "tsx src/cli/index.ts run-suite",
     "preflight": "tsx src/cli/index.ts preflight",
     "result": "tsx src/cli/index.ts result",
-    "report": "tsx src/cli/index.ts report"
+    "report": "tsx src/cli/index.ts report",
+    "sync:selectors": "node scripts/sync-app-monorepo-selectors.mjs"
   },
   "dependencies": {
     "chalk": "^5.4.0",

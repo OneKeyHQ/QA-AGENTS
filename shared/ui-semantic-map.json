@@ -1,0 +1,1519 @@
+{
+  "version": "1.1.0",
+  "lastUpdated": "2026-04-03T05:45:00Z",
+  "description": "Semantic locator registry for test generation and future runner integration. This file is additive only and does not replace shared/ui-map.json. Default source is app-monorepo origin/x unless APP_MONOREPO_REF overrides it.",
+  "elements": {
+    "address_book.add_button": {
+      "primary": "[data-testid=\"address-book-add-icon\"]",
+      "source_testid": "address-book-add-icon",
+      "source": "app-monorepo",
+      "page": "address-book",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address_book.form.address": {
+      "primary": "[data-testid=\"address-form-address\"]",
+      "source_testid": "address-form-address",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.address_field": {
+      "primary": "[data-testid=\"address-form-address-field\"]",
+      "source_testid": "address-form-address-field",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.name": {
+      "primary": "[data-testid=\"address-form-name\"]",
+      "source_testid": "address-form-name",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.name_field": {
+      "primary": "[data-testid=\"address-form-name-field\"]",
+      "source_testid": "address-form-name-field",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.remove": {
+      "primary": "[data-testid=\"address-form-remove\"]",
+      "source_testid": "address-form-remove",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.search.empty_state": {
+      "primary": "[data-testid=\"address-book-search-empty\"]",
+      "source_testid": "address-book-search-empty",
+      "source": "app-monorepo",
+      "page": "address-book",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "browser.bar.add": {
+      "primary": "[data-testid=\"browser-bar-add\"]",
+      "source_testid": "browser-bar-add",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.back": {
+      "primary": "[data-testid=\"browser-bar-go-back\"]",
+      "source_testid": "browser-bar-go-back",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.forward": {
+      "primary": "[data-testid=\"browser-bar-go-forward\"]",
+      "source_testid": "browser-bar-go-forward",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.home": {
+      "primary": "[data-testid=\"browser-bar-home\"]",
+      "source_testid": "browser-bar-home",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.options": {
+      "primary": "[data-testid=\"browser-bar-options\"]",
+      "source_testid": "browser-bar-options",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.refresh": {
+      "primary": "[data-testid=\"browser-bar-refresh\"]",
+      "source_testid": "browser-bar-refresh",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.tabs": {
+      "primary": "[data-testid=\"browser-bar-tabs\"]",
+      "source_testid": "browser-bar-tabs",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "ios",
+        "android",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.translate": {
+      "primary": "[data-testid=\"browser-bar-translate\"]",
+      "source_testid": "browser-bar-translate",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "ios",
+        "android",
+        "mobile"
+      ],
+      "feature": [
+        "browser",
+        "discovery",
+        "translation"
+      ]
+    },
+    "browser.find.close_button": {
+      "primary": "[data-testid=\"browser-find-close-button\"]",
+      "source_testid": "browser-find-close-button",
+      "source": "app-monorepo",
+      "page": "browser-find",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.find.next_button": {
+      "primary": "[data-testid=\"browser-find-next-button\"]",
+      "source_testid": "browser-find-next-button",
+      "source": "app-monorepo",
+      "page": "browser-find",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.find.prev_button": {
+      "primary": "[data-testid=\"browser-find-prev-button\"]",
+      "source_testid": "browser-find-prev-button",
+      "source": "app-monorepo",
+      "page": "browser-find",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.header.tabs": {
+      "primary": "[data-testid=\"browser-header-tabs\"]",
+      "source_testid": "browser-header-tabs",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.history.button": {
+      "primary": "[data-testid=\"browser-history-button\"]",
+      "source_testid": "browser-history-button",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.search.input": {
+      "primary": "[data-testid=\"search-input\"]",
+      "source_testid": "search-input",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.shortcuts.button": {
+      "primary": "[data-testid=\"browser-shortcuts-button\"]",
+      "source_testid": "browser-shortcuts-button",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.sidebar.section": {
+      "primary": "[data-testid=\"sidebar-browser-section\"]",
+      "source_testid": "sidebar-browser-section",
+      "source": "app-monorepo",
+      "page": "browser-sidebar",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.tabs.close_all": {
+      "primary": "[data-testid=\"tab-list-modal-close-all\"]",
+      "source_testid": "tab-list-modal-close-all",
+      "source": "app-monorepo",
+      "page": "browser-tabs-modal",
+      "platform": [
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.tabs.done": {
+      "primary": "[data-testid=\"tab-list-modal-done\"]",
+      "source_testid": "tab-list-modal-done",
+      "source": "app-monorepo",
+      "page": "browser-tabs-modal",
+      "platform": [
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "discover.search.input": {
+      "primary": "[data-testid=\"explore-index-search-input\"]",
+      "source_testid": "explore-index-search-input",
+      "source": "app-monorepo",
+      "page": "discover",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "discover.search.trigger": {
+      "primary": "[data-testid=\"explore-index-search\"]",
+      "source_testid": "explore-index-search",
+      "source": "app-monorepo",
+      "page": "discover",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "discovery.history.clear_all": {
+      "primary": "[data-testid=\"history-clear-all-button\"]",
+      "source_testid": "history-clear-all-button",
+      "source": "app-monorepo",
+      "page": "discovery-history",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "discovery",
+        "history"
+      ]
+    },
+    "discovery.history.list": {
+      "primary": "[data-testid=\"History-SectionList\"]",
+      "source_testid": "History-SectionList",
+      "source": "app-monorepo",
+      "page": "discovery-history",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "discovery",
+        "history"
+      ]
+    },
+    "global.footer.cancel": {
+      "primary": "[data-testid=\"page-footer-cancel\"]",
+      "source_testid": "page-footer-cancel",
+      "source": "app-monorepo",
+      "page": "global-footer",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.footer.confirm": {
+      "primary": "[data-testid=\"page-footer-confirm\"]",
+      "source_testid": "page-footer-confirm",
+      "source": "app-monorepo",
+      "page": "global-footer",
+      "platform": [
+        "desktop",
+        "web",
+        "android"
+      ],
+      "feature": [
+        "global-navigation",
+        "send",
+        "chain-selector",
+        "perps"
+      ]
+    },
+    "global.form.submit_button": {
+      "primary": "[data-testid=\"form-submit-button\"]",
+      "source_testid": "form-submit-button",
+      "source": "app-monorepo",
+      "page": "form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "global",
+        "form"
+      ]
+    },
+    "global.header.button_group": {
+      "primary": "[data-testid=\"Navigation-HeaderView-ButtonGroup\"]",
+      "source_testid": "Navigation-HeaderView-ButtonGroup",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "global-navigation",
+        "header"
+      ]
+    },
+    "global.header.navigation": {
+      "primary": "[data-testid=\"Header-Navigation\"]",
+      "source_testid": "Header-Navigation",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "header"
+      ]
+    },
+    "global.header.notification": {
+      "primary": "[data-testid=\"header-right-notification\"]",
+      "source_testid": "header-right-notification",
+      "source": "app-monorepo",
+      "page": "global-header",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.header.notification_button": {
+      "primary": "[data-testid=\"headerNotificationButton\"]",
+      "source_testid": "headerNotificationButton",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "header",
+        "notification"
+      ]
+    },
+    "global.modal.backdrop": {
+      "primary": "[data-testid=\"app-modal-stacks-backdrop\"]",
+      "source_testid": "app-modal-stacks-backdrop",
+      "source": "qa-agents",
+      "page": "global-overlay",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "global-navigation"
+      ],
+      "notes": "QA-AGENTS fallback overlay selector; not extracted from app-monorepo testID scan."
+    },
+    "global.modal.container": {
+      "primary": "[data-testid=\"APP-Modal-Screen\"]",
+      "source_testid": "APP-Modal-Screen",
+      "source": "app-monorepo",
+      "page": "global-overlay",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ],
+      "notes": "All modal-scoped element search should prefer this container first."
+    },
+    "global.nav.back": {
+      "primary": "[data-testid=\"nav-header-back\"]",
+      "source_testid": "nav-header-back",
+      "source": "app-monorepo",
+      "page": "global-nav",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.nav.close": {
+      "primary": "[data-testid=\"nav-header-close\"]",
+      "source_testid": "nav-header-close",
+      "source": "app-monorepo",
+      "page": "global-nav",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.overlay.popover": {
+      "primary": "[data-testid=\"ovelay-popover\"]",
+      "source_testid": "ovelay-popover",
+      "source": "qa-agents",
+      "page": "global-overlay",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "global-navigation"
+      ],
+      "notes": "Known blocking overlay in desktop flow."
+    },
+    "global.sidebar.container": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Container\"]",
+      "source_testid": "Desktop-AppSideBar-Container",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "sidebar"
+      ]
+    },
+    "global.sidebar.content": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"]",
+      "source_testid": "Desktop-AppSideBar-Content-Container",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "sidebar"
+      ]
+    },
+    "global.tabbar.container": {
+      "primary": "[data-testid=\"Mobile-AppTabBar\"]",
+      "source_testid": "Mobile-AppTabBar",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "ios",
+        "android",
+        "mobile"
+      ],
+      "feature": [
+        "global-navigation",
+        "tabbar"
+      ]
+    },
+    "market.action.button": {
+      "primary": "[data-testid=\"action-button\"]",
+      "source_testid": "action-button",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "action"
+      ],
+      "notes": "Generic action CTA inside market swap panel; keep page-scoped to avoid global overloading."
+    },
+    "market.panel.top": {
+      "primary": "[data-testid=\"panel-top\"]",
+      "source_testid": "panel-top",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "panel"
+      ]
+    },
+    "market.review.dialog": {
+      "primary": "[data-testid=\"market-review-dialog\"]",
+      "source_testid": "market-review-dialog",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "review"
+      ]
+    },
+    "onboarding.add_wallet_button": {
+      "primary": "[data-testid=\"add-wallet\"]",
+      "source_testid": "add-wallet",
+      "source": "app-monorepo",
+      "page": "onboarding",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "onboarding",
+        "wallets"
+      ]
+    },
+    "onboarding.finalize_wallet_setup": {
+      "primary": "[data-testid=\"finalize-wallet-setup\"]",
+      "source_testid": "finalize-wallet-setup",
+      "source": "app-monorepo",
+      "page": "onboarding",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "onboarding",
+        "wallet-setup"
+      ]
+    },
+    "onboarding.screen": {
+      "primary": "[data-testid=\"APP-OnBoarding-Screen\"]",
+      "source_testid": "APP-OnBoarding-Screen",
+      "source": "app-monorepo",
+      "page": "onboarding",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "perps.deposit.mobile_button": {
+      "primary": "[data-testid=\"perp-trading-form-mobile-deposit-button\"]",
+      "source_testid": "perp-trading-form-mobile-deposit-button",
+      "source": "app-monorepo",
+      "page": "perps-trading-form",
+      "platform": [
+        "mobile",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.header.refresh_button": {
+      "primary": "[data-testid=\"header-right-perp-trade-refresh\"]",
+      "source_testid": "header-right-perp-trade-refresh",
+      "source": "app-monorepo",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.settings.button": {
+      "primary": "[data-testid=\"perp-header-settings-button\"]",
+      "source_testid": "perp-header-settings-button",
+      "source": "app-monorepo",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.settings.mobile_button": {
+      "primary": "[data-testid=\"perp-mobile-settings-button\"]",
+      "source_testid": "perp-mobile-settings-button",
+      "source": "app-monorepo",
+      "page": "perps",
+      "platform": [
+        "mobile",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "security.password.confirm_input": {
+      "primary": "[data-testid=\"confirm-password\"]",
+      "source_testid": "confirm-password",
+      "source": "app-monorepo",
+      "page": "password-setup",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "security",
+        "password"
+      ]
+    },
+    "security.password.input": {
+      "primary": "[data-testid=\"password-input\"]",
+      "source_testid": "password-input",
+      "source": "qa-agents",
+      "page": "security",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "security"
+      ],
+      "notes": "Existing QA-AGENTS stable selector; not discovered in current app-monorepo scan subset."
+    },
+    "security.password.verifying": {
+      "primary": "[data-testid=\"verifying-password\"]",
+      "source_testid": "verifying-password",
+      "source": "qa-agents",
+      "page": "security",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "security"
+      ],
+      "notes": "Existing QA-AGENTS stable selector; not discovered in current app-monorepo scan subset."
+    },
+    "swap.action.button": {
+      "primary": "[data-testid=\"swap-action\"]",
+      "source_testid": "swap-action",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "action"
+      ]
+    },
+    "swap.initializer": {
+      "primary": "[data-testid=\"initializer\"]",
+      "source_testid": "initializer",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review",
+        "initializer"
+      ]
+    },
+    "swap.pre_review.dialog": {
+      "primary": "[data-testid=\"pre-swap-dialog-content\"]",
+      "source_testid": "pre-swap-dialog-content",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review"
+      ]
+    },
+    "swap.provider": {
+      "primary": "[data-testid=\"swap-provider\"]",
+      "source_testid": "swap-provider",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review",
+        "provider"
+      ]
+    },
+    "swap.rate.display": {
+      "primary": "[data-testid=\"rate-display\"]",
+      "source_testid": "rate-display",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "rate"
+      ]
+    },
+    "swap.review.confirm_button": {
+      "primary": "[data-testid=\"review-confirm\"]",
+      "source_testid": "review-confirm",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review"
+      ]
+    },
+    "swap.review.done": {
+      "primary": "[data-testid=\"review-done\"]",
+      "source_testid": "review-done",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review"
+      ]
+    },
+    "swap.sell.selector": {
+      "primary": "[data-testid=\"sell-selector\"]",
+      "source_testid": "sell-selector",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "sell-selector"
+      ]
+    },
+    "swap.slippage": {
+      "primary": "[data-testid=\"slippage\"]",
+      "source_testid": "slippage",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "slippage"
+      ]
+    },
+    "swap.token.input": {
+      "primary": "[data-testid=\"token-input\"]",
+      "source_testid": "token-input",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "token-input"
+      ]
+    },
+    "swap.trade_type.selector": {
+      "primary": "[data-testid=\"trade-type\"]",
+      "source_testid": "trade-type",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "trade-type"
+      ]
+    },
+    "swap.wrap.action": {
+      "primary": "[data-testid=\"wrap-action\"]",
+      "source_testid": "wrap-action",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "wrap"
+      ]
+    },
+    "wallet.account.add_account_button": {
+      "primary": "[data-testid=\"add-account-button\"]",
+      "source_testid": "add-account-button",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.add_account_button.secondary": {
+      "primary": "[data-testid=\"account-add-account\"]",
+      "source_testid": "account-add-account",
+      "source": "app-monorepo",
+      "page": "wallet-details",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector",
+        "wallet-details"
+      ]
+    },
+    "wallet.account.batch_create_button": {
+      "primary": "[data-testid=\"batch-create-account-button-trigger\"]",
+      "source_testid": "batch-create-account-button-trigger",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.address": {
+      "primary": "[data-testid=\"account-selector-address\"]",
+      "source_testid": "account-selector-address",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.address_text": {
+      "primary": "[data-testid=\"account-selector-address-text\"]",
+      "source_testid": "account-selector-address-text",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.header": {
+      "primary": "[data-testid=\"account-selector-header\"]",
+      "source_testid": "account-selector-header",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.item_by_index": {
+      "primary": "[data-testid=\"account-item-index-{N}\"]",
+      "source_testid": "account-item-index-0",
+      "source": "qa-agents",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ],
+      "notes": "Pattern selector derived from app-monorepo indexed account rows."
+    },
+    "wallet.account.selector.list": {
+      "primary": "[data-testid=\"account-selector-accountList\"]",
+      "source_testid": "account-selector-accountList",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.modal": {
+      "primary": "[data-testid=\"account-selector\"]",
+      "source_testid": "account-selector",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "account-selector"
+      ],
+      "notes": "Account selector container surfaced in swap review dialog."
+    },
+    "wallet.account.selector.name": {
+      "primary": "[data-testid=\"account-name\"]",
+      "source_testid": "account-name",
+      "source": "app-monorepo",
+      "page": "account-selector-trigger",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.trigger": {
+      "primary": "[data-testid=\"AccountSelectorTriggerBase\"]",
+      "source_testid": "AccountSelectorTriggerBase",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.wallet_list": {
+      "primary": "[data-testid=\"account-selector-wallet-list\"]",
+      "source_testid": "account-selector-wallet-list",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.approval.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Approval-Empty\"]",
+      "source_testid": "Wallet-No-Approval-Empty",
+      "source": "app-monorepo",
+      "page": "approval",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.approval.list_header": {
+      "primary": "[data-testid=\"Wallet-Approval-List-Header\"]",
+      "source_testid": "Wallet-Approval-List-Header",
+      "source": "app-monorepo",
+      "page": "approval",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "approval"
+      ]
+    },
+    "wallet.approval.unsupported_empty_state": {
+      "primary": "[data-testid=\"Wallet-Approval-Unsupported-Empty\"]",
+      "source_testid": "Wallet-Approval-Unsupported-Empty",
+      "source": "app-monorepo",
+      "page": "approval",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "approval"
+      ],
+      "notes": "Dedicated empty state for unsupported approval assets."
+    },
+    "wallet.assets.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Token-Empty\"]",
+      "source_testid": "Wallet-No-Token-Empty",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "assets"
+      ]
+    },
+    "wallet.assets.search_empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Search-Empty\"]",
+      "source_testid": "Wallet-No-Search-Empty",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "assets"
+      ]
+    },
+    "wallet.defi.empty_state": {
+      "primary": "[data-testid=\"Wallet-DeFi-Empty\"]",
+      "source_testid": "Wallet-DeFi-Empty",
+      "source": "app-monorepo",
+      "page": "defi",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "wallet.derivation.path_selector.trigger": {
+      "primary": "[data-testid=\"wallet-derivation-path-selector-trigger\"]",
+      "source_testid": "wallet-derivation-path-selector-trigger",
+      "source": "app-monorepo",
+      "page": "wallet-derivation",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "account-selector",
+        "derivation",
+        "onboarding"
+      ]
+    },
+    "wallet.history.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-History-Empty\"]",
+      "source_testid": "Wallet-No-History-Empty",
+      "source": "app-monorepo",
+      "page": "history",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Wallet-Empty\"]",
+      "source_testid": "Wallet-No-Wallet-Empty",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home.header": {
+      "primary": "[data-testid=\"Wallet-Tab-Header\"]",
+      "source_testid": "Wallet-Tab-Header",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home.sidebar": {
+      "primary": "[data-testid=\"home\"]",
+      "source_testid": "home",
+      "source": "qa-agents",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "wallet-home"
+      ],
+      "notes": "Existing reliable selector in QA-AGENTS ui-map; not yet found in app-monorepo testID scan result."
+    },
+    "wallet.network.manager.search_bar": {
+      "primary": "[data-testid=\"all-networks-manager-search-bar\"]",
+      "source_testid": "all-networks-manager-search-bar",
+      "source": "app-monorepo",
+      "page": "chain-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "wallet.network.selector.modal": {
+      "primary": "[data-testid=\"chain-selector\"]",
+      "source_testid": "chain-selector",
+      "source": "app-monorepo",
+      "page": "chain-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "wallet.network.selector.search_input": {
+      "primary": "[data-testid=\"network-selector-input\"]",
+      "source_testid": "network-selector-input",
+      "source": "app-monorepo",
+      "page": "chain-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "wallet.network.selector.text": {
+      "primary": "[data-testid=\"account-network-trigger-button-text\"]",
+      "source_testid": "account-network-trigger-button-text",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "account-selector"
+      ]
+    },
+    "wallet.network.selector.trigger": {
+      "primary": "[data-testid=\"account-network-trigger-button\"]",
+      "source_testid": "account-network-trigger-button",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "account-selector"
+      ]
+    },
+    "wallet.nft.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-NFT-Empty\"]",
+      "source_testid": "Wallet-No-NFT-Empty",
+      "source": "app-monorepo",
+      "page": "nft",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.page.header.right_actions": {
+      "primary": "[data-testid=\"Wallet-Page-Header-Right\"]",
+      "source_testid": "Wallet-Page-Header-Right",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.receive.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Address-Empty\"]",
+      "source_testid": "Wallet-No-Address-Empty",
+      "source": "app-monorepo",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallets"
+      ]
+    },
+    "wallet.send.amount_input": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"] input",
+      "source_testid": "send-recipient-amount-form",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "Derived semantic selector built on top of app-monorepo form container."
+    },
+    "wallet.send.contacts_button": {
+      "primary": "[data-sentry-component=\"SvgPeopleCircle\"]",
+      "source_testid": "contacts-icon",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "Existing stable QA-AGENTS selector used in send recipient flow."
+    },
+    "wallet.send.contacts_popover": {
+      "primary": "[data-testid=\"TMPopover-ScrollView\"]",
+      "source_testid": "TMPopover-ScrollView",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send.form": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"]",
+      "source_testid": "send-recipient-amount-form",
+      "source": "app-monorepo",
+      "page": "send-form",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send.max_button": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"] >> text=最大",
+      "source_testid": "send-recipient-amount-form",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "Derived semantic selector using form container + localized text."
+    },
+    "wallet.send.replace_tx.modal": {
+      "primary": "[data-testid=\"replace-tx-modal\"]",
+      "source_testid": "replace-tx-modal",
+      "source": "app-monorepo",
+      "page": "send-confirm",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.token_details.no_address_empty_state": {
+      "primary": "[data-testid=\"TokenDetailsViews__Wallet-No-Address-Empty\"]",
+      "source_testid": "TokenDetailsViews__Wallet-No-Address-Empty",
+      "source": "app-monorepo",
+      "page": "token-details",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "wallet",
+        "token-details",
+        "empty-state"
+      ]
+    },
+    "wallet.token_list.header": {
+      "primary": "[data-testid=\"Wallet-Token-List-Header\"]",
+      "source_testid": "Wallet-Token-List-Header",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "assets"
+      ]
+    }
+  }
+}

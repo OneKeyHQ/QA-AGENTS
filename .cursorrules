@@ -45,7 +45,9 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 | File | Exclusive Writer | Description |
 |------|-----------------|-------------|
 | `shared/test_cases.json` | Test Designer | Intent-only test cases |
-| `shared/ui-map.json` | Knowledge Builder | DOM selector mappings |
+| `shared/ui-map.json` | Knowledge Builder | Current execution selector mappings |
+| `shared/ui-semantic-map.json` | Knowledge Builder | Additive semantic locator registry for generation/maintenance |
+| `shared/generated/app-monorepo-testid-index.json` | Knowledge Builder | Synced app-monorepo testID index |
 | `shared/knowledge.json` | Knowledge Builder | Curated test patterns |
 | `shared/preconditions.json` | Knowledge Builder | 公共前置条件数据库 |
 | `shared/mem_cells.json` | Knowledge Builder | 原始记忆事件（MemCells） |
@@ -58,6 +60,8 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 **规则**：每个文件只有指定的 Writer 可以写入，其他角色只读。违反此规则会导致数据冲突。
 
 **自动积累经验**：录制、测试、调试过程中遇到的坑（如选择器失效、CDP 断连、弹窗拦截、时序问题等），自动追加到 `shared/knowledge.json`，无需用户额外指令。ID 递增（K-NNN），category 用 `recording` / `quirk` / `locator` / `timing` 等分类。
+
+**新增公共定位参考层**：新生成脚本、录制后整理公共元素、以及选择器维护时，默认按以下顺序参考：`shared/ui-semantic-map.json` → `shared/generated/app-monorepo-testid-index.json` → `shared/ui-map.json` → 运行时探索。当前阶段只增不替换，禁止因为该层存在而批量修改历史用例执行逻辑。
 
 **规则双写**：修改 `.cursorrules` 或 `.claude/CLAUDE.md` 中的规则时，必须同步更新另一个文件中的对应部分，保持两边一致。无需用户额外确认。
 
@@ -398,7 +402,7 @@ Dashboard executor (`test-executor.ts`) 通过 `testCases.fn(page)` 或 `mod.run
 pending → in_progress → completed | failed | blocked
 
 ## Workflow: New Test
-Read `shared/knowledge.json` → record (listen.mjs) → user confirms actions → generate .test.mjs + update ui-map + update test_cases.json → if encountered issues, append to knowledge.json
+Read `shared/knowledge.json` + `shared/ui-semantic-map.json` + `shared/generated/app-monorepo-testid-index.json` → record (listen.mjs) → user confirms actions → generate .test.mjs + update ui-semantic-map / ui-map + update test_cases.json → if encountered issues, append to knowledge.json
 
 ## Workflow: Failure Fix
 Read results → classify root cause (5 types) → route to handler → fix → rerun → verify

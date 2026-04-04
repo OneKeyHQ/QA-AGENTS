@@ -76,7 +76,9 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 | `shared/test_cases.json` | Test Designer | Intent-only test cases |
 | `shared/preconditions.json` | — | 公共前置条件数据库 |
 | `shared/knowledge.json` | Knowledge Builder | Curated patterns |
-| `shared/ui-map.json` | Knowledge Builder | Selector mappings |
+| `shared/ui-map.json` | Knowledge Builder | Current execution selector mappings |
+| `shared/ui-semantic-map.json` | Knowledge Builder | Additive semantic locator registry for generation/maintenance |
+| `shared/generated/app-monorepo-testid-index.json` | Knowledge Builder | Synced app-monorepo testID index |
 | `shared/mem_cells.json` | Knowledge Builder | Raw memory events |
 | `shared/mem_scenes.json` | Knowledge Builder | Clustered scenes |
 | `shared/profile.json` | Knowledge Builder | Agent capability profile |
@@ -96,19 +98,20 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 ## Conventions
 - Test case IDs: `<FEATURE>-<NNN>` (e.g., COSMOS-001)
 - Result files: `shared/results/<id>.json`
-- Selector strategy: ui-map primary → fallbacks → JS evaluate emergency
+- Selector strategy (current execution path): ui-map primary → fallbacks → JS evaluate emergency
+- Selector reference order for new test generation / maintenance: `shared/ui-semantic-map.json` → `shared/generated/app-monorepo-testid-index.json` → `shared/ui-map.json` → runtime exploration
 - Bug fixes require user approval — only diagnosis + repair proposal
 - **自动积累经验**：录制、测试、调试过程中遇到的坑（如选择器失效、CDP 断连、弹窗拦截、时序问题等），自动追加到 `shared/knowledge.json`，无需用户额外指令。ID 递增（K-NNN），category 用 `recording` / `quirk` / `locator` / `timing` 等分类
 - **规则双写**：修改 `.claude/CLAUDE.md` 或 `.cursorrules` 中的规则时，必须同步更新另一个文件中的对应部分，保持两边一致。无需用户额外确认
 - **提交前 QA 审查**：commit / PR 前自动执行 `/onekey-qa-review`，检查用例、规则、脚本、Skill 的规范性、一致性和安全性。安全问题硬拦截（不可跳过），其他 block 问题软拦截（可确认跳过）。审查报告保存到 `shared/reports/review-*.md`
 
 ## Default Workflow（写新用例时必须遵循，不要再问）
-0. **录制前必读 `shared/knowledge.json`** — 包含历次录制和测试中积累的经验，避免重复犯错
+0. **录制/生成前必读 `shared/knowledge.json`**，并优先查看 `shared/ui-semantic-map.json` 与 `shared/generated/app-monorepo-testid-index.json` — 避免重复犯错，也避免重复探索已有定位
 1. 启动 OneKey 桌面端（CDP）
 2. 启动录制器 `node src/recorder/listen.mjs`（有 Web 监控 UI http://localhost:3210）
 3. 用户在 app 上操作，录制器自动捕获
 4. 用户说"录制完了" → 停止录制，列出操作清单让用户确认
-5. 确认后 → 生成测试用例 + 更新 ui-map + 写测试脚本
+5. 确认后 → 生成测试用例 + 必要时更新 ui-semantic-map / ui-map + 写测试脚本
 6. **录制/测试过程中遇到新问题，自动追加到 `shared/knowledge.json`**（无需用户指令）
 - 正确流程：**Read knowledge → Record → Update test cases → Update scripts → Write knowledge**
 

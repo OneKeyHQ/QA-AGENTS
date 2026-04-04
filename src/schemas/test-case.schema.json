@@ -1,25 +1,128 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "required": ["id", "intent", "preconditions", "steps", "expected"],
+  "required": ["id", "preconditions", "steps", "expected"],
   "properties": {
     "id": { "type": "string", "pattern": "^[A-Z]+-\\d{3}$" },
+    "scenarioId": { "type": "string" },
     "intent": { "type": "string" },
-    "preconditions": { "type": "array", "items": { "type": "string" } },
+    "title": { "type": "string" },
+    "platform": { "enum": ["web", "android", "ios", "desktop", "chrome-extension"] },
+    "priority": { "enum": ["P0", "P1", "P2", "P3"] },
+    "preconditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": true
+    },
     "steps": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["order", "intent"],
+        "required": ["order", "action"],
         "properties": {
           "order": { "type": "number" },
-          "intent": { "type": "string" }
-        }
+          "action": { "type": "string" },
+          "ui_element": { "type": "string" },
+          "semantic_element": { "type": ["string", "null"] },
+          "raw_testid": { "type": ["string", "null"] },
+          "description": { "type": "string" },
+          "target": { "type": "string" },
+          "param": { "type": "string" },
+          "value": { "type": "string" },
+          "text": { "type": "string" },
+          "raw_text": { "type": "string" },
+          "timeout": { "type": "number" },
+          "assertion": { "type": "string" },
+          "assertions": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "resolution": {
+            "type": "object",
+            "required": ["strategy"],
+            "properties": {
+              "strategy": {
+                "type": "string",
+                "enum": ["semantic", "legacy-ui-map", "app-testid-index", "unresolved"]
+              },
+              "semantic_element": { "type": ["string", "null"] },
+              "ui_element": { "type": ["string", "null"] },
+              "raw_testid": { "type": ["string", "null"] }
+            },
+            "additionalProperties": true
+          },
+          "compiled_locator": {
+            "type": ["object", "null"],
+            "required": ["source", "primary"],
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": ["ui-semantic-map", "ui-map", "app-monorepo-testid-index"]
+              },
+              "primary": { "type": "string" },
+              "quick_fallbacks": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "deep_search": {
+                "type": ["object", "null"],
+                "properties": {
+                  "enabled": { "type": "boolean" },
+                  "search_text": { "type": "string" },
+                  "search_role": { "type": "string" },
+                  "search_scope": { "type": "string" }
+                },
+                "additionalProperties": true
+              },
+              "semantic_key": { "type": ["string", "null"] },
+              "ui_element": { "type": ["string", "null"] },
+              "raw_testid": { "type": ["string", "null"] },
+              "source_testid": { "type": ["string", "null"] },
+              "page": { "type": ["string", "null"] },
+              "feature": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "platform": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "files": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "feature_hints": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "occurrences": { "type": "number" },
+              "tier_stats": {
+                "type": ["object", "null"],
+                "additionalProperties": { "type": "number" }
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
       }
     },
-    "expected": { "type": "string" },
-    "priority": { "enum": ["P0", "P1", "P2"] },
-    "tags": { "type": "array", "items": { "type": "string" } },
+    "expected": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "strategies": {
       "type": "array",
       "items": {
@@ -31,7 +134,8 @@
           "recipient": { "type": "string" },
           "amount": { "type": "string" },
           "memo": { "type": ["string", "null"] }
-        }
+        },
+        "additionalProperties": true
       },
       "minItems": 1
     },
@@ -39,5 +143,6 @@
       "type": "string",
       "enum": ["skip", "fail", "report"]
     }
-  }
+  },
+  "additionalProperties": true
 }
