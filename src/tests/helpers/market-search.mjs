@@ -9,8 +9,6 @@ import {
   isModalVisible,
   openSearchModal as _openSearchModal,
   getSearchInput,
-  clearSearch as _clearSearch,
-  closeSearch as _closeSearch,
 } from './components.mjs';
 
 // ── Step Tracker ─────────────────────────────────────────────
@@ -87,35 +85,8 @@ export async function setSearchValue(page, value, triggerFn) {
   await setSearchValueStrict(page, value, triggerFn);
 }
 
-export async function clearSearch(page) {
-  const clearBtn = page.locator('[data-testid="-clear"]:visible').first();
-  const canClick = await clearBtn.isVisible({ timeout: 800 }).catch(() => false);
-  if (canClick) {
-    await clearBtn.click();
-    await sleep(500);
-    return;
-  }
-  // Fallback: clear via select + backspace inside modal
-  await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    const input = modal?.querySelector('input');
-    if (input) { input.focus(); input.select(); }
-  });
-  await page.keyboard.press('Backspace');
-  await sleep(500);
-}
-
-export async function closeSearch(page) {
-  const closeBtn = page.locator('[data-testid="nav-header-close"]:visible').first();
-  const canClick = await closeBtn.isVisible({ timeout: 1200 }).catch(() => false);
-  if (canClick) {
-    await closeBtn.click();
-    await sleep(800);
-    return;
-  }
-  await page.keyboard.press('Escape').catch(() => {});
-  await sleep(800);
-}
+// Delegate to registry-based implementations in components.mjs
+export { clearSearch, closeSearch } from './components.mjs';
 
 // ── Assertion Helpers ────────────────────────────────────────
 
