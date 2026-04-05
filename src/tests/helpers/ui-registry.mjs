@@ -5,6 +5,7 @@ import { resolve, dirname } from 'node:path';
 import chokidar from 'chokidar';
 
 const UI_MAP_PATH = resolve(import.meta.dirname, '../../../shared/ui-map.json');
+const UI_SEMANTIC_MAP_PATH = resolve(import.meta.dirname, '../../../shared/ui-semantic-map.json');
 const UI_STATS_PATH = resolve(import.meta.dirname, '../../../shared/results/ui-stats.json');
 
 /**
@@ -46,14 +47,18 @@ class ClickablePoint {
 
 class UIRegistry {
   #cache = {};
+  #semanticCache = {};   // ui-semantic-map.json entries (selector-only, keyed by element name)
   #watcher = null;
+  #semanticWatcher = null;
   #filePath;
+  #semanticFilePath;
   #stats = {};
   #statsFlushTimer = null;
   #initialized = false;
 
-  constructor(filePath = UI_MAP_PATH) {
+  constructor(filePath = UI_MAP_PATH, semanticFilePath = UI_SEMANTIC_MAP_PATH) {
     this.#filePath = filePath;
+    this.#semanticFilePath = semanticFilePath;
   }
 
   /** Lazy init — called automatically on first resolve(). Safe to call multiple times. */
@@ -66,6 +71,13 @@ class UIRegistry {
     this.#watcher.on('change', () => {
       console.log('[ui] ui-map.json changed, reloading...');
       this.reload();
+    });
+
+    this.#reloadSemantic();
+    this.#semanticWatcher = chokidar.watch(this.#semanticFilePath, { ignoreInitial: true });
+    this.#semanticWatcher.on('change', () => {
+      console.log('[ui] ui-semantic-map.json changed, reloading...');
+      this.#reloadSemantic();
     });
 
     // Auto-cleanup on process exit (synchronous handlers only)
@@ -85,6 +97,31 @@ class UIRegistry {
     }
   }
 
+  #reloadSemantic() {
+    try {
+      const raw = readFileSync(this.#semanticFilePath, 'utf-8');
+      const data = JSON.parse(raw);
+      // Build a flat lookup: element_name → primary selector string
+      // Also index by source_testid so resolve can match by testid name
+      const entries = data.elements || {};
+      this.#semanticCache = {};
+      for (const [name, entry] of Object.entries(entries)) {
+        if (entry.primary) {
+          this.#semanticCache[name] = entry.primary;
+          // Also register by source_testid (e.g. "address-book-add-icon")
+          if (entry.source_testid && entry.source_testid !== name) {
+            this.#semanticCache[entry.source_testid] = entry.primary;
+          }
+        }
+      }
+    } catch (e) {
+      // Semantic map is optional — don't crash if missing
+      if (e.code !== 'ENOENT') {
+        console.error(`[ui] Failed to load ui-semantic-map: ${e.message}`);
+      }
+    }
+  }
+
   /**
    * Three-tier element resolution with context awareness.
    * @param {import('playwright-core').Page} page
@@ -98,7 +135,37 @@ class UIRegistry {
   async resolve(page, elementName, opts = {}) {
     await this.init(); // lazy init on first call
     const entry = this.#cache[elementName];
-    if (!entry) throw new Error(`[ui] Element "${elementName}" not found in ui-map`);
+    // If not in ui-map, try semantic-map only (selector-only resolution)
+    if (!entry) {
+      const semanticOnly = this.#semanticCache[elementName];
+      if (!semanticOnly) throw new Error(`[ui] Element "${elementName}" not found in ui-map or ui-semantic-map`);
+      // Semantic-only path: single selector, no fallbacks/deep_search
+      const context = opts.context || 'auto';
+      const timeout = opts.timeout || 3000;
+      const params = opts.params || {};
+      const resolvedCtx = context === 'auto' ? await this.#detectContext(page) : context;
+      const scopeEl = resolvedCtx === 'modal'
+        ? page.locator('[data-testid="APP-Modal-Screen"]')
+        : page;
+      const modalOpen = resolvedCtx === 'page' ? await this.#detectContext(page) === 'modal' : false;
+      const sub = (s) => { let r = s; for (const [k, v] of Object.entries(params)) r = r.replaceAll(`{${k}}`, String(v)); return r; };
+      const sel = sub(semanticOnly);
+      const start = Date.now();
+      try {
+        let locator;
+        if (resolvedCtx === 'page' && modalOpen) {
+          locator = await this.#resolveExcludingModal(page, sel, timeout);
+        } else {
+          locator = scopeEl.locator(sel).first();
+          await locator.waitFor({ state: 'visible', timeout });
+        }
+        this.#log(elementName, resolvedCtx, 'semantic-only', Date.now() - start);
+        this.#recordStat(elementName, 'semantic');
+        return locator;
+      } catch {
+        throw new Error(`[ui] Cannot resolve "${elementName}" — semantic selector failed: ${sel}`);
+      }
+    }
 
     const context = opts.context || 'auto';
     const timeout = opts.timeout || 3000;
@@ -138,6 +205,24 @@ class UIRegistry {
       this.#recordStat(elementName, 'primary');
       return locator;
     } catch {}
+
+    // L1.5: ui-semantic-map — try semantic selector if element exists there
+    const semanticSel = this.#semanticCache[elementName];
+    if (semanticSel) {
+      try {
+        let locator;
+        const sel = substitute(semanticSel);
+        if (resolvedContext === 'page' && modalIsOpen) {
+          locator = await this.#resolveExcludingModal(page, sel, timeout);
+        } else {
+          locator = scope.locator(sel).first();
+          await locator.waitFor({ state: 'visible', timeout });
+        }
+        this.#log(elementName, resolvedContext, 'semantic', Date.now() - start);
+        this.#recordStat(elementName, 'semantic');
+        return locator;
+      } catch {}
+    }
 
     // L2: quick_fallbacks
     const fallbacks = entry.quick_fallbacks || [];
@@ -237,6 +322,10 @@ class UIRegistry {
       this.#watcher.close();
       this.#watcher = null;
     }
+    if (this.#semanticWatcher) {
+      this.#semanticWatcher.close();
+      this.#semanticWatcher = null;
+    }
     this.#flushStats();
     if (this.#statsFlushTimer) {
       clearTimeout(this.#statsFlushTimer);
@@ -287,7 +376,7 @@ class UIRegistry {
 
   #recordStat(elementName, tier) {
     if (!this.#stats[elementName]) {
-      this.#stats[elementName] = { primary_hits: 0, quick_hits: 0, deep_hits: 0, total_attempts: 0 };
+      this.#stats[elementName] = { primary_hits: 0, semantic_hits: 0, quick_hits: 0, deep_hits: 0, total_attempts: 0 };
     }
     this.#stats[elementName][`${tier}_hits`]++;
     this.#stats[elementName].total_attempts++;
@@ -305,7 +394,7 @@ class UIRegistry {
       try { existing = JSON.parse(readFileSync(UI_STATS_PATH, 'utf-8')); } catch {}
       // Merge stats
       for (const [name, s] of Object.entries(this.#stats)) {
-        if (!existing[name]) existing[name] = { primary_hits: 0, quick_hits: 0, deep_hits: 0, total_attempts: 0 };
+        if (!existing[name]) existing[name] = { primary_hits: 0, semantic_hits: 0, quick_hits: 0, deep_hits: 0, total_attempts: 0 };
         existing[name].primary_hits += s.primary_hits;
         existing[name].quick_hits += s.quick_hits;
         existing[name].deep_hits += s.deep_hits;

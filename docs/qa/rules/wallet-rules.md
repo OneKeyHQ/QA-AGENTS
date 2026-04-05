@@ -139,7 +139,7 @@ Wallet 模块包含以下核心功能：
 | EVM 聚合 | EVM 链共享最近转账池，跨 EVM 链聚合 |
 | EVM 去重 | EVM 地址按 lowercase 去重，避免 checksum 差异导致重复 |
 | 链名展示 | EVM 聚合结果可展示最近一次转账所在链名称 |
-| 过滤规则 | scam tx、Failed/Dropped、functionCall、0 金额、自转自己、合约地址、`Call:` memo 不显示 |
+| 过滤规则 | scam tx、Failed/Dropped、functionCall、0 金额、自转自己、合约地址、`Call:` memo 不显示；**中心化 `transfer-recipient` 等接口返回已由服务端过滤，Swap 相关中心化转账记录不进入列表** |
 | Memo/Tag | 支持 memo / note / destinationTag 显示与带入 |
 | 搜索 | 支持按钱包名、地址簿名、地址、memo 相关字段过滤 |
 | 账户维度 | 最近转账与当前 accountId 相关，切换账户后应刷新为当前账户数据 |
@@ -327,3 +327,4 @@ Wallet 模块包含以下核心功能：
 | 2026-02-27 | 新增「从交易所接收」规则章节（Binance API、OKX、Coinbase） |
 | 2026-03-10 | 更新「从交易所接收」规则：入口默认展开、新增 ExchangeOpenRedirect 页面、OKX/Coinbase 流程重构 |
 | 2026-04-03 | 新增「最近转账」规则：数据源改为 API/链历史/存储多级回退，EVM 跨链聚合去重，补充 memo/tag、过滤和账户隔离规则 |
+| 2026-04-05 | 「最近转账」过滤规则：补充中心化接口 **服务端过滤 Swap 相关记录**，客户端与接口返回对齐 |
