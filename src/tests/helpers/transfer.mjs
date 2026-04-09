@@ -7,141 +7,442 @@ import { resolve } from 'node:path';
 
 const SEND_FORM_SEL = '[data-testid="send-recipient-amount-form"]';
 
-/**
- * Open send form for a given token.
- * Clicks "发送" in wallet tab header, then selects token if a picker appears.
- */
-export async function openSendForm(page, token) {
-  await page.evaluate(() => window.scrollTo(0, 0));
-  await sleep(500);
+// ── Precondition Helpers (K-038: smart state detection) ────
 
-  const sendBtn = page.locator('[data-testid="Wallet-Tab-Header"] >> text=发送').last();
-  await sendBtn.click({ timeout: 5000 });
+/**
+ * Detect if currently in portfolio mode (no single-network selector visible).
+ */
+export async function isPortfolioMode(page) {
+  const networkBtn = page.locator('[data-testid="account-network-trigger-button-text"]');
+  return !(await networkBtn.isVisible({ timeout: 2000 }).catch(() => false));
+}
+
+/**
+ * Switch from portfolio to single-network mode if needed.
+ * No-op if already in single-network mode.
+ */
+export async function ensureSingleNetworkMode(page) {
+  if (!(await isPortfolioMode(page))) return;
+
+  // Portfolio mode: click the chain icon area to trigger mode switch
+  const toggled = await page.evaluate(() => {
+    const svgs = document.querySelectorAll('svg');
+    for (const svg of svgs) {
+      const r = svg.getBoundingClientRect();
+      if (r.width > 0 && r.y > 60 && r.y < 120 && r.x > 240 && r.x < 320) {
+        (svg.closest('[role="button"]') || svg.parentElement)?.click();
+        return true;
+      }
+    }
+    return false;
+  });
+  if (!toggled) return;
   await sleep(2000);
 
-  // Check if send form opened directly (single-token wallet)
-  const hasSendForm = await page.locator(SEND_FORM_SEL).isVisible({ timeout: 1000 }).catch(() => false);
-  if (hasSendForm) {
-    console.log('    Send form opened directly (single token)');
-    return;
-  }
+  // Select "网络" from the modal to confirm single-network mode
+  await page.evaluate(() => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    if (!modal) return;
+    for (const sp of modal.querySelectorAll('span')) {
+      if (sp.textContent?.trim() === '网络' && sp.getBoundingClientRect().width > 0) {
+        sp.click();
+        return;
+      }
+    }
+  });
+  await sleep(2000);
+}
 
-  // Token selection dialog
-  const tokenSearchInput = page.locator('input[placeholder="搜索资产"]');
-  const hasSearch = await tokenSearchInput.isVisible({ timeout: 2000 }).catch(() => false);
-  if (hasSearch) {
-    await tokenSearchInput.fill(token);
-    await sleep(1500);
-  }
-
-  const modalSel = '[data-testid="APP-Modal-Screen"]';
-  const noAssets = await page.evaluate((sel) => {
-    const modal = document.querySelector(sel);
-    return modal?.textContent?.includes('没有资产') || false;
-  }, modalSel);
-  if (noAssets) {
-    throw new Error(`No assets found in wallet for token ${token}`);
-  }
-
-  const tokenClicked = await page.evaluate(({ token: tk, modalSel: mSel }) => {
-    const modal = document.querySelector(mSel);
-    if (!modal) return false;
-    const spans = modal.querySelectorAll('span');
-    for (const sp of spans) {
+/**
+ * Check if current account has visible fiat balance > 0.
+ * Retries a few times to allow balance to load after account/network switch.
+ * Returns true if balance detected > 0, or if detection fails (assume has balance).
+ */
+export async function hasBalance(page) {
+  // Wait briefly for balance to load after account switch
+  await sleep(2000);
+  const balanceText = await page.evaluate(() => {
+    for (const sp of document.querySelectorAll('span')) {
       const r = sp.getBoundingClientRect();
-      if (r.width > 0 && sp.textContent?.trim() === tk) {
-        const row = sp.closest('[role="button"]') || sp.parentElement?.parentElement;
-        if (row) { row.click(); return true; }
+      const t = sp.textContent?.trim() || '';
+      if (r.y > 50 && r.y < 180 && r.x < 300 && (t.startsWith('¥') || t.startsWith('$'))) {
+        return t;
+      }
+    }
+    return null;
+  });
+  if (!balanceText) return true; // Can't detect, assume has balance
+  const num = parseFloat(balanceText.replace(/[¥$,]/g, ''));
+  return !isNaN(num) && num > 0;
+}
+
+// ── Post-Transfer Verification Helpers ─────────────────────
+
+/**
+ * Verify fiat/crypto toggle on the amount input page.
+ * Clicks the toggle arrow, asserts fiat is displayed (¥ or $), then toggles back.
+ * @returns {string} The fiat amount displayed (e.g., "¥0.04")
+ */
+export async function verifyFiatToggle(page) {
+  const TOGGLE_SELECTOR = (container) => {
+    const paths = container.querySelectorAll('path, svg');
+    for (const p of paths) {
+      const r = p.getBoundingClientRect();
+      if (r.width > 8 && r.width < 30 && r.height > 8 && r.height < 30 &&
+          r.y > 200 && r.y < 450 && r.x > 350 && r.x < 700) {
+        return p;
+      }
+    }
+    return null;
+  };
+
+  // Click toggle to show fiat
+  const toggled = await page.evaluate(() => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const container = modal || document;
+    const paths = container.querySelectorAll('path, svg');
+    for (const p of paths) {
+      const r = p.getBoundingClientRect();
+      if (r.width > 8 && r.width < 30 && r.height > 8 && r.height < 30 &&
+          r.y > 200 && r.y < 450 && r.x > 350 && r.x < 700) {
+        (p.closest('[role="button"]') || p.parentElement)?.click() || p.click();
+        return true;
+      }
+    }
+    return false;
+  });
+  if (!toggled) throw new Error('法币切换按钮未找到');
+  await sleep(1500);
+
+  // Read fiat display
+  const fiatAmount = await page.evaluate(() => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const container = modal || document;
+    for (const sp of container.querySelectorAll('span')) {
+      const t = sp.textContent?.trim() || '';
+      const r = sp.getBoundingClientRect();
+      if (r.y > 150 && r.y < 350 && (t.startsWith('¥') || t.startsWith('$')) && t.length > 3) {
+        return t;
+      }
+    }
+    return null;
+  });
+  if (!fiatAmount) throw new Error('法币金额未显示');
+
+  // Toggle back to crypto
+  await page.evaluate(() => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const container = modal || document;
+    const paths = container.querySelectorAll('path, svg');
+    for (const p of paths) {
+      const r = p.getBoundingClientRect();
+      if (r.width > 8 && r.width < 30 && r.height > 8 && r.height < 30 &&
+          r.y > 200 && r.y < 450 && r.x > 350 && r.x < 700) {
+        (p.closest('[role="button"]') || p.parentElement)?.click() || p.click();
+        return;
+      }
+    }
+  });
+  await sleep(1000);
+
+  return fiatAmount;
+}
+
+/**
+ * Open history record list, click latest transaction, verify fields, then close.
+ * @param {string} token — expected token symbol (e.g., 'ATOM', 'CRO')
+ * @returns {{ fields: string[] }} Matched verification fields
+ */
+export async function verifyHistoryRecord(page, token) {
+  // Click "历史记录"
+  const historyClicked = await page.evaluate(() => {
+    for (const sp of document.querySelectorAll('span')) {
+      if (sp.textContent?.trim() === '历史记录' && sp.getBoundingClientRect().width > 0) {
         sp.click();
         return true;
       }
     }
     return false;
-  }, { token, modalSel });
-
-  if (!tokenClicked) {
-    const tokenItem = page.locator(`${modalSel} >> text="${token}"`).first();
-    await tokenItem.click({ timeout: 5000 });
-  }
+  });
+  if (!historyClicked) throw new Error('历史记录按钮未找到');
   await sleep(2000);
 
-  await page.locator(SEND_FORM_SEL).waitFor({ state: 'visible', timeout: 5000 });
+  // Verify latest record exists and click it
+  const latestTx = page.locator('[data-testid="tx-action-common-list-view"]').first();
+  const txVisible = await latestTx.isVisible({ timeout: 5000 }).catch(() => false);
+  if (!txVisible) throw new Error('历史记录中未找到交易');
+  await latestTx.click();
+  await sleep(2000);
+
+  // Read detail content
+  const detailText = await page.evaluate(() => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    return (modal || document.body).textContent?.substring(0, 3000) || '';
+  });
+
+  const fields = [];
+  if (detailText.includes(token)) fields.push('token');
+  if (detailText.includes('发送') || detailText.includes('Send')) fields.push('type');
+  if (detailText.includes('哈希') || detailText.includes('Hash') || detailText.includes('hash')) fields.push('hash');
+  if (detailText.includes('费用') || detailText.includes('Fee')) fields.push('fee');
+  if (detailText.includes('处理中') || detailText.includes('已确认') || detailText.includes('Pending') || detailText.includes('Confirmed')) fields.push('status');
+
+  // Close detail
+  const closeBtn = page.locator('[data-testid="nav-header-close"]');
+  await closeBtn.click({ timeout: 3000 }).catch(() => page.keyboard.press('Escape'));
+  await sleep(1000);
+
+  return { fields };
 }
 
 /**
- * Select recipient via contacts icon -> popover -> 我的账户 -> account item.
+ * Verify memo input exceeds limit: check error prompt and button disabled state.
+ * @returns {string} The error text found
+ */
+export async function verifyMemoOverLimit(page) {
+  const pageText = await page.evaluate(() => document.body.textContent?.substring(0, 5000) || '');
+  if (!pageText.includes('512')) throw new Error('未显示 512 字符限制提示');
+
+  const btnDisabled = await page.evaluate(() => {
+    const btn = document.querySelector('[data-testid="page-footer-confirm"]');
+    if (!btn) return true;
+    return btn.disabled || btn.getAttribute('aria-disabled') === 'true' ||
+           btn.closest('[disabled]') !== null ||
+           getComputedStyle(btn).opacity < 0.6 ||
+           getComputedStyle(btn).pointerEvents === 'none';
+  });
+  if (!btnDisabled) throw new Error('下一步按钮未禁用');
+  return '提示 512 限制 + 按钮置灰';
+}
+
+/**
+ * Click the memo "清除" button and verify the field is emptied.
+ */
+export async function clearMemoField(page) {
+  const cleared = await page.evaluate(() => {
+    for (const sp of document.querySelectorAll('span')) {
+      if (sp.textContent?.trim() === '清除' && sp.getBoundingClientRect().width > 0) {
+        sp.click();
+        return true;
+      }
+    }
+    return false;
+  });
+  if (!cleared) throw new Error('清除按钮未找到');
+  await sleep(1000);
+
+  const memoValue = await page.evaluate(() => {
+    const ta = document.querySelector('textarea[placeholder*="备忘"]') ||
+               document.querySelector('input[placeholder*="备忘"]');
+    return ta?.value || '';
+  });
+  if (memoValue.length > 0) throw new Error(`备注未清空: ${memoValue.length} chars`);
+}
+
+/**
+ * Verify invalid amount handling: negative (can't type), zero (error), over-balance (button text).
+ * Must be on the amount input page already.
+ * @returns {{ negative: string, zero: string, overBalance: string }}
+ */
+export async function verifyInvalidAmounts(page) {
+  const amountInput = page.locator('input[placeholder="0"]').first();
+  const results = {};
+
+  // Negative: can't be typed
+  await amountInput.click();
+  await amountInput.fill('');
+  await sleep(300);
+  await amountInput.pressSequentially('-5', { delay: 50 });
+  await sleep(500);
+  const negVal = await amountInput.inputValue();
+  if (negVal.includes('-')) throw new Error(`负号被输入了: ${negVal}`);
+  results.negative = `输入 -5 → 实际="${negVal}"`;
+
+  // Zero: shows error
+  await amountInput.click();
+  await amountInput.fill('0');
+  await sleep(1000);
+  const zeroText = await page.evaluate(() => document.body.textContent?.substring(0, 5000) || '');
+  const hasZeroError = zeroText.includes('无法发送 0') || zeroText.includes('0 金额') || zeroText.includes('cannot send 0');
+  if (!hasZeroError) throw new Error('未显示 0 金额错误提示');
+  results.zero = '无法发送 0 金额';
+
+  // Over balance: button shows "资金不足"
+  await amountInput.click();
+  await amountInput.fill('999999');
+  await sleep(1500);
+  const btnText = await page.evaluate(() => {
+    const btn = document.querySelector('[data-testid="page-footer-confirm"]');
+    return btn?.textContent?.trim() || '';
+  });
+  if (!btnText.includes('资金不足') && !btnText.includes('Insufficient') && !btnText.includes('不足')) {
+    throw new Error(`按钮文案不是"资金不足": "${btnText}"`);
+  }
+  results.overBalance = `按钮="${btnText}"`;
+
+  return results;
+}
+
+/**
+ * Open send form for a given token.
+ * Clicks "发送" in wallet tab header, then selects token if a picker appears.
+ */
+export async function openSendForm(page, token) {
+  // Quick dismiss any residual backdrops
+  await page.evaluate(() => {
+    document.querySelectorAll('[data-testid="app-modal-stacks-backdrop"]').forEach(el => el.click());
+  }).catch(() => {});
+  await page.keyboard.press('Escape').catch(() => {});
+  await sleep(300);
+
+  // Click 发送
+  await page.evaluate(() => {
+    const header = document.querySelector('[data-testid="Wallet-Tab-Header"]');
+    if (!header) return;
+    for (const sp of header.querySelectorAll('span')) {
+      if (sp.textContent?.trim() === '发送' && sp.getBoundingClientRect().width > 0) {
+        sp.click();
+        return;
+      }
+    }
+  });
+  await sleep(1500);
+
+  // Check if send form opened directly (single-token wallet)
+  const hasSendForm = await page.locator(SEND_FORM_SEL).isVisible({ timeout: 500 }).catch(() => false);
+  if (hasSendForm) {
+    console.log('    Send form opened directly');
+    return;
+  }
+
+  // Token picker modal — click token directly (no search needed for most cases)
+  const clicked = await page.evaluate((tk) => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    if (!modal) return null;
+    if (modal.textContent?.includes('没有资产')) return 'no_assets';
+    for (const sp of modal.querySelectorAll('span')) {
+      if (sp.textContent?.trim() === tk && sp.getBoundingClientRect().width > 0) {
+        const row = sp.closest('[role="button"]') || sp.parentElement?.parentElement;
+        if (row && row.getBoundingClientRect().width > 0) { row.click(); return 'row'; }
+        sp.click();
+        return 'span';
+      }
+    }
+    return null;
+  }, token);
+
+  if (clicked === 'no_assets') throw new Error(`No assets found for token ${token}`);
+
+  // If token not found by exact match, use search
+  if (!clicked) {
+    console.log(`    Token ${token} not found directly, searching...`);
+    // Try multiple search input placeholders
+    let searchInput = page.locator('[data-testid="APP-Modal-Screen"] input[placeholder*="搜索"]').first();
+    let hasSearch = await searchInput.isVisible({ timeout: 1000 }).catch(() => false);
+    if (!hasSearch) {
+      searchInput = page.locator('input[placeholder="搜索资产"]').first();
+      hasSearch = await searchInput.isVisible({ timeout: 1000 }).catch(() => false);
+    }
+    if (hasSearch) {
+      await searchInput.click();
+      await sleep(200);
+      await searchInput.pressSequentially(token, { delay: 50 });
+      await sleep(1500);
+      await page.evaluate((tk) => {
+        const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+        if (!modal) return;
+        for (const sp of modal.querySelectorAll('span')) {
+          if (sp.textContent?.trim() === tk && sp.getBoundingClientRect().width > 0) {
+            const row = sp.closest('[role="button"]') || sp.parentElement?.parentElement;
+            (row || sp).click();
+            return;
+          }
+        }
+      }, token);
+    }
+  }
+  console.log(`    Selected token ${token} (${clicked || 'search'})`);
+  await sleep(1500);
+
+  await page.locator(SEND_FORM_SEL).waitFor({ state: 'visible', timeout: 8000 });
+}
+
+/**
+ * Select recipient on the send form.
+ * New UI flow: send form has tabs (最近 / 账户 / 地址簿) inline.
+ * Click "账户" tab → click recipient account by label or testid.
  */
 export async function selectRecipientFromContacts(page, recipientName) {
   const recipient = ACCOUNTS[recipientName];
   if (!recipient) throw new Error(`Unknown recipient account: ${recipientName}`);
 
-  // Click contacts icon (SvgPeopleCircle)
-  const contactsIcon = page.locator('[data-sentry-component="SvgPeopleCircle"]').first();
-  await contactsIcon.click({ timeout: 5000 });
-  console.log(`    Clicked contacts icon`);
-  await sleep(1500);
-
-  // Wait for popover and click "我的账户"
-  const popoverSel = '[data-testid="TMPopover-ScrollView"]';
-  const popoverVisible = await page.locator(popoverSel).isVisible({ timeout: 3000 }).catch(() => false);
-
-  if (popoverVisible) {
-    const myAccountClicked = await page.evaluate((pSel) => {
-      const popover = document.querySelector(pSel);
-      if (!popover) return false;
-      const spans = popover.querySelectorAll('span');
-      for (const sp of spans) {
-        if (sp.textContent === '我的账户' && sp.getBoundingClientRect().width > 0) {
-          sp.click();
-          return true;
-        }
+  // Click "账户" tab on the send form
+  const tabClicked = await page.evaluate(() => {
+    const form = document.querySelector('[data-testid="send-recipient-amount-form"]') || document.body;
+    for (const sp of form.querySelectorAll('span')) {
+      if (sp.textContent?.trim() === '账户' && sp.getBoundingClientRect().width > 0) {
+        sp.click();
+        return true;
       }
-      return false;
-    }, popoverSel);
+    }
+    return false;
+  });
 
-    if (!myAccountClicked) {
-      const myAccountBtn = page.locator('text=我的账户').first();
-      await myAccountBtn.click({ timeout: 3000 });
-    }
-    console.log(`    Clicked "我的账户"`);
-    await sleep(2000);
-  } else {
-    const myAccountBtn = page.locator('text=我的账户').first();
-    const hasMyAccount = await myAccountBtn.isVisible({ timeout: 2000 }).catch(() => false);
-    if (hasMyAccount) {
-      await myAccountBtn.click();
-      console.log(`    Clicked "我的账户" (direct)`);
-      await sleep(2000);
-    }
+  if (!tabClicked) {
+    // Fallback: try clicking "账户" anywhere visible
+    await page.locator('text=账户').first().click({ timeout: 5000 });
   }
+  console.log(`    Clicked "账户" tab`);
+  await sleep(2000);
 
-  // Click account item by index
-  const accountItemSel = `[data-testid="account-item-index-${recipient.index}"]`;
-  const accountItem = page.locator(accountItemSel);
-  const accountVisible = await accountItem.isVisible({ timeout: 3000 }).catch(() => false);
+  // Click recipient account — try by testid pattern first (recipient-item-<address>)
+  const recipientClicked = await page.evaluate((label) => {
+    // Find recipient item containing the account label text
+    const items = document.querySelectorAll('[data-testid^="recipient-item-"]');
+    for (const item of items) {
+      const r = item.getBoundingClientRect();
+      if (r.width > 0 && item.textContent?.includes(label)) {
+        item.click();
+        return item.getAttribute('data-testid');
+      }
+    }
+    // Fallback: find span with label text and click its parent row
+    for (const sp of document.querySelectorAll('span')) {
+      const r = sp.getBoundingClientRect();
+      if (r.width > 0 && sp.textContent?.trim() === label) {
+        const row = sp.closest('[data-testid^="recipient-item-"]') ||
+                    sp.closest('[role="button"]') ||
+                    sp.parentElement?.parentElement;
+        if (row) { row.click(); return 'fallback-label'; }
+      }
+    }
+    return null;
+  }, recipient.label);
 
-  if (accountVisible) {
-    await accountItem.click();
-    console.log(`    Clicked account-item-index-${recipient.index} for ${recipientName}`);
+  if (recipientClicked) {
+    console.log(`    Selected recipient ${recipient.label} (${recipientClicked})`);
   } else {
-    const accountEntry = page.locator(`text=/${recipientName}/i`).first();
-    await accountEntry.click({ timeout: 5000 });
-    console.log(`    Clicked ${recipientName} by text (fallback)`);
+    throw new Error(`Recipient "${recipient.label}" not found in 账户 tab`);
   }
   await sleep(3000);
 }
 
 /**
  * Enter transfer amount — numeric value or "Max".
+ * Looks for input in modal first, then send form, then any visible input with placeholder "0".
  */
 export async function enterAmount(page, amount) {
   if (amount === 'Max' || amount === 'max') {
     const maxPos = await page.evaluate(() => {
-      const spans = document.querySelectorAll('span');
-      for (const sp of spans) {
-        if (sp.textContent === '最大' && sp.getBoundingClientRect().width > 0) {
-          const r = sp.getBoundingClientRect();
-          return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+      // Search in modal first, then body
+      const containers = [document.querySelector('[data-testid="APP-Modal-Screen"]'), document.body];
+      for (const container of containers) {
+        if (!container) continue;
+        for (const sp of container.querySelectorAll('span')) {
+          if (sp.textContent === '最大' && sp.getBoundingClientRect().width > 0) {
+            const r = sp.getBoundingClientRect();
+            return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+          }
         }
       }
       return null;
@@ -154,10 +455,26 @@ export async function enterAmount(page, amount) {
     }
     await sleep(2000);
   } else {
-    const amountInput = page.locator(`${SEND_FORM_SEL} input`).first();
+    // Find the amount input — try multiple scopes
+    let amountInput = page.locator('[data-testid="APP-Modal-Screen"] input[placeholder="0"]').first();
+    let visible = await amountInput.isVisible({ timeout: 1000 }).catch(() => false);
+
+    if (!visible) {
+      amountInput = page.locator(`${SEND_FORM_SEL} input`).first();
+      visible = await amountInput.isVisible({ timeout: 1000 }).catch(() => false);
+    }
+
+    if (!visible) {
+      amountInput = page.locator('input[placeholder="0"]').first();
+      visible = await amountInput.isVisible({ timeout: 2000 }).catch(() => false);
+    }
+
+    if (!visible) throw new Error('Amount input not found');
+
     await amountInput.click();
     await sleep(300);
     await amountInput.fill(String(amount));
+    console.log(`    Entered amount: ${amount}`);
     await sleep(500);
   }
 }

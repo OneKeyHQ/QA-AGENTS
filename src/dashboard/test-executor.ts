@@ -127,6 +127,14 @@ export function resumeRun() {
   });
 }
 
+export function resetRun() {
+  if (running) return;
+  queue = [];
+  currentIndex = 0;
+  stopRequested = false;
+  emit({ event: 'reset', timestamp: new Date().toISOString() });
+}
+
 export function restartRun() {
   if (running) return;
   for (const item of queue) {
@@ -238,7 +246,20 @@ async function executeQueue() {
         };
 
         try {
-          const result = await tc.fn(page);
+          // Race between test execution and stop signal (poll every 2s)
+          let clearStopChecker: (() => void) | undefined;
+          const stopChecker = new Promise<never>((_, reject) => {
+            const iv = setInterval(() => {
+              if (stopRequested) { clearInterval(iv); reject(new Error('__STOP_REQUESTED__')); }
+            }, 2000);
+            clearStopChecker = () => clearInterval(iv);
+          });
+          let result: any;
+          try {
+            result = await Promise.race([tc.fn(page), stopChecker]);
+          } finally {
+            clearStopChecker?.();
+          }
           item.duration = Date.now() - startTime;
           if (result?.status === 'failed') {
             item.status = 'failed';
@@ -270,6 +291,17 @@ async function executeQueue() {
       lastFile = item.file;
     } catch (e: any) {
       item.duration = Date.now() - startTime;
+      if (e.message === '__STOP_REQUESTED__') {
+        item.status = 'failed';
+        item.error = 'Stopped by user';
+        // Skip remaining items
+        for (let i = currentIndex + 1; i < queue.length; i++) {
+          queue[i].status = 'skipped';
+        }
+        running = false;
+        emit({ event: 'stopped', timestamp: new Date().toISOString() });
+        return;
+      }
       item.status = 'failed';
       item.error = e.message;
     }

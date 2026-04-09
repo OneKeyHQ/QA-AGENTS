@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, extname } from 'node:path';
 import { getTestRegistry } from './test-registry.ts';
-import { startRun, stopRun, resumeRun, restartRun, getState, onEvent, type RunEvent } from './test-executor.ts';
+import { startRun, stopRun, resumeRun, restartRun, resetRun, getState, onEvent, type RunEvent } from './test-executor.ts';
 
 const PORT = 5050;
 const PROJECT_ROOT = resolve(import.meta.dirname, '..', '..');
@@ -149,6 +149,13 @@ const server = createServer(async (req, res) => {
 
   if (url.pathname === '/api/restart' && req.method === 'POST') {
     restartRun();
+    res.writeHead(200, { 'Content-Type': 'application/json', ...cors });
+    res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
+  if (url.pathname === '/api/reset' && req.method === 'POST') {
+    resetRun();
     res.writeHead(200, { 'Content-Type': 'application/json', ...cors });
     res.end(JSON.stringify({ ok: true }));
     return;

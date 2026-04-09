@@ -670,7 +670,8 @@ function renderControls() {
       progressContainer.style.display = 'flex';
       break;
     case 'finished':
-      btns = `<button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>`;
+      btns = `<button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>
+              <button class="ctrl-btn start" id="resetBtn">&#9654; 新一轮</button>`;
       progressContainer.style.display = 'flex';
       break;
   }
@@ -685,6 +686,8 @@ function renderControls() {
   if (resumeBtn) resumeBtn.onclick = () => resumeRun();
   const restartBtn = document.getElementById('restartBtn');
   if (restartBtn) restartBtn.onclick = () => restartRun();
+  const resetBtn = document.getElementById('resetBtn');
+  if (resetBtn) resetBtn.onclick = () => resetAndNewRun();
 
   updateProgressBar();
 }
@@ -858,12 +861,27 @@ async function resumeRun() {
   }
 }
 
+async function resetAndNewRun() {
+  try {
+    const res = await fetch('/api/reset', { method: 'POST' });
+    if (res.ok) {
+      state = 'idle';
+      queueItems = [];
+      stopTimer();
+      renderControls();
+      renderStatus();
+    }
+  } catch (e) {
+    console.error('Reset failed:', e);
+  }
+}
+
 async function restartRun() {
   try {
     const res = await fetch('/api/restart', { method: 'POST' });
     if (res.ok) {
       state = 'running';
-      queueItems.forEach(q => { q.status = 'pending'; q.duration = null; q.error = null; });
+      queueItems.forEach(q => { q.status = 'pending'; q.duration = null; q.error = null; q.steps = undefined; });
       startTimer();
       renderControls();
       renderStatus();
@@ -993,6 +1011,14 @@ function connectSSE() {
 
   evtSource.addEventListener('done', (e) => {
     state = 'finished';
+    stopTimer();
+    renderControls();
+    renderStatus();
+  });
+
+  evtSource.addEventListener('reset', (e) => {
+    state = 'idle';
+    queueItems = [];
     stopTimer();
     renderControls();
     renderStatus();

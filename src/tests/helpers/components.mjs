@@ -658,8 +658,10 @@ export async function handlePasswordPrompt(page) {
     for (const input of pwdInputs) {
       const r = input.getBoundingClientRect();
       if (r.width === 0 || r.height === 0) continue;
+      // Check in modals, dialogs, or fixed-position full-screen forms (tx signing)
       const inModal = input.closest('[data-testid="APP-Modal-Screen"], [role="dialog"]');
-      if (inModal) return { type: 'password_dialog' };
+      const inFixedForm = input.closest('form[style*="fixed"], form[style*="z-index"]');
+      if (inModal || inFixedForm) return { type: 'password_dialog' };
     }
     return { type: null };
   });
@@ -670,16 +672,49 @@ export async function handlePasswordPrompt(page) {
     return { handled: true, type: 'lock_screen' };
   }
 
-  // Password dialog
+  // Password dialog (may be in modal OR fixed-position form for tx signing)
   console.log('    [adaptive] Password re-verification dialog detected...');
-  const pwdInput = await registry.resolveOrNull(page, 'passwordInput', { context: 'modal', timeout: 1000 });
+
+  // Try registry first (modal context)
+  let pwdInput = await registry.resolveOrNull(page, 'passwordInput', { context: 'modal', timeout: 1000 });
+
+  // Fallback: find password input in fixed form or anywhere visible
+  if (!pwdInput) {
+    const fixedInput = page.locator('input[type="password"]').first();
+    const visible = await fixedInput.isVisible({ timeout: 1000 }).catch(() => false);
+    if (visible) pwdInput = fixedInput;
+  }
+  if (!pwdInput) {
+    const anyPwdInput = page.locator('[data-testid="password-input"]').first();
+    const visible = await anyPwdInput.isVisible({ timeout: 1000 }).catch(() => false);
+    if (visible) pwdInput = anyPwdInput;
+  }
+
   if (pwdInput) {
-    await pwdInput.click();
+    await pwdInput.click({ force: true }).catch(() => {});
     await sleep(200);
     await pwdInput.fill(WALLET_PASSWORD);
     await sleep(300);
+
+    // Try submit button, then Enter key
     const submitBtn = await registry.resolveOrNull(page, 'verifyingPassword', { context: 'modal', timeout: 1000 });
-    if (submitBtn) { await submitBtn.click(); } else { await page.keyboard.press('Enter'); }
+    if (submitBtn) {
+      await submitBtn.click();
+    } else {
+      // Try "确认" button in the form
+      await page.evaluate(() => {
+        const btns = document.querySelectorAll('button');
+        for (const btn of btns) {
+          const t = btn.textContent?.trim();
+          if ((t === '确认' || t === 'OK' || t === 'Confirm') && btn.getBoundingClientRect().width > 0) {
+            btn.click();
+            return;
+          }
+        }
+      });
+      await sleep(300);
+      await page.keyboard.press('Enter');
+    }
 
     for (let i = 0; i < 10; i++) {
       await sleep(500);
@@ -690,7 +725,7 @@ export async function handlePasswordPrompt(page) {
         ].filter(Boolean);
         return inputs.some(input => {
           const r = input.getBoundingClientRect();
-          return r.width > 0 && r.height > 0 && input.closest('[data-testid="APP-Modal-Screen"]');
+          return r.width > 0 && r.height > 0;
         });
       });
       if (!stillVisible) break;

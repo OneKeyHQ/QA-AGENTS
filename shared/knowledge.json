@@ -297,6 +297,70 @@
       "pattern": "测试中不要重启 app，用页面刷新代替",
       "details": "在 Dashboard 执行器中重启 OneKey app 会导致 CDP 连接断开，后续所有用例无法执行（connectOverCDP timeout）。跨会话持久化验证改用 page.reload() + reloadAndWait()，效果等同但不断连。只有真正需要验证冷启动场景时才手动重启。",
       "confidence": 0.98
+    },
+    {
+      "id": "K-038",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "转账脚本前置条件必须按需执行，不可硬编码固定步骤",
+      "details": "转账测试的前置步骤（切换网络模式、切换网络、切换账户）必须先检测当前状态再决定是否执行：1) 检测当前是否投资组合模式，是则切到单网络模式并选目标网络，已在目标网络则跳过；2) 检测当前账户在目标网络下是否有余额，有则直接用，没有则切换到另一个账户。避免每次都执行完整的网络切换和账户切换流程。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-039",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Crypto.org 网络已更名为 Cronos POS Chain",
+      "details": "OneKey v6.2.0 中 Crypto.org 网络显示名改为 Cronos POS Chain，但 testid 仍为 cosmos--crypto-org-chain-mainnet-1，代币选择弹窗中代币名仍显示 Crypto.org。搜索时用 cosmos 可找到。用例文档和脚本中网络名应使用 Cronos POS Chain。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-040",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Cosmos 备注超限提示是「最大为 512 个字符」而非「512 字节」",
+      "details": "备注输入超过 512 字节时，UI 提示文案为「最大为 512 个字符」。实际限制是 512 字节（UTF-8），但产品 UI 用「字符」描述。脚本断言时匹配文案「512 个字符」或「512」即可。同时「下一步」按钮置灰不可点击。点击「清除」按钮可一键清空备注输入框。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-041",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "金额输入框禁止输入负号，0 和超余额有不同拦截方式",
+      "details": "转账金额输入框：(1) 负数 — 负号无法输入（输入被前端拦截）；(2) 输入 0 — 显示红色提示「无法发送 0 金额」，预览按钮不可点；(3) 超过余额 — 预览按钮变为「资金不足」灰色不可点。三种拦截方式不同，脚本需分别断言。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-042",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "交易确认页需等待网络费用加载完才能点击确认按钮",
+      "details": "点击「预览」进入交易确认页后，确认按钮需要等网络费用（预估网络费用）加载完成才可点击。加载期间按钮可能处于禁用或无响应状态。脚本需轮询检测「预估网络费用」文字和按钮可用状态，加载完毕后再点击确认。Cosmos 链通常 2-5 秒，弱网可能更长。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-043",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Cosmos 系代币转账需要主币余额支付 gas，检测余额不能只看法币",
+      "details": "Cosmos SDK 链（Osmosis、Cosmos 等）转账代币（如 IBC ATOM）时，gas 费用用网络主币（如 OSMO）支付。hasBalance 检查法币余额 > 0 不够——账户可能有代币但主币为 0，导致确认页报错'不足以支付网络费用'且确认按钮灰掉。脚本需在确认页检测此错误，检测到则 cancel + 标记 gas_insufficient。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-044",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "发送页清除备注可能连带清除收款地址",
+      "details": "在发送表单中点击备注区域的「清除」按钮后，不仅备注被清空，收款方地址也可能被清除。后续测试步骤（如输入新备注后点「下一步」）会因为没有收款地址而无法进入下一步。边界测试中每个子场景应重新打开发送表单+重新选择收款人，确保状态干净。",
+      "confidence": 0.95
+    }
+    ,{
+      "id": "K-045",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Babylon 网络全称为 Babylon Genesis，搜索 Babylon 会匹配到 Testnet",
+      "details": "OneKey v6.2.0 中搜索 Babylon 会返回两个结果：Babylon Genesis（主网）和 Babylon Testnet。脚本必须使用全称 'Babylon Genesis' 搜索，否则 switchNetwork 会因为匹配多个结果而失败。用例文档中也应使用 Babylon Genesis。",
+      "confidence": 0.98
     }
   ]
 }

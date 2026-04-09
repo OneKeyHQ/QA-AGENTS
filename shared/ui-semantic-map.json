@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "lastUpdated": "2026-04-03T05:45:00Z",
+  "lastUpdated": "2026-04-09T03:00:00Z",
   "description": "Semantic locator registry for test generation and future runner integration. This file is additive only and does not replace shared/ui-map.json. Default source is app-monorepo origin/x unless APP_MONOREPO_REF overrides it.",
   "elements": {
     "address_book.add_button": {
@@ -1408,17 +1408,18 @@
       ]
     },
     "wallet.send.amount_input": {
-      "primary": "[data-testid=\"send-recipient-amount-form\"] input",
+      "primary": "input[placeholder=\"0\"]",
+      "fallback": "[data-testid=\"APP-Modal-Screen\"] input[placeholder=\"0\"]",
       "source_testid": "send-recipient-amount-form",
       "source": "qa-agents",
-      "page": "send-form",
+      "page": "send-amount",
       "platform": [
         "desktop"
       ],
       "feature": [
         "send"
       ],
-      "notes": "Derived semantic selector built on top of app-monorepo form container."
+      "notes": "v6.2.0: 金额输入在独立的「输入金额」页面（modal 内），placeholder 为 0。不一定在 send-recipient-amount-form 内。"
     },
     "wallet.send.contacts_button": {
       "primary": "[data-sentry-component=\"SvgPeopleCircle\"]",
@@ -1431,7 +1432,8 @@
       "feature": [
         "send"
       ],
-      "notes": "Existing stable QA-AGENTS selector used in send recipient flow."
+      "deprecated": true,
+      "notes": "DEPRECATED v6.2.0: 新 UI 改为 send form 内 tab 切换（最近/账户/地址簿），不再用 SvgPeopleCircle 图标。改用 wallet.send.recipient_tab_accounts。"
     },
     "wallet.send.contacts_popover": {
       "primary": "[data-testid=\"TMPopover-ScrollView\"]",
@@ -1443,7 +1445,45 @@
       ],
       "feature": [
         "send"
-      ]
+      ],
+      "deprecated": true,
+      "notes": "DEPRECATED v6.2.0: 收款人选择不再用 popover，改为 send form 内嵌 tab。"
+    },
+    "wallet.send.recipient_tab_accounts": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"] >> text=账户",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "v6.2.0 新 UI: 发送表单内「最近/账户/地址簿」tab，点击「账户」显示我的账户列表。"
+    },
+    "wallet.send.recipient_item": {
+      "primary": "[data-testid^=\"recipient-item-\"]",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "收款人列表项，testid 格式 recipient-item-{address}。点击选择收款人。"
+    },
+    "wallet.send.memo_field": {
+      "primary": "textarea[placeholder*=\"备忘标签\"]",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "备注/Memo 输入框，placeholder 含「备忘标签 (Memo, Tag, Comment)」。Cosmos 系链可见。"
     },
     "wallet.send.form": {
       "primary": "[data-testid=\"send-recipient-amount-form\"]",
