@@ -1,4 +1,4 @@
-# Wallet - Cosmos转账-软件钱包
+# Transfer - Cosmos转账-软件钱包
 
 > 需求文档：`docs/qa/requirements/Wallet-Cosmos转账.md`  
 > 规则文档：`docs/qa/rules/transfer-chain-rules.md`（Cosmos 系）、`docs/qa/rules/wallet-rules.md`  

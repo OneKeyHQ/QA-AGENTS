@@ -63,6 +63,10 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
 **新增公共定位参考层**：新生成脚本、录制后整理公共元素、以及选择器维护时，默认按以下顺序参考：`shared/ui-semantic-map.json` → `shared/generated/app-monorepo-testid-index.json` → `shared/ui-map.json` → 运行时探索。当前阶段只增不替换，禁止因为该层存在而批量修改历史用例执行逻辑。
 
+**QA 三线闭环流程（强制）**：项目包含三条 QA 线（①手动用例 ②API 自动化 ③UI 自动化），各有独立的规范入口和闭环流程，详见 `docs/qa/rules/qa-workflow-rules.md`。**核心规则**：操作前必须先读取对应线路的规范文件（不可凭记忆替代）；操作后必须将新发现沉淀到项目文档（不存 AI 私有记忆）；修改一条线时必须检查对其他两条线的影响。
+
+**用户纠正自动沉淀（强制）**：当用户纠正了 AI 生成的用例/脚本/规则内容时，AI 必须在任务完成后主动执行：①列出被纠正的具体内容 ②检查是否已写入对应规范文件（qa-rules.md / module-rules.md / CLAUDE.md 等）③对未覆盖的纠正点，**主动询问用户是否写入规范**。详见 `docs/qa/rules/qa-workflow-rules.md` 「用户纠正自动沉淀机制」章节。
+
 **规则双写**：修改 `.cursorrules` 或 `.claude/CLAUDE.md` 中的规则时，必须同步更新另一个文件中的对应部分，保持两边一致。无需用户额外确认。
 
 ## Memory Pipeline（三阶段记忆管线）

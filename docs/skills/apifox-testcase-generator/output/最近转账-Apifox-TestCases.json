@@ -1,0 +1,1642 @@
+{
+  "info": {
+    "name": "最近转账 - Transfer Recipient",
+    "description": "最近转账地址列表接口测试用例，覆盖统一接口（wallet）和链专用接口（BTC/ETH），含正常流程、多链覆盖、边界测试",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://api.onekey.so",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. 统一接口 - 正常流程",
+      "item": [
+        {
+          "name": "BTC - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: BTC 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=btc--0&accountAddress=33qE9eyrp3XMtMAkX1qZcM7CYNG5AwmmuQ&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "btc--0" },
+                { "key": "accountAddress", "value": "33qE9eyrp3XMtMAkX1qZcM7CYNG5AwmmuQ" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "ETH - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: ETH 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "SOL - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: SOL 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=sol--101&accountAddress=DRpbCBMxVnDK7maPGv7USqcMnRLGArgMFe5NyFJDpFEW&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "sol--101" },
+                { "key": "accountAddress", "value": "DRpbCBMxVnDK7maPGv7USqcMnRLGArgMFe5NyFJDpFEW" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "TRX - 不支持 transfer-recipient（预期 40056）",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: TRX 最近转账（预期不支持）');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 40056（Onchain service not supported）', function() {",
+                  "    pm.expect(jsonData.code).to.eql(40056);",
+                  "});",
+                  "",
+                  "pm.test('data 字段不存在或为 null/undefined', function() {",
+                  "    pm.expect(jsonData.data).to.not.be.ok;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=trx--0x2b6653dc&accountAddress=TJRabPrwbZy45sbavfcjinPJC18kjpRTv8&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "trx--0x2b6653dc" },
+                { "key": "accountAddress", "value": "TJRabPrwbZy45sbavfcjinPJC18kjpRTv8" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "LTC - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: LTC 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=ltc--0&accountAddress=MBoxoVnga39ghJfLRQEXewjCWxLE6LemMX&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "ltc--0" },
+                { "key": "accountAddress", "value": "MBoxoVnga39ghJfLRQEXewjCWxLE6LemMX" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "DOGE - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: DOGE 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=doge--0&accountAddress=DJH3amFCGUBEJdW55CUb7yk8Zh4VEhkXGE&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "doge--0" },
+                { "key": "accountAddress", "value": "DJH3amFCGUBEJdW55CUb7yk8Zh4VEhkXGE" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "BCH - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: BCH 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=bch--0&accountAddress=bitcoincash:qzlelz2un33x98kda026zt882msk3xz9sq0e778p7z&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "bch--0" },
+                { "key": "accountAddress", "value": "bitcoincash:qzlelz2un33x98kda026zt882msk3xz9sq0e778p7z" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "BSC - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: BSC 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--56&accountAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--56" },
+                { "key": "accountAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Polygon - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Polygon 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--137&accountAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--137" },
+                { "key": "accountAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Arbitrum - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Arbitrum 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--42161&accountAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--42161" },
+                { "key": "accountAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Avalanche - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Avalanche 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--43114&accountAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--43114" },
+                { "key": "accountAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Optimism - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Optimism 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--10&accountAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--10" },
+                { "key": "accountAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Base - 获取最近转账收款人",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));",
+                  "console.log('开始测试: Base 最近转账收款人');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--8453&accountAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--8453" },
+                { "key": "accountAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Limit 边界测试",
+      "item": [
+        {
+          "name": "limit=1 - 最小值",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7&limit=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" },
+                { "key": "limit", "value": "1" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "limit=100 - 超大值（服务端拒绝，最大值为 50）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 40008（参数校验失败）', function() {",
+                  "    pm.expect(jsonData.code).to.eql(40008);",
+                  "});",
+                  "",
+                  "pm.test('错误信息提示 limit 最大值为 50', function() {",
+                  "    pm.expect(jsonData.message).to.include('less than or equal to 50');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7&limit=100",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" },
+                { "key": "limit", "value": "100" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "limit=0 - 零值（服务端拒绝，最小值为 1）",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 40008（参数校验失败）', function() {",
+                  "    pm.expect(jsonData.code).to.eql(40008);",
+                  "});",
+                  "",
+                  "pm.test('错误信息提示 limit 最小值为 1', function() {",
+                  "    pm.expect(jsonData.message).to.include('greater than or equal to 1');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7&limit=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" },
+                { "key": "limit", "value": "0" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "不传 limit - 默认值",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. 异常参数测试",
+      "item": [
+        {
+          "name": "无效地址 - 格式错误",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('返回空数据或错误码', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=invalid_address&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "invalid_address" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "空地址 - accountAddress 为空",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('返回空数据或错误码', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "无效 networkId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('返回空数据或错误码', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=invalid--999&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "invalid--999" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "地址与网络不匹配 - BTC 地址传 ETH networkId",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('返回空数据或错误码', function() {",
+                  "    pm.expect(jsonData).to.have.property('code');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=33qE9eyrp3XMtMAkX1qZcM7CYNG5AwmmuQ&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "33qE9eyrp3XMtMAkX1qZcM7CYNG5AwmmuQ" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. 服务端过滤规则验证",
+      "description": "对应 QA 用例第 5 章 — 验证服务端已正确过滤 Failed/Dropped/Scam/合约交互/Swap 记录",
+      "item": [
+        {
+          "name": "Scam 地址不在返回列表 - Polygon",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// QA 用例 §5: Polygon scam tx 过滤",
+                  "// 测试地址: 0x271282AFd7274D933635B9a97D921759e78072D3",
+                  "// 已知 scam 收款地址: 0x74F4Cf5c7C1fa6DD77Ac68edBf81EE5512450187",
+                  "pm.variables.set('scamAddress', '0x74F4Cf5c7C1fa6DD77Ac68edBf81EE5512450187');",
+                  "console.log('开始测试: Polygon scam 地址过滤');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('响应时间小于 3000ms', function() {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "const scamAddr = pm.variables.get('scamAddress').toLowerCase();",
+                  "const recipients = jsonData.data || [];",
+                  "const addresses = Array.isArray(recipients) ? recipients.map(r => (r.address || r.accountAddress || '').toLowerCase()) : [];",
+                  "",
+                  "pm.test('返回列表不包含 scam 地址', function() {",
+                  "    pm.expect(addresses).to.not.include(scamAddr);",
+                  "});",
+                  "",
+                  "console.log('返回地址数:', addresses.length, '| scam 地址命中:', addresses.includes(scamAddr));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--137&accountAddress=0x271282AFd7274D933635B9a97D921759e78072D3&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--137" },
+                { "key": "accountAddress", "value": "0x271282AFd7274D933635B9a97D921759e78072D3" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Swap 中心化转账记录不在返回列表",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// QA 用例 §5: 服务端已过滤 Swap 相关中心化转账记录",
+                  "console.log('开始测试: Swap 中心化转账过滤');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "const recipients = jsonData.data || [];",
+                  "const items = Array.isArray(recipients) ? recipients : [];",
+                  "",
+                  "// 检查是否有 swap 类型标记的记录",
+                  "const swapItems = items.filter(r => {",
+                  "    const type = (r.type || r.txType || '').toLowerCase();",
+                  "    return type.includes('swap') || type.includes('exchange');",
+                  "});",
+                  "",
+                  "pm.test('返回列表不包含 Swap 相关记录', function() {",
+                  "    pm.expect(swapItems.length).to.eql(0);",
+                  "});",
+                  "",
+                  "console.log('总记录数:', items.length, '| Swap 记录数:', swapItems.length);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. 排序与去重验证",
+      "description": "对应 QA 用例第 1 章（时间倒序、条数上限）和第 2 章（EVM 跨链去重、checksum 去重）",
+      "item": [
+        {
+          "name": "返回列表按时间倒序 + 条数 ≤ 20",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// QA 用例 §1: 时间倒序 + 条数上限 20",
+                  "console.log('开始测试: 时间倒序 + 条数上限');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "const recipients = jsonData.data || [];",
+                  "const items = Array.isArray(recipients) ? recipients : [];",
+                  "",
+                  "pm.test('条数不超过 20', function() {",
+                  "    pm.expect(items.length).to.be.at.most(20);",
+                  "});",
+                  "",
+                  "// 检查时间倒序（如果有 timestamp/createdAt 字段）",
+                  "if (items.length >= 2) {",
+                  "    const timeField = items[0].timestamp || items[0].createdAt || items[0].updatedAt || null;",
+                  "    if (timeField !== null) {",
+                  "        const key = items[0].timestamp ? 'timestamp' : (items[0].createdAt ? 'createdAt' : 'updatedAt');",
+                  "        let isDescending = true;",
+                  "        for (let i = 0; i < items.length - 1; i++) {",
+                  "            if (items[i][key] < items[i + 1][key]) {",
+                  "                isDescending = false;",
+                  "                break;",
+                  "            }",
+                  "        }",
+                  "        pm.test('列表按时间倒序排列', function() {",
+                  "            pm.expect(isDescending).to.be.true;",
+                  "        });",
+                  "    } else {",
+                  "        console.log('INFO: 响应无时间字段，跳过排序验证');",
+                  "    }",
+                  "}",
+                  "",
+                  "console.log('返回条数:', items.length);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "EVM 跨链去重 - 同地址不重复",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// QA 用例 §2: EVM 跨链聚合去重 + checksum 大小写去重",
+                  "console.log('开始测试: EVM 地址去重');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "const recipients = jsonData.data || [];",
+                  "const items = Array.isArray(recipients) ? recipients : [];",
+                  "",
+                  "// 提取所有地址并转 lowercase",
+                  "const addresses = items.map(r => (r.address || r.accountAddress || '').toLowerCase()).filter(Boolean);",
+                  "const uniqueAddresses = [...new Set(addresses)];",
+                  "",
+                  "pm.test('无重复地址（含 checksum 大小写去重）', function() {",
+                  "    pm.expect(addresses.length).to.eql(uniqueAddresses.length);",
+                  "});",
+                  "",
+                  "if (addresses.length !== uniqueAddresses.length) {",
+                  "    const duplicates = addresses.filter((addr, i) => addresses.indexOf(addr) !== i);",
+                  "    console.log('重复地址:', JSON.stringify(duplicates));",
+                  "} else {",
+                  "    console.log('地址数:', addresses.length, '| 无重复');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. supported 字段与回退策略",
+      "description": "对应 QA 用例第 7 章 — 验证 supported=true/false 时接口响应结构正确",
+      "item": [
+        {
+          "name": "EVM 链 - supported=true 且有数据",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// QA 用例 §7: supported=true 时接口正常返回",
+                  "console.log('开始测试: EVM supported=true');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test('业务状态码为 0', function() {",
+                  "    pm.expect(jsonData.code).to.eql(0);",
+                  "});",
+                  "",
+                  "pm.test('data 字段存在', function() {",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "});",
+                  "",
+                  "// 如果 supported 字段存在，验证其值",
+                  "if (jsonData.hasOwnProperty('supported') || (jsonData.data && jsonData.data.hasOwnProperty('supported'))) {",
+                  "    const supported = jsonData.supported || jsonData.data.supported;",
+                  "    pm.test('supported 字段为 true', function() {",
+                  "        pm.expect(supported).to.be.true;",
+                  "    });",
+                  "    console.log('supported:', supported);",
+                  "} else {",
+                  "    console.log('INFO: 响应无 supported 字段，视为默认支持');",
+                  "}",
+                  "",
+                  "console.log('响应数据预览:', JSON.stringify(jsonData).substring(0, 200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=evm--1&accountAddress=0x5618207d27d78f09f61a5d92190d58c453feb4b7&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "evm--1" },
+                { "key": "accountAddress", "value": "0x5618207d27d78f09f61a5d92190d58c453feb4b7" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "不支持的链 - supported=false 响应结构正确",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// QA 用例 §7: supported=false 时客户端应回退到链历史",
+                  "// 使用一个可能不支持的 networkId 测试",
+                  "console.log('开始测试: 不支持的链 supported 字段');"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('响应状态码为 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "// 不支持的链返回 code=40056",
+                  "pm.test('业务状态码为 40056（Onchain service not supported）', function() {",
+                  "    pm.expect(jsonData.code).to.eql(40056);",
+                  "});",
+                  "",
+                  "pm.test('错误信息包含 not supported', function() {",
+                  "    pm.expect(jsonData.message.toLowerCase()).to.include('not supported');",
+                  "});",
+                  "",
+                  "pm.test('data 字段不存在或为 null/undefined', function() {",
+                  "    pm.expect(jsonData.data).to.not.be.ok;",
+                  "});",
+                  "",
+                  "console.log('code:', jsonData.code, '| 客户端应回退到链历史/stored recipients');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-Onekey-Request-ID", "value": "{{$guid}}" },
+              { "key": "X-Onekey-Request-Currency", "value": "usd" },
+              { "key": "X-Onekey-Request-Locale", "value": "en" },
+              { "key": "X-Onekey-Request-Theme", "value": "light" },
+              { "key": "X-Onekey-Request-Platform", "value": "android-apk" },
+              { "key": "X-Onekey-Request-Version", "value": "5.19.0" },
+              { "key": "X-Onekey-Request-Build-Number", "value": "2000000000" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wallet/v1/account/transfer-recipient?networkId=kaspa--bip340-schnorr&accountAddress=kaspa:qz0kfhzreqnfx3lfvxmjfgtaezek22amtfzcdcjnr2t2f8hczmqsqk8edxnlg&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["wallet", "v1", "account", "transfer-recipient"],
+              "query": [
+                { "key": "networkId", "value": "kaspa--bip340-schnorr" },
+                { "key": "accountAddress", "value": "kaspa:qz0kfhzreqnfx3lfvxmjfgtaezek22amtfzcdcjnr2t2f8hczmqsqk8edxnlg" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
