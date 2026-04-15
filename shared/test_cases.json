@@ -1,6 +1,6 @@
 {
   "version": "2.4.0",
-  "lastUpdated": "2026-02-28T08:36:00.000Z",
+  "lastUpdated": "2026-04-14T05:45:00.000Z",
   "feature": "OneKey Desktop 回归测试",
   "wallet": "ran",
   "accounts": {
@@ -545,6 +545,142 @@
       ],
       "expected": ["每个 tab 有代币则显示列表，无代币则显示空状态提示", "不出现既无列表也无空状态的异常"],
       "recording": { "source": "shared/results/recording/steps.json", "date": "2026-03-17", "rawSteps": "11-21" }
+    },
+    {
+      "id": "ADDR-ADD-001",
+      "scenarioId": "address-book-add-no-memo",
+      "title": "入口与默认状态 + 添加无 Memo 地址（63 条参数化）",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "address-book", "add", "parameterized"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "地址簿为空或已知当前记录数"],
+      "steps": [
+        { "order": 1, "action": "navigate_address_book", "description": "导航到地址簿页面" },
+        { "order": 2, "action": "click_add", "description": "点击添加按钮，验证默认网络 BTC" },
+        { "order": 3, "action": "loop_add_no_memo", "description": "循环添加 63 条无 Memo 地址（参数化数据集）" }
+      ],
+      "expected": ["默认网络为 Bitcoin", "每条保存后返回地址簿且记录可见", "名称/地址/分组显示正确"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-04-14", "rawSteps": "1-6" }
+    },
+    {
+      "id": "ADDR-ADD-002",
+      "scenarioId": "address-book-add-with-memo",
+      "title": "添加有 Memo/Tag 的地址（14 条参数化）",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "address-book", "add", "memo", "parameterized"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "已在地址簿页面"],
+      "steps": [
+        { "order": 1, "action": "click_add", "description": "点击添加按钮" },
+        { "order": 2, "action": "select_network", "description": "选择支持 Memo 的网络" },
+        { "order": 3, "action": "fill_form_with_memo", "description": "输入名称+地址+Memo 并保存" }
+      ],
+      "expected": ["Memo 字段出现", "保存后 Memo 值显示正确", "名称/地址/分组/Memo 均正确"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-04-14", "rawSteps": "1-9" }
+    },
+    {
+      "id": "ADDR-ADD-003",
+      "scenarioId": "address-book-network-switch",
+      "title": "网络切换",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "address-book", "network-switch"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "已在添加地址页面"],
+      "steps": [
+        { "order": 1, "action": "verify_default_btc", "description": "验证默认网络 Bitcoin" },
+        { "order": 2, "action": "switch_networks", "description": "依次切换 Ethereum→Solana→Cosmos→XRP Ledger" },
+        { "order": 3, "action": "verify_memo_field", "description": "Cosmos/XRP 切换后验证 Memo/Tag 字段出现" }
+      ],
+      "expected": ["每次切换网络显示正确", "切换耗时 < 2s", "有 Memo 的网络显示 Memo 字段"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-04-14", "rawSteps": "1-14" }
+    },
+    {
+      "id": "ADDR-ADD-004",
+      "scenarioId": "address-book-performance",
+      "title": "性能与体验 — 反复进出添加页面",
+      "platform": "desktop",
+      "priority": "P1",
+      "tags": ["regression", "address-book", "performance"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "地址簿已有 ≥1 条记录"],
+      "steps": [
+        { "order": 1, "action": "enter_exit_loop", "description": "进出添加页面 5 次" },
+        { "order": 2, "action": "save_on_last", "description": "第 5 次进入后保存一条地址" }
+      ],
+      "expected": ["5 次进出无崩溃", "保存响应 < 3s"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-04-14", "rawSteps": "1-14" }
+    },
+    {
+      "id": "ADDR-VALID-001",
+      "scenarioId": "address-book-name-validation",
+      "title": "名称校验",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "address-book", "validation", "name"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "地址簿已有记录（如 通知）"],
+      "steps": [
+        { "order": 1, "action": "input_24_chars", "description": "输入 24 字符名称 → 无报错" },
+        { "order": 2, "action": "input_25_chars", "description": "输入 25 字符名称 → 显示超限提示" },
+        { "order": 3, "action": "clear_name", "description": "清空名称 → 显示不能为空" },
+        { "order": 4, "action": "input_spaces", "description": "输入纯空格 → 显示不能为空" },
+        { "order": 5, "action": "input_duplicate", "description": "输入已存在名称 → 显示已存在" },
+        { "order": 6, "action": "input_multilang", "description": "输入多语言字符 → 无报错" }
+      ],
+      "expected": ["24 字符无报错", "25 字符提示超限", "空名称/纯空格提示必填", "重复名称提示已存在", "多语言字符无报错"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-04-14", "rawSteps": "1-11" }
+    },
+    {
+      "id": "ADDR-VALID-002",
+      "scenarioId": "address-book-address-validation",
+      "title": "地址校验 + 保存按钮状态",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "address-book", "validation", "address", "save-button"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "地址簿已有记录"],
+      "steps": [
+        { "order": 1, "action": "valid_name_address", "description": "名称+正确地址 → 保存可点击" },
+        { "order": 2, "action": "clear_name", "description": "清空名称 → 保存不可点击" },
+        { "order": 3, "action": "clear_address", "description": "恢复名称+清空地址 → 保存不可点击" },
+        { "order": 4, "action": "wrong_format", "description": "BTC 输入 EVM 地址/域名 → 地址不正确" },
+        { "order": 5, "action": "duplicate_address", "description": "输入已存在地址 → 已存在提示" },
+        { "order": 6, "action": "ens_resolve", "description": "ETH 输入 onekeyqa.eth → ENS 解析成功" }
+      ],
+      "expected": ["保存按钮四种状态正确", "错误地址显示提示", "重复地址显示提示", "ENS 解析弹窗确认"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-04-14", "rawSteps": "1-14" }
+    },
+    {
+      "id": "ADDR-VALID-003",
+      "scenarioId": "address-book-memo-validation",
+      "title": "Memo/Tag 校验",
+      "platform": "desktop",
+      "priority": "P0",
+      "tags": ["regression", "address-book", "validation", "memo", "tag"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "已在添加地址页面"],
+      "steps": [
+        { "order": 1, "action": "check_no_memo", "description": "Bitcoin/Ethereum 无 Memo 字段" },
+        { "order": 2, "action": "xrp_tag_tests", "description": "XRP Tag: 正常/边界/超限/非法格式" },
+        { "order": 3, "action": "stellar_memo", "description": "Stellar Memo: 正常/28字节/29字节/多字节" },
+        { "order": 4, "action": "ton_memo", "description": "TON Memo: 正常/123字符/124字符" },
+        { "order": 5, "action": "cosmos_memo", "description": "Cosmos Memo: 正常/512字符/513字符" }
+      ],
+      "expected": ["BTC/ETH 无 Memo 字段", "XRP Tag 仅接受正整数 ≤10 字符", "各网络边界值/超限行为正确"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-04-14", "rawSteps": "1-38" }
+    },
+    {
+      "id": "ADDR-VALID-004",
+      "scenarioId": "address-book-paste-clear",
+      "title": "粘贴、清空与扫描",
+      "platform": "desktop",
+      "priority": "P1",
+      "tags": ["regression", "address-book", "validation", "paste", "clear"],
+      "preconditions": ["OneKey 桌面端已打开并解锁", "剪贴板有内容"],
+      "steps": [
+        { "order": 1, "action": "paste_empty", "description": "地址栏为空 → 粘贴按钮可见 → 点击粘贴" },
+        { "order": 2, "action": "clear_shows", "description": "有内容时 → 清空按钮可见，粘贴按钮隐藏" },
+        { "order": 3, "action": "clear_and_paste", "description": "清空 → 粘贴按钮恢复 → 再粘贴" },
+        { "order": 4, "action": "scan_skip", "description": "扫描功能（SKIP: 需摄像头）" }
+      ],
+      "expected": ["粘贴/清空按钮互斥显示", "粘贴替换剪贴板内容", "清空后粘贴按钮恢复"],
+      "recording": { "source": "shared/results/recording/steps.json", "date": "2026-04-14", "rawSteps": "9-14" }
     }
   ]
 }
