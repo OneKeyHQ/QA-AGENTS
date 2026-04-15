@@ -98,6 +98,87 @@
         "form"
       ]
     },
+    "address_book.form.save": {
+      "primary": "[data-testid=\"address-form-save\"]",
+      "source_testid": "address-form-save",
+      "source": "recording-2026-04-14",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.address_clear": {
+      "primary": "[data-testid=\"address-form-address-clear\"]",
+      "source_testid": "address-form-address-clear",
+      "source": "recording-2026-04-14",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ],
+      "notes": "仅在地址栏有内容时显示，与粘贴按钮互斥"
+    },
+    "address_book.form.address_clip": {
+      "primary": "[data-testid=\"address-form-address-clip\"]",
+      "source_testid": "address-form-address-clip",
+      "source": "recording-2026-04-14",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "network_selector.input_text": {
+      "primary": "[data-testid=\"network-selector-input-text\"]",
+      "source_testid": "network-selector-input-text",
+      "source": "recording-2026-04-14",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "network-selector"
+      ]
+    },
+    "network_selector.search_input": {
+      "primary": "[data-testid=\"nav-header-search-chain-selector\"]",
+      "source_testid": "nav-header-search-chain-selector",
+      "source": "recording-2026-04-14",
+      "page": "network-selector-modal",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "network-selector"
+      ]
+    },
     "address_book.search.empty_state": {
       "primary": "[data-testid=\"address-book-search-empty\"]",
       "source_testid": "address-book-search-empty",
@@ -1451,6 +1532,7 @@
     },
     "wallet.send.recipient_tab_accounts": {
       "primary": "[data-testid=\"send-recipient-amount-form\"] >> text=账户",
+      "source_testid": "send-recipient-amount-form",
       "source": "qa-agents",
       "page": "send-form",
       "platform": [
@@ -1459,10 +1541,11 @@
       "feature": [
         "send"
       ],
-      "notes": "v6.2.0 新 UI: 发送表单内「最近/账户/地址簿」tab，点击「账户」显示我的账户列表。"
+      "notes": "v6.2.0 新 UI: 发送表单内「最近/账户/地址簿」tab，点击「账户」显示我的账户列表。pattern selector，source_testid 为父容器。"
     },
     "wallet.send.recipient_item": {
       "primary": "[data-testid^=\"recipient-item-\"]",
+      "source_testid": "recipient-item-{address}",
       "source": "qa-agents",
       "page": "send-form",
       "platform": [
@@ -1471,10 +1554,11 @@
       "feature": [
         "send"
       ],
-      "notes": "收款人列表项，testid 格式 recipient-item-{address}。点击选择收款人。"
+      "notes": "收款人列表项，testid 格式 recipient-item-{address}。点击选择收款人。pattern selector，source_testid 为动态模板。"
     },
     "wallet.send.memo_field": {
       "primary": "textarea[placeholder*=\"备忘标签\"]",
+      "source_testid": "none",
       "source": "qa-agents",
       "page": "send-form",
       "platform": [
@@ -1483,7 +1567,7 @@
       "feature": [
         "send"
       ],
-      "notes": "备注/Memo 输入框，placeholder 含「备忘标签 (Memo, Tag, Comment)」。Cosmos 系链可见。"
+      "notes": "备注/Memo 输入框，placeholder 含「备忘标签 (Memo, Tag, Comment)」。Cosmos 系链可见。无 data-testid，通过 placeholder 定位。"
     },
     "wallet.send.form": {
       "primary": "[data-testid=\"send-recipient-amount-form\"]",

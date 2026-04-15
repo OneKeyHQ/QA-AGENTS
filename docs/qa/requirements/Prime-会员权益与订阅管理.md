@@ -19,10 +19,11 @@ Prime 是 OneKey 的会员体系，用于向用户提供会员权益展示、会
 
 | 项目 | 说明 |
 |-----|------|
-| 权益列表 | 展示当前已确认的 Prime 会员权益，具体清单见 2.9 节 |
+| 权益列表 | 展示当前权益展示页已确认的 Prime 会员权益，具体清单见 2.9 节 |
 | 对比展示 | 支持普通用户与 Prime 用户权益对比 |
 | 权益说明 | 每项权益支持独立说明，具体权益定义见 2.9 节 |
 | 权益类型 | 当前已确认权益均为功能解锁类型 |
+| OneKey Cloud 展示策略 | OneKey Cloud 功能保留，但不在 Prime 权益展示页展示 |
 
 ### 2.2 功能访问控制
 
@@ -95,12 +96,20 @@ Prime 是 OneKey 的会员体系，用于向用户提供会员权益展示、会
 
 ### 2.9 会员专属功能清单
 
+> 本节定义 Prime 权益展示页展示清单；`OneKey Cloud` 功能继续保留，详见 `docs/qa/requirements/Prime-OneKeyCloud.md`，但不在权益展示页展示。
+
 | 功能 | 说明 | 详细需求 |
 |-----|------|---------|
-| OneKey Cloud | 云同步钱包数据与配置 | `docs/qa/requirements/Prime-OneKeyCloud.md` |
+| 批量转账 | 支持 BTC / SOL 一对多批量转账 | `docs/qa/requirements/Prime-批量转账.md` |
 | 批量复制地址 | 批量导出软件/硬件/隐藏钱包地址 | `docs/qa/requirements/Prime-批量复制地址.md` |
 | 批量撤销授权 | 批量撤销 Token 授权 | `docs/qa/requirements/Prime-批量撤销授权.md` |
-| 提升交易通知账户上限 | 账户通知上限由 20 提升至 100 | `docs/qa/requirements/Prime-通知上限提高.md` |
+| 提高通知上限 | 账户通知上限由 20 提升至 100 | `docs/qa/requirements/Prime-通知上限提高.md` |
+| Dapp页面AI翻译 | Dapp 页面内容 AI 翻译能力 | `待补充` |
+| Dapp站点风险检查 | 打开 Dapp URL 时执行站点风险检查；当前详细需求沿用风险扫描缓存能力 | `docs/qa/requirements/Prime-dApp站点风险扫描缓存.md` |
+| 扩展交易历史（即将推出） | 扩展交易历史展示与查询能力 | `待补充` |
+| 导出交易（即将推出） | 支持导出交易记录 | `待补充` |
+
+> 待补充权益：`Dapp页面AI翻译`、`扩展交易历史（即将推出）`、`导出交易（即将推出）`。当前先保留 Prime 权益清单占位，详细需求与专项用例待补充。
 
 ### 2.10 关联功能
 
@@ -114,7 +123,8 @@ Prime 是 OneKey 的会员体系，用于向用户提供会员权益展示、会
 
 | 规则项 | 规则描述 |
 |-------|---------|
-| 权益展示 | Prime 页面需展示当前已确认的权益列表、对比信息与权益说明 |
+| 权益展示 | Prime 页面需展示当前权益展示页已确认的权益列表、对比信息与权益说明 |
+| OneKey Cloud 展示策略 | OneKey Cloud 功能保留，但不在 Prime 权益展示页展示 |
 | 权限校验 | 访问 Prime 专属功能前需校验会员状态 |
 | 入口覆盖 | Prime 需支持设置页、权益引导页、活动推广页等多入口进入 |
 | 订阅方式 | 当前已确认支持应用内购买 |
@@ -142,12 +152,15 @@ Prime 是 OneKey 的会员体系，用于向用户提供会员权益展示、会
 
 - 规则文档：`docs/qa/rules/prime-rules.md` 第 2、3、4.1、4.2、4.5、5、6、7 节
 - 详细需求：`docs/qa/requirements/Prime-OneKeyCloud.md`
+- 详细需求：`docs/qa/requirements/Prime-批量转账.md`
 - 详细需求：`docs/qa/requirements/Prime-登录设备限制.md`
 - 详细需求：`docs/qa/requirements/Prime-订阅价格方案.md`
 - 详细需求：`docs/qa/requirements/Prime-批量复制地址.md`
 - 详细需求：`docs/qa/requirements/Prime-批量撤销授权.md`
 - 已有需求：`docs/qa/requirements/Prime-通知上限提高.md`
+- 已有需求：`docs/qa/requirements/Prime-dApp站点风险扫描缓存.md`
 - 已有需求：`docs/qa/requirements/Prime-订单管理.md`
+- 待补充权益：`Dapp页面AI翻译`、`扩展交易历史（即将推出）`、`导出交易（即将推出）`
 
 ---
 
@@ -155,4 +168,6 @@ Prime 是 OneKey 的会员体系，用于向用户提供会员权益展示、会
 
 | 日期 | 版本 | 变更内容 |
 |------|------|---------|
+| 2026-04-14 | v1.2 | 调整 Prime 权益展示口径：`OneKey Cloud` 不再出现在权益展示页，但功能与专项需求保持不变 |
+| 2026-04-14 | v1.1 | 修正 Prime 权益清单，纳入批量转账、Dapp页面AI翻译、Dapp站点风险检查、扩展交易历史、导出交易；对缺少详细文档的权益保留占位并标记待补充 |
 | 2026-03-20 | v1.0 | 基于 `docs/qa/rules/prime-rules.md` 反向生成并持续对齐当前口径，收敛会员权益定义，补充订阅价格方案引用，统一应用内购买、状态同步与设备限制相关表述 |

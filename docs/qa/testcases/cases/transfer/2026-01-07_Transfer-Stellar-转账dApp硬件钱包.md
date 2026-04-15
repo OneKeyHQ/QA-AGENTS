@@ -32,10 +32,11 @@
 
 > 新增于 2026-04-11。Stellar 硬件钱包现已支持 DApp 交易，通过 aqua.network/swap 进行 Swap。
 > DApp 连接验证（Hana Wallet 协议、连接/拒绝）由软件钱包用例覆盖，硬件用例仅验证 Swap 签名与交易结果。
+> **硬件签名显示说明**：DApp 交易部分为盲签内容，硬件上显示的信息不做翻译校验，主要校验**格式不错乱**即可。硬件会显示交易类型为 **Swap**，并显示**合约地址**。交易完成后历史记录显示为**合约交互**。
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 | --- | --- | --- | --- |
-| ❗️❗️P0❗️❗️ | XLM → Asset Token（如 USDC） | 1. 连接硬件钱包到 aqua.network/swap<br>2. 源 Token = XLM，目标 Token = USDC<br>3. 输入 Swap 金额<br>4. 点击 Swap 确认<br>5. 在硬件设备上查看并确认签名 | 1. 硬件设备显示交易详情（From/To、金额、Gas）<br>2. 确认后 XLM 余额扣除，USDC 余额增加<br>3. 交易记录生成 |
-| ❗️❗️P0❗️❗️ | Asset Token → XLM | 1. 连接硬件钱包到 aqua.network/swap<br>2. 源 Token = USDC，目标 Token = XLM<br>3. 输入 Swap 金额<br>4. 确认 Swap，在硬件设备上确认签名 | 1. 硬件设备显示交易详情<br>2. 确认后 USDC 余额扣除，XLM 余额增加<br>3. 交易记录生成 |
+| ❗️❗️P0❗️❗️ | XLM → Asset Token（如 USDC） | 1. 连接硬件钱包到 aqua.network/swap<br>2. 源 Token = XLM，目标 Token = USDC<br>3. 输入 Swap 金额<br>4. 点击 Swap 确认<br>5. 在硬件设备上查看并确认签名 | 1. 硬件设备显示交易类型为 **Swap**<br>2. 硬件设备显示**合约地址**<br>3. 签名内容为盲签，不校验翻译，校验**格式不错乱**<br>4. 确认后 XLM 余额扣除，USDC 余额增加<br>5. 历史记录显示为**合约交互** |
+| ❗️❗️P0❗️❗️ | Asset Token → XLM | 1. 连接硬件钱包到 aqua.network/swap<br>2. 源 Token = USDC，目标 Token = XLM<br>3. 输入 Swap 金额<br>4. 确认 Swap，在硬件设备上确认签名 | 1. 硬件设备显示交易类型为 **Swap** + **合约地址**<br>2. 签名内容格式不错乱<br>3. 确认后 USDC 余额扣除，XLM 余额增加<br>4. 历史记录显示为**合约交互** |
 | P1 | 硬件设备拒绝签名 | 1. 在 aqua.network/swap 发起 Swap<br>2. 在硬件设备上**拒绝**签名 | 1. 交易未提交，余额未扣除<br>2. DApp 显示交易取消<br>3. 可重新发起 Swap |
 | P1 | Swap 金额 = 最大可用余额 | 1. 连接硬件钱包到 aqua.network/swap<br>2. 源 Token = XLM，输入最大可用金额<br>3. 确认 Swap，在硬件设备上确认签名 | 1. 确认后 XLM 余额保留最低余额（1 XLM + Token 锁定）<br>2. 目标 Token 余额增加<br>3. 交易记录生成 |

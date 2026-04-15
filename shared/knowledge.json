@@ -361,6 +361,198 @@
       "pattern": "Babylon 网络全称为 Babylon Genesis，搜索 Babylon 会匹配到 Testnet",
       "details": "OneKey v6.2.0 中搜索 Babylon 会返回两个结果：Babylon Genesis（主网）和 Babylon Testnet。脚本必须使用全称 'Babylon Genesis' 搜索，否则 switchNetwork 会因为匹配多个结果而失败。用例文档中也应使用 Babylon Genesis。",
       "confidence": 0.98
+    },
+    {
+      "id": "K-046",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "XRP 网络已更名为 XRP Ledger",
+      "details": "OneKey v6.2.0 中 Ripple 网络更名为 XRP Ledger。搜索关键词用 'XRP' 即可命中。testid 为 select-item-xrp--0（注意格式不同于大多数网络的 select-item-select-item-<impl>--<chainId>）。用例数据集中 Ripple 行脚本搜索应改为 XRP。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-047",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "地址簿 Memo/Tag 输入框无 data-testid",
+      "details": "添加地址表单中的 Memo/Tag/Comment 输入框没有 data-testid。定位方式：textarea[placeholder*=\"Memo\"] 或 textarea[placeholder*=\"备忘\"]。placeholder 完整文案为「备忘标签 (Memo, Tag, Comment)」。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-048",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "地址簿入口在侧栏底部更多菜单的弹窗中",
+      "details": "地址簿不在侧栏主 Tab 中，需要点击侧栏底部的更多图标（y>680 区域），打开 TMPopover-ScrollView 弹窗，在弹窗中找到文本'地址簿'并点击。弹窗需要遍历所有 TMPopover-ScrollView 实例找可见的那个（width > 0）。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-050",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "网络选择器结果行渲染在 portal 中，不在 APP-Modal-Screen DOM 子树内",
+      "details": "网络选择弹窗的搜索结果列表（select-item-{impl}--{chainId}）不在 APP-Modal-Screen 的 DOM 子树内，而是渲染在独立的 portal/overlay 层。必须用 document.querySelectorAll 全局搜索，不能限定在 modal 内。DIV 行容器 testid='select-item-{impl}--{chainId}'（w~624, h~48），SPAN 文本标签 testid='select-item-select-item-{impl}--{chainId}'（w~66）。点击应该用 div[data-testid^='select-item-'] + height>=40 匹配行容器，再用 page.mouse.click 精确坐标点击。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-049",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "地址栏粘贴/清空按钮互斥显示",
+      "details": "地址栏为空时显示「粘贴」按钮（address-form-address-clip），有内容时粘贴按钮消失显示「清空」按钮（address-form-address-clear）。不能先输入内容再点粘贴，必须先清空才能看到粘贴按钮。脚本中测试粘贴功能需要先确保地址栏为空。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-051",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "网络搜索结果多个时的选择策略",
+      "details": "搜索网络时可能返回多条结果（如搜 'Cronos' 返回 Cronos 和 Cronos POS Chain；搜 'Ethereum' 返回多个 Ethereum 系）。正确策略：按优先级匹配 - ①完全匹配（text === keyLower，大小写忽略）②前缀匹配 ③后缀匹配 ④首条兜底。实现：遍历所有 div[data-testid^='select-item-']（height>=40, width>=100），按优先级选坐标点击。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-052",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "OneKey 搜索框输入空格：所有键盘输入方式都会被 React 过滤，必须用剪贴板粘贴",
+      "details": "OneKey 网络搜索框（nav-header-search-chain-selector）的 React onChange 会过滤空格字符。pressSequentially('Cronos POS Chain') → 'CronosPOSChain'（空格丢失）；page.keyboard.type(' ') → 空格丢失；page.keyboard.press('Space') → 空格仍然丢失。**唯一可靠方式**：execSync('pbcopy', { input: searchKey }) 写入 OS 剪贴板，然后 page.keyboard.press('Meta+V') 粘贴。模式：if (searchKey.includes(' ')) 走剪贴板路径，否则 pressSequentially。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-053",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "OneKey 搜索大小写敏感（部分场景）",
+      "details": "网络选择器搜索 'Cronos POS Chain'（大写）可能 0 结果，而 'cronos pos chain'（小写）能返回结果。不是所有场景都有这个问题，但保险做法是保留原始大小写 + 配合空格验证 fallback，或者用 toLowerCase() 比较匹配。",
+      "confidence": 0.85
+    },
+    {
+      "id": "K-054",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "JS .click() 不触发 React 事件，必须用 page.mouse.click 或 locator.click",
+      "details": "evaluate 内部 el.click() 对 React 绑定的事件处理器经常无效（特别是容器 DIV）。可靠方式：page.mouse.click(x, y) 模拟真实鼠标事件，或 Playwright locator.click()。但要注意坐标准确 - 错误坐标可能点到其他元素（如 back 按钮）导致意外导航。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-055",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "CDP Electron 下剪贴板：navigator.clipboard 权限受限，用 pbcopy",
+      "details": "Electron 渲染进程中 navigator.clipboard.writeText 经常因权限被拒。document.execCommand('copy') 可能返回 true 但实际没写入 OS 剪贴板。最可靠方式：Node.js execSync('pbcopy', { input: text }) 直接写入 macOS 系统剪贴板，OneKey 的粘贴按钮能读取到。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-056",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "表单错误文本检测：直接匹配特定文案 > 颜色/位置检测",
+      "details": "之前用红色文本 + 位置匹配检测错误，但不可靠：①'最大长度为24个字符' 是红色提示但 24 字符输入时也显示（导致误报）②隐藏/stale input 的坐标可能指向背景区域 ③背景页面（如 Market 页）也有红色涨跌幅文字。可靠方式：直接 textContent 包含特定关键词（'名称不能为空'、'已存在'、'地址无效' 等）+ getBoundingClientRect width>0 检查可见。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-057",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "保存按钮禁用状态多维度检测",
+      "details": "OneKey 保存按钮的禁用状态有多种表现：①disabled 属性 ②aria-disabled='true' ③opacity < 0.7 ④pointer-events: none ⑤cursor: not-allowed ⑥灰色背景（RGB 差异 < 20 且 < 200）。isSaveButtonEnabled 需要综合检查所有这些维度，并向上走 parent 链（button testid 可能是 span，实际 button 在父层）。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-058",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "参数化循环中失败后的状态恢复",
+      "details": "参数化添加循环（63 条无 Memo + 14 条有 Memo）中，某条失败后必须恢复页面状态，否则后续条会全部失败。失败恢复：①Escape 两次关弹窗 ②检查 isOnAddressBookList ③不在则重新 navigateToAddressBook。用 onAddPage 标记状态追踪当前在列表页还是添加页，避免重复 clickAddButton。地址已存在时留在添加页面（onAddPage=true），清空字段继续下一条。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-059",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "地址栏清空按钮定位困难，推荐键盘清空",
+      "details": "address-form-address-clear testid 有时不匹配实际清空按钮，fieldset 内按钮扫描可能误匹配到扫描按钮（相机图标）导致打开 QR 扫描页。推荐：①不点清空按钮，用键盘 ta.focus() + ta.select() + Backspace 清空 ②如必须点清空按钮，先记录粘贴按钮坐标（粘贴/清空互斥位置相同），切换后 page.mouse.click 同一坐标。",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-060",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "备注字段 placeholder 差异：Memo / Tag / Note / 备忘 / 备注",
+      "details": "不同链备注字段 placeholder 不同：Cosmos/Stellar/TON → 'Memo' / '备忘'；Ripple/XRP Ledger → 'Tag'；Algorand → '备注' (Note)；某些链完整文案 '备忘标签 (Memo, Tag, Comment)'。isMemoFieldVisible 必须匹配所有这些 placeholder 变体。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-061",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Dashboard 修改脚本后必须强制重启清端口",
+      "details": "修改 .test.mjs 后仅 pkill 可能留下 EADDRINUSE。标准重启：lsof -ti:5050 | xargs kill -9 → sleep 1 → npx tsx src/dashboard/server.ts。浏览器也需要 Cmd+Shift+R 强刷（避免 SSE 缓存旧状态）。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-062",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Cursor vs Claude Code 工作流差异",
+      "details": "Cursor 没有 Skill 工具无法强制执行工作流，即使 .cursorrules 写了规则也是建议性的。Claude Code 的 Skill 系统（如 onekey-record-from-file）能强制 Phase 1→4 流程不跳过。要让 Cursor 接近 Claude Code 效果：①每次对话开头 @ 引用 Skill 文件 + knowledge.json + ui-semantic-map.json ②在 .cursorrules 写入详细 Phase 流程（而非简略描述）。PostToolUse hook 可用于规则双写提醒（Edit/Write 到 .cursorrules 或 .claude/CLAUDE.md 时自动提醒同步）。",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-063",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "脚本生成前先读用例文档 + knowledge + ui-semantic-map",
+      "details": "生成 .test.mjs 前强制三件套：①读 docs/qa/testcases/cases/<module>/<file>.md（预期结果用于断言）②读 shared/knowledge.json（避免踩历史坑）③读 shared/ui-semantic-map.json + shared/generated/app-monorepo-testid-index.json（复用已有 selector）。脚本头部必须有覆盖映射注释（testCase id → 用例文档 # 号 + 测试点）。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-064",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "有些测试点难以可靠自动化，标记 SKIP 而不是强试",
+      "details": "以下场景自动化稳定性差，建议 t.add(name, 'skipped', 'SKIP: 原因') 跳过并手动验证：①头像一致性（canvas/SVG 像素比对不稳定）②扫描功能（需摄像头硬件）③粘贴功能与 Electron 剪贴板交互不稳定 ④反复进出页面的页面状态识别。SKIP 要注明原因和建议手动验证点，不要硬编码假断言假装通过。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-065",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "网络名称变更与用例文档同步",
+      "details": "OneKey 网络名称会迭代变更（如 Ripple → XRP Ledger）。脚本中的 searchKey 变更后必须同步更新 docs/qa/testcases/cases/<module>/<file>.md 中的网络名和分组名，并更新相关章节（如网络切换顺序、Memo/Tag 校验的网络列表）。否则 QA 按文档手工回归时会找不到对应网络。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-066",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "React 输入框搜索前清空用 select+Backspace，不用 fill('')",
+      "details": "连续搜索时，`fill('')` 对 React 输入框可能不触发 onChange，残留上次输入内容，导致下次搜索混入旧值（如上次搜 'Cronos POS Chain'，下次搜 'Cosmos' 实际变成 'Cronos POS ChainCosmos'）。可靠做法：page.evaluate(() => { el.focus(); el.select(); }) + page.keyboard.press('Backspace') 强制清空。或者用 Meta+A 选中再 Backspace（注意 Electron 下 Meta+A 可能触发全局快捷键，不如 el.select() 稳定）。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-067",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "列表记录验证：名称含特殊字符时用地址前缀兜底",
+      "details": "verifyRecordInList 只检查 document.body.innerText.includes(name) 对含 '.', '/', '_' 等特殊字符或中文的名称不可靠（CSS word-break / 换行 / 省略号可能拆开文本）。可靠做法：name OR address prefix（取地址前 10 字符，>=6 有效）双重匹配。示例：if (allText.includes(name)) return true; if (addr && addr.length >= 6 && allText.includes(addr.slice(0, 10))) return true;",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-068",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "参数化数据集的 name/group 字段必须与 network 命名规则一致",
+      "details": "Cosmos 系网络命名模式是 'Cosmos-{网络名}'（如 'Cosmos-Celestia'、'Cosmos-Osmosis'、'Cosmos-Fetch.ai'）。脚本数据必须统一：①name 字段 = 'Cosmos-Cronos POS Chain'（不是 'Cosmos-Crypto.org'，后者是代币品牌名不是网络名）②group 字段 = 网络名（'Cronos POS Chain'，不是 'Crypto.org'）③用例文档的表格也要同步更新。违反命名规则会导致 QA 按文档手工对照脚本日志时混淆。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-069",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "每次修复 bug 后的沉淀纪律",
+      "details": "修复任何非显 bug 后必须在同一轮对话内完成：①追加 K-NNN 到 shared/knowledge.json（不要堆到最后批量写）②如涉及规则/约定，同步更新 .claude/CLAUDE.md 和 .cursorrules 两处（规则双写）③如涉及用例文档的数据（网络名/地址/分组），同步更新 docs/qa/testcases/ 下的 .md 文件④git commit 前执行 git diff shared/knowledge.json，本次改了 bug 但 knowledge.json 无变更 = 漏沉淀，补上再提交。不等用户说「沉淀一下」才做。",
+      "confidence": 0.98
     }
   ]
 }

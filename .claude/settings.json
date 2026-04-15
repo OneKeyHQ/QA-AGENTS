@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath // empty' | { read -r f; case \"$f\" in */.cursorrules) echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"⚠️ 规则双写提醒：.cursorrules 已修改，请同步更新 .claude/CLAUDE.md 中的对应内容。\"}}' ;; */.claude/CLAUDE.md) echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"⚠️ 规则双写提醒：.claude/CLAUDE.md 已修改，请同步更新 .cursorrules 中的对应内容。\"}}' ;; *) ;; esac; }",
+            "timeout": 5,
+            "statusMessage": "Checking rule sync..."
+          }
+        ]
+      }
+    ]
+  }
+}
