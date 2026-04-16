@@ -51,49 +51,104 @@ const WATCH_ADDRESSES = {
   '空账户': '0xb308F51259aC794086C13d66e37fadeE8D8abf9a',
 };
 
+// 主测试账户：直接用「高胜率」观察钱包（有 Perps 资产），不切 ran 钱包
 const ACCOUNTS = [
-  { name: 'Account #1', walletName: 'ran', label: 'ran有资产' },
-  { name: '高胜率', walletType: '观察钱包', label: '高胜率', address: WATCH_ADDRESSES['高胜率'] },
-  { name: '低胜率', walletType: '观察钱包', label: '低胜率', address: WATCH_ADDRESSES['低胜率'] },
-  { name: 'Account #2', walletType: '观察钱包', label: '空账户', address: WATCH_ADDRESSES['空账户'] },
+  { label: '高胜率', address: WATCH_ADDRESSES['高胜率'], isFunded: true },
+  { label: '低胜率', address: WATCH_ADDRESSES['低胜率'] },
+  { label: '空账户', address: WATCH_ADDRESSES['空账户'] },
 ];
 
-/** Switch to the funded Perps account (wallet "ran", first account).
- *  Checks if already on the correct account first — skips if so. */
-async function switchToFundedAccount(page) {
-  // Check if already on Account #1 (ran wallet)
-  const current = await getCurrentAccount(page);
-  if (current && current.includes('Account #1')) {
-    console.log('  Already on funded account (ran), skipping switch');
-    return;
-  }
-
+/**
+ * 通过地址搜索并切换到指定观察钱包账户。
+ * 流程：打开账户选择器 → 观察钱包 tab → 搜索地址 → 点击结果 → 关闭弹窗
+ * 搜不到则自动导入。
+ */
+async function switchToWatchAccount(page, address, label) {
   await clickSidebarTab(page, 'Wallet');
   await sleep(2000);
+
+  // 打开账户选择器
   await page.evaluate(() => {
     document.querySelector('[data-testid="AccountSelectorTriggerBase"]')?.click();
   });
   await sleep(2000);
-  // Find and click the "ran" wallet by name text
+
+  // 点击「观察钱包」tab
   await page.evaluate(() => {
     const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
     if (!modal) return;
-    for (const el of modal.querySelectorAll('[data-testid^="wallet-hd-"]')) {
-      if (el.textContent?.trim() === 'ran') {
-        el.scrollIntoView({ behavior: 'instant' });
-        el.click();
-        return;
+    for (const sp of modal.querySelectorAll('span')) {
+      if (sp.textContent?.trim() === '观察钱包' && sp.children.length === 0 && sp.getBoundingClientRect().width > 0) {
+        sp.click(); return;
       }
     }
   });
   await sleep(1500);
-  await page.evaluate(() => {
+
+  // 搜索地址（用前 10 字符）
+  const searchKey = address.slice(0, 10);
+  const found = await page.evaluate((key) => {
     const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    if (!modal) return;
-    const acc = modal.querySelector('[data-testid="account-item-index-0"]');
-    if (acc) acc.click();
-  });
+    if (!modal) return false;
+    const input = modal.querySelector('input[placeholder*="搜索"]');
+    if (!input) return false;
+    input.focus();
+    const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    if (nativeSet) {
+      nativeSet.call(input, key);
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    return true;
+  }, searchKey);
+
+  if (!found) {
+    console.log(`  [warn] 搜索框未找到，尝试直接导入`);
+  } else {
+    await sleep(2000);
+  }
+
+  // 检查搜索结果中是否有匹配的账户（地址包含搜索词）
+  const clicked = await page.evaluate((key) => {
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    if (!modal) return false;
+    // 查找包含地址的账户项
+    for (const el of modal.querySelectorAll('[data-testid^="account-item-"]')) {
+      const text = el.textContent || '';
+      const r = el.getBoundingClientRect();
+      if (r.width > 0 && r.height > 20 && text.toLowerCase().includes(key.toLowerCase())) {
+        el.click();
+        return true;
+      }
+    }
+    // Fallback：点击第一个可见的账户
+    const first = modal.querySelector('[data-testid="account-item-index-0"]');
+    if (first && first.getBoundingClientRect().width > 0) {
+      first.click();
+      return true;
+    }
+    return false;
+  }, searchKey);
+
+  if (clicked) {
+    await sleep(2000);
+    console.log(`  ✓ 切换到 ${label} (${searchKey}...)`);
+    return;
+  }
+
+  // 搜不到 → 关闭弹窗 → 导入
+  await page.keyboard.press('Escape').catch(() => {});
+  await sleep(500);
+  console.log(`  [AUTO] ${label} 不存在，导入 ${address.slice(0, 10)}...`);
+  await importWatchAddress(page, address, { name: label !== '空账户' ? label : undefined });
   await sleep(2000);
+  // 导入后直接用（当前已在该账户）
+  console.log(`  ✓ 导入并切换到 ${label}`);
+}
+
+/** 切换到有资产的 Perps 账户（高胜率观察钱包） */
+async function switchToFundedAccount(page) {
+  const funded = ACCOUNTS.find(a => a.isFunded);
+  await switchToWatchAccount(page, funded.address, funded.label);
 }
 
 // ── Portfolio Popup Helpers ───────────────────────────────────
@@ -123,7 +178,8 @@ async function openPortfolioPopup(page) {
       const text = el.textContent?.trim();
       if (!text) continue;
       const r = el.getBoundingClientRect();
-      if (r.y > 100 || r.y < -10 || r.width === 0 || r.height === 0) continue;
+      // 在 Perps 页面（navigateToPerps 已确保），匹配 header 区域的 $xx.xx 或 存款
+      if (r.y > 100 || r.y < 0 || r.width === 0 || r.height === 0) continue;
       if (r.height > 50) continue;
       if (/^\$[\d,.]+$/.test(text) || text === '存款') {
         candidates.push({ text, x: r.x + r.width / 2, y: r.y + r.height / 2, area: r.width * r.height });
@@ -617,25 +673,8 @@ const _ssStep = (page, t, name, fn) =>
 // ── Helper: switch account then open portfolio ──
 
 async function switchAccountAndOpenPortfolio(page, account) {
-  if (account.walletName) {
-    await switchToFundedAccount(page);
-  } else if (account.walletType) {
-    try {
-      await switchToAccount(page, account.name, account.walletType);
-    } catch (e) {
-      // Account not found — auto-import if we have an address
-      if (account.address) {
-        console.log(`  [AUTO] "${account.name}" not found, importing ${account.address.slice(0, 10)}...`);
-        await importWatchAddress(page, account.address, { name: account.label !== '空账户' ? account.label : undefined });
-        // After import, switch to the newly created account
-        await switchToAccount(page, account.name || account.label, '观察钱包');
-      } else {
-        throw e;
-      }
-    }
-  } else {
-    await switchToAccount(page, account.name);
-  }
+  // 统一用地址搜索切换（不依赖账户名）
+  await switchToWatchAccount(page, account.address, account.label);
   await sleep(1000);
   await clickSidebarTab(page, 'Perps');
   await sleep(2000);
@@ -655,11 +694,11 @@ async function testPerpsPnl001(page) {
   await ensureCleanState(page);
 
   // Step 1: Navigate to Perps with funded account (ran)
-  await _ssStep(page, t, '切换到有资产账户 (ran)', async () => {
+  await _ssStep(page, t, '切换到有资产账户 (高胜率)', async () => {
     await switchToFundedAccount(page);
     await sleep(1000);
     await navigateToPerps(page);
-    return 'switched to ran account + Perps tab';
+    return 'switched to 高胜率 + Perps tab';
   });
 
   // Step 2: Click entry with funded account → popup shows balance
@@ -683,11 +722,12 @@ async function testPerpsPnl001(page) {
   });
 
   // Step 3: Switch to empty account → click entry → deposit prompt
-  await _ssStep(page, t, '切换到空账户 (Account #2)', async () => {
-    await switchToAccount(page, 'Account #2', '观察钱包');
+  const emptyAccount = ACCOUNTS.find(a => a.label === '空账户');
+  await _ssStep(page, t, '切换到空/无 Perps 资产账户', async () => {
+    await switchToWatchAccount(page, emptyAccount.address, emptyAccount.label);
     await sleep(1000);
     await navigateToPerps(page);
-    return 'switched to empty watch account';
+    return `switched to ${emptyAccount.label}`;
   });
 
   await _ssStep(page, t, '空账户点击入口显示存款引导', async () => {

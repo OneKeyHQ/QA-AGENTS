@@ -1,6 +1,14 @@
 {
-  "version": "2.1.0",
-  "lastUpdated": "2026-03-24T03:17:53Z",
+  "version": "2.2.0",
+  "lastUpdated": "2026-04-16T03:00:00Z",
+  "categoryIndex": {
+    "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074 — DOM定位/选择器/testid陷阱",
+    "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079 — OneKey/Electron/React行为异常",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080 — 断言策略/校验方法",
+    "recording": "K-009,K-010,K-019 — 录制器相关"
+  },
   "patterns": [
     {
       "id": "K-001",
@@ -552,6 +560,102 @@
       "platform": "desktop",
       "pattern": "每次修复 bug 后的沉淀纪律",
       "details": "修复任何非显 bug 后必须在同一轮对话内完成：①追加 K-NNN 到 shared/knowledge.json（不要堆到最后批量写）②如涉及规则/约定，同步更新 .claude/CLAUDE.md 和 .cursorrules 两处（规则双写）③如涉及用例文档的数据（网络名/地址/分组），同步更新 docs/qa/testcases/ 下的 .md 文件④git commit 前执行 git diff shared/knowledge.json，本次改了 bug 但 knowledge.json 无变更 = 漏沉淀，补上再提交。不等用户说「沉淀一下」才做。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-071",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "每个 testCase fn 开头必须自行导航到目标页面，不依赖 setup()",
+      "details": "Dashboard 连续执行多个模块时，上一个模块的最后一步可能导航到其他页面（如从合约跳到钱包）。下一个模块的 fn(page) 被调用时页面状态不确定。因此每个 testCase fn 开头必须自行 navigateToPerps(page) / goToPerps(page)，不能依赖 setup() 的预导航。这同样适用于 Market、Wallet 等模块的测试。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-072",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "Portfolio 入口与钱包顶栏余额位置重叠 — 必须限定 y > 50",
+      "details": "Perps 页面的 Portfolio 入口（显示 $xx.xx）在 y~60-100 的位置。但钱包顶栏也有余额显示（y~18，如 $21.92）。openPortfolioPopup 的 evaluate 选择器必须加 r.y > 50（或 r.y >= 50）过滤掉顶栏，否则会误点到钱包余额导致 IN_PAGE_TAB_CONTAINER 不出现。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-073",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "破坏性测试步骤（清空收藏/删除数据）后必须恢复，或下一个用例开头检查并自愈",
+      "details": "PERPS-003 Step 4 清空所有收藏后，PERPS-004 预期顶部栏 ≥3 个代币 → 全部 FAIL。解决：①破坏性步骤后添加恢复逻辑（如点击'添加到自选'）②下一个用例开头检查状态，为空则主动触发推荐列表恢复。后者更健壮因为恢复逻辑可能静默失败。同理适用于搜索残留 — 切 tab 前先 clearSearch()。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-074",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "TV webview 内「重置布局」是 DIV 不是 button",
+      "details": "OneKey Perps 图表的「重置布局」按钮在 TV webview iframe 内，实际是 <div aria-label='重置布局'> 不是 <button>。用 button[aria-label='重置布局'] 查不到。正确选择器：doc.querySelector('[aria-label=\"重置布局\"]') 或按 textContent === '重置布局' 且 width < 120 的 div 匹配。tvEval 内 throw 的 Error 会传播为 GUEST_VIEW_MANAGER_CALL 错误。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-075",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Perps 条件单表单校验三层模型：inline → 最小下单金额 → HL 执行价 95%",
+      "details": "条件单（市价/限价止盈止损）下单表单校验分三层：①输入框实时限制（inline）：非法字符、负数、精度、数量 0 由输入框直接阻止输入（不是报错提示），不影响按钮 ②点击下单后优先校验最小下单金额 $10，不满足提示「最小下单 $10」 ③下单金额满足后才会触发 HL 限价类执行价 95% 偏离校验（如触发价 20 + 执行价 999999 + 买入做多 → 超出 95% 报错）。触发价本身无偏离限制。Buy/Sell 方向与止盈/止损不互相限制，任意组合可提交。之前的用例错误地假设：a) 方向+止盈止损有限制 b) 触发价有偏离限制 c) 所有校验都是 post-click，实际 inline 校验和 post-click 校验是分开的。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-076",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "测试脚本中的账户名硬编码需定期同步实际钱包状态",
+      "details": "OneKey 钱包的账户名可能被用户重命名（如 Account #1 → piggy🐷，Account #2 → vault😂）。脚本中的 ACCOUNTS 数组、switchToFundedAccount 的匹配逻辑、switchToAccount 的参数都会因此失效。建议：①脚本开头用 CDP 动态获取当前账户列表 ②或在 test_cases.json/constants 中维护可变数据 ③每次会话开始时快速 probe 确认账户名没变。",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-077",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "观察钱包切换：先选钱包类型 tab 再搜索地址，不依赖账户名",
+      "details": "观察钱包的账户切换流程：①打开账户选择器 ②先点击「观察钱包」tab（确保在正确的钱包类型下，不会搜到 HD 钱包里的账户）③在搜索框输入地址前缀（10 字符）④点击匹配结果 ⑤关闭弹窗回到目标模块。如果搜索不到才触发 importWatchAddress 导入。关键：不能跳过第②步，否则在 HD 钱包 tab 下搜索地址找不到。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-078",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Portfolio 测试直接用有资产的观察账户，不切 HD 钱包",
+      "details": "Perps Portfolio 测试的主账户改用「高胜率」观察钱包（0x0aac...，有 Perps 持仓），不再切换到 HD 钱包 'ran' 下的 Account #1。好处：①观察钱包通过地址唯一标识，不受重命名影响 ②少一次钱包切换 + 账户搜索 ③高胜率本身有完整的持仓/PnL 数据，适合 Portfolio 全场景测试。空账户也用观察钱包（0xb308...）。三个观察地址在 WATCH_ADDRESSES 常量维护。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-079",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "编辑脚本后多余的 } 导致 Parse error，Dashboard 加载失败不显示用例",
+      "details": "用 Edit 工具替换代码块时，如果旧代码包含函数闭合 }，替换后可能多一个孤立的 }。Dashboard 加载 .test.mjs 时 Parse error 会静默跳过该模块（不报错到前端，只在 /tmp/dashboard.log 里有 '[registry] Failed to load'）。表现：执行面板里用例突然消失。排查：grep 'Failed to load' /tmp/dashboard.log。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-080",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "assertListRendered 的 Overlap 检查对紧凑布局误报",
+      "details": "OneKey 的 tab 栏（自选/永续合约/加密货币...）和列表行（BTCUSDC/ETHUSDC...）使用紧凑布局，元素间 gap 为 -16~-18px（设计意图，不是 bug）。assertListRendered 的 overlap 检查会把这些标记为错误。修复：在 Perps 搜索/收藏等场景下不抛 overlap 错误，只验证 minCount。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-082",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Perps 搜索前必须先切到正确 tab（如永续合约），并清空残留搜索",
+      "details": "Perps 搜索相关测试必须：①每个 testCase 开头 goToPerps() 确保在合约页 ②搜索前 clickTab('永续合约') 确保在正确子 tab（搜索在不同 tab 下结果不同，如搜「比特」在永续合约有 BTC，在股票无结果）③搜索完或下一个测试前 clearSearch() 清空搜索框（残留内容会影响后续的收藏/Tab 操作）。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-083",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "TV webview 持久化测试用 Tab 切换替代 page.reload",
+      "details": "验证 TV 图表的指标/收藏/画图/周期持久化时，page.reload() 在 Electron 下导致 webview 完全重载 + canvas 重建，状态经常丢失。改用 sidebar Tab 切换（Perps → DeFi → Perps）：webview 只隐藏不销毁，localStorage 稳定，回来时状态完整，速度快 2-3x，更贴近真实用户行为。",
       "confidence": 0.98
     }
   ]

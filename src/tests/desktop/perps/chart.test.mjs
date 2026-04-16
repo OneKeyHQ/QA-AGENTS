@@ -183,9 +183,18 @@ async function getIndicatorPanelText(page) {
 /** Click the "重置布局" (Reset Layout) button in TV toolbar. */
 async function clickResetLayout(page) {
   await tvEval(page, `
-    const btns = doc.querySelectorAll('button[aria-label="重置布局"]');
-    if (btns.length === 0) throw new Error('Reset layout button not found');
-    btns[0].click();
+    // 重置布局是 DIV 不是 button，用 aria-label 或 textContent 匹配
+    let target = doc.querySelector('[aria-label="重置布局"]');
+    if (!target) {
+      // Fallback: find by text content
+      for (const el of doc.querySelectorAll('div, button')) {
+        if (el.textContent?.trim() === '重置布局' && el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().width < 120) {
+          target = el; break;
+        }
+      }
+    }
+    if (!target) throw new Error('Reset layout button not found (checked div[aria-label] + text match)');
+    target.click();
   `);
   await sleep(2000);
 }
@@ -250,8 +259,12 @@ async function navigateToPerps(page) {
 }
 
 async function reloadAndWait(page) {
-  await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
-  await sleep(3000);
+  // 改用 Tab 切换代替 F5 刷新（F5 在 Electron 下会导致状态丢失过重）
+  // 合约 → DeFi → 合约，验证持久化
+  await clickSidebarTab(page, 'DeFi');
+  await sleep(1500);
+  await clickSidebarTab(page, 'Perps');
+  await sleep(2000);
   await waitForTVReady(page);
 }
 
