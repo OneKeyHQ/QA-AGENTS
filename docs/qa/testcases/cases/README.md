@@ -12,7 +12,8 @@
 docs/qa/testcases/
 ├── cases/                          # 测试用例根目录（允许上传 GitHub）
 │   ├── account/                    # 账户模型（HD钱包、硬件钱包、观察账户、派生、备份）
-│   ├── wallet/                     # Wallet 模块（转账、首页、Token、NFT、历史、法币）
+│   ├── transfer/                   # 各链转账用例（软件 / 硬件钱包按文件名区分）
+│   ├── wallet/                     # Wallet 模块（首页、Token、NFT、历史、法币；不含转账）
 │   ├── swap/                       # Swap 模块
 │   ├── market/                     # Market 模块（行情、Swap Pro Mode）
 │   ├── perps/                      # Perps 合约模块
@@ -38,7 +39,8 @@ docs/qa/testcases/
 | 一级模块 | 模块名（文件名中） | 目录名 | 包含功能/说明 |
 |---------|-----------------|--------|-------------|
 | **账户模型** | `Account` / `账户` / `AccountModel` | `account/` | 硬件钱包与软件钱包、观察账户与外部账户、私钥/公钥与账户派生、钱包账户管理、软件钱包备份 |
-| **Wallet** | `Wallet` / `钱包` / `Transfer` / `转账` | `wallet/` | 转账规则（所有链）、钱包首页、Network、Token、历史记录、NFT、法币出入金、授权、BTC UTXO 管理 |
+| **Transfer** | `Transfer` / `转账` | `transfer/` | 各链转账用例（主币 / 代币 / dApp 转账），软件与硬件钱包均归此目录，按文件名后缀区分 |
+| **Wallet** | `Wallet` / `钱包` | `wallet/` | 钱包首页、Network、Token、历史记录、NFT、法币出入金、授权、BTC UTXO 管理（**不含各链转账用例**） |
 | **Swap** | `Swap` | `swap/` | Swap 兑换功能 |
 | **Market** | `Market` / `市场` / `Swap-Pro-Mode` | `market/` | 行情功能、Swap Pro Mode（Token 详情页快捷兑换） |
 | **Perps** | `Perps` / `合约` / `Hyperliquid` | `perps/` | Perps 合约功能 |
@@ -82,9 +84,10 @@ docs/qa/testcases/
 ## 命名规范
 
 - 文件名格式：`YYYY-MM-DD_<模块>-<测试主题>.md`
-- 转账模块特殊规则：软件钱包和硬件钱包分开输出
-  - 软件钱包：`YYYY-MM-DD_Transfer-<链名>-软件钱包测试.md` → `wallet/`
-  - 硬件钱包：`YYYY-MM-DD_Hardware-<链名>-硬件钱包测试.md` → `hardware/`
+- 转账模块特殊规则：软件钱包和硬件钱包分开输出，**统一落到 `transfer/` 目录**，按文件名后缀区分
+  - 软件钱包：`YYYY-MM-DD_Transfer-<链名>-转账dApp软件钱包.md` → `transfer/`
+  - 硬件钱包：`YYYY-MM-DD_Transfer-<链名>-转账dApp硬件钱包.md` → `transfer/`
+  - 参考：`2026-01-07_Transfer-Stellar-转账dApp软件钱包.md`、`2026-04-08_Transfer-Cosmos转账-软件钱包.md`
 
 ## 内容规范
 

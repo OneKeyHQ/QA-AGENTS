@@ -1,12 +1,12 @@
 {
-  "version": "2.2.0",
-  "lastUpdated": "2026-04-16T03:00:00Z",
+  "version": "2.3.0",
+  "lastUpdated": "2026-04-17T00:00:00Z",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
     "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074 — DOM定位/选择器/testid陷阱",
     "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080 — 断言策略/校验方法",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093 — 断言策略/校验方法",
     "recording": "K-009,K-010,K-019 — 录制器相关"
   },
   "patterns": [
@@ -657,6 +657,94 @@
       "pattern": "TV webview 持久化测试用 Tab 切换替代 page.reload",
       "details": "验证 TV 图表的指标/收藏/画图/周期持久化时，page.reload() 在 Electron 下导致 webview 完全重载 + canvas 重建，状态经常丢失。改用 sidebar Tab 切换（Perps → DeFi → Perps）：webview 只隐藏不销毁，localStorage 稳定，回来时状态完整，速度快 2-3x，更贴近真实用户行为。",
       "confidence": 0.98
+    },
+    {
+      "id": "K-084",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "钱包/账户头像创建后不支持修改",
+      "details": "OneKey 钱包和账户的头像由系统在创建时生成（颜色+图案/emoji），创建后**用户不能修改**。生成相关用例时不要写「修改头像后同步更新」类场景——操作入口本身不存在。头像一致性只验证跨入口（钱包选择器/发送-选择地址账户 Tab/最近 Tab/账户详情）的展示是否一致，以及同助记词下相同 index 账户头像是否一致。源规则：`docs/qa/rules/account-rules.md` §9.1、`docs/qa/rules/wallet-rules.md` §5.05。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-085",
+      "category": "assertion",
+      "platform": "web",
+      "pattern": "Web 端无常规 Send 转账功能 + Swap 自定义接收地址 Tab 屏蔽范围",
+      "details": "OneKey Web 端（app.onekeytest.com）**没有常规 Send 转账入口**，只能通过 Swap 或 DApp 交互发起链上操作。Web 端 Swap「自定义接收地址」的屏蔽规则：① **屏蔽选择入口**——不展示「最近 / 账户 / 地址簿」三个 Tab，用户不能从列表中选择地址；② **不屏蔽联想提示**——输入框粘贴/输入地址时，若地址属于上述三个数据源，仍需正常展示对应联想标签及名称（与常规 Send 的跨 Tab 联想行为一致）。常见误解：把 Tab 屏蔽等同于联想屏蔽是错误的。源规则：`docs/qa/rules/swap-rules.md` §自定义接收地址、`docs/qa/rules/wallet-rules.md` §5.05。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-086",
+      "category": "process",
+      "platform": "all",
+      "pattern": "Wallet 模块钱包类型术语规范（HD/HW 简写）",
+      "details": "生成 Wallet / Account / Swap 相关用例和文档时，钱包类型必须使用统一简写，不再出现「软件钱包」「硬件钱包」等旧称。规范：HD（已备份）、HD（未备份）、HW、已重置的 HW、私钥账户、Keyless Wallet、QR Wallet、隐藏钱包（=标准隐藏钱包）、未创建标准钱包的隐藏钱包、已删除的隐藏钱包、观察账户、外部账户。注意：① 不再写「已解锁的标准隐藏钱包」，解锁是进入展示的前提而非类型；② 不展示范围用「已删除的隐藏钱包 / 已重置的 HW」，不用「未解锁的隐藏钱包」（后者只是临时 UI 状态）；③ 隐藏钱包默认简称不加「标准」前缀。完整规范见 `docs/qa/rules/wallet-rules.md` §1.1。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-087",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "软断言反例：「以最终设计为准」「不报错就行」「有东西就行」",
+      "details": "生成用例时，预期结果出现以下表述即为软断言，必须改为可验证行为：①「以最终设计为准」「以产品实现为准」② 只断言「不报错」「不崩溃」「有返回」③「afterCount !== beforeCount」「afterList 变了就行」④ 用 try/catch 吞异常然后标 passed。正确做法：给出具体的预期值或 UI 行为（如「不展示『我的账户』标签」「按外部地址处理」「afterCount === beforeCount + 1」）。如确实产品行为待定，用例应阻塞（blocked）等产品确认，不要用软断言兜底。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-088",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "已删除的隐藏钱包 / 已重置的 HW 账户与联想必须一并清理",
+      "details": "用户在钱包选择器主动删除隐藏钱包、或对 HW 执行恢复出厂/重置后，该钱包的账户和地址联想**必须从本地移除**：① 发送流程「选择地址 → 账户」Tab 不再展示其分组与账户；② 发送流程的地址输入框粘贴该钱包原账户地址时，不再显示『我的账户』标签，按外部地址处理；③ Swap 等其他入口的联想也同步清理。相对地，「未解锁的隐藏钱包」只是临时 UI 状态（解锁后会重新出现），不属于真正的清理范畴。源规则：`docs/qa/rules/wallet-rules.md` §5.05（隐藏范围）+ §5.05.1（联想清理）。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-089",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "BTC/LTC 搜索跨路径匹配但结果不展示路径标签",
+      "details": "BTC/LTC 网络下「选择地址 → 账户」Tab 的搜索行为：① 搜索范围跨所有派生路径（Nested SegWit / Native SegWit / Legacy / Taproot），当前选中路径不限制搜索命中；② 搜索结果列表中**不展示**派生路径标签（如 Legacy、Taproot 文字）。生成用例预期时不要写「结果中显示路径标签」——实际 UI 不展示。源规则：`docs/qa/rules/wallet-rules.md` §5.05（搜索时路径过滤）。",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-090",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "最近转账列表是只读投影，不支持删除单条记录",
+      "details": "发送页「最近转账」Tab 的列表来源于两条互不回退的数据源路径（API `transfer-recipient` / 本地历史），列表是只读投影，随数据源自然更新（新转账插入、超过 20 条截尾）。**用户不能在 UI 上删除单条记录**。生成用例时不要写「点击删除某条记录后列表同步移除」这类场景——产品侧本就没有这个入口。源规则：`docs/qa/requirements/Wallet-最近转账.md` §2.4（v2.7 修正）。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-091",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "跨钱包类型（HD/HW/观察）最近转账一致性只抽查 LNURL 地址字符串",
+      "details": "同一闪电网络账户在 HD 钱包 / HW 钱包 / 观察地址下导入时，最近转账列表**不**要求条数、顺序、memo、tag 完全一致（数据源、缓存、本地历史可能存在差异）。**只抽查**：同一对手的 LNURL 地址字符串完全一致（字符、长度、大小写一致，未截断，未退化为原始 pubkey）。源规则：`docs/qa/requirements/Wallet-最近转账.md` §3 跨钱包类型一致性 + 用例 §9。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-092",
+      "category": "process",
+      "platform": "all",
+      "pattern": "前置条件双向去重",
+      "details": "任何在用例行（场景 / 操作步骤 / 预期结果 / 章节导语）已经描述的信息，**顶部前置条件章节不再重复**；如果某个准备动作只服务于单个 Section 且能写进该 Section 的章节导语，就写在 Section 里而不是顶部。例：Section 7 的 4 个固定观察地址已写入操作步骤，顶部就不要再列一次。配套自检清单见 `docs/qa/qa-rules.md` §7.7「前置条件双向去重」。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-093",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "最近转账数据源：API vs 本地历史，互不回退；0 金额双端都过滤",
+      "details": "发送页「最近转账」的两条路径是**独立的、不回退**的：① **API 路径**：indexer 支持链（EVM 七条 / UTXO BTC/LTC/DOGE/BCH / Tron）走 `transfer-recipient` 接口，服务端过滤合约交互 + scam + 中心化 Swap + Failed/Dropped + **0 金额**；② **本地历史路径**：非 indexer 链（Aptos / Sui / Cardano / Solana 当前阶段）走本地存储，客户端过滤合约交互 + **0 金额** + 账户隔离。**0 金额两条路径都过滤**（v2.8 更正），『转给自己』仍允许展示。API 返回空不回退本地历史；本地历史也不向上查 API。生成用例时不要写「API 没数据时回退到本地历史」或「API 路径 0 金额允许展示」——都是错的。源规则：`docs/qa/requirements/Wallet-最近转账.md` §2.1+§2.3（v2.8）。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-094",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "UTXO 聚合维度：BTC/LTC 按 xpub，DOGE/BCH/Tron 按地址",
+      "details": "最近转账的账户聚合规则在 UTXO 链下有区别：① **仅 BTC / LTC** 按扩展公钥（xpub）聚合，所有派生路径（Taproot / Native SegWit / Nested SegWit / Legacy）+ 历史旧地址产生的转账都进入列表；② **DOGE / BCH / Tron** 按单一地址聚合，不走 xpub。EVM 按 lowercase 地址跨链聚合，展示最近一次所在链。生成用例时注意区分，不要把 xpub 规则套用到 DOGE/BCH。源规则：`docs/qa/requirements/Wallet-最近转账.md` §2.2（v2.6）+ 用例 §2.2。",
+      "confidence": 0.95
     }
   ]
 }
