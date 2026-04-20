@@ -364,7 +364,7 @@ Dashboard executor (`test-executor.ts`) 通过 `testCases.fn(page)` 或 `mod.run
 - Filter DOM selectors with `.first()` / `.nth()` when multiple matches
 - Use position filter `r.y < 100` for top bar selectors to avoid matching other areas
 - Use token regex `/^[A-Z][A-Z0-9]{1,9}$/` (tokens can contain digits like XYZ100)
-- Run `/onekey-qa-review` before commit/PR — checks rules, test cases, scripts, skills, and security
+- Run `/qa-review` (alias: `/onekey-qa-review`, 触发词：`审查提交`/`审查用例`/`review 用例`/`检查提交`) before commit/PR — checks rules, test cases, scripts, skills, and security. Cursor 下加载 `.cursor/rules/onekey-qa-review.mdc`；Claude Code 下加载 `.claude/skills/onekey-qa-review/SKILL.md`（两份内容保持双写一致）
 - Treat empty state (no tokens, shows "未找到"/"暂无代币") as valid, not failed
 - Take screenshots only on failure — screenshots severely slow down execution
 - Keep test scripts as continuous flow (no disconnects mid-test)
