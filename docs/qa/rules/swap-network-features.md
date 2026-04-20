@@ -32,6 +32,8 @@ Swap 模块支持的网络按技术架构分为三类：
 | Avalanche | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
 | Base | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
 | Polygon | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
+| Arbitrum | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
+| Optimism | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
 | Solana | `5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52` | ✅ 已维护 |
 | Tron | `TPJkcqRHFfuE2xfgVzs6AA6tbJowz9pmH1` | ✅ 已维护 |
 | SUI | `0xe9f30f8341a465e854063ea7ae4d94ad1403164d37b0c72839e952b313d3db29` | ✅ 已维护 |
@@ -45,6 +47,8 @@ Swap 模块支持的网络按技术架构分为三类：
 | Avalanche | `evm--43114` | `0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e` | `0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7` |
 | Base | `evm--8453` | `0x833589fcd6edb6e08f4c7c32d4f71b54bda02913` | `0xfde4c96c8593536e31f229ea8f37b2ada2699bb2` |
 | Polygon | `evm--137` | `0x3c499c542cef5e3811e1192ce70d8cc03d5c3359` | `0xc2132d05d31c914a87c6611c10748aeb04b58e8f` |
+| Arbitrum | `evm--42161` | `0xaf88d065e77c8cC2239327C5EDb3A432268e5831` | `0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9` |
+| Optimism | `evm--10` | `0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85` | `0x94b008aA00579c1307B0EF2c499aD98a8ce58e58` |
 | Solana | `sol--101` | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB` |
 | Tron | `tron--0` | `TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8` | `TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t` |
 | SUI | `sui--0` | `0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC` | `0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT` |

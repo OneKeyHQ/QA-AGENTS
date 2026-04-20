@@ -240,7 +240,51 @@ Market 模块包含以下核心功能：
 
 ---
 
-## 9. 通用规则
+## 9. Confirm Page V2 规则（Market Swap Pro Mode 确认页）
+
+### 9.1 入口与生命周期
+
+| 规则项 | 规则描述 |
+|-------|---------|
+| 入口 | Market 详情页点击主操作按钮后拉起 Review Order 确认页，不直接发起链上交易 |
+| Wrap/Unwrap | 同样拉起确认页，步骤文案与 Wrap 场景匹配 |
+| 防重复触发 | Action loading / allowance checking / approve matching pending 期间按钮不可重复触发 |
+| 容器兼容 | tab 页面与 overlay / modal 页面两种容器下均可正常打开关闭 |
+| 状态重置 | 关闭后重新打开展示当前最新数据，不残留旧状态 |
+
+### 9.2 步骤编排
+
+| 场景 | 步骤展示 |
+|-----|---------|
+| 无需授权普通 Swap | 仅 Confirm / Sign / Submit，不额外出现 Approve |
+| 需授权普通 Swap | Approve + Swap / Sign 组合步骤 |
+| Wrap / Unwrap | 仅 Wrap 步骤，不混入 Approve / Swap |
+| 签名链路 | Sign 或 Sign and Submit |
+| 步骤标题 | Confirm Swap / Sign / Sign and Submit / Approve and Swap / Approve and Sign 与链路一致 |
+
+### 9.3 授权判定与费用刷新
+
+| 规则项 | 规则描述 |
+|-------|---------|
+| allowance 判定 | 已满足不展示 Approve；不足展示 Approve |
+| spender 变化 | 以最新有效 spender / allowanceTarget 重新判定，不沿用旧状态 |
+| 费用刷新 | Approve 完成后 gas / network fee 刷新为最新值 |
+| pending 状态 | approve pending amount 命中时保持 pending / 禁点状态 |
+| fee 编辑 | Approve and Sign 场景下支持 fee 编辑能力 |
+
+### 9.4 异常处理
+
+| 场景 | 规则 |
+|-----|------|
+| 打开失败（标准 Error） | 展示对应错误文案 |
+| 打开失败（非 Error） | 展示 unknown error |
+| 授权/签名/发送失败 | 状态停留或回退，可重新发起 |
+| 签名链路中断 | 清理当前确认上下文 |
+| 关闭/取消 | 主表单与确认页状态隔离 |
+
+---
+
+## 10. 通用规则
 
 ### 数据一致性
 - K 线/列表/详情价格一致
@@ -272,7 +316,7 @@ Market 模块包含以下核心功能：
 
 ---
 
-## 10. 规则维护指南
+## 11. 规则维护指南
 
 ### 如何更新规则
 
@@ -287,7 +331,7 @@ Market 模块包含以下核心功能：
 
 ---
 
-## 11. 变更记录
+## 12. 变更记录
 
 | 日期 | 变更内容 |
 |------|---------|
@@ -299,3 +343,4 @@ Market 模块包含以下核心功能：
 | 2026-02-28 | 添加搜索逻辑规则：搜索结果与热门代币表格样式、表头固定、热门代币数据源与点击跳转、边缘 Case |
 | 2026-02-28 | 修正章节编号（5.1-8.4）、更新模块概述（首页主标签、合约、搜索）、更新列表分类规则 |
 | 2026-03-26 | 扩充 K 线图表规则：时间区间与下方范围、OHLC 口径、价格/市值切换、指标组合与全局自定义、十字线与移动端点击详情、默认周期口径风险提示 |
+| 2026-04-01 | 新增 §9 Confirm Page V2 规则：入口与生命周期、步骤编排、授权判定与费用刷新、异常处理 |

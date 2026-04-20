@@ -396,7 +396,87 @@ Wallet 模块包含以下核心功能：
 
 ---
 
-## 8. 通用规则
+## 8. Gas Account 规则
+
+### 8.1 功能定位
+
+Gas Account 是 OneKey 钱包内的"代付 Gas 账户"，用户充值 USDT 等值资产后，可用于支付多链交易的 Gas 费用。
+
+### 8.2 账户体系
+
+| 用户类型 | 能力 |
+|---------|------|
+| 未登录用户 | 可享受平台补贴额度（Guest 模式） |
+| 已登录 OneKey ID 用户 | 充值、提现、查看记录，所有地址共享余额 |
+
+### 8.3 赞助规则
+
+| 规则 | 内容 | 不通过时行为 |
+|------|------|-------------|
+| 链白名单 | evm--1 (ETH), evm--137 (Polygon), evm--42161 (Arbitrum), evm--10 (Optimism), evm--56 (BSC) | 返回不支持 |
+| 余额检查 | Gas Account 余额 ≥ 该笔 Gas 费用 | 返回余额不足 |
+| 地址黑名单 | from_address 不在封禁列表 | 返回不支持 |
+| Gas 价格熔断 | ETH maxGwei=200, Polygon maxGwei=500 | 暂停赞助 |
+
+### 8.4 API 接口
+
+**SignatureConfirm 赞助交易的主口径见 §8.9**（与 `docs/qa/testcases/cases/wallet/2026-03-31_Wallet-GasAccount功能测试.md` 一致）。本节下列 `gasAccountInfo` / `feePaymentMethod` 为 **Gas 面板与后端兼容字段**；若与 §8.9 字段并存，以实现版本为准。
+
+**EstimateFee（兼容字段）**：`gasAccountInfo.isGasAccountAvailable` / `balanceIsEnough` / `chainNotSupport` / `errMsg` / `cost`（totalCost, txCost, gasCost, estimateTxCost）
+
+**sendTransaction（兼容字段）**：`feePaymentMethod: "gas_account"`
+
+### 8.5 费用结构
+
+| 字段 | 含义 |
+|------|------|
+| totalCost | 用户实际扣费 = txCost + gasCost |
+| txCost | 给用户转账的 gas 值 |
+| gasCost | 链上 gas 成本 |
+| estimateTxCost | 预估交易成本（前端展示参考） |
+
+### 8.6 充值规则
+
+| 项目 | 规则 |
+|------|------|
+| 充值方式 | Apple Pay（第一期） |
+| 预设金额 | $10 / $20 / $50 |
+| 自定义金额 | 支持用户自定义输入 |
+| 到账时间 | 即时到账 |
+
+### 8.7 交易确认页规则
+
+| 项目 | 规则 |
+|------|------|
+| 开关位置 | 交易确认页 Network Fee 区域（若产品保留 Sponsor 开关） |
+| 开关条件 | EstimateFee 返回 isGasAccountAvailable=true 时显示；若以 `/estimate-fee` 的 `payer` / `gasAccountEligible` 自动决定免费态，则以 §8.9 为准 |
+| 余额不足 | 引导登录/充值 |
+| 不支持链 | 不显示开关或显示不支持提示 |
+
+### 8.8 记录与流水
+
+- 记录类型：Gas 代付、充值、提现
+- 记录字段：network_id, from_address, user_tx_hash, gas_tx_hash, total_cost, tx_cost, gas_cost, status (pending/success/failed), created_at, confirmed_at
+- 支持按类型筛选
+
+### 8.9 SignatureConfirm Gas Sponsor（estimate-fee / send-transaction）
+
+> 覆盖发送、Swap、Perps、Earn、dApp 等走交易确认页的链路；**自定义 RPC 时禁用** Gas Account 估价。
+
+| 项 | 规则 |
+| --- | --- |
+| 估价请求 | `/estimate-fee` 携带 `lockedUserNonce`；可用赞助时 `gasAccountEnabled=true`，B 类 fallback 后需 `gasAccountEnabled=false` 避免误切回 sponsor |
+| 估价返回 | `payer` 为 `user` \| `megafuel` \| `gasAccount`；`gasAccountEligible`；赞助时返回 `gasAccountQuote`（`quoteId`、`maxFee`、`expiresAt`） |
+| 提交 | `payer=gasAccount` 时 `/send-transaction` 携带 `quoteId`（来自 quote）与 `idempotencyKey`；`payer=user` 时不携带二者 |
+| A 类错误 | 40201（quote 过期）、40202（nonce 变化）、40209、90201 等：不弹默认错误 toast，自动重新 `/estimate-fee` |
+| B 类错误 | 40213、90200、40218、40219、90205 等：`gasAccountTemporarilyDisabled=true`，payer 切回 `user`，清空 quote，自动 re-estimate，用户自付完成交易 |
+| C 类错误 | 40203、40214–40217、90207–90209：仅状态提示，不自动重估、不自动 fallback |
+| 成功 Toast | Gas-sponsored 提交成功：文案 `Gas-sponsored transaction submitted`，图标 GiftSolid；用户自付沿用原默认完成提示 |
+| 每日限额 | 用尽后 `payer=user` / `gasAccountEligible=false`，确认页显示常规 Network Fee，不包含 quote 字段 |
+
+---
+
+## 9. 通用规则
 
 ### 状态机
 - 钱包首页加载 → 资产刷新 → Token 管理 → 历史记录
@@ -429,7 +509,7 @@ Wallet 模块包含以下核心功能：
 
 ---
 
-## 9. 规则维护指南
+## 10. 规则维护指南
 
 ### 如何更新规则
 
@@ -444,13 +524,14 @@ Wallet 模块包含以下核心功能：
 
 ---
 
-## 10. 变更记录
+## 11. 变更记录
 
 | 日期 | 变更内容 |
 |------|---------|
 | 2026-01-23 | 初始版本，整合 Wallet 模块规则，引用 transfer-chain-rules.md |
 | 2026-02-27 | 新增「从交易所接收」规则章节（Binance API、OKX、Coinbase） |
 | 2026-03-10 | 更新「从交易所接收」规则：入口默认展开、新增 ExchangeOpenRedirect 页面、OKX/Coinbase 流程重构 |
+| 2026-03-31 | 新增「Gas Account」规则章节（赞助规则、API 接口、费用结构、充值、交易确认页） |
 | 2026-04-03 | 新增「最近转账」规则：数据源改为 API/链历史/存储多级回退，EVM 跨链聚合去重，补充 memo/tag、过滤和账户隔离规则 |
 | 2026-04-05 | 「最近转账」过滤规则：补充中心化接口 **服务端过滤 Swap 相关记录**，客户端与接口返回对齐 |
 | 2026-04-07 | 「最近转账」：更正 memo/备注行为（仅带地址；地址簿才可预填 tag/备注）；删除错误的 `Call:` memo 排除规则；合约类由 functionCall/合约地址过滤，无独立 `Call:` 用例 |
@@ -459,6 +540,7 @@ Wallet 模块包含以下核心功能：
 | 2026-04-08 | 「最近转账」Memo/Tag：列表可展示标签，选择后可带入；不要求地址在地址簿；与地址簿并存时合并规则以实现为准 |
 | 2026-04-11 | 新增「我的账户」规则（§5.05）：账户 Tab 展示/隐藏规则、BTC/LTC 路径快捷切换、EVM/Solana 无快捷切换但跟随系统设置、BTC 新鲜地址逻辑、搜索跨路径匹配、默认 Tab 与 Lightning 限制 |
 | 2026-04-17 | 新增「硬件钱包用例内容边界」规则（§3.2.1）：硬件用例只写需要硬件签名的操作，App 侧连接授权 / 账户选择 / 历史记录 / UI 等由软件用例覆盖，硬件文档不重复 |
-| 2026-04-17 | §3.2 修正转账用例落盘目录：软件 / 硬件钱包用例统一归 `docs/qa/testcases/cases/transfer/`，按文件名后缀（`转账dApp软件钱包` / `转账dApp硬件钱包`）区分；与 `qa-rules.md §7.0`、`cases/README.md` 同步（原规则误将 Transfer 归 `wallet/` 与 `hardware/`，与 `transfer/` 目录内实际文件不一致） |
+| 2026-04-17 | §3.2 修正转账用例落盘目录：软件 / 硬件钱包用例统一归 `docs/qa/testcases/cases/transfer/`，按文件名后缀（`转账dApp软件钱包` / `转账dApp硬件钱包`）区分；与 `qa-rules.md §7.0`、`cases/README.md` 同步 |
 | 2026-04-17 | 「我的账户」规则补充（§5.05）：展示范围补齐 QR Wallet、隐藏钱包、未创建标准钱包的隐藏钱包；新增钱包/账户头像一致性、名称截断、Web 端 Swap 自定义接收地址屏蔽规则（屏蔽全部三个 Tab，仅保留手动输入）；新增 §5.05.1 地址输入框联想规则，含 BTC 旧地址联想、钱包删除/重置后联想清理 |
-| 2026-04-17 | 新增 §1.1 钱包类型术语规范（全模块通用）：统一 HD/HW 简写；§5.05 隐藏范围修正为"观察账户 / 外部账户 / HD（未备份）/ 已删除的隐藏钱包 / 已重置的 HW"（替换原"未解锁的隐藏钱包"的不准确描述）；§5.05 搜索路径过滤补充"结果中不显示派生路径标签"；§5.05.1 新增 HW 重置后联想清理条目 |
+| 2026-04-17 | 新增 §1.1 钱包类型术语规范（全模块通用）：统一 HD/HW 简写；§5.05 隐藏范围修正为「观察账户 / 外部账户 / HD（未备份）/ 已删除的隐藏钱包 / 已重置的 HW」；§5.05 搜索路径过滤补充「结果中不显示派生路径标签」；§5.05.1 新增 HW 重置后联想清理条目 |
+| 2026-04-20 | 补充 §8.9 SignatureConfirm Gas Sponsor；§8.4/§8.7 与用例 API 口径对齐说明；恢复本表 2026-04-03～2026-04-17 变更记录行 |
