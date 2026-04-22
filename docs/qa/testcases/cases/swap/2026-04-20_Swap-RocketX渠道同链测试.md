@@ -1,5 +1,20 @@
 # Swap - RocketX 渠道同链测试
-> 生成时间：2026-04-20<br>关联文档：跨链场景见 `2026-04-20_Swap-RocketX渠道跨链测试.md`<br>本文档 **仅保留 P0** 用例。<br>参考模板：`2026-03-30_Swap-Houdini渠道同链测试.md`；构建依赖模型：`docs/qa/rules/swap-rules.md` §quoteResultCtx 表（RocketX = ✅ 需要）。
+
+> 生成时间：2026-04-20
+> 规则文档：`docs/qa/rules/swap-rules.md`、`docs/qa/rules/swap-network-features.md`
+> 需求文档：（RocketX 渠道接入详情见 `swap-rules.md` §渠道白名单 / §RocketX 用例生成加速规则）
+> 测试端：iOS / Android / Desktop / Extension / Web
+> 关联文档：跨链场景见 `2026-04-20_Swap-RocketX渠道跨链测试.md`；构建依赖模型见 `swap-rules.md` §quoteResultCtx 表（RocketX = ✅ 需要）
+> 参考模板：`2026-03-30_Swap-Houdini渠道同链测试.md`
+> 本文档 **仅保留 P0** 用例。
+
+## 前置条件
+
+1. 已登录 HD 或 HW 钱包（§2 为 HW）
+2. 所测试网络主币余额充足（覆盖兑换 + Gas，必要时包含 Solana ATA 租金）
+3. 代币兑换前已完成对应 ERC20 授权（EVM 链），或持有 SPL 代币（Solana）
+4. 账户地址与代币合约地址**统一以** `swap-network-features.md` 为基线，禁止临时手填
+5. 后端已接入 RocketX 渠道（`provider = SwapRocketX`）且返回 `quoteResultCtx`
 
 ## 测试范围说明
 
@@ -43,10 +58,10 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
-| ❗️❗️P0❗️❗️ | 1. 已登录软件钱包<br>2. Solana、有 SOL | 1. 源=SOL，目标=USDC（均为 Solana）<br>2. **最小可识别精度**询价 | 1. 成功或**最小限额**提示 |
-| ❗️❗️P0❗️❗️ | 1. 同上 | 1. **中间值**询价 | 1. 同链报价成功，命中 RocketX 且含 `quoteResultCtx`<br>2. Est Received、Network Fee（lamports 展示）正确 |
-| ❗️❗️P0❗️❗️ | 1. 同上 | 1. 点 **Max** | 1. 填充与报价、余额校验正确 |
-| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 完成兑换并签名 | 1. 提交成功，`build-tx` 携带 `quoteResultCtx`<br>2. 历史记录渠道为 RocketX |
+| ❗️❗️P0❗️❗️ | 1. 已登录软件钱包<br>2. Solana、有 SOL | 1. 源=SOL，目标=USDC（均为 Solana）<br>2. **最小可识别精度**询价 | 1. 显示同链报价（命中 RocketX 且含 `quoteResultCtx`）或显示**最小限额**提示 |
+| ❗️❗️P0❗️❗️ | 1. 同上 | 1. **中间值**询价 | 1. 同链报价返回，命中 RocketX 条目且含 `quoteResultCtx`<br>2. Est Received、Network Fee（lamports 展示）精度与链规则一致 |
+| ❗️❗️P0❗️❗️ | 1. 同上 | 1. 点 **Max** | 1. 自动填充扣 Gas + ATA 租金后的可用上限<br>2. 余额校验通过（不显示「余额不足」提示） |
+| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 完成兑换并签名 | 1. `build-tx` 返回非空 `data.tx`，请求体携带询价返回的 `quoteResultCtx`<br>2. 生成 Pending 历史记录，渠道为 RocketX |
 
 ### 1.2 代币到主币（Token → Native）
 
@@ -54,7 +69,7 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
-| ❗️❗️P0❗️❗️ | 1. BSC、USDT 已授权有余额 | 1. 源=USDT，目标=BNB（均为 BSC）<br>2. **最小可识别精度**询价 | 1. 同链报价成功，命中 RocketX 且含 `quoteResultCtx`<br>2. Est Received 为 BNB，精度正确 |
+| ❗️❗️P0❗️❗️ | 1. BSC、USDT 已授权有余额 | 1. 源=USDT，目标=BNB（均为 BSC）<br>2. **最小可识别精度**询价 | 1. 同链报价返回，命中 RocketX 条目且含 `quoteResultCtx`<br>2. Est Received 为 BNB，精度与链规则一致 |
 | ❗️❗️P0❗️❗️ | 1. 同上 | 1. **中间值**询价；点 **Max** | 1. 报价刷新<br>2. Max 扣费后上限正确 |
 | ❗️❗️P0❗️❗️ | 1. 有效报价 | 1. 兑换至成功 | 1. USDT 减、BNB 增与记录一致<br>2. `build-tx` 携带 `quoteResultCtx` |
 
@@ -62,7 +77,7 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
-| ❗️❗️P0❗️❗️ | 1. Base、USDC 已授权有余额 | 1. 源=USDC，目标=ETH（均为 Base）<br>2. **最小可识别精度**询价 | 1. 成功或最小限额提示 |
+| ❗️❗️P0❗️❗️ | 1. Base、USDC 已授权有余额 | 1. 源=USDC，目标=ETH（均为 Base）<br>2. **最小可识别精度**询价 | 1. 显示同链报价（命中 RocketX 且含 `quoteResultCtx`）或显示最小限额提示 |
 | ❗️❗️P0❗️❗️ | 1. 同上 | 1. **中间值**；点 **Max** | 1. RocketX 同链报价正确，含 `quoteResultCtx`<br>2. 确认页网络为 Base，无跨链桥误展示<br>3. Max 上限正确 |
 | ❗️❗️P0❗️❗️ | 1. 有效报价 | 1. 兑换至成功 | 1. 余额与记录正确 |
 
@@ -74,7 +89,7 @@
 |--------|------|---------|---------|
 | ❗️❗️P0❗️❗️ | 1. Polygon、USDC 已授权 | 1. 源=USDC，目标=USDT（均为 Polygon）<br>2. **最小可识别精度**询价 | 1. 同链报价，命中 RocketX 且含 `quoteResultCtx`<br>2. 两代币 decimals 正确<br>3. 路由/DEX 清晰 |
 | ❗️❗️P0❗️❗️ | 1. 同上 | 1. **中间值**；点 **Max** | 1. 报价刷新；Max 上限正确 |
-| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 兑换并确认 | 1. 交易成功，`build-tx` 携带 `quoteResultCtx`<br>2. 历史记录渠道为 RocketX |
+| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 兑换并确认 | 1. `build-tx` 返回非空 `data.tx`，请求体携带 `quoteResultCtx`<br>2. 状态可更新为 Success / Failed<br>3. 历史记录渠道为 RocketX |
 
 #### 场景：Arbitrum 同链（USDC → USDT）
 
@@ -98,13 +113,13 @@
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
 | ❗️❗️P0❗️❗️ | 1. 已连接硬件钱包<br>2. Ethereum、有 ETH | 1. 同链 ETH→USDC，**中间值**询价 | 1. 报价正确，命中 RocketX 且含 `quoteResultCtx`<br>2. 渠道/路由为 RocketX |
-| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 兑换并在设备上确认 | 1. 设备显示与 App 一致<br>2. `build-tx` 携带 `quoteResultCtx`<br>3. 交易提交成功 |
+| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 兑换并在设备上确认 | 1. 设备显示与 App 一致<br>2. `build-tx` 请求体携带 `quoteResultCtx`<br>3. 签名后生成 Pending 历史记录，状态可更新为 Success / Failed |
 
 ### 2.2 代币到主币 / 代币到代币（抽样）
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
-| ❗️❗️P0❗️❗️ | 1. 硬件钱包<br>2. 任选已支持网络上一组「代币→主币」或「代币→代币」同链 | 1. 完整流程（quote → 提取 `quoteResultCtx` → build-tx → 硬件签名） | 1. 签名在硬件完成<br>2. 成功后余额与记录正确，渠道 RocketX |
+| ❗️❗️P0❗️❗️ | 1. 硬件钱包<br>2. 任选已支持网络上一组「代币→主币」或「代币→代币」同链 | 1. 完整流程（quote → 提取 `quoteResultCtx` → build-tx → 硬件签名） | 1. 签名在硬件完成<br>2. 状态更新为 Success 后，账户余额变化与历史记录一致，渠道商=RocketX |
 
 ---
 

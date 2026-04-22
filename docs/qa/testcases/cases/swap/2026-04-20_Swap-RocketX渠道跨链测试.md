@@ -1,5 +1,20 @@
 # Swap - RocketX 渠道跨链测试
-> 生成时间：2026-04-20<br>关联文档：同链场景见 `2026-04-20_Swap-RocketX渠道同链测试.md`<br>本文档 **仅保留 P0** 用例。<br>参考模板：`2026-03-30_Swap-Houdini渠道跨链测试.md`；构建依赖模型：`docs/qa/rules/swap-rules.md` §quoteResultCtx 表（RocketX = ✅ 需要）。
+
+> 生成时间：2026-04-20
+> 规则文档：`docs/qa/rules/swap-rules.md`、`docs/qa/rules/swap-network-features.md`
+> 需求文档：（RocketX 渠道接入详情见 `swap-rules.md` §渠道白名单 / §RocketX 用例生成加速规则）
+> 测试端：iOS / Android / Desktop / Extension / Web
+> 关联文档：同链场景见 `2026-04-20_Swap-RocketX渠道同链测试.md`；构建依赖模型见 `swap-rules.md` §quoteResultCtx 表（RocketX = ✅ 需要）
+> 参考模板：`2026-03-30_Swap-Houdini渠道跨链测试.md`
+> 本文档 **仅保留 P0** 用例。
+
+## 前置条件
+
+1. 已登录 HD 或 HW 钱包（§2 为 HW）
+2. 源链主币余额充足（覆盖跨链兑换金额 + 源链 Gas + 协议费）
+3. 代币兑换前已完成源链 ERC20 授权；BTC / Solana 走各自链原生签名
+4. 账户地址与代币合约地址**统一以** `swap-network-features.md` 为基线，禁止临时手填
+5. 后端已接入 RocketX 跨链渠道（`provider = SwapRocketX`）且返回 `quoteResultCtx`（跨链路径 / 桥接 / 订单 ID 等）
 
 ## 测试范围说明
 
@@ -39,10 +54,10 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
-| ❗️❗️P0❗️❗️ | 1. Bitcoin 网络有余额 | 1. 源=BTC，目标=ETH（Ethereum）<br>2. 输入**最小可识别精度**询价 | 1. 询价成功或展示**最小限额**提示 |
-| ❗️❗️P0❗️❗️ | 1. 同上 | 1. 输入**中间值**询价 | 1. RocketX 跨链报价成功，含 `quoteResultCtx`<br>2. 费用与时间展示可读 |
+| ❗️❗️P0❗️❗️ | 1. Bitcoin 网络有余额 | 1. 源=BTC，目标=ETH（Ethereum）<br>2. 输入**最小可识别精度**询价 | 1. 显示跨链报价（命中 RocketX 且含 `quoteResultCtx`）或显示**最小限额**提示 |
+| ❗️❗️P0❗️❗️ | 1. 同上 | 1. 输入**中间值**询价 | 1. RocketX 跨链报价返回，命中 RocketX 条目且含 `quoteResultCtx`<br>2. 费用与预估时间展示可读 |
 | ❗️❗️P0❗️❗️ | 1. 同上 | 1. 点击 **Max** | 1. 填充为扣费后可用上限<br>2. 报价与余额校验通过 |
-| ❗️❗️P0❗️❗️ | 1. 有效报价（建议取中间值执行全链路） | 1. 完成兑换并签名 | 1. `build-tx` 携带 `quoteResultCtx`<br>2. 提交成功，历史记录生成，渠道为 RocketX |
+| ❗️❗️P0❗️❗️ | 1. 有效报价（建议取中间值执行全链路） | 1. 完成兑换并签名 | 1. `build-tx` 返回非空 `data.tx`，请求体携带 `quoteResultCtx`<br>2. 生成 Pending 历史记录，渠道为 RocketX |
 
 ### 1.2 主币到代币（Native → Token）
 
@@ -59,10 +74,10 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
-| ❗️❗️P0❗️❗️ | 1. Solana、有 SOL | 1. 源=SOL，目标=USDC（Ethereum）<br>2. **最小可识别精度**询价 | 1. 成功或**最小限额**提示 |
-| ❗️❗️P0❗️❗️ | 1. 同上 | 1. **中间值**询价 | 1. 跨链报价成功，命中 RocketX 且含 `quoteResultCtx`<br>2. Network Fee（SOL）与 Protocol Fee 展示正确 |
-| ❗️❗️P0❗️❗️ | 1. 同上 | 1. 点 **Max** | 1. 填充与报价、余额校验正确 |
-| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 兑换并签名 | 1. `build-tx` 携带 `quoteResultCtx`<br>2. 成功提交，记录生成 |
+| ❗️❗️P0❗️❗️ | 1. Solana、有 SOL | 1. 源=SOL，目标=USDC（Ethereum）<br>2. **最小可识别精度**询价 | 1. 显示跨链报价（命中 RocketX 且含 `quoteResultCtx`）或显示**最小限额**提示 |
+| ❗️❗️P0❗️❗️ | 1. 同上 | 1. **中间值**询价 | 1. 跨链报价返回，命中 RocketX 条目且含 `quoteResultCtx`<br>2. Network Fee（SOL）与 Protocol Fee 展示项齐全 |
+| ❗️❗️P0❗️❗️ | 1. 同上 | 1. 点 **Max** | 1. 填充为扣除 Gas + ATA 租金预留后的上限<br>2. 余额校验通过 |
+| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 兑换并签名 | 1. `build-tx` 返回非空 `data.tx`，请求体携带 `quoteResultCtx`<br>2. 生成 Pending 历史记录 |
 
 ### 1.3 代币到主币（Token → Native）
 
@@ -79,7 +94,7 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
-| ❗️❗️P0❗️❗️ | 1. Polygon USDC 已授权 | 1. 源=USDC（Polygon），目标=BNB（BSC）<br>2. **最小可识别精度**询价 | 1. 询价成功或最小限额提示 |
+| ❗️❗️P0❗️❗️ | 1. Polygon USDC 已授权 | 1. 源=USDC（Polygon），目标=BNB（BSC）<br>2. **最小可识别精度**询价 | 1. 显示跨链报价（命中 RocketX 且含 `quoteResultCtx`）或显示最小限额提示 |
 | ❗️❗️P0❗️❗️ | 1. 同上 | 1. **中间值**询价；点 **Max** | 1. 报价正确，含 `quoteResultCtx`；Max 扣费后上限正确 |
 | ❗️❗️P0❗️❗️ | 1. 有效报价 | 1. 兑换至成功 | 1. 余额与记录正确 |
 
@@ -100,7 +115,7 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
-| ❗️❗️P0❗️❗️ | 1. Base、USDC 已授权 | 1. 源=USDC（Base），目标=USDT（Polygon）<br>2. **最小可识别精度**询价 | 1. 成功或最小限额提示 |
+| ❗️❗️P0❗️❗️ | 1. Base、USDC 已授权 | 1. 源=USDC（Base），目标=USDT（Polygon）<br>2. **最小可识别精度**询价 | 1. 显示跨链报价（命中 RocketX 且含 `quoteResultCtx`）或显示最小限额提示 |
 | ❗️❗️P0❗️❗️ | 1. 同上 | 1. **中间值**；点 **Max** | 1. 报价与 Max 上限正确，含 `quoteResultCtx`<br>2. USDT decimals 正确 |
 | ❗️❗️P0❗️❗️ | 1. 有效报价 | 1. 兑换至成功 | 1. 流程与记录正确 |
 
@@ -115,7 +130,7 @@
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
 | ❗️❗️P0❗️❗️ | 1. 硬件钱包、Ethereum 有 ETH | 1. 跨链 ETH→BNB，中间值 | 1. 报价正确，命中 RocketX 且含 `quoteResultCtx`<br>2. 确认页渠道 RocketX |
-| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 设备上确认 | 1. 跨链信息在设备可读<br>2. `build-tx` 携带 `quoteResultCtx`<br>3. 提交成功 |
+| ❗️❗️P0❗️❗️ | 1. 已报价 | 1. 设备上确认 | 1. 跨链信息在设备可读<br>2. `build-tx` 请求体携带 `quoteResultCtx`<br>3. 签名后生成 Pending 历史记录，状态可更新为 Success / Failed |
 
 ### 2.2 主币到代币 / 代币到主币 / 代币到代币（抽样）
 
