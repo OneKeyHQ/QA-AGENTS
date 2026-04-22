@@ -143,10 +143,10 @@ node src/recorder/generate.mjs shared/results/recording \
 │   ├── generated/                  # app-monorepo x 分支同步产物
 │   └── results/                    # 执行结果
 ├── .claude/
-│   ├── CLAUDE.md                   # Claude Code 项目规则
+│   ├── CLAUDE.md                   # Claude Code 项目规则（**唯一真源**）
 │   └── skills/                     # Agent 技能定义
-├── AGENTS.md                       # 通用 Agent 行为指南
-└── .cursorrules                    # Cursor 规则
+├── AGENTS.md                       # → symlink → .claude/CLAUDE.md（Codex/Zed/通用 agent 入口）
+└── .cursorrules                    # → symlink → .claude/CLAUDE.md（Cursor AI 入口）
 ```
 
 ## Agent 协作
