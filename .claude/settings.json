@@ -6,9 +6,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // .tool_response.filePath // empty' | { read -r f; case \"$f\" in */.cursorrules) echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"⚠️ 规则双写提醒：.cursorrules 已修改，请同步更新 .claude/CLAUDE.md 中的对应内容。\"}}' ;; */.claude/CLAUDE.md) echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"⚠️ 规则双写提醒：.claude/CLAUDE.md 已修改，请同步更新 .cursorrules 中的对应内容。\"}}' ;; *) ;; esac; }",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath // empty' | { read -r f; case \"$f\" in */.cursorrules|*/AGENTS.md) if [ -L \"$f\" ]; then echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"ℹ️ 你编辑的是软链（指向 .claude/CLAUDE.md）。若目的是改规则，直接编辑 .claude/CLAUDE.md 更清晰。若要改软链指向或恢复普通文件，请明确告知用户。\"}}'; else echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"⚠️ 异常：.cursorrules 或 AGENTS.md 应该是软链（→ .claude/CLAUDE.md），但当前是普通文件。请检查并恢复软链：ln -sf .claude/CLAUDE.md <file>\"}}'; fi ;; */.claude/CLAUDE.md) if [ -L .cursorrules ] && [ -L AGENTS.md ]; then : ; else echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"⚠️ .cursorrules 或 AGENTS.md 不是软链，规则同步已断裂。恢复命令：rm -f .cursorrules AGENTS.md && ln -s .claude/CLAUDE.md .cursorrules && ln -s .claude/CLAUDE.md AGENTS.md\"}}'; fi ;; *) ;; esac; }",
             "timeout": 5,
-            "statusMessage": "Checking rule sync..."
+            "statusMessage": "Checking symlink integrity..."
           }
         ]
       }

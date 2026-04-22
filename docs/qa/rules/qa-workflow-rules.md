@@ -250,7 +250,7 @@
 **步骤 4：用户确认后写入**
 - 用户确认 → 写入对应规范文件 + 更新变更记录
 - 用户拒绝 → 不写入，本次纠正仅在当前会话生效
-- 涉及 `.claude/CLAUDE.md` 的修改 → 同步更新 `.cursorrules`（规则双写）
+- 涉及 `.claude/CLAUDE.md` 的修改 → `.cursorrules` / `AGENTS.md` 是软链，自动同步，**无需手动双写**。修改后用 `readlink .cursorrules AGENTS.md` 验证软链依然指向 `.claude/CLAUDE.md`
 
 ### 禁止行为
 
