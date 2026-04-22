@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Swap Jupiter - Solana 单网络全类型",
-    "description": "Jupiter 渠道（Solana）API 测试用例：\n- 01-Jupiter-询价：同链主币<>代币、代币<>主币、代币<>代币（单网络，不使用多网络循环）\n- 02-Jupiter-构建：同链主币<>代币、代币<>主币、代币<>代币（严格校验 data.tx 存在）",
+    "description": "Jupiter 渠道（Solana）API 测试用例：\n- 01-Jupiter-询价：同链主币<>代币、代币<>主币、代币<>代币（单网络，不使用多网络循环）\n- 02-Jupiter-构建：同链主币<>代币、代币<>主币、代币<>代币（严格校验 data.tx 存在）\n\n基线（来自 docs/qa/rules/swap-network-features.md）：\n- 网络 networkId: sol--101\n- userAddress / receivingAddress: 5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\n- SOL 主币标识: 空字符串\n- USDC: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\n- USDT: Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\n\nJupiter 渠道特性（来自 docs/qa/rules/swap-rules.md）：\n- Jupiter 按静态参数构建，不依赖 quoteResultCtx\n- /swap/v1/build-tx 必须返回 data.tx（Solana 序列化交易）",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -16,8 +16,8 @@
       "type": "string"
     },
     {
-      "key": "userAddressSol",
-      "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ",
+      "key": "userAddressSolana",
+      "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52",
       "type": "string"
     }
   ],
@@ -51,15 +51,16 @@
                   "  pm.expect(json.code).to.eql(0);",
                   "});",
                   "",
-                  "pm.test('Jupiter 主币<>代币 - 返回包含 Jupiter 报价', function () {",
+                  "pm.test('Jupiter 主币<>代币 - 返回包含 Jupiter 有效报价', function () {",
                   "  var data = json.data || [];",
-                  "  var hit = data.some(function (x) {",
+                  "  var jupiterItem = data.find(function (x) {",
                   "    var p = x && x.info && x.info.provider;",
-                  "    if (!p) return false;",
-                  "    var s = String(p).toLowerCase();",
-                  "    return s.indexOf('jupiter') >= 0;",
+                  "    return p && String(p).toLowerCase().indexOf('jupiter') >= 0;",
                   "  });",
-                  "  pm.expect(hit).to.equal(true);",
+                  "  pm.expect(jupiterItem, 'data 中不存在 Jupiter 条目').to.not.be.undefined;",
+                  "  pm.expect(jupiterItem.errorMessage, 'Jupiter 条目携带 errorMessage: ' + jupiterItem.errorMessage).to.be.oneOf([undefined, null, '']);",
+                  "  var hasQuote = jupiterItem.toAmount || jupiterItem.fromAmount || (jupiterItem.info && jupiterItem.info.toAmount);",
+                  "  pm.expect(hasQuote, 'Jupiter 条目无有效报价金额').to.be.ok;",
                   "});"
                 ]
               }
@@ -90,7 +91,7 @@
               }
             ],
             "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=&toTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&slippagePercentage=0.5&autoSlippage=true&receivingAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=&toTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&fromTokenAmount=0.01&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&slippagePercentage=0.5&autoSlippage=true&receivingAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&kind=sell&toTokenAmount=&denySingleSwapProvider=",
               "host": [
                 "swap",
                 "onekeytest",
@@ -104,14 +105,14 @@
               "query": [
                 { "key": "fromTokenAddress", "value": "" },
                 { "key": "toTokenAddress", "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" },
-                { "key": "fromTokenAmount", "value": "1" },
+                { "key": "fromTokenAmount", "value": "0.01" },
                 { "key": "fromNetworkId", "value": "sol--101" },
                 { "key": "toNetworkId", "value": "sol--101" },
                 { "key": "protocol", "value": "Swap" },
-                { "key": "userAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "userAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
                 { "key": "slippagePercentage", "value": "0.5" },
                 { "key": "autoSlippage", "value": "true" },
-                { "key": "receivingAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "receivingAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
                 { "key": "kind", "value": "sell" },
                 { "key": "toTokenAmount", "value": "" },
                 { "key": "denySingleSwapProvider", "value": "" }
@@ -145,15 +146,16 @@
                   "  pm.expect(json.code).to.eql(0);",
                   "});",
                   "",
-                  "pm.test('Jupiter 代币<>主币 - 返回包含 Jupiter 报价', function () {",
+                  "pm.test('Jupiter 代币<>主币 - 返回包含 Jupiter 有效报价', function () {",
                   "  var data = json.data || [];",
-                  "  var hit = data.some(function (x) {",
+                  "  var jupiterItem = data.find(function (x) {",
                   "    var p = x && x.info && x.info.provider;",
-                  "    if (!p) return false;",
-                  "    var s = String(p).toLowerCase();",
-                  "    return s.indexOf('jupiter') >= 0;",
+                  "    return p && String(p).toLowerCase().indexOf('jupiter') >= 0;",
                   "  });",
-                  "  pm.expect(hit).to.equal(true);",
+                  "  pm.expect(jupiterItem, 'data 中不存在 Jupiter 条目').to.not.be.undefined;",
+                  "  pm.expect(jupiterItem.errorMessage, 'Jupiter 条目携带 errorMessage: ' + jupiterItem.errorMessage).to.be.oneOf([undefined, null, '']);",
+                  "  var hasQuote = jupiterItem.toAmount || jupiterItem.fromAmount || (jupiterItem.info && jupiterItem.info.toAmount);",
+                  "  pm.expect(hasQuote, 'Jupiter 条目无有效报价金额').to.be.ok;",
                   "});"
                 ]
               }
@@ -184,7 +186,7 @@
               }
             ],
             "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&toTokenAddress=&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&slippagePercentage=0.5&autoSlippage=true&receivingAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&toTokenAddress=&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&slippagePercentage=0.5&autoSlippage=true&receivingAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&kind=sell&toTokenAmount=&denySingleSwapProvider=",
               "host": [
                 "swap",
                 "onekeytest",
@@ -202,10 +204,10 @@
                 { "key": "fromNetworkId", "value": "sol--101" },
                 { "key": "toNetworkId", "value": "sol--101" },
                 { "key": "protocol", "value": "Swap" },
-                { "key": "userAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "userAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
                 { "key": "slippagePercentage", "value": "0.5" },
                 { "key": "autoSlippage", "value": "true" },
-                { "key": "receivingAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "receivingAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
                 { "key": "kind", "value": "sell" },
                 { "key": "toTokenAmount", "value": "" },
                 { "key": "denySingleSwapProvider", "value": "" }
@@ -239,15 +241,22 @@
                   "  pm.expect(json.code).to.eql(0);",
                   "});",
                   "",
-                  "pm.test('Jupiter 代币<>代币 - 返回包含 Jupiter 报价', function () {",
+                  "pm.test('Jupiter 代币<>代币 - 返回包含 Jupiter 有效报价', function () {",
                   "  var data = json.data || [];",
-                  "  var hit = data.some(function (x) {",
+                  "  var jupiterItem = data.find(function (x) {",
                   "    var p = x && x.info && x.info.provider;",
-                  "    if (!p) return false;",
-                  "    var s = String(p).toLowerCase();",
-                  "    return s.indexOf('jupiter') >= 0;",
+                  "    return p && String(p).toLowerCase().indexOf('jupiter') >= 0;",
                   "  });",
-                  "  pm.expect(hit).to.equal(true);",
+                  "  pm.expect(jupiterItem, 'data 中不存在 Jupiter 条目').to.not.be.undefined;",
+                  "  pm.expect(jupiterItem.errorMessage, 'Jupiter 条目携带 errorMessage: ' + jupiterItem.errorMessage).to.be.oneOf([undefined, null, '']);",
+                  "  var hasQuote = jupiterItem.toAmount || jupiterItem.fromAmount || (jupiterItem.info && jupiterItem.info.toAmount);",
+                  "  pm.expect(hasQuote, 'Jupiter 条目无有效报价金额').to.be.ok;",
+                  "});",
+                  "",
+                  "pm.test('Jupiter 代币<>代币 - fromToken 与 toToken 地址不同', function () {",
+                  "  var url = pm.request.url.toString();",
+                  "  pm.expect(url).to.include('fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');",
+                  "  pm.expect(url).to.include('toTokenAddress=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB');",
                   "});"
                 ]
               }
@@ -278,7 +287,7 @@
               }
             ],
             "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&toTokenAddress=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&slippagePercentage=0.5&autoSlippage=true&receivingAddress=CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&toTokenAddress=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&slippagePercentage=0.5&autoSlippage=true&receivingAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&kind=sell&toTokenAmount=&denySingleSwapProvider=",
               "host": [
                 "swap",
                 "onekeytest",
@@ -296,10 +305,10 @@
                 { "key": "fromNetworkId", "value": "sol--101" },
                 { "key": "toNetworkId", "value": "sol--101" },
                 { "key": "protocol", "value": "Swap" },
-                { "key": "userAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "userAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
                 { "key": "slippagePercentage", "value": "0.5" },
                 { "key": "autoSlippage", "value": "true" },
-                { "key": "receivingAddress", "value": "CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ" },
+                { "key": "receivingAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
                 { "key": "kind", "value": "sell" },
                 { "key": "toTokenAmount", "value": "" },
                 { "key": "denySingleSwapProvider", "value": "" }
@@ -371,7 +380,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"fromTokenAmount\": \"0.01\",\n  \"toTokenAmount\": \"0.829974\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"receivingAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"fromTokenAmount\": \"0.01\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"receivingAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
             },
             "url": {
               "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
@@ -447,7 +456,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"0.012026025\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"receivingAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"0.005\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"receivingAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
             },
             "url": {
               "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
@@ -523,7 +532,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"receivingAddress\": \"CYwvPxrqq6aomdhTwDRHRisKGPCMzcfetgTcmRKu32eZ\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"receivingAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
             },
             "url": {
               "raw": "https://swap.onekeytest.com/swap/v1/build-tx",

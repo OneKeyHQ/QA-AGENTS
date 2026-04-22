@@ -1,12 +1,12 @@
 {
-  "version": "2.3.0",
-  "lastUpdated": "2026-04-17T00:00:00Z",
+  "version": "2.3.3",
+  "lastUpdated": "2026-04-22T17:15:00Z",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
     "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074 — DOM定位/选择器/testid陷阱",
     "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093 — 断言策略/校验方法",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095 — 断言策略/校验方法",
     "recording": "K-009,K-010,K-019 — 录制器相关"
   },
   "patterns": [
@@ -745,6 +745,30 @@
       "pattern": "UTXO 聚合维度：BTC/LTC 按 xpub，DOGE/BCH/Tron 按地址",
       "details": "最近转账的账户聚合规则在 UTXO 链下有区别：① **仅 BTC / LTC** 按扩展公钥（xpub）聚合，所有派生路径（Taproot / Native SegWit / Nested SegWit / Legacy）+ 历史旧地址产生的转账都进入列表；② **DOGE / BCH / Tron** 按单一地址聚合，不走 xpub。EVM 按 lowercase 地址跨链聚合，展示最近一次所在链。生成用例时注意区分，不要把 xpub 规则套用到 DOGE/BCH。源规则：`docs/qa/requirements/Wallet-最近转账.md` §2.2（v2.6）+ 用例 §2.2。",
       "confidence": 0.95
+    },
+    {
+      "id": "K-095",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "Swap /swap/v1/quote 命中 provider 不等于有效报价，必须排除 errorMessage",
+      "details": "`/swap/v1/quote` 响应的 `data` 数组会为**所有在档渠道**都返回一个条目（每个条目都有 `info.provider`），其中不支持本次询价的渠道会携带 `errorMessage: \"没有支持的报价结果\"`，但 `info.provider` 字段照样正常填充。Apifox 断言写 `data.some(x => x.info.provider.toLowerCase().includes('jupiter'))` 会**假阳性通过**——条目存在但报价无效。正确写法：`data.find(...)` 定位到对应 provider 条目后，**必须再校验** ① `errorMessage` 为空/undefined/null；② 存在 `toAmount`/`fromAmount` 等报价金额字段。Panora 模板也有同样问题，按需同步修复。该规则适用于所有渠道（Jupiter/Panora/0x/1inch/OKX/Cow/Near/Houdini/Exodus/Changelly 等）的 Apifox quote 用例。源：`docs/skills/apifox-testcase-generator/output/Swap-Jupiter-全网络全类型-Apifox-TestCases.json` 2026-04-20 修复。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-097",
+      "category": "process",
+      "platform": "all",
+      "pattern": "用例头部元数据 + 预期结果列禁用词（从 Houdini 模板复制时易遗漏）",
+      "details": "基于 Houdini 模板 (`docs/qa/testcases/cases/swap/2026-03-30_Swap-Houdini*.md`) 复制生成新渠道用例时，两类问题高频出现、会被 `/onekey-qa-review` Phase 4 block：① 头部元数据只保留了 `> 生成时间：...` 一行合并引用块，缺独立的 `> 规则文档：...` / `> 测试端：...` / `## 前置条件`（SKILL 4.2.1 要求三项全部必填）；② 预期结果列（表格第 4 列）残留 Houdini 模板里的「成功」/「尝试」等禁用词（SKILL 4.3）。**标准头部模板**（新建用例直接套用）：```\\n# <标题>\\n\\n> 生成时间：YYYY-MM-DD\\n> 规则文档：`docs/qa/rules/<module>-rules.md`\\n> 需求文档：（如有，否则声明引用规则文档）\\n> 测试端：iOS / Android / Desktop / Extension / Web\\n> 关联文档 / 参考模板：...\\n\\n## 前置条件\\n1. ...（≤5 行）\\n```。**禁用词改写口径**（预期结果列）：`成功 → build-tx 返回非空 data.tx / 状态可更新为 Success / Failed`、`报价成功 → 报价返回，命中 <provider> 条目且含 <字段>`、`提交成功 → 生成 Pending 历史记录`、`尝试 → 按此顺序依次降级回退`、UI 枚举值「已成功 / 已失败」建议改写为「按『执行机制』定义的状态流转至终态」（或用反引号标识为产品枚举值）；场景列（第 2 列）/ 操作步骤列（第 3 列）中的「成功」属于可观测前置条件，不判 block。2026-04-22 RocketX 两份用例一次性命中 23 处（6 处头部 + 17 处禁用词），已批量修复并沉淀入此条。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-096",
+      "category": "process",
+      "platform": "all",
+      "pattern": "RocketX 渠道接入：provider=SwapRocketX，同链 + 跨链，构建依赖 quoteResultCtx",
+      "details": "新渠道 RocketX 接入约束（用于生成 Swap 用例）：① provider 标识统一为 `SwapRocketX`；② 同链 + 跨链均覆盖，分别写在 `2026-04-20_Swap-RocketX渠道同链测试.md` / `2026-04-20_Swap-RocketX渠道跨链测试.md`，对齐 Houdini 两份模板；③ 构建接口 `POST /swap/v1/build-tx` **依赖 `quoteResultCtx`**，每条用例必须按 `quote → 提取 RocketX quoteResultCtx → build-tx` 闭环执行，不允许直接 build（与 Exodus / CowSwap / 1inch Fusion / LiFi / Changelly / ChangeHero 同组）；④ 断言失败口径：`data` 未命中 `SwapRocketX` / 命中但携带 `errorMessage` / 命中但无 `quoteResultCtx`，任意一条都判定 failed，失败时输出 `providers=` 与 `rocketxQuote=` 便于定位；⑤ 目前 `app-monorepo` 的 `x` 分支未检索到 `SwapRocketX` 相关常量（`packages/shared/types/swap/SwapProvider.constants.ts` 仅枚举了 `Swap1inchFusion`），支持网络清单采用占位「EVM 七条 + Solana + BTC」，正式清单确认后必须先更新 `docs/qa/rules/swap-rules.md` 的 RocketX 网络节点，再回填用例中的具体场景。详见 `docs/qa/rules/swap-rules.md` 2026-04-20 变更记录。",
+      "confidence": 0.9
     }
   ]
 }
