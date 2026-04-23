@@ -284,7 +284,83 @@ Market 模块包含以下核心功能：
 
 ---
 
-## 10. 通用规则
+## 10. Preset 预设配置规则（Market 交易面板）
+
+> 需求文档：`docs/qa/requirements/Market-Preset配置.md`
+> 功能：按网络差异化提供滑点（Slippage）与优先费（Priority fee）的 Preset 档位配置，由 Dashboard 下发能力清单。
+
+### 10.1 Dashboard 总开关与网络清单
+
+| 规则项 | 规则描述 |
+|-------|---------|
+| 总开关 | 控制交易面板是否提供 Preset 入口；关闭时档位切换器与 Edit presets 入口均不展示 |
+| 网络清单 | Dashboard 提供按网络的配置列表，逐个网络显式打开 |
+| 未打开网络 | 维持线上默认，走保底配置（Slippage Auto 只读 + Priority fee Auto 只读） |
+| 已打开网络 | 按 Dashboard 下发的滑点 / 优先费能力渲染 |
+
+### 10.2 档位结构
+
+| 规则项 | 规则描述 |
+|-------|---------|
+| 档位数量 | 共 4 个：Auto / P1 / P2 / P3（1 默认 + 3 可配置） |
+| 默认值 | P1 / P2 / P3 在用户修改前等同 Auto 的默认值 |
+| Auto 档位 | 展示 Smarter trade settings 与 Anti-MEV 文案块；底部仅 Confirm 按钮 |
+| P1 / P2 / P3 档位 | 头部二级切换 Buy settings / Sell settings；底部 Reset + Confirm |
+| Buy / Sell 独立 | 同一档位下，Buy 与 Sell 配置互不影响 |
+| 保底档位 | Slippage = Auto 只读，Priority fee = Auto 只读；底部仅 OK 按钮 |
+
+### 10.3 滑点（Slippage）能力矩阵
+
+| 能力 | 交互 | 展示 |
+|------|------|------|
+| 可配置 | Auto ↔ Custom 切换；Custom 支持数字百分比输入 + 0.1% / 0.5% / 1% 快捷档 | 复用现有 Slippage 输入组件与报错信息 |
+| 不可配置 | 仅展示，不可切换 | 固定显示 Auto |
+
+### 10.4 优先费（Priority fee）能力矩阵
+
+| 能力 | 档位 | 说明 |
+|------|------|------|
+| 不支持配置 | — | 固定显示 Auto，不可更改 |
+| 支持配置 | Market / Fast / Turbo / Custom | 前三档由 App 交易确认页当前网络的实时估算数据提交，用户不可输入；Custom 档允许用户手动输入数值 |
+
+### 10.5 Custom 单位（按网络差异）
+
+| 网络类型 | Custom 单位 | 备注 |
+|---------|-----------|------|
+| Solana | SOL | 固定单位 |
+| EVM（Ethereum / BSC / Polygon / Arbitrum / Optimism / Base / Avalanche 等） | Gwei | 固定单位 |
+| SUI / TRON / APT | — | Priority fee 固定 Auto，无 Custom 档 |
+| 其他支持 Custom 的网络 | 按 App 交易确认页当前网络的单位读取 | 动态取值 |
+
+### 10.6 网络能力分层
+
+| 层级 | 滑点 | 优先费 | 代表网络 |
+|------|------|--------|---------|
+| Tier A（全可配） | 可配 | 支持 Market/Fast/Turbo/Custom | SOL / EVM |
+| Tier B（仅滑点可配） | 可配 | Auto 只读 | SUI / TRON / APT |
+| Tier C（保底） | Auto 只读 | Auto 只读 | Dashboard 未打开的网络 |
+
+### 10.7 持久化与切网络
+
+| 规则项 | 规则描述 |
+|-------|---------|
+| 持久化粒度 | **按网络**持久化：P1 / P2 / P3 的自定义配置以网络为 Key 存储，同一网络下跨账户 / 跨重启 / 跨入口（Desktop / 移动端 / Swap Pro）共享 |
+| 切账户 | 账户切换不改变当前网络的 Preset 配置（同一网络读取同一份自定义） |
+| 切网络 | Preset 弹窗按新网络能力重新渲染；读取新网络独立保存的 P1 / P2 / P3 自定义；若新网络 Slippage 或 Priority fee 不可配，对应区域退回 Auto 只读 |
+| 跨 Tier 能力降级 | 原 Custom 档位在新网络不支持时（如 SOL→SUI 的 Priority fee），该档位回退到 Auto 只读，不删除存储值（回到可支持网络再次可见） |
+| Reset | 恢复当前档位到当前网络的默认值（等同 Auto），不影响其他档位与其他网络 |
+
+### 10.8 入口覆盖
+
+| 入口 | 说明 |
+|------|------|
+| Desktop 交易面板 | Market → 代币详情 → Chart + 右侧 Buy/Sell 面板 |
+| 移动端 Market Detail | Market → 代币详情 → Chart 下方 Buy/Sell |
+| Swap Pro - Market | Swap → Pro mode → Market 面板 |
+
+---
+
+## 11. 通用规则
 
 ### 数据一致性
 - K 线/列表/详情价格一致
@@ -316,7 +392,7 @@ Market 模块包含以下核心功能：
 
 ---
 
-## 11. 规则维护指南
+## 12. 规则维护指南
 
 ### 如何更新规则
 
@@ -331,7 +407,7 @@ Market 模块包含以下核心功能：
 
 ---
 
-## 12. 变更记录
+## 13. 变更记录
 
 | 日期 | 变更内容 |
 |------|---------|
@@ -344,3 +420,5 @@ Market 模块包含以下核心功能：
 | 2026-02-28 | 修正章节编号（5.1-8.4）、更新模块概述（首页主标签、合约、搜索）、更新列表分类规则 |
 | 2026-03-26 | 扩充 K 线图表规则：时间区间与下方范围、OHLC 口径、价格/市值切换、指标组合与全局自定义、十字线与移动端点击详情、默认周期口径风险提示 |
 | 2026-04-01 | 新增 §9 Confirm Page V2 规则：入口与生命周期、步骤编排、授权判定与费用刷新、异常处理 |
+| 2026-04-22 | 新增 §10 Preset 预设配置规则：Dashboard 总开关 / 档位结构 / 滑点与优先费能力矩阵 / Custom 单位 / 网络分层 / 持久化 / 入口覆盖 |
+| 2026-04-22 | §10.7 明确持久化粒度为「按网络」，切账户不影响当前网络配置，跨 Tier 能力降级时不删除存储值 |
