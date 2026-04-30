@@ -23,11 +23,11 @@
    - EVM：Ethereum / BSC / Polygon / Arbitrum / Avalanche / Optimism / Base
    - UTXO：Bitcoin / Litecoin / Dogecoin / Bitcoin Cash
    - Tron
-   - 规划中：Solana（API 暂未上线；**当前阶段走本地历史路径**，上线后迁移到 API 路径）
+   - **Solana**（已接入，与其它 API 支持链口径一致；服务端 `transfer-recipient` 返回 `supported=true`）
    - EVM 链统一以 `evm--1` 作为 API 读取维度
-   - **服务端过滤**：合约交互地址、中心化 Swap 渠道订单（Changelly / ChangeHero / Exodus / Houdini）、诈骗地址、**0 金额转账记录**
+   - **服务端过滤**：合约交互地址（包括 Solana 的 Program 调用如 Jupiter / Raydium / Orca 等 dApp）、中心化 Swap 渠道订单（Changelly / ChangeHero / Exodus / Houdini）、诈骗地址、**0 金额转账记录**
    - API 返回为空即显示空态，**不**回退本地历史；API 异常保持不白屏
-2. **本地历史路径（客户端过滤）** —— 不支持 indexer 的链（Aptos / Sui / Cardano / **Solana（当前阶段）** 等）：
+2. **本地历史路径（客户端过滤）** —— 不支持 indexer 的链（Aptos / Sui / Cardano 等）：
    - 数据来源于当前钱包在本地客户端发起过的历史转账
    - **客户端过滤**：合约交互、0 金额转账
    - **按账户隔离存储**：切换账户后仅显示当前账户的本地记录，不跨账户共用
@@ -46,8 +46,9 @@
   - 同一账户下所有派生路径（Taproot / Native SegWit / Nested SegWit / Legacy）产生的转账**都**进入列表
   - **历史使用过的旧地址**（已不是当前收款地址）产生的转账**仍**进入列表
   - 不同 HD 账户（不同 xpub）的转账互不串扰
-- **DOGE / BCH / Tron**
+- **DOGE / BCH / Tron / Solana**
   - 按单一地址聚合（不走 xpub）
+  - Solana 仅单一账户地址，不涉及派生路径聚合
 
 ### 2.3 数据过滤规则
 
@@ -95,14 +96,14 @@
 | 规则项 | 规则描述 |
 |-------|---------|
 | 数据源分发 | 按链分两条独立路径：支持 indexer 的链走 API 路径；不支持的链走本地历史路径；两者**不互为回退** |
-| API 支持链 | EVM（ETH / BSC / Polygon / Arbitrum / Avalanche / Optimism / Base）+ UTXO（BTC / LTC / DOGE / BCH）+ Tron；**Solana 规划中暂走本地历史路径** |
-| 本地历史链 | 上述 API 支持链以外的全部链（Aptos / Sui / Cardano / **Solana 当前阶段** 等） |
+| API 支持链 | EVM（ETH / BSC / Polygon / Arbitrum / Avalanche / Optimism / Base）+ UTXO（BTC / LTC / DOGE / BCH）+ Tron + **Solana** |
+| 本地历史链 | 上述 API 支持链以外的全部链（Aptos / Sui / Cardano 等） |
 | 条数上限 | 列表最多 20 条 |
 | 排序 | 按最近转账时间倒序 |
 | EVM 聚合 | 所有 EVM 链共享最近转账池，按最近时间去重 |
 | EVM 去重 | 地址 lowercase 后去重 |
 | BTC / LTC 聚合 | 按**扩展公钥（xpub）**聚合：所有派生路径（Taproot / Native SegWit / Nested SegWit / Legacy）+ 历史旧地址产生的转账都计入 |
-| DOGE / BCH / Tron 聚合 | 按单一地址聚合（不走 xpub） |
+| DOGE / BCH / Tron / Solana 聚合 | 按单一地址聚合（不走 xpub） |
 | 链名展示 | EVM 聚合结果可显示最近一次转账所在链名称 |
 | API 过滤 | 合约交互、合约地址、scam、Failed / Dropped、Swap 中心化渠道、**0 金额**；**不过滤**"转给自己" |
 | 本地历史过滤 | 合约交互、**0 金额**；按账户隔离存储 |
@@ -148,3 +149,4 @@
 | 2026-04-17 | v2.6 | 1. 数据源策略重写为两条**互不回退**的独立路径（API 路径 vs 本地历史路径），按链是否支持 `transfer-recipient` indexer 分发<br>2. 明确 API 支持链清单：EVM（ETH/BSC/Polygon/Arbitrum/Avalanche/Optimism/Base）+ UTXO（BTC/LTC/DOGE/BCH）+ Tron；Solana 规划中<br>3. 明确 API 过滤规则（合约交互、scam、Swap 中心化渠道、Failed/Dropped）**不过滤 0 金额**<br>4. 新增本地历史路径过滤规则：**合约交互 + 0 金额 + 账户隔离**（与 v2.4 "客户端不过滤 0 金额" 的差异：v2.4 描述的是 API 链上记录，本地历史路径客户端需过滤 0 金额）<br>5. 新增跨钱包类型一致性规则：同地址在软件 / 硬件 / 观察地址下的最近转账应一致<br>6. 新增 xpub 聚合规则：**仅 BTC / LTC** 按扩展公钥聚合，所有派生路径（Taproot / Native SegWit / Nested SegWit / Legacy）+ 历史旧地址产生的转账都计入列表；**DOGE / BCH / Tron 按单一地址聚合**，不走 xpub |
 | 2026-04-17 | v2.7 | 更正：最近转账**不支持删除单条记录**；列表是数据源（API / 本地历史）的只读投影，随数据源自然更新；移除 v2.0 的"删除后列表同步移除"描述 |
 | 2026-04-17 | v2.8 | 更正 0 金额过滤口径：**API 服务端 + 本地历史客户端双端都过滤** 0 金额转账记录；**撤销** v2.4 "客户端不应额外过滤 0 金额" / v2.6 "API 不过滤 0 金额" 的错误描述。"转给自己"仍允许展示。 |
+| 2026-04-24 | v2.9 | **Solana 接入 API 路径**：服务端 `transfer-recipient` 对 Solana（`sol--101`）返回 `supported=true`，最近转账从本地历史路径迁移至 API 路径；聚合维度为单一地址（与 DOGE / BCH / Tron 一致）；dApp（Jupiter / Raydium / Orca 等）的 Program 调用由服务端统一过滤，客户端不再处理 Solana 本地历史路径。 |
