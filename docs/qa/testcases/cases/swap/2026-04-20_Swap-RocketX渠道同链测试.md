@@ -18,11 +18,7 @@
 
 ## 测试范围说明
 
-> ⚠️ **TODO（待产品/后端确认）**：RocketX 在 `app-monorepo` 中暂未检索到 `SwapRocketX` 相关常量，下列网络清单为**占位**。正式清单落地后必须先更新 `docs/qa/rules/swap-rules.md` 的 RocketX 网络节点，再回填本文件。
-
-**RocketX 同链支持网络（占位）**：Ethereum、BSC、Polygon、Arbitrum、Optimism、Base、Avalanche、Solana、BTC
-
-> 说明：BTC 为 UTXO 链，通常只作为跨链源/目标；同链在本文件中不强制覆盖 BTC，若后端确认同链可用再补。
+**RocketX 同链支持网络**：Ethereum、BSC、Polygon、Avalanche、Arbitrum、Optimism、Base、Solana、SUI、Tron
 
 **测试覆盖要求**：
 - 兑换类型：在上述网络内覆盖主币→代币、代币→主币、代币→代币（3 种类型）
@@ -173,4 +169,4 @@
 
 | 日期 | 版本说明 |
 |------|----------|
-| 2026-04-20 | 初版：参考 `2026-03-30_Swap-Houdini渠道同链测试.md` 模板生成 RocketX 同链 P0 用例；断言统一按 `provider === 'SwapRocketX'`；**强制** `quote → 提取 quoteResultCtx → build-tx` 闭环（对齐 `docs/qa/rules/swap-rules.md` §渠道构建依赖）；网络清单为**占位**（EVM 七条 + Solana），正式清单以产品/后端确认为准，待确认后回填 |
+| 2026-04-20 | 初版：参考 `2026-03-30_Swap-Houdini渠道同链测试.md` 模板生成 RocketX 同链 P0 用例；断言统一按 `provider === 'SwapRocketX'`；**强制** `quote → 提取 quoteResultCtx → build-tx` 闭环（对齐 `docs/qa/rules/swap-rules.md` §渠道构建依赖）；网络清单为已确认（EVM 七条 + Solana + SUI + Tron） |

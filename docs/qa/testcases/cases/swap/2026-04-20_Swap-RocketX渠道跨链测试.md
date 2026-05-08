@@ -12,15 +12,13 @@
 
 1. 已登录 HD 或 HW 钱包（§2 为 HW）
 2. 源链主币余额充足（覆盖跨链兑换金额 + 源链 Gas + 协议费）
-3. 代币兑换前已完成源链 ERC20 授权；BTC / Solana 走各自链原生签名
+3. 代币兑换前已完成源链 ERC20 授权；Solana / SUI / Tron 走各自链签名规则
 4. 账户地址与代币合约地址**统一以** `swap-network-features.md` 为基线，禁止临时手填
 5. 后端已接入 RocketX 跨链渠道（`provider = SwapRocketX`）且返回 `quoteResultCtx`（跨链路径 / 桥接 / 订单 ID 等）
 
 ## 测试范围说明
 
-> ⚠️ **TODO（待产品/后端确认）**：RocketX 在 `app-monorepo` 中暂未检索到 `SwapRocketX` 相关常量，下列网络清单为**占位**。正式清单落地后必须先更新 `docs/qa/rules/swap-rules.md` 的 RocketX 网络节点，再回填本文件。
-
-**RocketX 跨链支持网络（占位）**：Ethereum、BSC、Polygon、Arbitrum、Optimism、Base、Avalanche、Solana、BTC
+**RocketX 跨链支持网络**：Ethereum、BSC、Polygon、Avalanche、Arbitrum、Optimism、Base、Solana、SUI、Tron
 
 **测试覆盖要求**：
 - 兑换类型：在上述跨链网络组合中覆盖主币→主币、主币→代币、代币→主币、代币→代币（4 种类型）
@@ -50,11 +48,11 @@
 | ❗️❗️P0❗️❗️ | 1. 有效报价（含 `quoteResultCtx`） | 1. 点击「兑换」<br>2. 确认页核对 | 1. 网络 Ethereum → BSC<br>2. 渠道商为 RocketX<br>3. 费用明细完整<br>4. `build-tx` 请求体**携带**询价返回的 `quoteResultCtx`（非伪造、非空） |
 | ❗️❗️P0❗️❗️ | 1. 确认交易并签名 | 1. 等待终态 | 1. Pending → Processing → Success（或失败可溯源）<br>2. 源链 ETH、目标链 BNB 余额变化正确<br>3. 历史记录完整 |
 
-#### 场景：BTC → Ethereum（BTC → ETH）
+#### 场景：SUI → Ethereum（SUI → ETH）
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 |--------|------|---------|---------|
-| ❗️❗️P0❗️❗️ | 1. Bitcoin 网络有余额 | 1. 源=BTC，目标=ETH（Ethereum）<br>2. 输入**最小可识别精度**询价 | 1. 显示跨链报价（命中 RocketX 且含 `quoteResultCtx`）或显示**最小限额**提示 |
+| ❗️❗️P0❗️❗️ | 1. SUI 网络有余额 | 1. 源=SUI，目标=ETH（Ethereum）<br>2. 输入**最小可识别精度**询价 | 1. 显示跨链报价（命中 RocketX 且含 `quoteResultCtx`）或显示**最小限额**提示 |
 | ❗️❗️P0❗️❗️ | 1. 同上 | 1. 输入**中间值**询价 | 1. RocketX 跨链报价返回，命中 RocketX 条目且含 `quoteResultCtx`<br>2. 费用与预估时间展示可读 |
 | ❗️❗️P0❗️❗️ | 1. 同上 | 1. 点击 **Max** | 1. 填充为扣费后可用上限<br>2. 报价与余额校验通过 |
 | ❗️❗️P0❗️❗️ | 1. 有效报价（建议取中间值执行全链路） | 1. 完成兑换并签名 | 1. `build-tx` 返回非空 `data.tx`，请求体携带 `quoteResultCtx`<br>2. 生成 Pending 历史记录，渠道为 RocketX |
@@ -197,4 +195,4 @@
 
 | 日期 | 版本说明 |
 |------|----------|
-| 2026-04-20 | 初版：参考 `2026-03-30_Swap-Houdini渠道跨链测试.md` 模板生成 RocketX 跨链 P0 用例；断言统一按 `provider === 'SwapRocketX'`；**强制** `quote → 提取 quoteResultCtx → build-tx` 闭环（对齐 `docs/qa/rules/swap-rules.md` §渠道构建依赖）；网络清单为**占位**（EVM 七条 + Solana + BTC），正式清单以产品/后端确认为准，待确认后回填 |
+| 2026-04-20 | 初版：参考 `2026-03-30_Swap-Houdini渠道跨链测试.md` 模板生成 RocketX 跨链 P0 用例；断言统一按 `provider === 'SwapRocketX'`；**强制** `quote → 提取 quoteResultCtx → build-tx` 闭环（对齐 `docs/qa/rules/swap-rules.md` §渠道构建依赖）；网络清单为已确认（EVM 七条 + Solana + SUI + Tron） |
