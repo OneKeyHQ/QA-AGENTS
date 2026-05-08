@@ -207,7 +207,7 @@
 
 **轮播设置**（设置按钮/齿轮入口）：
 - **不展示**：不展示底部代币轮播
-- **默认**（如 Popular）：展示默认/热门代币轮播，显示代币价格与涨跌幅
+- **默认**（如 Popular）：展示默认/热门代币轮播，显示代币价格与涨跌幅。**根据当前 `tradingMode` 联动**：合约模式下展示**合约热门代币**；现货模式下展示**现货热门交易对**；模式切换时轮播内容自动切换
 - **收藏**（Favorites）：展示收藏代币轮播，与顶部收藏列表及排序完全一致
 
 **轮播点击切换**：
@@ -398,6 +398,227 @@ UI 下单模式（2 种入口）：
 
 ---
 
+## 5. 现货交易规则（Spot Trading）
+
+> 关联 PR：[OneKeyHQ/app-monorepo#11183](https://github.com/OneKeyHQ/app-monorepo/pull/11183)
+> 关联需求：`docs/qa/requirements/Perps-现货交易.md`
+
+### 5.0 HW 钱包参与点（重要边界）
+
+Hyperliquid 采用 **Agent Wallet** 模式：
+
+- HW 钱包**仅在「启用交易（Approve Agent）」流程中签名授权一次**，由 `docs/qa/testcases/cases/perps/2026-01-04_Hyperliquid-ApproveAgent推荐绑定Checkbox.md` 覆盖
+- 后续所有现货 / 永续**下单 / 撤单 / TP/SL / 触发单**均由 Agent 代签，**HW 不参与每笔交易**
+- 提币（Withdraw）等链上交互场景仍需 HW 签名，按 Hardware 模块规则单独覆盖
+
+**规则约束（强制）**：
+- 生成 Perps / 现货模块用例时，**禁止**为下单 / 撤单 / 修改 TP/SL 等高频交易流程添加 HW 签名屏字段核对类用例
+- 仅 Approve Agent / Withdraw 等"链上动作"才需要 HW 用例
+- 其他流程的 HW 验证已在 Approve Agent 用例中完成，不重复覆盖
+
+### 5.1 交易模式（tradingMode）
+
+- 全局状态 `tradingModeAtom`：`'perp' | 'spot'`，默认 `perp`
+- 现货交易复用永续模块入口（同一页面），通过模式切换 UI 元素（按钮文案、杠杆控件、订单面板列）
+- 模式由选中的 token 类型决定：永续 token → perp；现货 token（名称以 `@` 开头或含 `/`）→ spot
+
+### 5.2 Token Selector Spot Tab
+
+- 在 Favorites / Perps 两个固定 Tab 外追加 **Spot Tab**，固定位置
+- 列字段：Token（含显示名映射）/ Mark Price / 24h Change% / 24h Volume / **Market Cap**（替代 Open Interest）
+- **不显示** Funding Rate 列
+- 最小名义成交额过滤：`dayNtlVlm >= SPOT_MIN_VOLUME_STRICT (= 10)`。`dayNtlVlm` 为 24h **名义成交额**（价格 × 数量，非成交数量），单位按报价币种；Hyperliquid spot 绝大多数以 USDC 报价，实际阈值可视为 ≈ $10 USDC。低于该阈值的 token 从列表过滤（含 `ctx` 为空导致 `dayNtlVlm=0` 的 token）
+- Spot Meta 兜底：`getSpotMeta()` 返回空时自动 `refreshSpotMeta()` 重新获取
+- 加载中显示 Spinner
+- 搜索：按 `baseName` / `displayBase` / `pairDisplay` 不区分大小写模糊匹配
+
+### 5.3 Token 显示名映射
+
+| 内部名 | 展示名 | 内部名 | 展示名 |
+|-------|--------|-------|--------|
+| UBTC | BTC | LINK0 | LINK |
+| UETH | ETH | AAVE0 | AAVE |
+| USOL | SOL | AVAX0 | AVAX |
+| UFART | FARTCOIN | BNB0 | BNB |
+| UBONK | BONK | CFX0 | CFX |
+| UPUMP | PUMP | PEPE0 | PEPE |
+| UENA | ENA | TRX0 | TRX |
+| UXPL | XPL | USDT0 | USDT |
+| UZEC | ZEC | XAUT0 | XAUT |
+| UMON | MON | HPENGU | PENGU |
+| UUUSPX | SPX | HPEPE | PEPE |
+| UDOGE | DOGE | FXRP | XRP |
+| UMOG | MOG | XMR1 | XMR |
+| UWLD | WLD | HBNB | BNB |
+| UMEGA | MEGA | HSEI | SEI |
+| UVIRT | VIRTUAL | USPYX | SPYX |
+| UDZ | DZ | | |
+
+- Pair 显示格式：`<displayBase>/<quoteName>`（例：BTC/USDC）
+- 未映射的 token 使用原始名称
+
+### 5.4 现货下单
+
+#### 订单类型
+- **市价单**（`orderType='market'`）：底层用 `limit + tif='Ioc'`，价格 = `markPrice × (1 ± slippage)`（Buy 加、Sell 减）
+- **限价单**（`orderType='limit'`）：底层用 `limit + tif='Gtc'`，需填 `limitPx`
+
+#### 方向与文案
+- 现货模式下 TradeSideToggle 按钮文案切换：Long → **Buy**、Short → **Sell**
+- `isBuy: true` 对应 `side='long'`；`isBuy: false` 对应 `side='short'`
+
+#### 参数校验
+- **assetId 断言**：必须为数字且 `>= SPOT_ASSET_ID_OFFSET (= 10_000)`
+  - `< SPOT_ASSET_ID_OFFSET` → 服务层抛 `invalid spot assetId ${assetId}, must be >= 10000`
+  - `undefined` / `!Number.isFinite` → 抛 `'Spot asset metadata not loaded. Please try again.'`
+- **Trigger 拦截**：现货模式下 `orderMode === 'trigger'` 时弹 Toast `'Trigger orders are not supported in spot mode'`，不提交
+- **TP/SL**：现货下单不附带 TP/SL
+- **杠杆**：强制为 1（`leverageValue: 1`），计算 size 时不使用 formData.leverage
+
+#### 价格精度
+- `MAX_DECIMALS_SPOT = 8`；最大小数位 = `max(0, 8 - szDecimals)`
+- `MAX_SIGNIFICANT_FIGURES = 5`
+- `MAX_PRICE_INTEGER_DIGITS = 12`
+- 整数部分 >= 5 位时禁止输入小数
+- 中文句号 `。` 自动转为 `.`
+- 前导零规则：`0.` 合法，`00` / `01` 等非法
+- `formatSpotPriceToValid`：保留整数尾零，去除小数点后尾零（`60.100` → `60.1`；`60000` 保持 `60000`）
+
+### 5.5 持有币种 Tab（订单信息面板）
+
+#### Tab 可见性
+- 在 `PerpOrderInfoPanel` 中增加**持有币种 Tab**（代码 tab name 标识为 `Balances`）
+- 与 Positions / Open Orders / Trades History / Account 并列
+
+#### 列定义
+| 列 | 含义 | 备注 |
+|----|------|------|
+| Asset | 资产名（已做显示名映射） | OneKey 统一账户模式：USDC 等同币种不区分 spot/perps，UI 合并为单条展示 |
+| Balance | `total`（现货 raw total / 永续 totalRawUsd） | |
+| Available | `max(total − hold, 0)` / `withdrawable`（永续） | |
+| Value | USDC 价值（按 markPx 换算） | 稳定币直接等于 total |
+| PNL (ROE %) | `total × midPrice − entryNtl` | 稳定币不计算 PNL；非稳定币行右侧显示**分享按钮**（点击触发分享卡片） |
+| Contract | EVM 合约地址（从 `tokenContractMap`） | 显示 6+4 格式 + **复制按钮** + **跳转按钮**（跳转区块浏览器） |
+
+#### 数据规则
+- **稳定币**：USDC / USDT / USDB 不计 PNL，`pnl=undefined`
+- **价格源优先级**：①同 token 的 USDC 报价对 `markPx` → ②任一 quote 的 `markPx`
+- **零余额过滤**：`total == 0` 不显示
+- **排序**：USDC 固定在列表最顶部（不参与价值排序）；其他资产按价值（USDC 计价）从高到低；值相等时按 `total` 降序兜底
+- **USDC 合并显示（统一账户）**：OneKey 采用统一账户模式，现货 USDC 与合约 USDC 在持有币种 Tab 中**合并为一行展示**，余额 = 现货 USDC + 合约 USDC。代码层 `SpotBalanceList` 中保留的 `needsSuffix` 字段为历史遗留，UI 实际不再展示双条目
+
+#### 交互
+- **行点击**：非 USDC 且有 `spotUniverse` 的行 `isAssetClickable=true`，点击调用 `changeActiveSpotAsset` 切换到该 token 现货交易视图。**默认匹配 `<base>/USDC` 交易对**；若该代币无 USDC 报价对则回退到任一可用报价对（与价格源回退口径一致：①优先 USDC ②任一 quote）
+- **盈亏分享**：非稳定币行盈亏列右侧显示分享按钮，点击弹出分享卡片（含代币、持仓数量、盈亏金额 / 百分比、价格、二维码 / 推广链接），可保存图片或一键分享到社交平台
+- **合约跳转**：合约列地址右侧显示跳转按钮，点击打开区块浏览器（Hyperliquid Explorer 或对应链浏览器）合约页
+- **下拉刷新**：触发 `refreshAllPerpsData()`
+- **账户切换**：`currentListPage` 回到 1；`spotBalancesAtom` 重置为空
+- **Loading 条件**：`currentUser?.accountAddress && !isLoaded` 时显示 loading
+- **空态文案**：`global_no_data` + `perp_trade_history_empty_desc`
+
+### 5.6 现货行情页（Ticker Bar / Market Header）
+
+#### 字段切换（perp vs spot）
+| 字段 | Perp | Spot |
+|------|------|------|
+| Open Interest | ✅ 显示 | ❌ 替换为 Market Cap |
+| Market Cap | ❌ | ✅ `circulatingSupply × markPrice` |
+| Funding Rate | ✅ | ❌ 不显示 |
+| Contract | ❌ | ✅ `0x1234...abcd` + 复制按钮 + **跳转按钮**（区块浏览器） |
+| Oracle Price | ✅ | ❌ 不显示 |
+| builderFee 提示 | ✅（`builderFeeRate===0` 时） | ❌ 不显示 |
+
+#### 合约地址显示
+- 格式：`<前 6 位>...<后 4 位>`（例：`0x0000...c0de`）
+- 无合约时显示 `--`，无复制 / 跳转按钮
+- 右侧依次显示「**复制按钮**」+「**跳转按钮**」
+- 复制按钮：点击复制完整地址到剪贴板
+- 跳转按钮：点击打开区块浏览器（Hyperliquid Explorer 或对应链浏览器）合约页
+
+### 5.7 订阅与连接优化
+
+#### 订阅类型
+- `SPOT_STATE`：现货余额订阅；`spotEnabled` 门控（账户存在时默认开启）
+- `SPOT_ASSET_CTXS`：现货全量行情；仅在 Spot 模式或 Token Selector Spot Tab 打开时开启
+- `ACTIVE_SPOT_ASSET_CTX`：当前活跃现货 token 详情订阅
+
+#### 订阅计划（planTradeSubscriptions）
+- `spotEnabled = hasAccount`
+- `spotAssetCtxsEnabled = isSpot || (tokenSelectorOpen && tokenSelectorTab === 'spot')`
+- `shouldSyncSubscriptions`：
+  - Spot 模式：`Boolean(instrumentCoin)` 且路由 focused
+  - Perp 模式：`Boolean(instrumentCoin) && orderBookOptions?.coin === instrumentCoin` 且路由 focused
+- `enableLedgerUpdates = hasAccount && infoPanelTab === 'Account'`（单向开关，一旦开启不再关）
+
+#### 首次订阅优化
+- `_hasInitialSubscription` 标志：首次 `updateSubscriptions()` 跳过 300ms 防抖，立即执行
+- `disconnect()` 重置标志，iOS 前后台重连后首次订阅仍跳 debounce
+
+#### 缓存优化
+- `loadTradesHistory`：`CACHE_TIME_QUANTIZE_MS = 10_000` 把 `Date.now()` 量化到 10s 窗口，消除重复 `userFillsByTime` 请求（约 345KB）
+- `usePerpFeatureGuard`：切换到缓存版本，`perp-config` 1h TTL
+
+#### 并行化
+- `exchangeService.setup()` + `userRole()` 通过 `Promise.all` 并行
+- `checkBuilderFeeStatus` + `checkInternalRebateBindingStatus` 并行
+- `checkAgentStatus` 顺序执行于两者之后
+- `setReferrer` 延后到 `finally` 后 fire-and-forget
+
+### 5.8 URL 路由同步
+
+- 格式：`/perps?mode=<perp|spot>&token=<symbol>`（query string 路由，非 hash 路由）
+- **`mode` 参数显式区分模式**：`perp` / `spot`，不依赖 token 名隐式判断
+- **`token` 参数使用显示名**：spot 与 perp 共用一组显示名（HYPE / BTC / ETH 等）；DEX 前缀代币保留前缀（`token=dex:HYPE`）
+- 示例：
+  - `/perps?mode=spot&token=HYPE` → 现货 HYPE/USDC（spot 默认 USDC 报价，根据 token 反查 spotUniverse）
+  - `/perps?mode=perp&token=BTC` → 永续 BTC
+  - `/perps?mode=perp&token=dex:HYPE` → DEX 永续 HYPE
+- URL 变化触发 `switchTradeInstrument({ mode, coin, spotUniverse })`
+- 浏览器前进/后退与 tab 页之间保持模式与 token 同步
+
+### 5.9 状态隔离与持久化
+
+| Atom | 类型 | 持久化 | 说明 |
+|------|------|-------|------|
+| `tradingModeAtom` | global | ❌ | 当前交易模式 |
+| `spotActiveAssetAtom` | global | ✅ | 当前选中的现货 token |
+| `spotActiveAssetCtxAtom` | global | ❌ | 当前现货 token 行情 |
+| `spotBalancesAtom` | global | ❌ | 当前账户现货余额 |
+| `spotActiveOpenOrdersAtom` | global | ❌ | 当前账户现货挂单（按 address 隔离） |
+| `spotTokenSelectorConfigPersistAtom` | global | ✅ | 现货排序/Tab 配置 |
+| `spotTokenFavoritesPersistAtom` | global | ✅ | 现货收藏（独立于永续） |
+| `spotPairDisplayMapAtom` | global | ❌ | pair 显示名 map |
+| `spotAssetCtxsMapAtom` | global | ❌ | 现货全量行情 map |
+
+#### 账户切换重置
+- `spotBalancesAtom` → `{ balances: [], isLoaded: false }`
+- `spotActiveOpenOrdersAtom` → `{ accountAddress: undefined, openOrders: [] }`
+- `currentListPage` 回到 1
+
+### 5.10 订单与历史成交
+
+- **Open Orders**：现货与永续分两个 list（`spotOpenOrders` vs `perpOpenOrders`），按 `activeTradeInstrument.mode` 切换展示
+- **Trades History**：现货与永续共用 `USER_FILLS` 订阅，按 `isSpotInstrument(fill.coin)` 分流过滤
+- **撤单作用域**：现货撤单只作用于现货订单；永续撤单只作用于永续订单
+
+### 5.11 爆仓/清算隔离
+
+- 现货模式下 `useLiquidationPrice()` 返回 `null`
+- TradingView 图表的持仓线/爆仓线在现货模式不显示相关标记
+
+### 5.12 常量汇总
+
+| 常量 | 值 | 用途 |
+|------|-----|-----|
+| `SPOT_ASSET_ID_OFFSET` | 10_000 | 现货 assetId 起始偏移 |
+| `MAX_DECIMALS_SPOT` | 8 | 现货价格最大小数位基准 |
+| `CACHE_TIME_QUANTIZE_MS` | 10_000 | Trades History 缓存量化窗口 |
+| `SPOT_MIN_VOLUME_STRICT` | 10 | Spot Tab 最小名义成交额过滤阈值（`dayNtlVlm`，单位按报价币种，spot 基本为 USDC） |
+| `MAX_SIGNIFICANT_FIGURES` | 5 | 价格有效位数上限 |
+| `MAX_PRICE_INTEGER_DIGITS` | 12 | 价格整数位上限 |
+
+---
+
 ## 📝 规则维护指南
 
 ### 如何更新规则
@@ -461,3 +682,21 @@ UI 下单模式（2 种入口）：
 
 ### 2026-03-20
 - 将下单入口合并为 2 个触发下单模式（市价止盈止损、限价止盈止损），模式内切换止盈/止损以覆盖 4 种触发语义。
+
+### 2026-04-21
+- 新增第 5 章「现货交易规则（Spot Trading）」，覆盖 PR #11183：
+  - 5.1 交易模式（tradingModeAtom: 'perp' | 'spot'）
+  - 5.2 Token Selector Spot Tab（列字段、`dayNtlVlm >= 10` 名义成交额过滤、meta 兜底）
+  - 5.3 Token 显示名映射（UBTC→BTC、FXRP→XRP、HPEPE→PEPE 等）
+  - 5.4 现货下单（市价/限价 Buy/Sell、assetId 断言、trigger 拦截、杠杆强制 1）
+  - 5.5 持有币种 Tab（现货 + 永续 USDC 同屏、PNL 计算、稳定币识别）
+  - 5.6 现货 Ticker Bar（Market Cap 替代 Open Interest、合约地址、无 Funding）
+  - 5.7 订阅与连接优化（SPOT_STATE/SPOT_ASSET_CTXS 门控、首次跳 debounce、缓存量化）
+  - 5.8 URL 路由同步（`@N` / `X/Y` → spot）
+  - 5.9 状态隔离与持久化
+  - 5.10 订单与历史成交分流
+  - 5.11 爆仓/清算隔离（现货 useLiquidationPrice 返回 null）
+  - 5.12 常量汇总
+
+### 2026-04-22
+- 新增 5.0「HW 钱包参与点（重要边界）」：明确 Hyperliquid Agent Wallet 模式下 HW 仅在 Approve Agent 时签名一次，禁止为下单 / 撤单等高频流程添加 HW 用例。沉淀来自实际生成现货用例时的误加 HW 签名屏校对章节经验
