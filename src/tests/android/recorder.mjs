@@ -1,7 +1,8 @@
 // Android operation recorder — monitors touch events + screenshots + UI element detection
 // Usage: npx tsx src/tests/android-recorder.mjs [device_id]
-// Live monitor at http://localhost:3210 (auto-opens in browser)
+// Live monitor at http://localhost:3212 (auto-opens in browser)
 // Press Ctrl+C to stop
+// Port 3212 (NOT 3210) — desktop CDP recorder owns 3210; Web recorder owns 3211
 
 import 'dotenv/config';
 
@@ -15,11 +16,11 @@ import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createServer } from 'node:http';
 import { exec } from 'node:child_process';
-import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 import sharp from 'sharp';
 
 const ADB = resolve(process.env.ANDROID_HOME || `${process.env.HOME}/Library/Android/sdk`, 'platform-tools/adb');
-const MONITOR_PORT = 3210;
+const MONITOR_PORT = 3212;
 
 // ── Auto-detect device parameters ────────────────────────────
 
@@ -115,13 +116,28 @@ let screenshotIndex = 0;
 let capturing = false;
 const startTime = new Date().toISOString();
 
-// ── AI Vision (qwen-vl) for element identification ──────────
+// ── AI Vision (Claude) for element identification ───────────
 
-const ai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL,
+const ai = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
 });
-const AI_MODEL = process.env.MIDSCENE_MODEL_NAME || 'qwen-vl-max-latest';
+const AI_MODEL = process.env.CLAUDE_VISION_MODEL || 'claude-opus-4-7';
+
+const ELEMENT_SCHEMA = {
+  type: 'object',
+  properties: {
+    elementType: {
+      type: 'string',
+      enum: ['button', 'input', 'text', 'icon', 'tab', 'card', 'list-item', 'image', 'link', 'toggle', 'other'],
+    },
+    label: { type: 'string' },
+    section: { type: 'string' },
+    action: { type: 'string' },
+    confidence: { type: 'number' },
+  },
+  required: ['elementType', 'label', 'section', 'action', 'confidence'],
+  additionalProperties: false,
+};
 
 // Pre-tap screenshot: taken on finger DOWN so we capture BEFORE the UI changes
 let preTapScreenshotPromise = null;
@@ -152,39 +168,36 @@ async function identifyWithAI(screenshotPath, screenX, screenY) {
     const annotated = await annotateScreenshot(screenshotPath, screenX, screenY);
     const imgBase64 = annotated.toString('base64');
 
-    const resp = await ai.chat.completions.create({
+    const resp = await ai.messages.create({
       model: AI_MODEL,
+      max_tokens: 1024,
+      output_config: {
+        format: { type: 'json_schema', schema: ELEMENT_SCHEMA },
+      },
       messages: [{
         role: 'user',
         content: [
           {
-            type: 'image_url',
-            image_url: { url: `data:image/png;base64,${imgBase64}` },
+            type: 'image',
+            source: { type: 'base64', media_type: 'image/png', data: imgBase64 },
           },
           {
             type: 'text',
             text: `This is an Android app screenshot. A red crosshair marks exactly where the user tapped.
-Identify the UI element at the red crosshair. Return ONLY a JSON object:
-{
-  "elementType": "button|input|text|icon|tab|card|list-item|image|link|toggle|other",
-  "label": "the visible text or icon name at the crosshair",
-  "section": "screen area (e.g. header, tab-bar, token-list, modal, form)",
-  "action": "what this tap likely does (e.g. open-token-selector, navigate-back, submit)",
-  "confidence": 0.0-1.0
-}
-No markdown, no explanation, just the JSON.`,
+Identify the UI element at the red crosshair.
+- elementType: one of button|input|text|icon|tab|card|list-item|image|link|toggle|other
+- label: the visible text or icon name at the crosshair
+- section: screen area (header, tab-bar, token-list, modal, form, ...)
+- action: what this tap likely does (open-token-selector, navigate-back, submit, ...)
+- confidence: 0.0-1.0`,
           },
         ],
       }],
-      max_tokens: 200,
     });
 
-    const text = resp.choices?.[0]?.message?.content?.trim();
-    if (!text) return null;
-
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return null;
-    return JSON.parse(jsonMatch[0]);
+    const textBlock = resp.content.find((b) => b.type === 'text');
+    if (!textBlock?.text) return null;
+    return JSON.parse(textBlock.text);
   } catch (e) {
     console.error(`    AI identify failed: ${e.message}`);
     return null;

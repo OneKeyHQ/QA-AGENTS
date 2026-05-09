@@ -107,13 +107,16 @@ curl -s http://127.0.0.1:9222/json/version
 | `shared/results/<id>.json` | Runner | Execution results |
 | `shared/reports/*.md` | Reporter | Quality reports |
 | `shared/reports/review-*.md` | QA Reviewer | Pre-commit review reports |
+| `shared/runtime-config.json` | Dashboard UI | 每个 tester 的钱包账户配置（账户1/账户2，仅 walletName + accountName，**不含地址**——地址按链由脚本运行时自动读取）。**只用于转账（Transfer）类用例**；Swap / DeFi 等其他模块未来会有各自的配置入口。**gitignored**，每人本地配一次。脚本通过 `helpers/runtime-config.mjs` 读取，`Settings ⚙️` 弹窗中编辑。 |
+| `shared/checklists.json` | Dashboard UI | 回归 Checklist 合集（命名如 `Checklist-Desktop-TF包`，每条绑平台 + items[label, caseIds]）。Dashboard 左侧面板可视化新建/编辑/删除。 |
 
 ## Key Libraries & Paths
 - `src/knowledge/memory-pipeline.mjs` — Three-phase memory pipeline (MemCells → MemScenes → Recall)
 - `src/recorder/listen.mjs` — Desktop CDP recorder (port 3210)
 - `src/recorder/listen-web.mjs` — Web recorder (port 3211)
 - `src/tests/run.mjs` — CLI Runner（**正式入口**）
-- `src/tests/helpers/{index,navigation,accounts,network,transfer,preconditions,components}.mjs`
+- `src/tests/helpers/{index,navigation,accounts,network,transfer,preconditions,components,runtime-config}.mjs`
+  - `runtime-config.mjs` 暴露 `loadAccounts()` / `requireAccounts()` / `resolveTransferDirection()`，读取 `shared/runtime-config.json` 中 Dashboard 配置的钱包账户，转账脚本默认 primary→secondary，余额不足自动反向
 - `src/tests/android/recorder.mjs` — Android 录制器
 - `src/schemas/*.schema.json` — JSON Schema for all shared state files
 - `src/dashboard/server.ts` — 测试执行面板（http://localhost:5050）
@@ -150,6 +153,11 @@ const SCREENSHOT_DIR = resolve(RESULTS_DIR, '<feature>');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
 const ALL_TEST_IDS = ['SWAP-001', 'SWAP-002'];
+
+// Dashboard 显示名（中文）——必填，否则 Dashboard 侧栏 / Checklist 编辑器会回退到英文
+// 命名约定：用本测试组的中文名，如「图表」「地址簿添加」「兑换」等
+export const displayName = '基础兑换';
+// 可选：如果该 .test.mjs 跨多个模块或想覆盖父目录中文名，再加 export const categoryTitle = '兑换';
 
 // 模块级缓存前置条件结果（避免用例间重复运行导致卡顿）
 let _preReport = null;
@@ -212,6 +220,7 @@ if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 - 脚本必须连贯执行：一个用例 = 一段连续操作流，不拆成多个孤立用例
 
 ## Conventions
+- **新建 `.test.mjs` 必须导出 `displayName`**（中文名）。Dashboard 侧栏和 Checklist 编辑器会优先用它显示分组名；不写则回退到 `ZH_LABELS` 中央映射，再回退到英文 titleized 并打 console 警告。新增用例时直接在文件顶部写 `export const displayName = '中文名';`，不要回去改中央映射表。
 - Test case IDs: `<FEATURE>-<NNN>` (e.g., COSMOS-001)
 - Result files: `shared/results/<id>.json`
 - Selector strategy (current execution path): ui-map primary → fallbacks → JS evaluate emergency

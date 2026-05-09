@@ -1,7 +1,57 @@
 # 转账链规则文档
 
-> 本文档记录不同链的转账相关规则，包括最小转账金额、账户最低余额、Gas 规则等。
+> 本文档记录不同链的转账相关规则，包括最小转账金额、账户最低余额、Gas 规则、链特殊机制等。
 > 生成转账测试用例时，必须参考本文档中的规则。
+
+---
+
+## 🧱 链专项转账用例标准结构（强制）
+
+> 适用于 `docs/qa/testcases/cases/transfer/<chain>转账-*.md` 各链转账用例。
+
+### 基本组成
+
+链专项转账用例**只包含两类内容**：
+
+1. **主流程参数化**：按 CSV / 用户提供的数据点（币种 × 金额）逐行覆盖完整流程（发送 → 选币 → 输入地址 → 输入金额 → 切法币 → 预览 → 确认 → 历史 → 区块浏览器对账）
+2. **边界值用例**：基于该链特性的边界场景（如 EIP-1559 进阶设置 / Tron 资源不足烧 TRX / Polkadot Max 计算）
+
+可选追加：性能与体验（loading / 重复进入 / 多链切换）。
+
+### 转账双方账户固定（强制）
+
+链专项转账用例的接收方**统一固定为「账户1 ↔ 账户2 互转」**，余额不足时自动反向（与 `helpers/runtime-config.mjs` 的 `resolveTransferDirection()` 行为对齐）。
+
+- 不在场景列里给接收方分配「钱包内 / 地址簿 / 首次转账 / 链首次转账」等多种类型
+- 不为了"覆盖地址识别 UI"而在不同行换接收方类型 — 这类通用 UI 行为不属于链用例职责
+- 钱包账户标签 / 地址簿标签 / 首次转账提示等通用地址识别行为：归通用文档或 `wallet-rules.md`，链用例不重复
+
+### 严禁单独建章节
+
+| 禁止类型 | 应写在哪 |
+| --- | --- |
+| 链特殊机制描述（免 Gas 规则 / 资源模型 / ED 规则等） | **本规则文档**对应链章节 |
+| 状态动态切换（处理中 → 成功 / 失败展示） | 通用历史记录行为，不写 |
+| 产品体验建议 | 默认不写；如需则提交前自动删除（见 `qa-rules.md §9.5`） |
+| 新地址 / 租金 / ED 边界用例 | `docs/qa/testcases/cases/wallet/2026-04-09_Wallet-发送-转账规则&租金.md` |
+| 地址格式校验（SS58 / Base58 / 0x / 校验和） | 输入框通用校验逻辑覆盖，不写 |
+| 余额为 0 前置拦截 | 同上租金用例 §0 |
+| 接收方地址类型多样化（地址簿 / 首次转账 / 链首次转账） | 通用 UI 行为，链用例统一用「账户1 ↔ 账户2」 |
+
+### 头部声明（强制）
+
+链用例文档头部用 blockquote 引用通用文档，不重复正文：
+
+```markdown
+> 边界：**新地址 / 主币余额 = 0 前置拦截**等通用边界见 `docs/qa/testcases/cases/wallet/2026-04-09_Wallet-发送-转账规则&租金.md`，本文不重复；**地址格式校验**由发送页输入框通用校验逻辑覆盖，本文不重复
+```
+
+### 链特殊机制的写法
+
+链有特殊机制（BNB Paymaster 免 Gas / Tron Energy + Bandwidth / Polkadot ED / L2 双重网络费等）时：
+
+1. **机制描述与规则**：写到本文档对应链章节（如「BNB Chain — Paymaster 免 Gas」「Tron — 资源模型」）
+2. **测试用例**：仅在主流程相关行的预期结果里**点出可观察行为**（如「网络费用 = 0 BNB（USD1 永久免 Gas）」），不在用例文档单独建机制说明章节、不写描述性 blockquote
 
 ---
 
@@ -328,6 +378,186 @@
 
 ---
 
+### BenFen (BFC)
+
+> 适用于 BenFen 主网，主币为 **BFC**，OneKey 已接入。
+
+#### 主币与精度
+
+- **主币**：BFC，精度 **9 位小数**（最小可见单位 `0.000000001 BFC`）。
+- **代币**：常见包括 **BUSD**（链上稳定币）、**BF_USDC**（USDC on BenFen）、**LONG** 等。
+
+#### 金额规则
+
+- **0 金额禁止**：金额 = 0 时禁止提交，「预览」按钮置灰。
+- **最大值**：`Max = 余额 − 当前预估网络费用`；如有账户最低保留要求，需相应扣除（具体以链运行时为准）。
+- **极小精度**：输入 `0.000000001` 等接近最小单位的金额需正常显示，无科学计数异常。
+
+#### 网络费用
+
+- Gas 以主币 BFC 结算；代币（BUSD / BF_USDC / LONG 等）转账的网络费同样以 BFC 结算，与代币余额分离展示。
+- 是否支持多档切换、是否提供进阶设置以产品实际为准（首次接入需对照截图核对，本规则不强制声称）。
+
+#### Memo / Tag
+
+- BenFen 主币与代币转账**协议层不携带 Memo**；OneKey 发送页不提供 Memo 输入框。
+
+#### 历史记录字段
+
+- 标准字段：金额、类型、状态、时间、from / to、交易哈希、网络费用、网络。
+- 是否额外显示区块高度 / 确认数 / Nonce 等以链与产品实现为准（首次接入需对照截图核实）。
+
+---
+
+### EVM 通用（含 BNB Chain）
+
+> 适用于 Ethereum、BNB Chain、Polygon、Avalanche、Arbitrum、Optimism、Base 等基于 EVM 的网络。本节聚焦各 EVM 链共享的转账行为；个别链特性（如 BNB Chain Paymaster 免 Gas）单独标注。
+
+#### 地址与跨链复用
+
+- **地址格式**：0x 开头 42 位（含 0x），各 EVM 链共享同一地址（同一私钥派生出同一地址）。
+- **地址识别四类提示**（发送页输入地址后展示）：
+  - **钱包内地址**：接收方为本钱包派生出的另一账户地址 → 显示账户名标签
+  - **地址簿地址**：接收方在地址簿中存在条目 → 显示地址簿标签
+  - **首次转账**：接收方在所有 EVM 链上**从未**收到过本账户的转账
+  - **链首次转账**：接收方在其他 EVM 链上有过交互，但**当前链**上从未收到过本账户的转账（多链共享地址特有）
+- **地址格式校验**：发送页输入框对长度、十六进制字符、校验和（EIP-55 大小写）有通用校验，本节规则文档不重复。
+
+#### 网络费用与进阶设置
+
+- **四档可切换**：Slow / Standard / Fast / Custom（具体文案以产品为准）；切换后**预估费用**与**预估时间**同步联动。
+- **进阶设置**支持修改：Gas Limit、Gas Price（或 EIP-1559 的 Max Fee / Max Priority Fee）、Nonce、Hex Data。
+- 与 Tron 等固定档位链对比：EVM 必须支持档位调节，**不得隐藏档位入口**。
+
+#### Nonce 与历史记录字段
+
+- **Nonce**：交易确认页与历史记录详情**必须显示** Nonce 值，并允许进阶设置修改。
+- **历史记录详情字段**：金额、类型、状态（处理中 / 成功 / 失败）、时间、from / to、交易哈希、网络费用、网络、区块高度、**Nonce 值**、确认数；点击交易哈希可跳转区块浏览器对账。
+
+#### Memo / Tag
+
+- EVM 主币转账**不携带 Memo / Tag**；OneKey 发送页不提供 Memo 输入框。
+- ERC20 / BEP20 代币（USDT / USDC / USD1 等）同样无 Memo 概念。
+
+#### EVM L2（Optimism / Base / Arbitrum 等）
+
+- **主币**：均为 **ETH**（Gas 也以 ETH 结算）。
+- **网络费用模型**：L2 网络费 = **L2 执行费 + L1 数据费（calldata 上链费用）**。
+  - L1 数据费随 L1（Ethereum 主网）实时 Gas 波动，可能短时变化较大；
+  - 确认页应显示**预估总费用**；如产品提供 breakdown，需正确拆分 L1 / L2。
+- **EIP-1559 支持**：Optimism / Base / Arbitrum 均支持 1559 字段（Max Fee / Max Priority Fee）。
+- **Max 计算**：`Max = ETH 余额 − 当前档位预估总费用（含 L1 + L2）`；切换费用档位后 Max 同步刷新。
+
+---
+
+#### BNB Chain — Paymaster 免 Gas（链特有）
+
+- **USDT 免 Gas**：每个账户**每天前两笔** USDT 转账免 Gas（手续费显示 **0 BNB**），生效条件为**转账金额 > 0.1 USDT**。
+  - 第 3 笔及之后：恢复正常 BNB 手续费
+  - 金额 ≤ 0.1 USDT：不享受免 Gas，正常 BNB 手续费
+- **USD1 免 Gas**：**不限金额、不限笔数、不限日期**，所有 USD1 转账永久免 Gas（手续费始终显示 0 BNB）。
+- **主币（BNB）转账**：不享受免 Gas，按常规四档收费。
+
+---
+
+### Tron (TRX)
+
+> 适用于 Tron 主网，主币为 TRX，代币标准 TRC10 / TRC20 / TRC721；OneKey 已接入。
+
+#### 账户与地址
+
+- **地址格式**：Base58Check，以 `T` 开头，长度 34；十六进制内部表示以 `41` 开头。
+- **新账户激活**：向**未激活**的链下地址转 TRX 时，发送方需支付约 **1 TRX 激活费**（或等额带宽 / 能量），具体以链上策略为准；激活后账户在链上正式创建。
+- **转账给自己拦截**：发送方与接收方为同一地址时，前端必须拦截，提示「不能转账给自己」类错误。
+
+#### 资源模型（Energy + Bandwidth）
+
+- **Bandwidth（带宽）**：每笔交易体积消耗；账户每天免费 **≈ 1500 带宽**。
+- **Energy（能量）**：执行智能合约时消耗（如 USDT-TRC20 转账触发合约调用）。
+- **资源来源**：
+  - 免费配额（每日重置）
+  - 抵押 / 质押 TRX 获得能量与带宽
+  - 资源不足时**烧 TRX 抵扣**
+- **TRX 普通转账**：通常仅消耗带宽，不消耗能量。
+- **TRC20 代币转账（如 USDT）**：必须同时消耗能量 + 带宽；能量不足时烧 TRX。
+
+#### 网络费用 / 档位
+
+- **固定档位**：Tron App 内不提供多档可调网络费（无 Slow / Fast / Custom），统一显示**预估手续费**。
+- **资源抵扣展示**：交易确认页须显示「能量带宽抵扣数据」（实际消耗的能量与带宽数量），供用户核对。
+- **TRX 烧费**：当资源不足、需要烧 TRX 时，确认页费用展示应包含烧 TRX 等价值。
+
+#### Memo / 备注
+
+- Tron 主币转账与 TRC20 代币转账**协议层不携带 Memo**；OneKey 转账主流程**不提供 Memo 输入框**。
+- 充值交易所（Binance / OKX 等）TRX、USDT-TRC20 通常**无需 Memo**（按 CEX 文档执行）。
+
+#### 历史记录字段（Tron 特有）
+
+| 字段 | 说明 |
+| --- | --- |
+| 资源 | 扣除的能量 + 带宽（含烧 TRX 等价） |
+| 网络费用 | 固定档位（预估值） |
+| 区块高度 | 上链区块号 |
+| 确认数 | 当前确认次数（实时刷新） |
+| 交易哈希 | 可点击跳转区块浏览器 |
+| 网络 | 显示「Tron」 |
+
+#### 硬件钱包支持
+
+- ✅ TRX 转账：支持
+- ✅ TRC20 代币转账（USDT 等）：支持
+- ✅ DApp 交易：支持（具体以产品列表为准）
+
+---
+
+### Polkadot / Kusama 系（Substrate）
+
+> 适用于 Polkadot AssetHub、Kusama AssetHub、Astar、Manta Atlantic、Joystream、Hydration、Bifrost Polkadot、Bifrost Kusama 等基于 Substrate 的网络（以 OneKey 已接入列表为准）。
+
+#### 账户与地址（SS58）
+
+- **地址格式**：SS58 编码，不同链有不同前缀字节，导致同一公钥在各链显示为不同地址。
+- **跨链复用**：同一助记词派生的账户在 Polkadot 系各链上为不同的地址展示，但底层私钥一致。
+- **格式校验**：地址必须通过 SS58 校验和，错误地址 / 非本链前缀必须前端拦截。
+
+#### 存活金额（Existential Deposit, ED）
+
+- **概念**：账户余额低于 ED 后会被链上「Reap」（账户清零、地址记录销毁）。
+- **不同链 ED 不同**：Polkadot AssetHub ≈ 0.1 DOT、Kusama AssetHub ≈ 0.000033 KSM、Astar ≈ 0.000001 ASTR、Manta Atlantic ≈ 0.1 MANTA、Hydration ≈ 0.001 HDX、Joystream ≈ 0.0000266 JOY、Bifrost ≈ 0.01 BNC（具体以链上运行时配置与产品口径为准，定期校对）。
+- **向新地址转账金额 < ED**：发送页**金额输入框下方**红字提示「**收款方需要预留 X {主币} 才能激活**」（X 为该链 ED 数值），「预览」按钮置灰，禁止提交。
+- **Max 转账**：钱包侧 Max 必须为 `余额 - Gas - ED`（确保发送后账户保留 ED；如果产品允许「全额清空发送」需在 UI 二次确认）。
+- **新地址边界测试归属**：新地址 < ED / 余额清零等边界用例集中在 `docs/qa/testcases/cases/wallet/2026-04-09_Wallet-发送-转账规则&租金.md` §3，链专项用例不重复。
+
+#### 金额与精度
+
+- **最大值**：钱包余额上限（须预留 Gas + ED，参考上一节）。
+- **最小值**：链支持的最小精度单位（由各链 decimals 决定，但实际可发送的最小值不应低于 ED 对应数量级）。
+- **禁止 0**：金额 = 0 时禁止提交。
+- **代币转账**（适用 AssetHub / Hydration 等支持 Assets pallet 的链）：
+  - AssetHub 系（Polkadot / Kusama AssetHub）支持 USDT / USDC 等 Assets pallet 资产；
+  - Hydration、Astar 等支持其原生代币 / LP 代币；
+  - 代币的 ED / 最低保留逻辑可能与主币不同，按链配置与产品口径执行。
+
+#### Memo / Remark
+
+- **协议层**：Substrate 通过独立 `system.remark` extrinsic 携带备注，不属于 `balances.transfer` 字段。
+- **OneKey 实现**：当前不在转账主流程提供「Memo / Remark」输入框（以产品实际为准）；如某链特殊支持，按该链单独说明。
+- **CEX 充值**：交易所通常不依赖 Substrate Memo 区分用户，按 CEX 文档要求执行（一般无需 Memo）。
+
+#### Gas / 费用
+
+- 费用为 Substrate Weight × 单价，主币结算；预览页应显示预估费用并支持多档（如产品提供）。
+- 不同链 Gas 量级差异大（如 Astar、Joystream 极低，Polkadot AssetHub 相对较高），UI 法币换算需正确处理小数位。
+
+#### 硬件钱包支持
+
+- ✅ 主币转账：支持
+- ✅ AssetHub Assets pallet 代币转账：支持（具体以产品列表为准）
+- ❌ DApp 交易：暂不支持（具体以产品列表为准；不输出 DApp 用例时按规则简化）
+
+---
+
 ### Cosmos 系（Cosmos SDK / IBC）
 
 > 适用于 Akash、Cosmos Hub、Cronos POS Chain（原 Crypto.org）、Fetch.ai、Juno、Osmosis、Secret Network、Celestia、Babylon、Noble 等基于 Cosmos SDK 的网络（以 OneKey 已接入列表为准）。
@@ -354,6 +584,14 @@
 ---
 
 ## 📅 变更记录
+
+### 2026-05-08
+- 新增 **BenFen (BFC)** 转账规则：主币 9 位小数、常见代币（BUSD / BF_USDC / LONG）、Gas 以 BFC 结算、不支持 Memo
+- 新增 **EVM 通用（含 BNB Chain）** 转账规则：地址识别四类提示（钱包内 / 地址簿 / 首次 / 链首次）、网络费用四档与进阶设置、Nonce 与历史字段、BNB Chain Paymaster 免 Gas（USDT 每日前两笔且 > 0.1，USD1 永久免 Gas）
+- 新增 **Tron (TRX)** 转账规则：覆盖账户激活（≈1 TRX）、转账给自己拦截、资源模型（Energy + Bandwidth、烧 TRX）、固定档位网络费、TRC20 代币转账（USDT）、历史记录特有字段（资源 / 区块高度 / 确认数）
+
+### 2026-05-07
+- 新增 **Polkadot / Kusama 系（Substrate）** 转账规则：覆盖 Polkadot AssetHub、Kusama AssetHub、Astar、Manta Atlantic、Joystream、Hydration、Bifrost Polkadot、Bifrost Kusama 等链；记录 SS58 地址、Existential Deposit（ED）、Max 计算口径、Memo/Remark 实现、Gas 与硬件支持
 
 ### 2026-04-17
 - 闪电网络 HW 签名范围修正：LNURL-auth 授权登录在 **HW 钱包场景下需 HW 签名**（HD 钱包仍在 App 内完成）

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Regression Checklists",
+  "description": "Named regression sets the Dashboard exposes as one-click execution targets. Stored at shared/checklists.json. Owned by: Dashboard UI (read/write).",
+  "type": "object",
+  "required": ["checklists"],
+  "properties": {
+    "checklists": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/checklist" }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "checklist": {
+      "type": "object",
+      "required": ["id", "name", "platform", "items"],
+      "properties": {
+        "id":       { "type": "string", "description": "Stable kebab-case identifier (e.g. 'checklist-desktop-tf')." },
+        "name":     { "type": "string", "description": "Display name (e.g. 'Checklist-Desktop-TF包')." },
+        "platform": { "enum": ["desktop", "web", "extension"], "description": "Which platform's tests this checklist targets. Android is excluded — it uses a separate framework (ADB + AI vision), not CDP." },
+        "note":     { "type": "string", "description": "Optional free-form note (owner, scope, version, etc.)." },
+        "items": {
+          "type": "array",
+          "description": "Ordered regression items, each grouping one or more test case IDs.",
+          "items": { "$ref": "#/definitions/item" }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    },
+    "item": {
+      "type": "object",
+      "required": ["label", "caseIds"],
+      "properties": {
+        "label":   { "type": "string", "description": "Human-readable regression item name (e.g. '主币代币转账（Cosmos/Polkadot/Tron/Stellar）')." },
+        "caseIds": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Test case IDs (matches existing test registry IDs like 'TRANSFER-COSMOS-001'). Empty list is allowed — represents an item that has no automated coverage yet."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

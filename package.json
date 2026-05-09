@@ -16,6 +16,7 @@
     "sync:selectors": "node scripts/sync-app-monorepo-selectors.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.95.1",
     "chalk": "^5.4.0",
     "chokidar": "^5.0.0",
     "commander": "^13.0.0",

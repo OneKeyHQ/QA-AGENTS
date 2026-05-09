@@ -352,9 +352,132 @@
 
 ---
 
-## 6. 测试数据准备
+## 6. 钱包绑定邀请码（Wallet Binding）功能规则
 
-### 6.1 返佣账户
+### 6.1 钱包入口判断（Banner / 钱包更多）
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-001 | 仅 HD 钱包 / HW 钱包 / Keyless Wallet 展示 banner 与「邀请码」入口 | P0 |
+| REF-BIND-002 | 私钥钱包 / 观察账户 / 外部账户 / QR Wallet / 隐藏钱包 / Ton 助记词钱包不展示 banner，钱包更多无「邀请码」选项 | P0 |
+| REF-BIND-003 | 已绑定的钱包不显示 banner；钱包更多「邀请码」显示「已绑定」并置灰 | P0 |
+| REF-BIND-004 | Banner 文案为「加入 onekey 推荐计划」，包含「加入」+「关闭」 | P1 |
+| REF-BIND-005 | 用户主动关闭 banner 后，该钱包后续不再显示 banner（钱包更多「邀请码」入口仍可用，可继续在 14 天内完成绑定） | P1 |
+| REF-BIND-006 | 通过钱包更多发起绑定时，钱包首页 banner 不主动关闭；绑定完成后 banner 不自动消失，需刷新页面 / 重新进入钱包首页才更新 | P1 |
+| REF-BIND-007 | 标准钱包 + 隐藏钱包同时创建：标准未绑定显示 banner；隐藏钱包始终不显示 banner / 入口 | P0 |
+| REF-BIND-008 | 钱包创建后 **14 天内**未绑定才可继续绑定；超过 14 天后钱包首页不再显示 banner | P1 |
+| REF-BIND-009 | 创建超过 14 天的未绑定钱包：钱包更多「邀请码」选项右侧显示「不适用」徽章 + 置灰，不可点击；右侧显示 (i) 信息图标 | P1 |
+| REF-BIND-010-A | 点击「不适用」入口右侧 (i) 图标 → 显示提示「该钱包创建已超过 14 天，无法绑定邀请码」 | P1 |
+
+### 6.2 输入邀请码与签名流程
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-010 | HD 钱包 / Keyless Wallet 绑定时**静默 EVM 消息签名**，无需用户操作 | P0 |
+| REF-BIND-011 | HW 钱包（标准固件）绑定时使用 EVM 消息签名，需用户在硬件设备上确认 | P0 |
+| REF-BIND-012 | HW 钱包（BTC-only 固件）绑定时使用 Taproot 签名 | P0 |
+| REF-BIND-013 | 签名页绑定地址固定为账户 1，**网络与地址不可切换** | P0 |
+| REF-BIND-014 | 签名页「查看详情」展示完整签名内容，包含邀请码与待绑定地址 | P1 |
+| REF-BIND-015 | 签名页「取消」关闭签名页，不发起任何后端绑定调用 | P0 |
+| REF-BIND-016 | 签名页「授权」签名成功后邀请码与地址绑定成功；首页 banner 自动消失 | P0 |
+| REF-BIND-017 | 未备份的 HD 钱包仍支持绑定，不强制要求先备份 | P0 |
+
+### 6.3 邀请码输入校验
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-020 | 输入框为空时点击「加入」→ 输入框红色边框提示 | P1 |
+| REF-BIND-021 | 输入超过 30 字符 → 前端拦截，超出部分无法输入 | P1 |
+| REF-BIND-022 | 输入非字母数字（特殊字符 / 中文 / Emoji）→ 提示「邀请码不存在」 | P1 |
+| REF-BIND-023 | 输入符合格式但不存在的邀请码 → 后端提示「邀请码不存在」 | P1 |
+| REF-BIND-024 | 输入前后空格不会被自动 Trim，包含空格的邀请码视为非法（提示「邀请码不存在」），与其他非字母数字输入的处理一致 | P1 |
+
+### 6.4 已有钱包绑定入口
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-030 | 通过助记词导入的 HD 钱包支持绑定（与新创建一致） | P0 |
+| REF-BIND-031 | 导入私钥 / 观察 / 第三方 / QR Wallet / 隐藏钱包 → 不显示绑定入口 | P0 |
+| REF-BIND-032 | 已绑定钱包再次创建（同助记词）→ 不显示 banner，入口置灰「已绑定」 | P0 |
+| REF-BIND-033 | HW 钱包重置后再次创建 → 跟随助记词判断绑定状态 | P1 |
+| REF-BIND-034 | 未绑定钱包重新导入 → 提示「钱包已存在」，进入后仍可绑定 | P1 |
+| REF-BIND-035 | Ton 助记词钱包不显示绑定入口 | P0 |
+
+### 6.5 Web 端邀请落地页（v6.4.0+ 改版）
+
+#### 6.5.1 路由与 Variant
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-040 | 路由格式：`/r/<code>/app/<page>`；Variant 由 `<page>` 参数决定 | P0 |
+| REF-BIND-041 | `<page>=perp` / `perps` → Perps variant；Hero 主标题「朋友邀你享 10% Perps 手续费返还」；Step 3 按钮「去交易」 | P0 |
+| REF-BIND-042 | `<page>=earn` / `defi` → DeFi variant；Hero 主标题「朋友邀你享 10% DeFi 收益返还」；Step 3 按钮「去 Earn」 | P0 |
+| REF-BIND-043 | `<page>` 缺省（`/r/<code>/app` 或 `/r/<code>`）或未识别值 → 默认 Perps variant | P0 |
+| REF-BIND-044 | 兼容 query 参数形式：`/r/invite?code=<code>`，默认 Perps variant | P1 |
+| REF-BIND-045 | 折扣百分比由后端 `getPostConfig` 实时下发；请求未返回前默认显示 10% | P0 |
+
+#### 6.5.2 落地页结构
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-050 | 顶部 Header 高度 52px：左侧 OneKey 字标 logo（点击回 `/`），右侧语言切换器 | P1 |
+| REF-BIND-051 | Hero 区块包含头图、含 10% 高亮的主标题、副标题 | P1 |
+| REF-BIND-052 | Step 1 标题「下载 OneKey App」+ 主按钮（按平台切换）+ 次按钮「我已有钱包」 | P0 |
+| REF-BIND-053 | Step 2 标题「绑定邀请码」+ 邀请码框（点击复制）+ 主按钮「绑定」 | P0 |
+| REF-BIND-054 | Step 3 标题与 CTA 按 variant 切换 | P0 |
+| REF-BIND-055 | 中文（zh_CN / zh_HK / zh_TW）使用「绑定」措辞，不使用「领取」 | P0 |
+
+#### 6.5.3 Step 1 平台差异下载
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-060 | iOS Web Step 1 主按钮：`Download from App Store`，点击 `itms-apps://` 唤起 App Store；300ms 后页面仍可见且耗时 ≤1.5s 时回退 HTTPS App Store 链接 | P0 |
+| REF-BIND-061 | Android Web Step 1 主按钮：`Download from Google Play`，直跳 Play Store | P0 |
+| REF-BIND-062 | 桌面 Web Step 1 主按钮：`Download OneKey`，跳转下载页 | P0 |
+| REF-BIND-063 | 「我已有钱包」次按钮跳过下载，聚焦至 Step 2 | P1 |
+
+#### 6.5.4 Step 2 / Step 3 Deeplink 唤起
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-070 | Step 2「绑定」按钮先探测浏览器插件钱包；已安装直接唤起插件，未安装走 Deeplink | P0 |
+| REF-BIND-071 | Deeplink Schema：`onekey-wallet://invited_by_friend?code=<code>&page=<page>` | P0 |
+| REF-BIND-072 | iOS / 桌面 Web 直接通过 `onekey-wallet://` 唤起 | P0 |
+| REF-BIND-073 | Android Web 通过 `intent://` URL 唤起，带 Play Store 兜底，避免 `ERR_UNKNOWN_URL_SCHEME` 白屏 | P0 |
+| REF-BIND-074 | 桌面 Web 已装扩展 → 唤起插件钱包；未装扩展但已装桌面端 App → 唤起桌面端；都未安装 → schema 失败需走 Step 1 下载 | P0 |
+| REF-BIND-075 | Step 2「复制」按钮将邀请码写入剪贴板，显示复制成功提示 | P1 |
+
+#### 6.5.5 移动端 / 桌面端唤起后行为
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-080 | 通过 Deeplink 唤起 App 后弹出绑定邀请码流程（保持原 InvitedByFriend 行为） | P0 |
+| REF-BIND-081 | 绑定流程内「切换钱包」列表仅显示**支持绑定**的钱包（HD / HW / Keyless Wallet），不显示私钥钱包 / 观察 / 外部 / QR Wallet | P0 |
+| REF-BIND-082 | Perps variant 链接唤起 App 后默认打开 Perps Tab；DeFi variant 默认打开 DeFi / Earn Tab | P0 |
+| REF-BIND-083 | 移动端未安装 OneKey App 时，Step 1 主按钮跳商店下载（iOS App Store / Android Play Store）；Step 2「绑定」通过 `intent://` Play Store 兜底跳商店；已安装则直接 Deeplink 唤起 App | P0 |
+
+#### 6.5.6 埋点 utmSource
+
+| 规则 ID | 规则描述 | 优先级 |
+|---------|----------|--------|
+| REF-BIND-090 | Step 1「下载」点击上报 `referralLanding`，`utmSource = web_appstore` | P1 |
+| REF-BIND-091 | Step 1「我已有钱包」点击上报 `utmSource = web_already_have_skip` | P1 |
+| REF-BIND-092 | Step 2「绑定」（已装扩展）点击上报 `utmSource = web_bind_extension` | P1 |
+| REF-BIND-093 | Step 2「绑定」（Deeplink 唤起）点击上报 `utmSource = web_bind_deep_link` | P1 |
+| REF-BIND-094 | Step 3「去交易」/「去 Earn」点击上报 `utmSource = web_trade_deep_link` | P1 |
+| REF-BIND-095 | Step 2「复制」点击上报 `referral.page.copyReferralCode` 事件 | P2 |
+
+### 6.6 不在改动范围
+
+- App 内 InvitedByFriend 弹窗（保持原「自动切 tab → 弹模态」逻辑）
+- 浏览器扩展 popup 邀请流程
+- 后端绑定接口 / Deeplink 注册
+
+---
+
+## 7. 测试数据准备
+
+### 7.1 返佣账户
 
 | 账户 | 用途 |
 |------|------|
@@ -363,7 +486,7 @@
 | 空状态 test-2710@privy.io（验证码 045343） | 无返佣记录的账户 |
 | ziying@bit668.com | 返佣主账户测试 |
 
-### 6.2 钱包地址
+### 7.2 钱包地址
 
 | 地址 | 用途 |
 |------|------|
@@ -372,7 +495,7 @@
 
 ---
 
-## 7. 变更记录
+## 8. 变更记录
 
 | 日期 | 版本 | 变更内容 |
 |------|------|----------|
@@ -380,3 +503,4 @@
 | 2026-02-09 | v2.0 | 新增硬件销售奖励、链上奖励：合约（Perps）、通用 Header 规则 |
 | 2026-02-09 | v2.1 | 更新硬件等级返佣比例：铜 10%、银 15%、金 18%、钻 20% |
 | 2026-04-30 | v3.0 | 新增 BTC 兑换码（OneKey BTC Reward）功能规则；销售码入口图标改为「兑换」并取消入口强制登录 |
+| 2026-05-08 | v4.0 | 新增钱包绑定邀请码功能规则（v6.4.0+ Web 端落地页改版为 3 步漏斗 + App 内绑定行为定义） |

@@ -85,7 +85,7 @@
   .category-chevron { font-size: 10px; color: var(--text2); transition: transform 0.2s; width: 14px; text-align: center; }
   .category-chevron.expanded { transform: rotate(90deg); }
   .category-checkbox { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
-  .category-name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; text-transform: uppercase; letter-spacing: 0.5px; }
+  .category-name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
   .category-badge { background: var(--surface2); border-radius: 10px; padding: 1px 7px; font-size: 10px; color: var(--text2); }
   .category-children { overflow: hidden; transition: max-height 0.3s ease; }
   .category-children.collapsed { max-height: 0 !important; }
@@ -178,6 +178,112 @@
   .modal-value { font-size: 13px; color: var(--text); }
   .modal-value.mono { font-family: inherit; }
   .modal-error-box { background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); border-radius: 6px; padding: 12px 14px; font-size: 12px; color: var(--red); line-height: 1.6; word-break: break-word; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+
+  /* Header utility button */
+  .header-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text2); border-radius: 6px; padding: 5px 10px; font-family: inherit; font-size: 12px; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px; }
+  .header-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  /* Modal wide variant */
+  .modal.wide { width: 720px; }
+
+  /* Settings form */
+  .settings-section { margin-bottom: 18px; padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface2); }
+  .settings-section h4 { font-size: 12px; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .settings-section h4 .role-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: var(--accent); color: #fff; font-weight: 500; }
+  .settings-row { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .settings-row:last-child { margin-bottom: 0; }
+  .settings-row label { font-size: 11px; color: var(--text2); }
+  .settings-row input { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: var(--text); font-family: inherit; font-size: 12px; outline: none; transition: border-color 0.15s; }
+  .settings-row input:focus { border-color: var(--accent); }
+  .settings-hint { font-size: 11px; color: var(--text2); padding: 8px 12px; background: rgba(96,165,250,0.06); border-left: 2px solid var(--blue); border-radius: 3px; margin-bottom: 14px; line-height: 1.5; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); flex-shrink: 0; }
+  .modal-btn { border: 1px solid var(--border); background: var(--surface2); color: var(--text); padding: 6px 16px; border-radius: 5px; font-family: inherit; font-size: 12px; cursor: pointer; transition: all 0.15s; }
+  .modal-btn:hover { border-color: var(--accent); }
+  .modal-btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .modal-btn.primary:hover { opacity: 0.9; }
+  .modal-btn.danger { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--red); }
+  .modal-btn.danger:hover { background: rgba(248,113,113,0.2); }
+
+  /* Checklists section */
+  .checklists-section { border-bottom: 1px solid var(--border); }
+  .checklists-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
+  .checklists-header h2 { font-size: 12px; font-weight: 600; color: var(--text2); letter-spacing: 0.3px; }
+  .checklists-add-btn { background: none; border: 1px dashed var(--border); color: var(--text2); border-radius: 4px; padding: 2px 8px; font-family: inherit; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .checklists-add-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .checklists-list { padding: 0 8px 8px; max-height: 240px; overflow-y: auto; }
+  .checklists-list:empty { padding: 0; }
+  .checklist-row { display: flex; align-items: center; gap: 6px; padding: 7px 8px; border-radius: 5px; margin-bottom: 3px; cursor: pointer; transition: background 0.15s; border: 1px solid transparent; }
+  .checklist-row:hover { background: var(--surface2); }
+  .checklist-row.active { background: rgba(108, 114, 203, 0.12); border-color: var(--accent); }
+  .checklist-platform-pill { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: var(--surface2); color: var(--text2); letter-spacing: 0.2px; flex-shrink: 0; }
+  .checklist-platform-pill.desktop { background: rgba(96,165,250,0.15); color: var(--blue); }
+  .checklist-platform-pill.web { background: rgba(34,211,238,0.15); color: var(--cyan); }
+  .checklist-platform-pill.extension { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .checklist-row-name { flex: 1; font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .checklist-row-count { font-size: 10px; color: var(--text2); flex-shrink: 0; }
+  .checklist-orphan-badge { font-size: 9px; color: var(--red); background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; cursor: help; }
+  .editor-orphan-banner { margin: 8px 0; padding: 8px 10px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); border-radius: 4px; font-size: 11px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .editor-orphan-banner .ids { color: var(--red); font-family: monospace; flex: 1; word-break: break-all; }
+  .editor-orphan-banner button { background: var(--red); color: #fff; border: none; padding: 3px 10px; border-radius: 3px; font-size: 11px; cursor: pointer; flex-shrink: 0; font-family: inherit; }
+  .editor-orphan-banner button:hover { opacity: 0.9; }
+  .checklist-row-actions { display: none; gap: 4px; flex-shrink: 0; }
+  .checklist-row:hover .checklist-row-actions, .checklist-row.active .checklist-row-actions { display: flex; }
+  .checklist-icon-btn { background: none; border: none; color: var(--text2); cursor: pointer; padding: 2px 4px; font-size: 11px; border-radius: 3px; }
+  .checklist-icon-btn:hover { color: var(--text); background: var(--bg); }
+  .checklist-icon-btn.danger:hover { color: var(--red); }
+
+  /* Checklist editor */
+  .editor-meta { display: grid; grid-template-columns: 80px 1fr; gap: 10px 14px; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+  .editor-meta label { font-size: 11px; color: var(--text2); }
+  .editor-meta input, .editor-meta select { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: var(--text); font-family: inherit; font-size: 12px; outline: none; }
+  .editor-meta input:focus, .editor-meta select:focus { border-color: var(--accent); }
+  .editor-items-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .editor-items-header h4 { font-size: 12px; color: var(--text); }
+  .editor-items-list { display: flex; flex-direction: column; gap: 10px; }
+  .editor-item-card { border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; background: var(--surface2); }
+  .editor-item-row { display: flex; align-items: center; gap: 8px; }
+  .editor-item-row input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; color: var(--text); font-family: inherit; font-size: 12px; outline: none; }
+  .editor-item-row input:focus { border-color: var(--accent); }
+  .editor-item-summary { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; color: var(--text2); }
+  .editor-item-toggle { background: none; border: 1px solid var(--border); color: var(--text2); padding: 3px 10px; border-radius: 4px; font-family: inherit; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+  .editor-item-toggle:hover { color: var(--accent); border-color: var(--accent); }
+  .editor-item-cases { margin-top: 10px; max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); }
+  .editor-item-cases.collapsed { display: none; }
+  .editor-search-box { padding: 6px 10px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 1; }
+  .editor-search-box input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 5px 8px; color: var(--text); font-family: inherit; font-size: 11px; outline: none; }
+  .editor-search-box input:focus { border-color: var(--accent); }
+
+  /* Editor tree (3 levels: cat → group → case) */
+  .editor-cat { border-bottom: 1px solid var(--border); }
+  .editor-cat:last-child { border-bottom: none; }
+  .editor-cat-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; cursor: pointer; transition: background 0.15s; -webkit-user-select: none; user-select: none; }
+  .editor-cat-row:hover { background: var(--surface2); }
+  .editor-cat-row .chev { font-size: 9px; color: var(--text2); width: 10px; text-align: center; transition: transform 0.2s; }
+  .editor-cat-row .chev.expanded { transform: rotate(90deg); }
+  .editor-cat-row input[type="checkbox"] { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
+  .editor-cat-row .label { flex: 1; font-size: 12px; font-weight: 600; color: var(--text); }
+  .editor-cat-row .count { font-size: 10px; color: var(--text2); background: var(--surface2); padding: 1px 6px; border-radius: 8px; }
+  .editor-cat-children { overflow: hidden; }
+  .editor-cat-children.collapsed { display: none; }
+
+  .editor-group { }
+  .editor-group-row { display: flex; align-items: center; gap: 8px; padding: 5px 10px 5px 24px; cursor: pointer; transition: background 0.15s; -webkit-user-select: none; user-select: none; }
+  .editor-group-row:hover { background: var(--surface2); }
+  .editor-group-row .chev { font-size: 9px; color: var(--text2); width: 10px; text-align: center; transition: transform 0.2s; }
+  .editor-group-row .chev.expanded { transform: rotate(90deg); }
+  .editor-group-row input[type="checkbox"] { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
+  .editor-group-row .label { flex: 1; font-size: 12px; color: var(--text); }
+  .editor-group-row .count { font-size: 10px; color: var(--text2); background: var(--surface2); padding: 1px 6px; border-radius: 8px; }
+  .editor-group-cases { }
+  .editor-group-cases.collapsed { display: none; }
+
+  .editor-case-row { display: flex; align-items: center; gap: 8px; padding: 4px 10px 4px 48px; cursor: pointer; transition: background 0.15s; }
+  .editor-case-row:hover { background: var(--surface2); }
+  .editor-case-row input[type="checkbox"] { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; }
+  .editor-case-row .case-id { font-size: 11px; color: var(--cyan); min-width: 110px; flex-shrink: 0; font-weight: 600; }
+  .editor-case-row .case-name { font-size: 11px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .editor-empty-cases { font-size: 11px; color: var(--text2); text-align: center; padding: 16px; }
+
 </style>
 </head>
 <body>
@@ -194,6 +300,7 @@
       <div class="conn-dot" id="connDot"></div>
       <span class="conn-label" id="connLabel">SSE ...</span>
     </div>
+    <button class="header-btn" id="settingsBtn" title="账户配置（钱包账户1/账户2）">&#9881; 设置</button>
   </div>
 </div>
 
@@ -235,6 +342,13 @@
 <div class="main">
   <!-- Left Panel -->
   <div class="left-panel">
+    <div class="checklists-section">
+      <div class="checklists-header">
+        <h2>Checklists</h2>
+        <button class="checklists-add-btn" id="addChecklistBtn">+ 新建</button>
+      </div>
+      <div class="checklists-list" id="checklistsList"></div>
+    </div>
     <div class="panel-header">
       <h2>测试用例</h2>
       <button class="toggle-all-btn" id="toggleAllBtn" onclick="toggleSelectAll()">全选</button>
@@ -264,6 +378,80 @@
       <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Settings Modal (Wallet Accounts) -->
+<div class="modal-overlay" id="settingsModalOverlay" onclick="closeSettingsModalIfBackdrop(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3>&#9881; 账户配置</h3>
+      <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="settings-hint">
+        <strong>仅用于转账（Transfer）类用例</strong>。脚本默认从「账户1」转账到「账户2」；当账户1余额不足时，脚本会自动反向（账户2 发送、账户1 接收）。地址不在此填写——不同链格式不同，脚本会按当前链自动从所选账户中读取。其他类型的用例（Swap / DeFi 等）后续会有各自的配置入口。<br><br>每个人在自己机器上配一次即可（<code>shared/runtime-config.json</code> 已在 .gitignore，不会入库）。
+      </div>
+      <div class="settings-section">
+        <h4>账户1 <span class="role-tag">默认发送方</span></h4>
+        <div class="settings-row">
+          <label>钱包名称</label>
+          <input id="primaryWalletName" placeholder="如 我的助记词钱包">
+        </div>
+        <div class="settings-row">
+          <label>账户名称</label>
+          <input id="primaryAccountName" placeholder="如 Account #1">
+        </div>
+      </div>
+      <div class="settings-section">
+        <h4>账户2 <span class="role-tag">默认接收方</span></h4>
+        <div class="settings-row">
+          <label>钱包名称</label>
+          <input id="secondaryWalletName" placeholder="如 我的助记词钱包">
+        </div>
+        <div class="settings-row">
+          <label>账户名称</label>
+          <input id="secondaryAccountName" placeholder="如 Account #2">
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeSettingsModal()">取消</button>
+      <button class="modal-btn primary" id="saveSettingsBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Checklist Editor Modal -->
+<div class="modal-overlay" id="checklistEditorOverlay" onclick="closeChecklistEditorIfBackdrop(event)">
+  <div class="modal wide" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h3 id="checklistEditorTitle">新建 Checklist</h3>
+      <button class="modal-close" onclick="closeChecklistEditor()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="editor-meta">
+        <label>名称</label>
+        <input id="checklistName" placeholder="例如 Checklist-Desktop-TF包">
+        <label>平台</label>
+        <select id="checklistPlatform">
+          <option value="desktop">desktop</option>
+          <option value="web">web</option>
+          <option value="extension">extension</option>
+        </select>
+        <label>备注</label>
+        <input id="checklistNote" placeholder="可选；负责人 / 范围 / 版本">
+      </div>
+      <div class="editor-items-header">
+        <h4>回归项</h4>
+        <button class="modal-btn" id="addItemBtn">+ 添加回归项</button>
+      </div>
+      <div class="editor-items-list" id="editorItemsList"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="closeChecklistEditor()">取消</button>
+      <button class="modal-btn primary" id="saveChecklistBtn">保存</button>
+    </div>
   </div>
 </div>
 
@@ -1073,8 +1261,525 @@ function handleGenericEvent(data) {
   renderStatus();
 }
 
+// ============================================================
+// Settings Modal — Wallet Accounts
+// ============================================================
+let runtimeConfig = { walletAccounts: { primary: { walletName: '', accountName: '' }, secondary: { walletName: '', accountName: '' } } };
+
+async function fetchRuntimeConfig() {
+  try {
+    const res = await fetch('/api/runtime-config');
+    if (res.ok) runtimeConfig = await res.json();
+  } catch (e) { console.error('fetchRuntimeConfig:', e); }
+}
+
+function openSettingsModal() {
+  const wa = runtimeConfig.walletAccounts || { primary: {}, secondary: {} };
+  document.getElementById('primaryWalletName').value = wa.primary?.walletName || '';
+  document.getElementById('primaryAccountName').value = wa.primary?.accountName || '';
+  document.getElementById('secondaryWalletName').value = wa.secondary?.walletName || '';
+  document.getElementById('secondaryAccountName').value = wa.secondary?.accountName || '';
+  document.getElementById('settingsModalOverlay').classList.add('visible');
+}
+
+function closeSettingsModal() {
+  document.getElementById('settingsModalOverlay').classList.remove('visible');
+}
+
+function closeSettingsModalIfBackdrop(e) {
+  if (e.target === document.getElementById('settingsModalOverlay')) closeSettingsModal();
+}
+
+async function saveSettings() {
+  const payload = {
+    walletAccounts: {
+      primary: {
+        walletName:  document.getElementById('primaryWalletName').value.trim(),
+        accountName: document.getElementById('primaryAccountName').value.trim(),
+      },
+      secondary: {
+        walletName:  document.getElementById('secondaryWalletName').value.trim(),
+        accountName: document.getElementById('secondaryAccountName').value.trim(),
+      },
+    },
+  };
+  try {
+    const res = await fetch('/api/runtime-config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) { alert('保存失败'); return; }
+    const data = await res.json();
+    runtimeConfig = data.config || payload;
+    closeSettingsModal();
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+// ============================================================
+// Checklists — list + edit + apply
+// ============================================================
+let checklists = [];
+let activeChecklistId = null;
+let editorState = null; // { id, name, platform, note, items: [{label, caseIds}] }
+
+async function fetchChecklists() {
+  try {
+    const res = await fetch('/api/checklists');
+    if (!res.ok) return;
+    const data = await res.json();
+    checklists = data.checklists || [];
+    renderChecklistsList();
+  } catch (e) { console.error('fetchChecklists:', e); }
+}
+
+function renderChecklistsList() {
+  const container = document.getElementById('checklistsList');
+  if (!checklists.length) {
+    container.innerHTML = '<div class="empty-state" style="padding:14px 12px; font-size:11px; text-align:left;">点击「+ 新建」创建一个回归合集</div>';
+    return;
+  }
+  // Build a Set of all known case IDs for orphan detection
+  const knownCaseIds = new Set();
+  registryAll.forEach(g => g.cases.forEach(c => knownCaseIds.add(c.id)));
+
+  let html = '';
+  for (const cl of checklists) {
+    const allIds = (cl.items || []).flatMap(it => it.caseIds || []);
+    const totalCases = allIds.length;
+    const orphanCount = allIds.filter(id => !knownCaseIds.has(id)).length;
+    const isActive = cl.id === activeChecklistId;
+    const platformLabel = cl.platform.charAt(0).toUpperCase() + cl.platform.slice(1);
+    const orphanBadge = orphanCount > 0
+      ? `<span class="checklist-orphan-badge" title="${orphanCount} 个用例已从代码中移除，建议编辑清理">${orphanCount}失效</span>`
+      : '';
+    html += `<div class="checklist-row ${isActive ? 'active' : ''}" data-id="${escAttr(cl.id)}">
+      <span class="checklist-platform-pill ${cl.platform}">${escHtml(platformLabel)}</span>
+      <span class="checklist-row-name" title="${escAttr(cl.name)}">${escHtml(cl.name)}</span>
+      ${orphanBadge}
+      <span class="checklist-row-count">${totalCases}</span>
+      <div class="checklist-row-actions">
+        <button class="checklist-icon-btn" title="编辑" data-act="edit" data-id="${escAttr(cl.id)}">&#9998;</button>
+        <button class="checklist-icon-btn danger" title="删除" data-act="del" data-id="${escAttr(cl.id)}">&#10005;</button>
+      </div>
+    </div>`;
+  }
+  container.innerHTML = html;
+
+  container.querySelectorAll('.checklist-row').forEach(row => {
+    row.onclick = (e) => {
+      // Ignore clicks on action buttons
+      if (e.target.closest('.checklist-icon-btn')) return;
+      applyChecklist(row.dataset.id);
+    };
+  });
+  container.querySelectorAll('.checklist-icon-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const act = btn.dataset.act;
+      const id = btn.dataset.id;
+      if (act === 'edit') openChecklistEditor(id);
+      else if (act === 'del') deleteChecklist(id);
+    };
+  });
+}
+
+function applyChecklist(id) {
+  const cl = checklists.find(c => c.id === id);
+  if (!cl) return;
+  // Switch platform if needed
+  if (cl.platform !== currentPlatform) switchPlatform(cl.platform);
+  // Collect all case IDs
+  const ids = (cl.items || []).flatMap(it => it.caseIds || []);
+  selected = new Set(ids);
+  activeChecklistId = id;
+  renderChecklistsList();
+  renderTree();
+  renderControls();
+}
+
+async function deleteChecklist(id) {
+  const cl = checklists.find(c => c.id === id);
+  if (!cl) return;
+  if (!confirm(`确定删除 Checklist「${cl.name}」？`)) return;
+  try {
+    const res = await fetch('/api/checklists?id=' + encodeURIComponent(id), { method: 'DELETE' });
+    if (!res.ok) { alert('删除失败'); return; }
+    checklists = checklists.filter(c => c.id !== id);
+    if (activeChecklistId === id) activeChecklistId = null;
+    renderChecklistsList();
+  } catch (e) {
+    alert('删除失败：' + e.message);
+  }
+}
+
+// ---- Editor ----
+function newEditorItem(seed) {
+  return {
+    label: seed?.label || '',
+    caseIds: [...(seed?.caseIds || [])],
+    expanded: seed?.expanded ?? true,
+    search: '',
+    expandedCats: new Set(),
+    expandedGroups: new Set(),
+  };
+}
+
+function openChecklistEditor(id) {
+  const existing = id ? checklists.find(c => c.id === id) : null;
+  editorState = existing
+    ? {
+        id: existing.id,
+        name: existing.name,
+        platform: existing.platform,
+        note: existing.note || '',
+        items: (existing.items || []).map(it => newEditorItem({ label: it.label, caseIds: it.caseIds, expanded: false })),
+      }
+    : {
+        id: null,
+        name: '',
+        platform: currentPlatform,
+        note: '',
+        items: [newEditorItem({ expanded: true })],
+      };
+  document.getElementById('checklistEditorTitle').textContent = existing ? `编辑 Checklist — ${existing.name}` : '新建 Checklist';
+  document.getElementById('checklistName').value = editorState.name;
+  document.getElementById('checklistPlatform').value = editorState.platform;
+  document.getElementById('checklistNote').value = editorState.note;
+  renderEditorItems();
+  document.getElementById('checklistEditorOverlay').classList.add('visible');
+}
+
+function closeChecklistEditor() {
+  document.getElementById('checklistEditorOverlay').classList.remove('visible');
+  editorState = null;
+}
+
+function closeChecklistEditorIfBackdrop(e) {
+  if (e.target === document.getElementById('checklistEditorOverlay')) closeChecklistEditor();
+}
+
+function renderEditorItems() {
+  if (!editorState) return;
+  const container = document.getElementById('editorItemsList');
+  if (!editorState.items.length) {
+    container.innerHTML = '<div class="empty-state" style="padding:20px; font-size:11px;">点击「+ 添加回归项」开始</div>';
+    return;
+  }
+  // Filter registry by selected platform
+  const platform = document.getElementById('checklistPlatform').value || editorState.platform;
+  const platformGroups = registryAll.filter(g => g.platform === platform);
+
+  // Build known caseId set for orphan detection (filtered by editor's platform)
+  const knownIds = new Set();
+  platformGroups.forEach(g => g.cases.forEach(c => knownIds.add(c.id)));
+
+  let html = '';
+  editorState.items.forEach((item, idx) => {
+    const count = item.caseIds.length;
+    const orphans = item.caseIds.filter(id => !knownIds.has(id));
+    const orphanBanner = orphans.length > 0
+      ? `<div class="editor-orphan-banner">
+          <span>${orphans.length} 个用例已从代码中移除：</span>
+          <span class="ids">${escHtml(orphans.join(', '))}</span>
+          <button data-act="clear-orphans" data-idx="${idx}">清除失效</button>
+        </div>`
+      : '';
+    html += `<div class="editor-item-card" data-idx="${idx}">
+      <div class="editor-item-row">
+        <input type="text" placeholder="回归项名称（如「主币代币转账」）" value="${escAttr(item.label)}" data-field="label" data-idx="${idx}">
+        <button class="checklist-icon-btn danger" title="删除该回归项" data-act="remove-item" data-idx="${idx}">&#10005;</button>
+      </div>
+      ${orphanBanner}
+      <div class="editor-item-summary">
+        <span>已选 <strong style="color:var(--text)">${count}</strong> 个用例${orphans.length > 0 ? `（含 <span style="color:var(--red)">${orphans.length}</span> 失效）` : ''}</span>
+        <button class="editor-item-toggle" data-act="toggle-cases" data-idx="${idx}">${item.expanded ? '收起 ▴' : '选择用例 ▾'}</button>
+      </div>
+      <div class="editor-item-cases ${item.expanded ? '' : 'collapsed'}">
+        <div class="editor-search-box"><input type="text" placeholder="搜索 ID / 名称" value="${escAttr(item.search || '')}" data-act="search-cases" data-idx="${idx}"></div>
+        ${renderEditorCases(platformGroups, item, idx)}
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+
+  container.querySelectorAll('button[data-act="clear-orphans"]').forEach(btn => {
+    btn.onclick = () => {
+      const i = parseInt(btn.dataset.idx, 10);
+      const item = editorState.items[i];
+      item.caseIds = item.caseIds.filter(id => knownIds.has(id));
+      renderEditorItems();
+    };
+  });
+
+  container.querySelectorAll('input[data-field="label"]').forEach(input => {
+    input.oninput = (e) => {
+      const i = parseInt(input.dataset.idx, 10);
+      editorState.items[i].label = e.target.value;
+    };
+  });
+  container.querySelectorAll('input[data-act="search-cases"]').forEach(input => {
+    input.oninput = (e) => {
+      const i = parseInt(input.dataset.idx, 10);
+      editorState.items[i].search = e.target.value;
+      renderEditorItems();
+      // Restore focus after re-render
+      setTimeout(() => {
+        const restored = container.querySelector(`input[data-act="search-cases"][data-idx="${i}"]`);
+        if (restored) { restored.focus(); restored.setSelectionRange(restored.value.length, restored.value.length); }
+      }, 0);
+    };
+  });
+  container.querySelectorAll('button[data-act="toggle-cases"]').forEach(btn => {
+    btn.onclick = () => {
+      const i = parseInt(btn.dataset.idx, 10);
+      editorState.items[i].expanded = !editorState.items[i].expanded;
+      renderEditorItems();
+    };
+  });
+  container.querySelectorAll('button[data-act="remove-item"]').forEach(btn => {
+    btn.onclick = () => {
+      const i = parseInt(btn.dataset.idx, 10);
+      editorState.items.splice(i, 1);
+      renderEditorItems();
+    };
+  });
+  // Re-render whole item card for any case-level change so cat/group checkboxes
+  // sync correctly. Search input focus is preserved separately above.
+  container.querySelectorAll('input[data-act="case-toggle"]').forEach(cb => {
+    cb.onchange = () => {
+      const i = parseInt(cb.dataset.idx, 10);
+      const id = cb.dataset.id;
+      const item = editorState.items[i];
+      if (cb.checked) {
+        if (!item.caseIds.includes(id)) item.caseIds.push(id);
+      } else {
+        item.caseIds = item.caseIds.filter(x => x !== id);
+      }
+      renderEditorItems();
+    };
+  });
+
+  // Toggle category expansion
+  container.querySelectorAll('[data-act="toggle-cat"]').forEach(el => {
+    el.onclick = (e) => {
+      // Don't toggle when clicking the checkbox itself
+      if (e.target.tagName === 'INPUT') return;
+      const i = parseInt(el.dataset.idx, 10);
+      const cat = el.dataset.cat;
+      const item = editorState.items[i];
+      if (item.expandedCats.has(cat)) item.expandedCats.delete(cat);
+      else item.expandedCats.add(cat);
+      renderEditorItems();
+    };
+  });
+
+  // Toggle group expansion
+  container.querySelectorAll('[data-act="toggle-group"]').forEach(el => {
+    el.onclick = (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      const i = parseInt(el.dataset.idx, 10);
+      const file = el.dataset.file;
+      const item = editorState.items[i];
+      if (item.expandedGroups.has(file)) item.expandedGroups.delete(file);
+      else item.expandedGroups.add(file);
+      renderEditorItems();
+    };
+  });
+
+  // Select-all in category
+  container.querySelectorAll('input[data-act="cat-select"]').forEach(cb => {
+    cb.onchange = (e) => {
+      e.stopPropagation();
+      const i = parseInt(cb.dataset.idx, 10);
+      const cat = cb.dataset.cat;
+      const item = editorState.items[i];
+      const platform = document.getElementById('checklistPlatform').value;
+      const ids = registryAll
+        .filter(g => g.platform === platform && g.category === cat)
+        .flatMap(g => g.cases.map(c => c.id));
+      if (cb.checked) {
+        ids.forEach(id => { if (!item.caseIds.includes(id)) item.caseIds.push(id); });
+      } else {
+        item.caseIds = item.caseIds.filter(id => !ids.includes(id));
+      }
+      renderEditorItems();
+    };
+  });
+
+  // Select-all in group
+  container.querySelectorAll('input[data-act="group-select"]').forEach(cb => {
+    cb.onchange = (e) => {
+      e.stopPropagation();
+      const i = parseInt(cb.dataset.idx, 10);
+      const file = cb.dataset.file;
+      const item = editorState.items[i];
+      const group = registryAll.find(g => g.file === file);
+      if (!group) return;
+      const ids = group.cases.map(c => c.id);
+      if (cb.checked) {
+        ids.forEach(id => { if (!item.caseIds.includes(id)) item.caseIds.push(id); });
+      } else {
+        item.caseIds = item.caseIds.filter(id => !ids.includes(id));
+      }
+      renderEditorItems();
+    };
+  });
+
+  // Indeterminate states for cat / group checkboxes
+  container.querySelectorAll('input[data-act="cat-select"]').forEach(cb => {
+    const i = parseInt(cb.dataset.idx, 10);
+    const cat = cb.dataset.cat;
+    const item = editorState.items[i];
+    const platform = document.getElementById('checklistPlatform').value;
+    const ids = registryAll.filter(g => g.platform === platform && g.category === cat).flatMap(g => g.cases.map(c => c.id));
+    if (!ids.length) return;
+    const allSel = ids.every(id => item.caseIds.includes(id));
+    const someSel = ids.some(id => item.caseIds.includes(id));
+    cb.indeterminate = someSel && !allSel;
+  });
+  container.querySelectorAll('input[data-act="group-select"]').forEach(cb => {
+    const i = parseInt(cb.dataset.idx, 10);
+    const file = cb.dataset.file;
+    const item = editorState.items[i];
+    const group = registryAll.find(g => g.file === file);
+    if (!group) return;
+    const ids = group.cases.map(c => c.id);
+    if (!ids.length) return;
+    const allSel = ids.every(id => item.caseIds.includes(id));
+    const someSel = ids.some(id => item.caseIds.includes(id));
+    cb.indeterminate = someSel && !allSel;
+  });
+}
+
+function renderEditorCases(groupsForPlatform, item, itemIdx) {
+  const search = (item.search || '').toLowerCase().trim();
+
+  // Build cat → groups[] tree, applying search filter to cases
+  const catTree = new Map();
+  for (const g of groupsForPlatform) {
+    const filteredCases = search
+      ? g.cases.filter(c => `${c.id} ${c.name || ''}`.toLowerCase().includes(search))
+      : g.cases;
+    if (!filteredCases.length) continue;
+    const cat = g.category || g.group;
+    if (!catTree.has(cat)) catTree.set(cat, []);
+    catTree.get(cat).push({ ...g, cases: filteredCases });
+  }
+
+  if (!catTree.size) {
+    return '<div class="editor-empty-cases">' + (search ? '无匹配用例' : '当前平台无可用用例') + '</div>';
+  }
+
+  // When searching, auto-expand all so results are visible
+  const autoExpand = !!search;
+
+  let html = '';
+  for (const [catName, groupList] of catTree.entries()) {
+    const totalCases = groupList.reduce((n, g) => n + g.cases.length, 0);
+    const allCaseIds = groupList.flatMap(g => g.cases.map(c => c.id));
+    const allSel = allCaseIds.length > 0 && allCaseIds.every(id => item.caseIds.includes(id));
+    const isCatExpanded = autoExpand || item.expandedCats.has(catName);
+
+    html += `<div class="editor-cat">
+      <div class="editor-cat-row" data-act="toggle-cat" data-idx="${itemIdx}" data-cat="${escAttr(catName)}">
+        <span class="chev ${isCatExpanded ? 'expanded' : ''}">&#9654;</span>
+        <input type="checkbox" data-act="cat-select" data-idx="${itemIdx}" data-cat="${escAttr(catName)}" ${allSel ? 'checked' : ''}>
+        <span class="label">${escHtml(catName)}</span>
+        <span class="count">${totalCases}</span>
+      </div>
+      <div class="editor-cat-children ${isCatExpanded ? '' : 'collapsed'}">`;
+
+    for (const g of groupList) {
+      const groupIds = g.cases.map(c => c.id);
+      const allSelG = groupIds.length > 0 && groupIds.every(id => item.caseIds.includes(id));
+      const isGroupExpanded = autoExpand || item.expandedGroups.has(g.file);
+
+      html += `<div class="editor-group">
+        <div class="editor-group-row" data-act="toggle-group" data-idx="${itemIdx}" data-file="${escAttr(g.file)}">
+          <span class="chev ${isGroupExpanded ? 'expanded' : ''}">&#9654;</span>
+          <input type="checkbox" data-act="group-select" data-idx="${itemIdx}" data-file="${escAttr(g.file)}" ${allSelG ? 'checked' : ''}>
+          <span class="label">${escHtml(g.group)}</span>
+          <span class="count">${g.cases.length}</span>
+        </div>
+        <div class="editor-group-cases ${isGroupExpanded ? '' : 'collapsed'}">`;
+
+      for (const c of g.cases) {
+        const checked = item.caseIds.includes(c.id);
+        html += `<label class="editor-case-row">
+          <input type="checkbox" ${checked ? 'checked' : ''} data-act="case-toggle" data-idx="${itemIdx}" data-id="${escAttr(c.id)}">
+          <span class="case-id">${escHtml(c.id)}</span>
+          <span class="case-name">${escHtml(c.name || '')}</span>
+        </label>`;
+      }
+
+      html += `</div></div>`;
+    }
+
+    html += `</div></div>`;
+  }
+  return html;
+}
+
+async function saveChecklist() {
+  if (!editorState) return;
+  const payload = {
+    id: editorState.id || undefined,
+    name: document.getElementById('checklistName').value.trim(),
+    platform: document.getElementById('checklistPlatform').value,
+    note: document.getElementById('checklistNote').value.trim() || undefined,
+    items: editorState.items.map(it => ({ label: (it.label || '').trim(), caseIds: it.caseIds })).filter(it => it.label),
+  };
+  if (!payload.name) { alert('请填写 Checklist 名称'); return; }
+  try {
+    const res = await fetch('/api/checklists', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert('保存失败：' + (err.error || res.statusText));
+      return;
+    }
+    closeChecklistEditor();
+    await fetchChecklists();
+  } catch (e) {
+    alert('保存失败：' + e.message);
+  }
+}
+
+// Re-render editor items when platform changes (filter case list)
+document.addEventListener('change', (e) => {
+  if (e.target?.id === 'checklistPlatform' && editorState) {
+    editorState.platform = e.target.value;
+    renderEditorItems();
+  }
+});
+
+// ---- Bind static buttons ----
+document.getElementById('settingsBtn').onclick = openSettingsModal;
+document.getElementById('saveSettingsBtn').onclick = saveSettings;
+document.getElementById('addChecklistBtn').onclick = () => openChecklistEditor(null);
+document.getElementById('saveChecklistBtn').onclick = saveChecklist;
+document.getElementById('addItemBtn').onclick = () => {
+  if (!editorState) return;
+  editorState.items.push(newEditorItem({ expanded: true }));
+  renderEditorItems();
+};
+
+// Close editor / settings on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if (document.getElementById('settingsModalOverlay').classList.contains('visible')) closeSettingsModal();
+  if (document.getElementById('checklistEditorOverlay').classList.contains('visible')) closeChecklistEditor();
+});
+
 // ---- Init ----
-fetchRegistry();
+fetchRegistry().then(() => fetchChecklists());
+fetchRuntimeConfig();
 fetchRunState();
 connectSSE();
 renderControls();

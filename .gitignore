@@ -37,4 +37,8 @@ shared/results/
 docs/superpowers/
 shared/recordings/
 shared/results/
+# 每个 tester 本地的钱包账户配置（含个人地址，不入库）
+shared/runtime-config.json
+# Playwright MCP 调试时生成的截图/快照，不入库
+.playwright-mcp/
 *.png

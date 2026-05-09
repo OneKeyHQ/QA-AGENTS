@@ -1,0 +1,73 @@
+{
+  "checklists": [
+    {
+      "id": "desktop-tf",
+      "name": "Desktop-TF 包",
+      "platform": "desktop",
+      "note": "ziying",
+      "items": [
+        {
+          "label": "Cosmos 转账",
+          "caseIds": [
+            "COSMOS-001",
+            "COSMOS-002",
+            "COSMOS-003",
+            "COSMOS-004",
+            "COSMOS-005",
+            "COSMOS-006",
+            "COSMOS-007",
+            "COSMOS-008",
+            "COSMOS-009",
+            "COSMOS-010",
+            "COSMOS-011",
+            "COSMOS-012"
+          ]
+        },
+        {
+          "label": "通用搜索",
+          "caseIds": [
+            "SEARCH-UTIL-001",
+            "SEARCH-UTIL-002",
+            "SEARCH-UTIL-004",
+            "SEARCH-UTIL-005",
+            "SEARCH-UTIL-006",
+            "SEARCH-UTIL-007"
+          ]
+        },
+        {
+          "label": "Market（图表/搜索/收藏）",
+          "caseIds": [
+            "MARKET-CHART-001",
+            "MARKET-CHART-002",
+            "MARKET-CHART-003",
+            "MARKET-CHART-004",
+            "MARKET-CHART-005",
+            "MARKET-CHART-006",
+            "MARKET-CHART-007",
+            "MARKET-CHART-008",
+            "MARKET-FAV-001",
+            "MARKET-FAV-002",
+            "MARKET-FAV-003",
+            "MARKET-FAV-004",
+            "MARKET-FAV-005",
+            "MARKET-FAV-006",
+            "MARKET-FAV-007",
+            "MARKET-HOME-001",
+            "MARKET-HOME-002",
+            "MARKET-HOME-003",
+            "MARKET-HOME-004",
+            "MARKET-HOME-005",
+            "MARKET-HOME-006",
+            "MARKET-SEARCH-001",
+            "MARKET-SEARCH-002",
+            "MARKET-SEARCH-004",
+            "MARKET-SEARCH-005",
+            "MARKET-SEARCH-003"
+          ]
+        }
+      ],
+      "createdAt": "2026-05-08T10:49:27.720Z",
+      "updatedAt": "2026-05-08T10:49:27.720Z"
+    }
+  ]
+}
