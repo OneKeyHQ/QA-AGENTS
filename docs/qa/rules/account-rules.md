@@ -79,6 +79,16 @@
 | 系列网络 | Cosmos / DOT 自动创建对应系列所有地址 |
 | DOT 限制 | 15 / 18 / 21 位助记词软件钱包不支持创建 DOT 地址，仅 12 / 24 位支持 |
 
+### 2.5 当前网络派生路径选择
+
+| 网络 | 派生路径选项 |
+|-----|-------------|
+| EVM | BIP44 标准 / Ledger Live / Ledger Legacy |
+| Bitcoin | Taproot / Nested SegWit / Native SegWit / Legacy |
+| Litecoin | Nested SegWit / Native SegWit / Legacy |
+| Solana | BIP44 标准 / Ledger Live |
+| Kaspa | Onekey / Official |
+
 ---
 
 ## 3. 助记词与软件钱包规则
@@ -602,6 +612,7 @@
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-05-08 | 新增 §2.5 当前网络派生路径选择清单：EVM（BIP44 标准 / Ledger Live / Ledger Legacy）、Bitcoin（Taproot / Nested SegWit / Native SegWit / Legacy）、Litecoin（Nested SegWit / Native SegWit / Legacy）、Solana（BIP44 标准 / Ledger Live）、Kaspa（Onekey / Official）；并收敛 §2.4 不再单列 EVM-Ledger Legacy 规则 |
 | 2026-04-17 | §9.1 创建钱包表格修正：头像规则由「支持选择/自定义头像」改为「由系统在创建时生成；创建后不支持修改」，与 `wallet-rules.md` §5.05 头像一致性规则保持同口径 |
 | 2026-04-14 | 收敛当日 Account 规则更新：根据 OK-51595 补充硬件钱包 Onboarding 强制固件更新规则（系统固件或 BLE 固件 major 落后、同 major 下 minor 差值大于 2、或同 major + minor 下 patch 差值大于 2 时隐藏「跳过」按钮；未超阈值时允许跳过；异常场景保留「重试」和「跳过」） |
 | 2026-04-07 | 收敛当日 Account 规则更新：根据 OK-44830 补充观察账户风险提示规则（首页和 Token 详情页增加持久黄色 warning 提示条，切换非观察账户后自动消失，并要求多端一致展示）；根据 OK-49859 补充无私钥钱包 Web / 插件 onboarding 规则（覆盖插件未安装提示、首次安装判定、自动进入大屏 onboarding、已安装无钱包走 Side Panel、已有钱包走默认连接及 Web 自动回流） |
