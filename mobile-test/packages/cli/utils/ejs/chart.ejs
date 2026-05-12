@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Performance Data Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div style="width: 100%; margin: 20px auto;">
+        <canvas id="dataChart"></canvas>
+    </div>
+
+    <script>
+        // 将传入的数据转换为 JSON 字符串，然后再转换回对象
+        const data = <%- JSON.stringify(data) %>;
+
+        // 准备图表数据
+        const labels = data.map(item => item.x);
+        const datasets = [];
+
+        // 假设每个数据点的 y[0] 包含了所有的数据标签，y[1] 包含了对应的数据值
+        data[0].y[0].forEach((label, index) => {
+            const dataset = {
+                label: label, // 数据标签
+                data: data.map(item => +item.y[1][index]), // 数据值，转换为数字
+                fill: true,
+                backgroundColor: `hsla(${index * 60}, 70%, 70%, 0.2)`,
+                borderColor: `hsla(${index * 60}, 70%, 70%, 1)`,
+                tension: 0.1
+            };
+            datasets.push(dataset);
+        });
+
+        // 渲染图表
+        const ctx = document.getElementById('dataChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line', // 线性图表
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

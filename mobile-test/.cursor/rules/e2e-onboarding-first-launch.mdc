@@ -1,0 +1,11 @@
+# Onboarding 首次启动规则
+
+## 1. 首次启动入口
+
+- **首次启动 App（无任何本地数据）时，入口页永远是 `pages/onboarding/onboarding.page.js`。**
+- 编写从「首次安装/清数据后启动」开始的 E2E 用例时，应以 `onboardingPage.waitEntryPage()` 为起点，再执行语言选择、更多选项等后续步骤。
+
+## 2. 相关页面
+
+- 入口页：`pages/onboarding/onboarding.page.js`（Onboarding 引导页）
+- 后续流程可能进入：添加钱包页、导入现有钱包页、导入助记词页等。

@@ -1,0 +1,52 @@
+<% const actionMappings = {
+  'click': (params,index) => `
+  await api.pause(300);
+  await browser.execute('mobile: shell', {
+    command: 'input',
+    args: ['tap', ${params.x}, ${params.y}],
+  });  `,
+  'ocr': (params,index,id) => `
+  
+  const ocrText${index} = await browser.ocr('eng+chi_sim', {
+    left: ${params.x},
+    top: ${params.y},
+    height: ${params.height},
+    width: ${params.width},
+  });
+  setStore("ocr",ocrText${index}.trim());
+  setStore('${id}', 'ocr', [...getStore('${id}', 'ocr',[]), ocrText${index}.trim()]);
+
+  `,
+  'input': (params, index) => {
+    let  pause = 'await api.pause(300);'
+    if (params.dataSource === 'Step') {
+      return `${pause}
+      const stepValue${index} = getStore('${params.stepId}', '${params.keyForLodash}');
+              await browser.keys(stepValue${index});`;
+    } else if (params.dataSource === 'User Input') {
+      return `${pause}
+      await browser.keys("${params.userInput}");`;
+    } else if (params.dataSource === 'Data') {
+      return `${pause}
+      const dataValue${index} = api._.get(data,'${params.keyForLodash}');
+              await browser.keys(dataValue${index});`;
+    }
+  },
+  'pause': (params,index) => `await api.pause(${params.delay});`
+
+} %>
+
+
+step(
+  { id: `<%= id %>`, describe: `<%- desc %>` },
+  [],
+  [],
+  async (data, { platform, api, step, getStore, setStore, reporter, parameter }) => {
+    <% code.forEach((node, index) => { %>
+      <% if (actionMappings[node.action]) { %>
+        <%- actionMappings[node.action](node.parameters, index,id) %>
+      <% } %>
+    <% }) %>
+  }
+);
+
