@@ -247,6 +247,12 @@ const server = createServer(async (req, res) => {
         res.end(JSON.stringify({ error: result.error }));
         return;
       }
+      // Preserve old updatedAt when content is semantically identical — avoids spurious commits
+      // when user clicks save without actually editing anything.
+      if (existing) {
+        const stripTs = (c: Checklist) => JSON.stringify({ ...c, updatedAt: '', createdAt: '' });
+        if (stripTs(existing) === stripTs(result)) result.updatedAt = existing.updatedAt;
+      }
       // Resolve ID collision: if no incoming id and slug already used, suffix -2, -3 ...
       if (!incomingId) {
         let candidate = result.id;

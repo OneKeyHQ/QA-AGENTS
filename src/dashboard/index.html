@@ -204,6 +204,16 @@
   .modal-btn.danger { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.3); color: var(--red); }
   .modal-btn.danger:hover { background: rgba(248,113,113,0.2); }
 
+  /* Toast (transient save / delete feedback) */
+  .toast { position: fixed; top: 16px; right: 16px; max-width: 380px; padding: 10px 14px;
+           background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+           color: var(--text); font-size: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+           z-index: 9999; opacity: 0; transform: translateY(-8px); transition: opacity 0.2s, transform 0.2s; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { border-left: 3px solid #22c55e; }
+  .toast.warn    { border-left: 3px solid #f59e0b; }
+  .toast.info    { border-left: 3px solid var(--text2); }
+
   /* Checklists section */
   .checklists-section { border-bottom: 1px solid var(--border); }
   .checklists-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
@@ -1410,6 +1420,7 @@ async function deleteChecklist(id) {
     checklists = checklists.filter(c => c.id !== id);
     if (activeChecklistId === id) activeChecklistId = null;
     renderChecklistsList();
+    showToast('已删除（下次 PR 自动带上）', 'success');
   } catch (e) {
     alert('删除失败：' + e.message);
   }
@@ -1723,6 +1734,16 @@ function renderEditorCases(groupsForPlatform, item, itemIdx) {
   return html;
 }
 
+function showToast(msg, variant) {
+  if (!msg) return;
+  const t = document.createElement('div');
+  t.className = `toast ${variant || 'info'}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 250); }, 4000);
+}
+
 async function saveChecklist() {
   if (!editorState) return;
   const payload = {
@@ -1746,6 +1767,7 @@ async function saveChecklist() {
     }
     closeChecklistEditor();
     await fetchChecklists();
+    showToast('已保存到 shared/checklists.json（下次 PR 自动带上）', 'success');
   } catch (e) {
     alert('保存失败：' + e.message);
   }

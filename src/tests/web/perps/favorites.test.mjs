@@ -691,7 +691,9 @@ async function testWebPerps004(page) {
 
   const topValues = await getTopBarValues(page);
   const hasPercent = topValues.some(v => v.text.includes('%'));
-  t.add('默认百分比模式', hasPercent ? 'passed' : 'failed');
+  const hasNumeric = topValues.some(v => /\d/.test(v.text));
+  const initialMode = hasPercent ? '%' : '$';
+  t.add('默认显示模式（$ 或 %）', hasNumeric ? 'passed' : 'failed', `default: ${initialMode}`);
 
   console.log('  Step 2: Click $ toggle');
   await clickToggle(page, '$');
