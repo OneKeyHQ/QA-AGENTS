@@ -1,15 +1,31 @@
 {
-  "version": "2.3.3",
-  "lastUpdated": "2026-04-22T17:15:00Z",
+  "version": "2.3.7",
+  "lastUpdated": "2026-05-12T08:32:29.182Z",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
     "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074 — DOM定位/选择器/testid陷阱",
     "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079 — OneKey/Electron/React行为异常",
     "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097 — 工作流/前置条件/状态恢复",
     "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095 — 断言策略/校验方法",
-    "recording": "K-009,K-010,K-019 — 录制器相关"
+    "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103 — 录制器相关"
   },
   "patterns": [
+    {
+      "id": "K-103",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "smartType 后 IME 仍开着，下一步 smartTap 找不到被键盘遮住的按钮（Join/Submit 等）",
+      "details": "现象：runner 步骤 [12] type VIP999 ✓ 成功；步骤 [13] tap Join contentDesc 找不到 → fall to coords (931, 1395) → coord 落在键盘 region 上没点中 Join → VIP999 没真绑定。**根因**：smartType 完成后 IME 键盘仍然在 app 之上，UIAutomator dump 时键盘的 view tree 遮盖了被覆盖的 app 视图，contentDesc=Join 在 dump 中不可见；coord (931, 1395) 这个位置在 1140×2616 屏幕上确实是 Join 按钮位置，但键盘 popup 时该位置变成键盘按键 region，tap 落在键盘上。**修复**：smartType 完成后默认发一次 （KEYCODE_BACK），Android 标准行为是 IME 可见时第一次 BACK 只关键盘**不**触发 activity 返回。可通过 options.dismissKeyboard=false 关闭（Search 场景留键盘看 autosuggest）。**额外坑**：第二次 BACK 才会真返回；shell 脚本里连续多次 BACK 必踩此坑（今天 2 次连环 BACK 把 OneKey 退到 Android 桌面）。**判别 binding 是否真生效**：referral card 消失**不**等于绑定成功（可能只是被动 dismiss），需查 Settings → Referral 看是否显示已绑定码。2026-05-12 VIP999 绑定 4 次都没真的发生绑定就是这个原因。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-102",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "smartType 用 text 选择器时容易命中同名 TextView 标签而不是真正的 EditText 输入框",
+      "details": "现象：smartType({text:\"Referral code\"}, \"VIP999\") → 框里 0 字符或只 1 字符进。**根因**：OneKey RN 表单在 dump 中常有两个同名节点—— ①TextView 标签（屏幕上看像 placeholder 那段字） ②真正的 EditText 输入框。findElementByText 返回**第一个**匹配，多数情况就是 TextView。tap 命中 TextView 没焦点效果，后续 \"input text X\" 全飘走。**修复**：smartType 改用专门的 findEditTextMatching → 在 elements 中显式 filter className.includes(\"EditText\")，绕过同名标签。**附带改动**：tap 后 400ms 等 IME 稳定 + 逐字符 input text（间隔 60ms）防 IME race。**验证**：2026-05-12 修复后用 smartType({resourceId:\"nav-header-search\"}, \"VIP999\") → dump 显示 text=\"VIP999\" 完整入框。**通用经验**：但凡涉及 RN 表单的输入操作，selector 都应优先用 resource-id（最稳）或 className 限定，避免靠 text 兜底（易撞标签）。",
+      "confidence": 0.98
+    },
     {
       "id": "K-001",
       "category": "locator",
@@ -361,8 +377,8 @@
       "pattern": "发送页清除备注可能连带清除收款地址",
       "details": "在发送表单中点击备注区域的「清除」按钮后，不仅备注被清空，收款方地址也可能被清除。后续测试步骤（如输入新备注后点「下一步」）会因为没有收款地址而无法进入下一步。边界测试中每个子场景应重新打开发送表单+重新选择收款人，确保状态干净。",
       "confidence": 0.95
-    }
-    ,{
+    },
+    {
       "id": "K-045",
       "category": "quirk",
       "platform": "desktop",
@@ -755,6 +771,30 @@
       "confidence": 0.98
     },
     {
+      "id": "K-100",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "豆包 / GLM / Kimi 等国产视觉模型不支持 `response_format: {type:'json_object'}`，会返 400",
+      "details": "OpenAI SDK 的 `response_format.type: 'json_object'` 是较新的字段，OpenAI/Anthropic 都支持但**国产 OpenAI 兼容网关大多不支持**——豆包/GLM/Kimi 等都会返 `400 The parameter response_format.type ... is not supported by this model`。**解决方案**：在 `chat.completions.create` 调用里**完全去掉 `response_format`**，靠 prompt 明确要求「Return ONLY a JSON object」+ 代码侧 `text.match(/\\{[\\s\\S]*\\}/)` regex 兜底解析。OneKey LLM 网关 (`llm-api.onekeytest.com/v1`) 的所有非 OpenAI 系列模型都需要这样处理。如果想要硬约束 JSON 输出，只能用 Anthropic 的 `output_config.format.json_schema`，但那需要 Anthropic SDK + Anthropic 协议。2026-05-11 在 android recorder 切豆包时遇到。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-099",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "`adb kill-server` 会静默杀死 recorder 的 getevent 子进程，HTTP server 还在跑但触摸事件捕获已死",
+      "details": "Recorder 在 `startTouchMonitor()` 里 `spawn(ADB, ['-s', DEVICE_ID, 'shell', 'getevent', '-lt'])` 启动一个 adb 子进程持续监听触摸事件。**`adb kill-server` 会杀掉所有 adb 客户端连接**（不只是 daemon），包括 recorder spawn 出来的 getevent shell。child process 退出但 recorder.mjs **没有监控 child exit 也没有重连逻辑**——结果：①HTTP server (端口 3212) 继续 LISTEN，浏览器看着像在录制；②session.json 永远停在 eventCount=0；③用户点屏幕完全没反应。**诊断方法**：`pgrep -P <recorder_pid> -a` 若输出为空说明 getevent 子进程已死。**修复**：重启 recorder（`pkill -f tests/android/recorder.mjs && node src/tests/android/recorder.mjs`）。**预防**：调试 adb 时优先用 `adb reconnect` 或针对单个设备 `adb -s <udid> reconnect`，不要 `adb kill-server`；如必须 kill-server，**记得重启 recorder**。2026-05-11 排查录制问题时 `adb kill-server + start-server` 后 recorder 14377 永久失聋，浪费了 5 分钟才发现。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-098",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "Android recorder 重启时必须先 pkill `adb getevent` 子进程，否则僵尸进程抢事件流导致新 recorder 收不到 tap",
+      "details": "`src/tests/android/recorder.mjs` 启动时 spawn `adb -s <udid> shell getevent -lt` 子进程监听触摸事件。kill 父 node 进程时**子 adb getevent 不会跟着死**（detached）。下一次启动 recorder 会再 spawn 一个新 getevent，同一台设备的事件被旧/新 getevent 竞争分发——新 recorder 经常 0 个 tap 捕获。**正确重启序列**：`pkill -f \"adb.*getevent\"; sleep 1; pkill -f \"tests/android/recorder.mjs\"; sleep 1; node src/tests/android/recorder.mjs`。验证方法：`pgrep -fa \"getevent\"` 启动后应只有 1 个（父进程是当前 recorder PID）。后续可在 recorder.mjs 的 SIGINT handler 加 `monitor.kill('SIGKILL')` + 主动杀子 adb，但目前还没做。2026-05-11 切 doubao 模型时连续重启 3 次累积 4 个僵尸 getevent，新 recorder 8 个 tap 全标 unknown（实际是事件根本没到 AI 调用层）。",
+      "confidence": 0.95
+    },
+    {
       "id": "K-097",
       "category": "process",
       "platform": "all",
@@ -769,6 +809,14 @@
       "pattern": "RocketX 渠道接入：provider=SwapRocketX，同链 + 跨链，构建依赖 quoteResultCtx",
       "details": "新渠道 RocketX 接入约束（用于生成 Swap 用例）：① provider 标识统一为 `SwapRocketX`；② 同链 + 跨链均覆盖，分别写在 `2026-04-20_Swap-RocketX渠道同链测试.md` / `2026-04-20_Swap-RocketX渠道跨链测试.md`，对齐 Houdini 两份模板；③ 构建接口 `POST /swap/v1/build-tx` **依赖 `quoteResultCtx`**，每条用例必须按 `quote → 提取 RocketX quoteResultCtx → build-tx` 闭环执行，不允许直接 build（与 Exodus / CowSwap / 1inch Fusion / LiFi / Changelly / ChangeHero 同组）；④ 断言失败口径：`data` 未命中 `SwapRocketX` / 命中但携带 `errorMessage` / 命中但无 `quoteResultCtx`，任意一条都判定 failed，失败时输出 `providers=` 与 `rocketxQuote=` 便于定位；⑤ 目前 `app-monorepo` 的 `x` 分支未检索到 `SwapRocketX` 相关常量（`packages/shared/types/swap/SwapProvider.constants.ts` 仅枚举了 `Swap1inchFusion`），支持网络清单采用占位「EVM 七条 + Solana + BTC」，正式清单确认后必须先更新 `docs/qa/rules/swap-rules.md` 的 RocketX 网络节点，再回填用例中的具体场景。详见 `docs/qa/rules/swap-rules.md` 2026-04-20 变更记录。",
       "confidence": 0.9
+    },
+    {
+      "id": "K-101",
+      "category": "locator",
+      "platform": "web",
+      "pattern": "Web Perps 搜索弹窗两级 tab 结构（2026-05 起）：顶级 自选/永续合约/现货 在 y≈180；子级 全部/加密货币/股票/贵金属/指数/大宗商品/外汇/预上线 仅在 永续合约 下出现于 y≈227；现货 tab 下无子级，直接列表",
+      "details": "Web 端 (app.onekeytest.com/perps) 在 SILVER 增加现货支持后，token 选择器弹窗改成两级 tab。由于 \"自选\" 同名在顶级出现，\"全部\" 在子级出现，按 textContent 直接 click 会撞名。必须按 popover 相对 y-offset 区分：顶级 tab `(span.y - popover.y) < 100`，子级 tab `100 <= dy < 200`。脚本中已封装 `clickTopTab(name)` 和 `clickSubTab(name)` 两个 helper（见 `src/tests/web/perps/token-search.test.mjs`）。\\n\\n另一关键差异：现货 tab 下 token 行格式为 `BTC/USDC` 带斜杠 pair；永续合约下是单 ticker `BTC` + `40x` 杠杆 + `比特币` 中文标签。提取代币正则必须同时兼容 `/^[A-Z][A-Z0-9]{1,9}$/` 与 `/^[A-Z][A-Z0-9]{1,9}\\/[A-Z]{2,6}$/`。现货 tab 列头：资产 / 最新价格 / 24h涨跌 / 成交量 / 市值（无资金费率列）。\\n\\n触发场景：编写 / 维护 Web Perps token 选择器相关测试时。",
+      "confidence": 0.95
     }
   ]
 }

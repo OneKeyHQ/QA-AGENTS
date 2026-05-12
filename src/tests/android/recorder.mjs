@@ -16,7 +16,7 @@ import { mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createServer } from 'node:http';
 import { exec } from 'node:child_process';
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import sharp from 'sharp';
 
 const ADB = resolve(process.env.ANDROID_HOME || `${process.env.HOME}/Library/Android/sdk`, 'platform-tools/adb');
@@ -113,39 +113,115 @@ mkdirSync(SESSION_DIR, { recursive: true });
 const events = [];
 const sseClients = [];
 let screenshotIndex = 0;
-let capturing = false;
+let uiDumpIndex = 0;
 const startTime = new Date().toISOString();
 
-// ── AI Vision (Claude) for element identification ───────────
+// ── UIAutomator-based element identification (PRIMARY) ───────
+// On finger DOWN we dump the UI hierarchy via `uiautomator dump`. On finger UP we
+// find the smallest <node> whose bounds contain the tap point — that's the widget
+// the user tapped on. ~300-500ms latency, ~99% accurate, gives stable selectors
+// (resource-id / content-desc / text / class). No AI roundtrip in the hot path.
+const preTapQueue = [];        // pre-tap screenshots
+const preDumpQueue = [];       // pre-tap UI XML dumps
 
-const ai = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
-const AI_MODEL = process.env.CLAUDE_VISION_MODEL || 'claude-opus-4-7';
-
-const ELEMENT_SCHEMA = {
-  type: 'object',
-  properties: {
-    elementType: {
-      type: 'string',
-      enum: ['button', 'input', 'text', 'icon', 'tab', 'card', 'list-item', 'image', 'link', 'toggle', 'other'],
-    },
-    label: { type: 'string' },
-    section: { type: 'string' },
-    action: { type: 'string' },
-    confidence: { type: 'number' },
-  },
-  required: ['elementType', 'label', 'section', 'action', 'confidence'],
-  additionalProperties: false,
-};
-
-// Pre-tap screenshot: taken on finger DOWN so we capture BEFORE the UI changes
-let preTapScreenshotPromise = null;
-
-function triggerPreTapScreenshot() {
-  if (capturing) return;
-  preTapScreenshotPromise = takeScreenshot('pre-tap');
+function triggerPreTapCapture() {
+  preTapQueue.push(takeScreenshot('pre-tap'));
+  preDumpQueue.push(takeUIDump());
 }
+
+// uiautomator can only run ONE instance at a time on the device. Serialize via
+// a promise chain — each call waits for the previous dump to finish before
+// starting its own. Caveat: rapid consecutive taps may get slightly stale dumps,
+// but that's still better than 75% failure rate from concurrent calls.
+let dumpChain = Promise.resolve(null);
+
+function takeUIDump() {
+  const myTurn = dumpChain.then(() => _doUIDump());
+  dumpChain = myTurn.catch(() => null);
+  return myTurn;
+}
+
+async function _doUIDump() {
+  const idx = String(uiDumpIndex++).padStart(3, '0');
+  const remotePath = `/data/local/tmp/ms_dump_${idx}.xml`;
+  try {
+    await adbExec(['shell', `uiautomator dump --compressed ${remotePath}`]);
+    const xml = await adbExec(['shell', `cat ${remotePath}`]);
+    adbExec(['shell', `rm ${remotePath}`]).catch(() => {});
+    return xml;
+  } catch (e) {
+    console.error(`    UI dump failed: ${e.message}`);
+    return null;
+  }
+}
+
+function parseUIAttrs(s) {
+  const out = {};
+  const re = /([\w-]+)="([^"]*)"/g;
+  let m;
+  while ((m = re.exec(s))) out[m[1]] = m[2];
+  return out;
+}
+
+function parseBounds(s) {
+  if (!s) return null;
+  const m = s.match(/\[(\d+),(\d+)\]\[(\d+),(\d+)\]/);
+  if (!m) return null;
+  return { x1: +m[1], y1: +m[2], x2: +m[3], y2: +m[4] };
+}
+
+// Find all nodes whose bounds contain (x, y), then pick the best one:
+//  1st preference — the SMALLEST node with a useful identifier
+//                   (resource-id / content-desc / text). RN test-IDs surface as
+//                   resource-id; this beats just picking the smallest node,
+//                   which is often an empty wrapper View.
+//  fallback       — the smallest node by area (no useful id available).
+function findElementAtPoint(xml, x, y) {
+  if (!xml) return null;
+  const candidates = [];
+  const nodeRe = /<node\s([^>]*?)\/?>/g;
+  let m;
+  while ((m = nodeRe.exec(xml))) {
+    const attrs = parseUIAttrs(m[1]);
+    const bounds = parseBounds(attrs.bounds);
+    if (!bounds) continue;
+    if (x < bounds.x1 || x > bounds.x2 || y < bounds.y1 || y > bounds.y2) continue;
+    const area = (bounds.x2 - bounds.x1) * (bounds.y2 - bounds.y1);
+    candidates.push({ attrs, bounds, area });
+  }
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => a.area - b.area);
+
+  const hasUsefulId = (c) =>
+    (c.attrs['resource-id'] && c.attrs['resource-id'] !== '') ||
+    (c.attrs['content-desc'] && c.attrs['content-desc'] !== '') ||
+    (c.attrs.text && c.attrs.text !== '');
+
+  const pick = candidates.find(hasUsefulId) || candidates[0];
+
+  return {
+    resourceId: pick.attrs['resource-id'] || '',
+    contentDesc: pick.attrs['content-desc'] || '',
+    text: pick.attrs.text || '',
+    className: pick.attrs.class || '',
+    package: pick.attrs.package || '',
+    bounds: [[pick.bounds.x1, pick.bounds.y1], [pick.bounds.x2, pick.bounds.y2]],
+    clickable: pick.attrs.clickable === 'true',
+    focusable: pick.attrs.focusable === 'true',
+    enabled: pick.attrs.enabled === 'true',
+  };
+}
+
+// ── AI Vision (OPTIONAL FALLBACK) ────────────────────────────
+// Only enabled with ENABLE_AI_VISION=1. Adds 3-30s latency per tap depending on
+// gateway throttling. UIAutomator dump above is the primary identifier.
+
+const aiEnabled = process.env.ENABLE_AI_VISION === '1';
+const ai = aiEnabled ? new OpenAI({
+  apiKey: process.env.ONEKEY_LLM_KEY || process.env.OPENAI_API_KEY,
+  baseURL: process.env.ONEKEY_LLM_BASE_URL || process.env.OPENAI_BASE_URL,
+}) : null;
+const AI_MODEL = process.env.VISION_MODEL || 'doubao-seed-2.0-pro';
 
 async function annotateScreenshot(screenshotPath, screenX, screenY) {
   // Draw a red crosshair + circle at the tap point
@@ -166,38 +242,45 @@ async function identifyWithAI(screenshotPath, screenX, screenY) {
   try {
     // Annotate screenshot with red crosshair at tap point
     const annotated = await annotateScreenshot(screenshotPath, screenX, screenY);
-    const imgBase64 = annotated.toString('base64');
+    // Downscale to keep payload <200KB and avoid model timeouts (originals are 1140x2616+)
+    const compressed = await sharp(annotated)
+      .resize({ width: 1024, withoutEnlargement: true })
+      .jpeg({ quality: 70 })
+      .toBuffer();
+    const imgBase64 = compressed.toString('base64');
 
-    const resp = await ai.messages.create({
+    const resp = await ai.chat.completions.create({
       model: AI_MODEL,
-      max_tokens: 1024,
-      output_config: {
-        format: { type: 'json_schema', schema: ELEMENT_SCHEMA },
-      },
+      max_tokens: 300,
       messages: [{
         role: 'user',
         content: [
           {
-            type: 'image',
-            source: { type: 'base64', media_type: 'image/png', data: imgBase64 },
+            type: 'image_url',
+            image_url: { url: `data:image/jpeg;base64,${imgBase64}` },
           },
           {
             type: 'text',
             text: `This is an Android app screenshot. A red crosshair marks exactly where the user tapped.
-Identify the UI element at the red crosshair.
-- elementType: one of button|input|text|icon|tab|card|list-item|image|link|toggle|other
-- label: the visible text or icon name at the crosshair
-- section: screen area (header, tab-bar, token-list, modal, form, ...)
-- action: what this tap likely does (open-token-selector, navigate-back, submit, ...)
-- confidence: 0.0-1.0`,
+Identify the UI element at the red crosshair. Return ONLY a JSON object with these fields:
+{
+  "elementType": "button|input|text|icon|tab|card|list-item|image|link|toggle|other",
+  "label": "the visible text or icon name at the crosshair",
+  "section": "screen area (e.g. header, tab-bar, token-list, modal, form)",
+  "action": "what this tap likely does (e.g. open-token-selector, navigate-back, submit)",
+  "confidence": 0.0-1.0
+}
+No markdown, no explanation.`,
           },
         ],
       }],
     });
 
-    const textBlock = resp.content.find((b) => b.type === 'text');
-    if (!textBlock?.text) return null;
-    return JSON.parse(textBlock.text);
+    const text = resp.choices?.[0]?.message?.content?.trim();
+    if (!text) return null;
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+    return JSON.parse(jsonMatch[0]);
   } catch (e) {
     console.error(`    AI identify failed: ${e.message}`);
     return null;
@@ -237,9 +320,10 @@ function adbExec(args) {
   return adbExecWith(DEVICE_ID, args);
 }
 
+// No global mutex: each call gets a unique idx (screenshotIndex++ is atomic in
+// JS single-thread) and a unique remote/local path, so parallel screencap+pull
+// is safe and lets concurrent taps each get their own pre/post-tap shot.
 async function takeScreenshot(label) {
-  if (capturing) return null;
-  capturing = true;
   const idx = String(screenshotIndex++).padStart(3, '0');
   const filename = `${idx}-${label}.png`;
   const remotePath = `/data/local/tmp/ms_rec_${idx}.png`;
@@ -252,14 +336,24 @@ async function takeScreenshot(label) {
   } catch (e) {
     console.error(`    Screenshot failed: ${e.message}`);
     return null;
-  } finally {
-    capturing = false;
   }
 }
 
 function describeElement(el) {
   if (!el) return 'unknown';
-  // AI vision element
+  // UIAutomator element (new primary)
+  if (el.resourceId !== undefined || el.contentDesc !== undefined) {
+    const id = el.contentDesc
+      || (el.resourceId ? el.resourceId.split(':id/').pop() : '')
+      || el.text
+      || '';
+    const cls = el.className ? el.className.split('.').pop() : '';
+    const parts = id ? [`"${id}"`] : ['(no id/text)'];
+    if (cls) parts.push(`[${cls}]`);
+    if (!el.clickable && id) parts.push('(non-clickable)');
+    return parts.join(' ');
+  }
+  // Legacy AI vision element
   if (el.label) {
     const parts = [`"${el.label}"`];
     if (el.elementType && el.elementType !== 'other') parts.push(`[${el.elementType}]`);
@@ -546,15 +640,19 @@ function startTouchMonitor() {
       const trimmed = line.trim();
       if (!trimmed || trimmed.startsWith('add device')) continue;
 
-      // Lines from getevent -lt (all devices) are prefixed with device path:
-      // /dev/input/event10: EV_ABS ABS_MT_POSITION_X 00001234
-      const devMatch = trimmed.match(/^(\/dev\/input\/event\d+):\s*(.+)/);
+      // Lines from `getevent -lt` are:
+      //   [ 12345.678] /dev/input/event10: EV_ABS ABS_MT_POSITION_X 00001234
+      // Older Android variants drop the timestamp:
+      //   /dev/input/event10: EV_ABS ABS_MT_POSITION_X 00001234
+      // We don't anchor at start of string — the device path can appear after a
+      // bracketed timestamp. (.+) greedily captures rest after the device colon.
+      const devMatch = trimmed.match(/(\/dev\/input\/event\d+):\s*(.+)/);
       let devPath, rest;
       if (devMatch) {
         devPath = devMatch[1];
         rest = devMatch[2];
       } else {
-        // Continuation line (same device) or timestamp line
+        // Continuation line (same device) or pure timestamp line
         devPath = activeDevicePath;
         rest = trimmed;
       }
@@ -579,7 +677,7 @@ function startTouchMonitor() {
       if (matchY) { state.currentY = parseInt(matchY[1], 16); continue; }
 
       if (rest.includes('BTN_TOUCH') && rest.includes('DOWN')) {
-        triggerPreTapScreenshot();
+        triggerPreTapCapture();
         continue;
       }
 
@@ -617,22 +715,29 @@ function parseTouchEvent(rawX, rawY, maxX, maxY, devPath) {
   // Broadcast new tap immediately (element/screenshot come later as update)
   broadcast(event);
 
-  // Use pre-tap screenshot for AI identification + take post-tap screenshot for display
+  // Element identification + screenshots run in parallel post-UP
   (async () => {
-    // Wait for pre-tap screenshot (taken on finger DOWN)
-    const preTapShot = preTapScreenshotPromise ? await preTapScreenshotPromise : null;
-    preTapScreenshotPromise = null;
+    // FIFO-shift the pre-tap promises queued by the matching finger DOWN
+    const preTapShot = await (preTapQueue.shift() || Promise.resolve(null));
+    const preTapXml = await (preDumpQueue.shift() || Promise.resolve(null));
 
     // Take post-tap screenshot (for visual reference in the UI)
     await new Promise((r) => setTimeout(r, 400));
     const postTapShot = await takeScreenshot(`tap-${events.length}`);
 
-    // Use pre-tap screenshot for AI identification (shows what was on screen BEFORE tap)
-    const identifyShot = preTapShot || postTapShot;
-    const element = identifyShot ? await identifyWithAI(identifyShot.localPath, screen.x, screen.y) : null;
+    // PRIMARY: locate widget from pre-tap UI dump (stable selectors, no AI)
+    const element = preTapXml ? findElementAtPoint(preTapXml, screen.x, screen.y) : null;
 
-    event.element = element;
-    event.description = describeElement(element);
+    // OPTIONAL: AI vision annotation (off by default, slow, set ENABLE_AI_VISION=1)
+    let aiElement = null;
+    if (aiEnabled) {
+      const identifyShot = preTapShot || postTapShot;
+      if (identifyShot) aiElement = await identifyWithAI(identifyShot.localPath, screen.x, screen.y);
+    }
+
+    event.element = element || aiElement;  // dump preferred; AI as fallback if dump empty
+    if (element && aiElement) event.aiElement = aiElement;  // store both when present
+    event.description = describeElement(event.element);
     event.screenshot = postTapShot?.filename || preTapShot?.filename || null;
     flushSession();
 

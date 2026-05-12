@@ -104,15 +104,20 @@ midscene_run/recordings/session-<timestamp>/
 
 | 环境变量 | 默认值 | 说明 |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | （必填）| Claude API key |
-| `CLAUDE_VISION_MODEL` | `claude-opus-4-7` | 视觉识别用的模型 |
+| `ONEKEY_LLM_KEY` | （必填）| OneKey 内部网关 API key |
+| `ONEKEY_LLM_BASE_URL` | （必填）| 内部网关 base URL（如 `https://llm-api.onekeytest.com/v1`） |
+| `VISION_MODEL` | `gpt-5.5` | 视觉识别用的模型（必须支持 vision） |
 | `ANDROID_HOME` | `~/Library/Android/sdk` | Android SDK 根目录 |
 
-切换更快/便宜的模型（牺牲精度换速度）：
+> 兼容回退：如果未设置 `ONEKEY_LLM_*`，会回退读 `OPENAI_API_KEY` / `OPENAI_BASE_URL`（共用 Midscene 的 qwen-vl 配置）。
+
+切换其他网关支持的视觉模型：
 ```bash
-CLAUDE_VISION_MODEL=claude-sonnet-4-6 node src/tests/android/recorder.mjs
-CLAUDE_VISION_MODEL=claude-haiku-4-5 node src/tests/android/recorder.mjs
+VISION_MODEL=gpt-5.4 node src/tests/android/recorder.mjs            # 上代 OpenAI
+VISION_MODEL=doubao-seed-2.0-pro node src/tests/android/recorder.mjs # 字节豆包
+VISION_MODEL=glm-5.1 node src/tests/android/recorder.mjs             # 智谱
 ```
+注意：不是所有网关模型都支持 vision，必须确认目标模型支持 `image_url` 输入。
 
 ## 监控 UI 功能
 
@@ -127,27 +132,30 @@ CLAUDE_VISION_MODEL=claude-haiku-4-5 node src/tests/android/recorder.mjs
 | 现象 | 原因 | 修法 |
 |---|---|---|
 | `No Android devices connected` | adb 未识别 | 重插数据线，确认手机已授权 USB 调试 |
-| `AI identify failed: 401` | API key 无效 | 检查 `.env` 中 `ANTHROPIC_API_KEY` 拼写 |
-| `AI identify failed: model not found` | 模型 ID 错 | 取消 `CLAUDE_VISION_MODEL` 覆盖，用默认 |
+| `AI identify failed: 401` | API key 无效 | 检查 `.env` 中 `ONEKEY_LLM_KEY` 拼写 |
+| `AI identify failed: 403` 且返回 Cloudflare HTML | WAF 拦截 | recorder 已通过 OpenAI SDK 内置 UA，正常不会触发；如出现请确认机器 IP 在网关白名单 |
+| `AI identify failed: model not found` | 模型 ID 错 | 取消 `VISION_MODEL` 覆盖，用默认 `gpt-5.5` |
 | Web UI 一直 `identifying...` | API 调用未返回 | 看终端报错；偶尔 5–10s 是 Opus 正常延迟 |
 | 完全没 tap 事件 | 触摸设备没识别到 | `adb shell getevent -p` 找真正的触摸 event 路径 |
 | `EADDRINUSE :3212` | 端口被占用（极少） | `lsof -i :3212` 找占用进程，杀掉重启 |
 
-单独验证 Claude API key 通不通：
+单独验证网关 + key 通不通：
 ```bash
-curl -s https://api.anthropic.com/v1/messages \
-  -H "x-api-key: $(grep ANTHROPIC_API_KEY .env | cut -d= -f2)" \
-  -H "anthropic-version: 2023-06-01" \
+KEY=$(grep '^ONEKEY_LLM_KEY=' .env | cut -d= -f2-)
+BASE=$(grep '^ONEKEY_LLM_BASE_URL=' .env | cut -d= -f2-)
+curl -s "$BASE/chat/completions" \
+  -H "Authorization: Bearer $KEY" \
+  -H "User-Agent: Mozilla/5.0" \
   -H "content-type: application/json" \
-  -d '{"model":"claude-opus-4-7","max_tokens":10,"messages":[{"role":"user","content":"hi"}]}'
+  -d '{"model":"gpt-5.5","max_tokens":10,"messages":[{"role":"user","content":"reply OK"}]}'
 ```
-应返回带 `"content":[{"type":"text",...}]` 的 JSON。
+应返回带 `"choices":[{"message":{"content":"OK"...}` 的 JSON。
 
 ## 已知限制
 
 - 只录 tap，不录滑动 / 长按 / 文本输入
 - 只支持 Android（iOS 录制器规划中）
-- AI 识别异步进行（不阻塞下一次 tap），但识别延迟 ~3–5s（Opus 4.7）
+- AI 识别异步进行（不阻塞下一次 tap），但识别延迟 ~3–5s（豆包 / OpenAI 系列）
 - AI 看的是 **pre-tap** 截图，识别结果反映点击**前**的 UI 状态
 - 多触摸点同时按下时只记录最后一次坐标
 
