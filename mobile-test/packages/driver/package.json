@@ -1,0 +1,38 @@
+{
+  "name": "@node-e2e/touchdriver",
+  "version": "0.0.0",
+  "description": "",
+  "main": "./build/index.js",
+  "appium": {
+    "driverName": "Touch",
+    "automationName": "Touch",
+    "platformNames": [
+      "OneKey Touch"
+    ],
+    "mainClass": "OneKeyTouchDriver"
+  },
+  "peerDependencies": {
+    "appium": "^2.2.0"
+  },
+  "dependencies": {
+    "@appium/base-driver": "^9.4.3",
+    "@appium/eslint-config-appium": "^8.0.5",
+    "@appium/support": "^4.1.10",
+    "@babel/eslint-parser": "^7.23.3",
+    "@babel/runtime": "^7.0.0",
+    "serialport": "^12.0.0",
+    "sharp": "^0.30.3",
+    "source-map-support": "^0.x"
+  },
+  "scripts": {
+    "build": "gulp transpile",
+    "appium:install": "gulp transpile && gulp install-appium-driver",
+    "watch": "gulp watch"
+  },
+  "devDependencies": {
+    "@appium/gulp-plugins": "^8.0.0",
+    "@babel/core": "^7.16.0",
+    "gulp": "^4.0.2",
+    "gulp-eslint": "^6.0.0"
+  }
+}
