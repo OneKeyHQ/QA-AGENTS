@@ -1,0 +1,1915 @@
+{
+  "module": "onboarding",
+  "description": "Locators for onboarding module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "onboarding.add_wallet_button": {
+      "primary": "[data-testid=\"add-wallet\"]",
+      "source_testid": "add-wallet",
+      "source": "app-monorepo",
+      "page": "onboarding",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "onboarding",
+        "wallets"
+      ]
+    },
+    "onboarding.finalize_wallet_setup": {
+      "primary": "[data-testid=\"finalize-wallet-setup\"]",
+      "source_testid": "finalize-wallet-setup",
+      "source": "app-monorepo",
+      "page": "onboarding",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "onboarding",
+        "wallet-setup"
+      ]
+    },
+    "onboarding.screen": {
+      "primary": "[data-testid=\"APP-OnBoarding-Screen\"]",
+      "source_testid": "APP-OnBoarding-Screen",
+      "source": "app-monorepo",
+      "page": "onboarding",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.acknowledged": {
+      "primary": "[data-testid=\"acknowledged\"]",
+      "source_testid": "acknowledged",
+      "source": "auto-classified",
+      "page": "importwallet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.clear-all": {
+      "primary": "[data-testid=\"clear-all\"]",
+      "source_testid": "clear-all",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.copy-recovery-phrase-cancel": {
+      "primary": "[data-testid=\"copy-recovery-phrase-cancel\"]",
+      "source_testid": "copy-recovery-phrase-cancel",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.copy-recovery-phrase-confirm": {
+      "primary": "[data-testid=\"copy-recovery-phrase-confirm\"]",
+      "source_testid": "copy-recovery-phrase-confirm",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.copy-recovery-phrase-icon": {
+      "primary": "[data-testid=\"copy-recovery-phrase-icon\"]",
+      "source_testid": "copy-recovery-phrase-icon",
+      "source": "auto-classified",
+      "page": "createwalet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.derive-type-input": {
+      "primary": "[data-testid=\"derive-type-input\"]",
+      "source_testid": "derive-type-input",
+      "source": "auto-classified",
+      "page": "importwallet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.hardware-wallet": {
+      "primary": "[data-testid=\"hardware-wallet\"]",
+      "source_testid": "hardware-wallet",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.import-address-input": {
+      "primary": "[data-testid=\"import-address-input\"]",
+      "source_testid": "import-address-input",
+      "source": "auto-classified",
+      "page": "importwallet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-add-existing-wallet-page": {
+      "primary": "[data-testid=\"onboarding-add-existing-wallet-page\"]",
+      "source_testid": "onboarding-add-existing-wallet-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-apple-sign-in-button": {
+      "primary": "[data-testid=\"onboarding-apple-sign-in-button\"]",
+      "source_testid": "onboarding-apple-sign-in-button",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-btn": {
+      "primary": "[data-testid=\"onboarding-btn\"]",
+      "source_testid": "onboarding-btn",
+      "source": "auto-classified",
+      "page": "connecthardwarewallet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-check-and-update-done-btn": {
+      "primary": "[data-testid=\"onboarding-check-and-update-done-btn\"]",
+      "source_testid": "onboarding-check-and-update-done-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-check-and-update-page": {
+      "primary": "[data-testid=\"onboarding-check-and-update-page\"]",
+      "source_testid": "onboarding-check-and-update-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-check-and-update-retry-btn": {
+      "primary": "[data-testid=\"onboarding-check-and-update-retry-btn\"]",
+      "source_testid": "onboarding-check-and-update-retry-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-check-and-update-skip-step-btn": {
+      "primary": "[data-testid=\"onboarding-check-and-update-skip-step-btn\"]",
+      "source_testid": "onboarding-check-and-update-skip-step-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-check-and-update-skip-update-btn": {
+      "primary": "[data-testid=\"onboarding-check-and-update-skip-update-btn\"]",
+      "source_testid": "onboarding-check-and-update-skip-update-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-check-and-update-update-btn": {
+      "primary": "[data-testid=\"onboarding-check-and-update-update-btn\"]",
+      "source_testid": "onboarding-check-and-update-update-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-check-and-update-verify-btn": {
+      "primary": "[data-testid=\"onboarding-check-and-update-verify-btn\"]",
+      "source_testid": "onboarding-check-and-update-verify-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-confirm-passcode-input": {
+      "primary": "[data-testid=\"onboarding-confirm-passcode-input\"]",
+      "source_testid": "onboarding-confirm-passcode-input",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-confirm-pin-page": {
+      "primary": "[data-testid=\"onboarding-confirm-pin-page\"]",
+      "source_testid": "onboarding-confirm-pin-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connect-hardware-button": {
+      "primary": "[data-testid=\"onboarding-connect-hardware-button\"]",
+      "source_testid": "onboarding-connect-hardware-button",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connect-qr-code-page": {
+      "primary": "[data-testid=\"onboarding-connect-qr-code-page\"]",
+      "source_testid": "onboarding-connect-qr-code-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connect-qr-code-scan-btn": {
+      "primary": "[data-testid=\"onboarding-connect-qr-code-scan-btn\"]",
+      "source_testid": "onboarding-connect-qr-code-scan-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connect-your-device-advanced-menu-btn": {
+      "primary": "[data-testid=\"onboarding-connect-your-device-advanced-menu-btn\"]",
+      "source_testid": "onboarding-connect-your-device-advanced-menu-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connect-your-device-bluetooth-connect-btn": {
+      "primary": "[data-testid=\"onboarding-connect-your-device-bluetooth-connect-btn\"]",
+      "source_testid": "onboarding-connect-your-device-bluetooth-connect-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connect-your-device-contact-us-btn": {
+      "primary": "[data-testid=\"onboarding-connect-your-device-contact-us-btn\"]",
+      "source_testid": "onboarding-connect-your-device-contact-us-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connect-your-device-create-qr-wallet-btn": {
+      "primary": "[data-testid=\"onboarding-connect-your-device-create-qr-wallet-btn\"]",
+      "source_testid": "onboarding-connect-your-device-create-qr-wallet-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connect-your-device-troubleshooting-btn": {
+      "primary": "[data-testid=\"onboarding-connect-your-device-troubleshooting-btn\"]",
+      "source_testid": "onboarding-connect-your-device-troubleshooting-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connect-your-device-usb-connect-btn": {
+      "primary": "[data-testid=\"onboarding-connect-your-device-usb-connect-btn\"]",
+      "source_testid": "onboarding-connect-your-device-usb-connect-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-connection-flow-ledger-start-btn": {
+      "primary": "[data-testid=\"onboarding-connection-flow-ledger-start-btn\"]",
+      "source_testid": "onboarding-connection-flow-ledger-start-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-content-btn": {
+      "primary": "[data-testid=\"onboarding-content-btn\"]",
+      "source_testid": "onboarding-content-btn",
+      "source": "auto-classified",
+      "page": "promptwebdeviceaccess",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-create-new-wallet-seed-phrase-btn": {
+      "primary": "[data-testid=\"onboarding-create-new-wallet-seed-phrase-btn\"]",
+      "source_testid": "onboarding-create-new-wallet-seed-phrase-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-create-or-import-wallet": {
+      "primary": "[data-testid=\"onboarding-create-or-import-wallet\"]",
+      "source_testid": "onboarding-create-or-import-wallet",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-create-passcode-page": {
+      "primary": "[data-testid=\"onboarding-create-passcode-page\"]",
+      "source_testid": "onboarding-create-passcode-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-create-wallet-button": {
+      "primary": "[data-testid=\"onboarding-create-wallet-button\"]",
+      "source_testid": "onboarding-create-wallet-button",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-finalize-setup-enter-wallet-btn": {
+      "primary": "[data-testid=\"onboarding-finalize-setup-enter-wallet-btn\"]",
+      "source_testid": "onboarding-finalize-setup-enter-wallet-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-finalize-setup-exit-btn": {
+      "primary": "[data-testid=\"onboarding-finalize-setup-exit-btn\"]",
+      "source_testid": "onboarding-finalize-setup-exit-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-finalize-setup-page": {
+      "primary": "[data-testid=\"onboarding-finalize-setup-page\"]",
+      "source_testid": "onboarding-finalize-setup-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-finalize-setup-retry-btn": {
+      "primary": "[data-testid=\"onboarding-finalize-setup-retry-btn\"]",
+      "source_testid": "onboarding-finalize-setup-retry-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-get-started-page": {
+      "primary": "[data-testid=\"onboarding-get-started-page\"]",
+      "source_testid": "onboarding-get-started-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-google-sign-in-button": {
+      "primary": "[data-testid=\"onboarding-google-sign-in-button\"]",
+      "source_testid": "onboarding-google-sign-in-button",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-handle-change-phrase-length-select": {
+      "primary": "[data-testid=\"onboarding-handle-change-phrase-length-select\"]",
+      "source_testid": "onboarding-handle-change-phrase-length-select",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-handle-confirm-checkbox": {
+      "primary": "[data-testid=\"onboarding-handle-confirm-checkbox\"]",
+      "source_testid": "onboarding-handle-confirm-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-handle-helper-press-btn": {
+      "primary": "[data-testid=\"onboarding-handle-helper-press-btn\"]",
+      "source_testid": "onboarding-handle-helper-press-btn",
+      "source": "auto-classified",
+      "page": "connecthardwarewallet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-handle-press-btn": {
+      "primary": "[data-testid=\"onboarding-handle-press-btn\"]",
+      "source_testid": "onboarding-handle-press-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-details-backup-now-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-details-backup-now-btn\"]",
+      "source_testid": "onboarding-icloud-backup-details-backup-now-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-details-delete-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-details-delete-btn\"]",
+      "source_testid": "onboarding-icloud-backup-details-delete-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-details-dev-backup-30-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-details-dev-backup-30-btn\"]",
+      "source_testid": "onboarding-icloud-backup-details-dev-backup-30-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-details-dev-mock-empty-wallets-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-details-dev-mock-empty-wallets-btn\"]",
+      "source_testid": "onboarding-icloud-backup-details-dev-mock-empty-wallets-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-details-dev-show-backup-data-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-details-dev-show-backup-data-btn\"]",
+      "source_testid": "onboarding-icloud-backup-details-dev-show-backup-data-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-details-dev-show-private-data-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-details-dev-show-private-data-btn\"]",
+      "source_testid": "onboarding-icloud-backup-details-dev-show-private-data-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-details-import-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-details-import-btn\"]",
+      "source_testid": "onboarding-icloud-backup-details-import-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-details-page": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-details-page\"]",
+      "source_testid": "onboarding-icloud-backup-details-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-details-settings-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-details-settings-btn\"]",
+      "source_testid": "onboarding-icloud-backup-details-settings-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-android-get-legacy-meta-data-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-android-get-legacy-meta-data-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-android-get-legacy-meta-data-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-android-get-manifest-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-android-get-manifest-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-android-get-manifest-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-android-get-manifest-file-object-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-android-get-manifest-file-object-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-android-get-manifest-file-object-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-android-list-all-files-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-android-list-all-files-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-android-list-all-files-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-android-remove-manifest-file-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-android-remove-manifest-file-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-android-remove-manifest-file-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-backup-now-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-backup-now-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-backup-now-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-backup-now-to-detail-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-backup-now-to-detail-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-backup-now-to-detail-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-clear-password-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-clear-password-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-clear-password-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-get-all-backups-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-get-all-backups-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-get-all-backups-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-get-cloud-account-info-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-get-cloud-account-info-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-get-cloud-account-info-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-ios-query-all-records-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-ios-query-all-records-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-ios-query-all-records-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-is-password-set-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-is-password-set-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-is-password-set-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-mock-empty-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-mock-empty-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-mock-empty-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-open-legacy-backups-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-open-legacy-backups-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-open-legacy-backups-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-remove-all-backups-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-remove-all-backups-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-remove-all-backups-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-set-password-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-set-password-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-set-password-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-dev-verify-password-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-dev-verify-password-btn\"]",
+      "source_testid": "onboarding-icloud-backup-dev-verify-password-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-page": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-page\"]",
+      "source_testid": "onboarding-icloud-backup-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icloud-backup-view-older-backups-btn": {
+      "primary": "[data-testid=\"onboarding-icloud-backup-view-older-backups-btn\"]",
+      "source_testid": "onboarding-icloud-backup-view-older-backups-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-icon-btn": {
+      "primary": "[data-testid=\"onboarding-icon-btn\"]",
+      "source_testid": "onboarding-icon-btn",
+      "source": "auto-classified",
+      "page": "getstarted",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-import-phrase-confirm-btn": {
+      "primary": "[data-testid=\"onboarding-import-phrase-confirm-btn\"]",
+      "source_testid": "onboarding-import-phrase-confirm-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-import-phrase-page": {
+      "primary": "[data-testid=\"onboarding-import-phrase-page\"]",
+      "source_testid": "onboarding-import-phrase-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-import-wallet-button": {
+      "primary": "[data-testid=\"onboarding-import-wallet-button\"]",
+      "source_testid": "onboarding-import-wallet-button",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-import-watched-account-page": {
+      "primary": "[data-testid=\"onboarding-import-watched-account-page\"]",
+      "source_testid": "onboarding-import-watched-account-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-input": {
+      "primary": "[data-testid=\"onboarding-input\"]",
+      "source_testid": "onboarding-input",
+      "source": "auto-classified",
+      "page": "importwallet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-is-auto-start-in-first-time-icon-btn": {
+      "primary": "[data-testid=\"onboarding-is-auto-start-in-first-time-icon-btn\"]",
+      "source_testid": "onboarding-is-auto-start-in-first-time-icon-btn",
+      "source": "auto-classified",
+      "page": "v4migration",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-keyless-wallet-creation-page": {
+      "primary": "[data-testid=\"onboarding-keyless-wallet-creation-page\"]",
+      "source_testid": "onboarding-keyless-wallet-creation-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-keyless-wallet-recovery-page": {
+      "primary": "[data-testid=\"onboarding-keyless-wallet-recovery-page\"]",
+      "source_testid": "onboarding-keyless-wallet-recovery-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-layout-header-back-btn": {
+      "primary": "[data-testid=\"onboarding-layout-header-back-btn\"]",
+      "source_testid": "onboarding-layout-header-back-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-layout-header-language-btn": {
+      "primary": "[data-testid=\"onboarding-layout-header-language-btn\"]",
+      "source_testid": "onboarding-layout-header-language-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-layout-header-language-icon-btn": {
+      "primary": "[data-testid=\"onboarding-layout-header-language-icon-btn\"]",
+      "source_testid": "onboarding-layout-header-language-icon-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-layout-header-language-selector": {
+      "primary": "[data-testid=\"onboarding-layout-header-language-selector\"]",
+      "source_testid": "onboarding-layout-header-language-selector",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-navigation-checkbox": {
+      "primary": "[data-testid=\"onboarding-navigation-checkbox\"]",
+      "source_testid": "onboarding-navigation-checkbox",
+      "source": "auto-classified",
+      "page": "v4migration",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-new-pin-created-close-btn": {
+      "primary": "[data-testid=\"onboarding-new-pin-created-close-btn\"]",
+      "source_testid": "onboarding-new-pin-created-close-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-package-alert-dialog-btn": {
+      "primary": "[data-testid=\"onboarding-package-alert-dialog-btn\"]",
+      "source_testid": "onboarding-package-alert-dialog-btn",
+      "source": "auto-classified",
+      "page": "connecthardwarewallet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-passcode-input": {
+      "primary": "[data-testid=\"onboarding-passcode-input\"]",
+      "source_testid": "onboarding-passcode-input",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-render-footer-btn": {
+      "primary": "[data-testid=\"onboarding-render-footer-btn\"]",
+      "source_testid": "onboarding-render-footer-btn",
+      "source": "auto-classified",
+      "page": "connecthardwarewallet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-reset-pin-guide-done-btn": {
+      "primary": "[data-testid=\"onboarding-reset-pin-guide-done-btn\"]",
+      "source_testid": "onboarding-reset-pin-guide-done-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-select-private-key-network-account-name-input": {
+      "primary": "[data-testid=\"onboarding-select-private-key-network-account-name-input\"]",
+      "source_testid": "onboarding-select-private-key-network-account-name-input",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-select-private-key-network-page": {
+      "primary": "[data-testid=\"onboarding-select-private-key-network-page\"]",
+      "source_testid": "onboarding-select-private-key-network-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-select-private-key-network-submit-btn": {
+      "primary": "[data-testid=\"onboarding-select-private-key-network-submit-btn\"]",
+      "source_testid": "onboarding-select-private-key-network-submit-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-show-recovery-phrase-page": {
+      "primary": "[data-testid=\"onboarding-show-recovery-phrase-page\"]",
+      "source_testid": "onboarding-show-recovery-phrase-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-terms-and-privacy": {
+      "primary": "[data-testid=\"onboarding-terms-and-privacy\"]",
+      "source_testid": "onboarding-terms-and-privacy",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-tutorials-btn": {
+      "primary": "[data-testid=\"onboarding-tutorials-btn\"]",
+      "source_testid": "onboarding-tutorials-btn",
+      "source": "auto-classified",
+      "page": "connecthardwarewallet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-verify-recovery-phrase-page": {
+      "primary": "[data-testid=\"onboarding-verify-recovery-phrase-page\"]",
+      "source_testid": "onboarding-verify-recovery-phrase-page",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboarding-watch-address-input": {
+      "primary": "[data-testid=\"onboarding-watch-address-input\"]",
+      "source_testid": "onboarding-watch-address-input",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-btn": {
+      "primary": "[data-testid=\"onboardingv2-btn\"]",
+      "source_testid": "onboardingv2-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-copy-button-btn": {
+      "primary": "[data-testid=\"onboardingv2-copy-button-btn\"]",
+      "source_testid": "onboardingv2-copy-button-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-dialog-input-input": {
+      "primary": "[data-testid=\"onboardingv2-dialog-input-input\"]",
+      "source_testid": "onboardingv2-dialog-input-input",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-handle-back-icon-btn": {
+      "primary": "[data-testid=\"onboardingv2-handle-back-icon-btn\"]",
+      "source_testid": "onboardingv2-handle-back-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-handle-import-custom-mnemonic-input": {
+      "primary": "[data-testid=\"onboardingv2-handle-import-custom-mnemonic-input\"]",
+      "source_testid": "onboardingv2-handle-import-custom-mnemonic-input",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-handle-language-change-btn": {
+      "primary": "[data-testid=\"onboardingv2-handle-language-change-btn\"]",
+      "source_testid": "onboardingv2-handle-language-change-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-handle-language-change-select": {
+      "primary": "[data-testid=\"onboardingv2-handle-language-change-select\"]",
+      "source_testid": "onboardingv2-handle-language-change-select",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-handle-press-btn": {
+      "primary": "[data-testid=\"onboardingv2-handle-press-btn\"]",
+      "source_testid": "onboardingv2-handle-press-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-has-filled-phrases-select": {
+      "primary": "[data-testid=\"onboardingv2-has-filled-phrases-select\"]",
+      "source_testid": "onboardingv2-has-filled-phrases-select",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-icon-btn": {
+      "primary": "[data-testid=\"onboardingv2-icon-btn\"]",
+      "source_testid": "onboardingv2-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-intl-btn": {
+      "primary": "[data-testid=\"onboardingv2-intl-btn\"]",
+      "source_testid": "onboardingv2-intl-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-intl-select": {
+      "primary": "[data-testid=\"onboardingv2-intl-select\"]",
+      "source_testid": "onboardingv2-intl-select",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-is-show-btn": {
+      "primary": "[data-testid=\"onboardingv2-is-show-btn\"]",
+      "source_testid": "onboardingv2-is-show-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-package-alert-dialog-btn": {
+      "primary": "[data-testid=\"onboardingv2-package-alert-dialog-btn\"]",
+      "source_testid": "onboardingv2-package-alert-dialog-btn",
+      "source": "auto-classified",
+      "page": "onboardingv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.onboardingv2-should-show-action-buttons-btn": {
+      "primary": "[data-testid=\"onboardingv2-should-show-action-buttons-btn\"]",
+      "source_testid": "onboardingv2-should-show-action-buttons-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.phrase-length": {
+      "primary": "[data-testid=\"phrase-length\"]",
+      "source_testid": "phrase-length",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.transfer": {
+      "primary": "[data-testid=\"transfer\"]",
+      "source_testid": "transfer",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    },
+    "onboarding.wordIndex": {
+      "primary": "[data-testid=\"wordIndex\"]",
+      "source_testid": "wordIndex",
+      "source": "auto-classified",
+      "page": "createwalet",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "onboarding"
+      ]
+    }
+  }
+}

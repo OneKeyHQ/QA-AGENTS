@@ -1,0 +1,1653 @@
+{
+  "module": "global",
+  "description": "Locators for global module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "global.footer.cancel": {
+      "primary": "[data-testid=\"page-footer-cancel\"]",
+      "source_testid": "page-footer-cancel",
+      "source": "app-monorepo",
+      "page": "global-footer",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.footer.confirm": {
+      "primary": "[data-testid=\"page-footer-confirm\"]",
+      "source_testid": "page-footer-confirm",
+      "source": "app-monorepo",
+      "page": "global-footer",
+      "platform": [
+        "desktop",
+        "web",
+        "android"
+      ],
+      "feature": [
+        "global-navigation",
+        "send",
+        "chain-selector",
+        "perps"
+      ]
+    },
+    "global.form.submit_button": {
+      "primary": "[data-testid=\"form-submit-button\"]",
+      "source_testid": "form-submit-button",
+      "source": "app-monorepo",
+      "page": "form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "global",
+        "form"
+      ]
+    },
+    "global.header.button_group": {
+      "primary": "[data-testid=\"Navigation-HeaderView-ButtonGroup\"]",
+      "source_testid": "Navigation-HeaderView-ButtonGroup",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "global-navigation",
+        "header"
+      ]
+    },
+    "global.header.navigation": {
+      "primary": "[data-testid=\"Header-Navigation\"]",
+      "source_testid": "Header-Navigation",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "header"
+      ]
+    },
+    "global.header.notification": {
+      "primary": "[data-testid=\"header-right-notification\"]",
+      "source_testid": "header-right-notification",
+      "source": "app-monorepo",
+      "page": "global-header",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.header.notification_button": {
+      "primary": "[data-testid=\"headerNotificationButton\"]",
+      "source_testid": "headerNotificationButton",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "header",
+        "notification"
+      ]
+    },
+    "global.modal.backdrop": {
+      "primary": "[data-testid=\"app-modal-stacks-backdrop\"]",
+      "source_testid": "app-modal-stacks-backdrop",
+      "source": "qa-agents",
+      "page": "global-overlay",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "global-navigation"
+      ],
+      "notes": "QA-AGENTS fallback overlay selector; not extracted from app-monorepo testID scan."
+    },
+    "global.modal.container": {
+      "primary": "[data-testid=\"APP-Modal-Screen\"]",
+      "source_testid": "APP-Modal-Screen",
+      "source": "app-monorepo",
+      "page": "global-overlay",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ],
+      "notes": "All modal-scoped element search should prefer this container first."
+    },
+    "global.nav.back": {
+      "primary": "[data-testid=\"nav-header-back\"]",
+      "source_testid": "nav-header-back",
+      "source": "app-monorepo",
+      "page": "global-nav",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.nav.close": {
+      "primary": "[data-testid=\"nav-header-close\"]",
+      "source_testid": "nav-header-close",
+      "source": "app-monorepo",
+      "page": "global-nav",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.overlay.popover": {
+      "primary": "[data-testid=\"ovelay-popover\"]",
+      "source_testid": "ovelay-popover",
+      "source": "qa-agents",
+      "page": "global-overlay",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "global-navigation"
+      ],
+      "notes": "Known blocking overlay in desktop flow."
+    },
+    "global.sidebar.container": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Container\"]",
+      "source_testid": "Desktop-AppSideBar-Container",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "sidebar"
+      ]
+    },
+    "global.sidebar.content": {
+      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"]",
+      "source_testid": "Desktop-AppSideBar-Content-Container",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "global-navigation",
+        "sidebar"
+      ]
+    },
+    "global.tabbar.container": {
+      "primary": "[data-testid=\"Mobile-AppTabBar\"]",
+      "source_testid": "Mobile-AppTabBar",
+      "source": "app-monorepo",
+      "page": "global-navigation",
+      "platform": [
+        "ios",
+        "android",
+        "mobile"
+      ],
+      "feature": [
+        "global-navigation",
+        "tabbar"
+      ]
+    },
+    "global.action-center-page-body": {
+      "primary": "[data-testid=\"action-center-page-body\"]",
+      "source_testid": "action-center-page-body",
+      "source": "auto-classified",
+      "page": "actioncenter",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.address-input-add-to-address-book-btn": {
+      "primary": "[data-testid=\"address-input-add-to-address-book-btn\"]",
+      "source_testid": "address-input-add-to-address-book-btn",
+      "source": "auto-classified",
+      "page": "addressinput",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.address-input-intl-select": {
+      "primary": "[data-testid=\"address-input-intl-select\"]",
+      "source_testid": "address-input-intl-select",
+      "source": "auto-classified",
+      "page": "addressinput",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.address-input-refresh-btn": {
+      "primary": "[data-testid=\"address-input-refresh-btn\"]",
+      "source_testid": "address-input-refresh-btn",
+      "source": "auto-classified",
+      "page": "addressinput",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.address-type-selector-btn": {
+      "primary": "[data-testid=\"address-type-selector-btn\"]",
+      "source_testid": "address-type-selector-btn",
+      "source": "auto-classified",
+      "page": "addresstypeselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.address-type-selector-icon-btn": {
+      "primary": "[data-testid=\"address-type-selector-icon-btn\"]",
+      "source_testid": "address-type-selector-icon-btn",
+      "source": "auto-classified",
+      "page": "addresstypeselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.air-gap-cancel-btn": {
+      "primary": "[data-testid=\"air-gap-cancel-btn\"]",
+      "source_testid": "air-gap-cancel-btn",
+      "source": "auto-classified",
+      "page": "secureqrtoast",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.air-gap-confirm-btn": {
+      "primary": "[data-testid=\"air-gap-confirm-btn\"]",
+      "source_testid": "air-gap-confirm-btn",
+      "source": "auto-classified",
+      "page": "secureqrtoast",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.air-gap-toggle-qr-btn": {
+      "primary": "[data-testid=\"air-gap-toggle-qr-btn\"]",
+      "source_testid": "air-gap-toggle-qr-btn",
+      "source": "auto-classified",
+      "page": "secureqrtoast",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.amount-input-input-element-input": {
+      "primary": "[data-testid=\"amount-input-input-element-input\"]",
+      "source_testid": "amount-input-input-element-input",
+      "source": "auto-classified",
+      "page": "amountinput",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.app-state-lock.tsx-btn": {
+      "primary": "[data-testid=\"app-state-lock.tsx-btn\"]",
+      "source_testid": "app-state-lock.tsx-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.APP-WebView-Screen": {
+      "primary": "[data-testid=\"APP-WebView-Screen\"]",
+      "source_testid": "APP-WebView-Screen",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.back-to-top-btn": {
+      "primary": "[data-testid=\"back-to-top-btn\"]",
+      "source_testid": "back-to-top-btn",
+      "source": "auto-classified",
+      "page": "backtotopbutton",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.banner-close-button": {
+      "primary": "[data-testid=\"banner-close-button\"]",
+      "source_testid": "banner-close-button",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.base-input-shared-styles-textarea": {
+      "primary": "[data-testid=\"base-input-shared-styles-textarea\"]",
+      "source_testid": "base-input-shared-styles-textarea",
+      "source": "auto-classified",
+      "page": "baseinput",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.bottom-menu-container": {
+      "primary": "[data-testid=\"bottom-menu-container\"]",
+      "source_testid": "bottom-menu-container",
+      "source": "auto-classified",
+      "page": "portalbodycontainer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.change-history-dialog-intl-btn": {
+      "primary": "[data-testid=\"change-history-dialog-intl-btn\"]",
+      "source_testid": "change-history-dialog-intl-btn",
+      "source": "auto-classified",
+      "page": "changehistorydialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.clipboard-go-to-settings-btn": {
+      "primary": "[data-testid=\"clipboard-go-to-settings-btn\"]",
+      "source_testid": "clipboard-go-to-settings-btn",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.confirm-on-device-toast-container": {
+      "primary": "[data-testid=\"confirm-on-device-toast-container\"]",
+      "source_testid": "confirm-on-device-toast-container",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.dev-button": {
+      "primary": "[data-testid=\"dev-button\"]",
+      "source_testid": "dev-button",
+      "source": "auto-classified",
+      "page": "fullwindowoverlaycontainer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.dialog-cancel-btn": {
+      "primary": "[data-testid=\"dialog-cancel-btn\"]",
+      "source_testid": "dialog-cancel-btn",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.dialog-confirm-btn": {
+      "primary": "[data-testid=\"dialog-confirm-btn\"]",
+      "source_testid": "dialog-confirm-btn",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.empty-btn": {
+      "primary": "[data-testid=\"empty-btn\"]",
+      "source_testid": "empty-btn",
+      "source": "auto-classified",
+      "page": "empty",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.empty-intl-btn": {
+      "primary": "[data-testid=\"empty-intl-btn\"]",
+      "source_testid": "empty-intl-btn",
+      "source": "auto-classified",
+      "page": "empty",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.empty-navigation-btn": {
+      "primary": "[data-testid=\"empty-navigation-btn\"]",
+      "source_testid": "empty-navigation-btn",
+      "source": "auto-classified",
+      "page": "empty",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.empty-render-view-in-explorer-button-btn": {
+      "primary": "[data-testid=\"empty-render-view-in-explorer-button-btn\"]",
+      "source_testid": "empty-render-view-in-explorer-button-btn",
+      "source": "auto-classified",
+      "page": "empty",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.error-toast-clear-pending-tx-btn": {
+      "primary": "[data-testid=\"error-toast-clear-pending-tx-btn\"]",
+      "source_testid": "error-toast-clear-pending-tx-btn",
+      "source": "auto-classified",
+      "page": "errortoastcontainer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.GlobalJotaiReady-not-ready-placeholder": {
+      "primary": "[data-testid=\"GlobalJotaiReady-not-ready-placeholder\"]",
+      "source_testid": "GlobalJotaiReady-not-ready-placeholder",
+      "source": "auto-classified",
+      "page": "globaljotaiready",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.home-header-search-btn": {
+      "primary": "[data-testid=\"home-header-search-btn\"]",
+      "source_testid": "home-header-search-btn",
+      "source": "auto-classified",
+      "page": "tabpageheader",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.home-risk-approval-alert": {
+      "primary": "[data-testid=\"home-risk-approval-alert\"]",
+      "source_testid": "home-risk-approval-alert",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "global.Mobile-AppTabBar-TabItem-Icon": {
+      "primary": "[data-testid=\"Mobile-AppTabBar-TabItem-Icon\"]",
+      "source_testid": "Mobile-AppTabBar-TabItem-Icon",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.more-action-button-handle-press-icon-btn": {
+      "primary": "[data-testid=\"more-action-button-handle-press-icon-btn\"]",
+      "source_testid": "more-action-button-handle-press-icon-btn",
+      "source": "auto-classified",
+      "page": "moreactionbutton",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.notifications-done-btn": {
+      "primary": "[data-testid=\"notifications-done-btn\"]",
+      "source_testid": "notifications-done-btn",
+      "source": "auto-classified",
+      "page": "notifications",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.notifications-enable-btn": {
+      "primary": "[data-testid=\"notifications-enable-btn\"]",
+      "source_testid": "notifications-enable-btn",
+      "source": "auto-classified",
+      "page": "notifications",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.notifications-intl-switch": {
+      "primary": "[data-testid=\"notifications-intl-switch\"]",
+      "source_testid": "notifications-intl-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.notifications-mark-all-read-btn": {
+      "primary": "[data-testid=\"notifications-mark-all-read-btn\"]",
+      "source_testid": "notifications-mark-all-read-btn",
+      "source": "auto-classified",
+      "page": "notifications",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.notifications-notification-item": {
+      "primary": "[data-testid=\"notifications-notification-item\"]",
+      "source_testid": "notifications-notification-item",
+      "source": "auto-classified",
+      "page": "notifications",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.notifications-settings-btn": {
+      "primary": "[data-testid=\"notifications-settings-btn\"]",
+      "source_testid": "notifications-settings-btn",
+      "source": "auto-classified",
+      "page": "notifications",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.one-key-auth-handle-confirm-btn": {
+      "primary": "[data-testid=\"one-key-auth-handle-confirm-btn\"]",
+      "source_testid": "one-key-auth-handle-confirm-btn",
+      "source": "auto-classified",
+      "page": "onekeyauth",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.onekey-id-button": {
+      "primary": "[data-testid=\"onekey-id-button\"]",
+      "source_testid": "onekey-id-button",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.onekey-toast-messages": {
+      "primary": "[data-testid=\"onekey-toast-messages\"]",
+      "source_testid": "onekey-toast-messages",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.open-home-page": {
+      "primary": "[data-testid=\"open-home-page\"]",
+      "source_testid": "open-home-page",
+      "source": "auto-classified",
+      "page": "fullwindowoverlaycontainer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.open-in-app-button-btn": {
+      "primary": "[data-testid=\"open-in-app-button-btn\"]",
+      "source_testid": "open-in-app-button-btn",
+      "source": "auto-classified",
+      "page": "openinappbutton",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.open-settings-page": {
+      "primary": "[data-testid=\"open-settings-page\"]",
+      "source_testid": "open-settings-page",
+      "source": "auto-classified",
+      "page": "fullwindowoverlaycontainer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.otp-input": {
+      "primary": "[data-testid=\"otp-input\"]",
+      "source_testid": "otp-input",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.otp-input-hidden": {
+      "primary": "[data-testid=\"otp-input-hidden\"]",
+      "source_testid": "otp-input-hidden",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.otp-input-stick": {
+      "primary": "[data-testid=\"otp-input-stick\"]",
+      "source_testid": "otp-input-stick",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.page-close-trigger": {
+      "primary": "[data-testid=\"page-close-trigger\"]",
+      "source_testid": "page-close-trigger",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.popover-btn-close": {
+      "primary": "[data-testid=\"popover-btn-close\"]",
+      "source_testid": "popover-btn-close",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.popover-trigger": {
+      "primary": "[data-testid=\"popover-trigger\"]",
+      "source_testid": "popover-trigger",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.provider-approving-success-action-btn": {
+      "primary": "[data-testid=\"provider-approving-success-action-btn\"]",
+      "source_testid": "provider-approving-success-action-btn",
+      "source": "auto-classified",
+      "page": "inappnotification",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.provider-demo-push-kit-provider-btn": {
+      "primary": "[data-testid=\"provider-demo-push-kit-provider-btn\"]",
+      "source_testid": "provider-demo-push-kit-provider-btn",
+      "source": "auto-classified",
+      "page": "push",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.provider-intl-btn": {
+      "primary": "[data-testid=\"provider-intl-btn\"]",
+      "source_testid": "provider-intl-btn",
+      "source": "auto-classified",
+      "page": "errortoastcontainer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.provider-is-borrow-transaction-btn": {
+      "primary": "[data-testid=\"provider-is-borrow-transaction-btn\"]",
+      "source_testid": "provider-is-borrow-transaction-btn",
+      "source": "auto-classified",
+      "page": "inappnotification",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.provider-token-btn": {
+      "primary": "[data-testid=\"provider-token-btn\"]",
+      "source_testid": "provider-token-btn",
+      "source": "auto-classified",
+      "page": "errortoastcontainer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.rename-dialog-item-btn": {
+      "primary": "[data-testid=\"rename-dialog-item-btn\"]",
+      "source_testid": "rename-dialog-item-btn",
+      "source": "auto-classified",
+      "page": "renamedialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.rename-dialog-item-select": {
+      "primary": "[data-testid=\"rename-dialog-item-select\"]",
+      "source_testid": "rename-dialog-item-select",
+      "source": "auto-classified",
+      "page": "renamedialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.resource-dialog-instance-btn": {
+      "primary": "[data-testid=\"resource-dialog-instance-btn\"]",
+      "source_testid": "resource-dialog-instance-btn",
+      "source": "auto-classified",
+      "page": "resource",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.rookie-guide-copy-link-btn": {
+      "primary": "[data-testid=\"rookie-guide-copy-link-btn\"]",
+      "source_testid": "rookie-guide-copy-link-btn",
+      "source": "auto-classified",
+      "page": "rookieguide",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.rookie-guide-open-photo-library-btn": {
+      "primary": "[data-testid=\"rookie-guide-open-photo-library-btn\"]",
+      "source_testid": "rookie-guide-open-photo-library-btn",
+      "source": "auto-classified",
+      "page": "rookieshare",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.rookie-guide-save-image-btn": {
+      "primary": "[data-testid=\"rookie-guide-save-image-btn\"]",
+      "source_testid": "rookie-guide-save-image-btn",
+      "source": "auto-classified",
+      "page": "rookieguide",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.rookie-guide-share-image-btn": {
+      "primary": "[data-testid=\"rookie-guide-share-image-btn\"]",
+      "source_testid": "rookie-guide-share-image-btn",
+      "source": "auto-classified",
+      "page": "rookieguide",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.rookie-guide-share-to-x-btn": {
+      "primary": "[data-testid=\"rookie-guide-share-to-x-btn\"]",
+      "source_testid": "rookie-guide-share-to-x-btn",
+      "source": "auto-classified",
+      "page": "rookieguide",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.search-input-render-search-results-input": {
+      "primary": "[data-testid=\"search-input-render-search-results-input\"]",
+      "source_testid": "search-input-render-search-results-input",
+      "source": "auto-classified",
+      "page": "searchinput",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.select-trigger": {
+      "primary": "[data-testid=\"select-trigger\"]",
+      "source_testid": "select-trigger",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.setting": {
+      "primary": "[data-testid=\"setting\"]",
+      "source_testid": "setting",
+      "source": "auto-classified",
+      "page": "addressinput",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.slippage-setting-dialog-key-value-btn": {
+      "primary": "[data-testid=\"slippage-setting-dialog-key-value-btn\"]",
+      "source_testid": "slippage-setting-dialog-key-value-btn",
+      "source": "auto-classified",
+      "page": "slippagesettingdialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.spotlight-btn": {
+      "primary": "[data-testid=\"spotlight-btn\"]",
+      "source_testid": "spotlight-btn",
+      "source": "auto-classified",
+      "page": "spotlight",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.spotlight-content": {
+      "primary": "[data-testid=\"spotlight-content\"]",
+      "source_testid": "spotlight-content",
+      "source": "auto-classified",
+      "page": "spotlight",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.swap-slippage-custom-input": {
+      "primary": "[data-testid=\"swap-slippage-custom-input\"]",
+      "source_testid": "swap-slippage-custom-input",
+      "source": "auto-classified",
+      "page": "slippagesettingdialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "global.tab-more": {
+      "primary": "[data-testid=\"tab-more\"]",
+      "source_testid": "tab-more",
+      "source": "auto-classified",
+      "page": "src",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global-navigation"
+      ]
+    },
+    "global.tab-page-header-handle-change-select": {
+      "primary": "[data-testid=\"tab-page-header-handle-change-select\"]",
+      "source_testid": "tab-page-header-handle-change-select",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.tab-page-header-handle-press-btn": {
+      "primary": "[data-testid=\"tab-page-header-handle-press-btn\"]",
+      "source_testid": "tab-page-header-handle-press-btn",
+      "source": "auto-classified",
+      "page": "tabpageheader",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.tab-page-header-item-select": {
+      "primary": "[data-testid=\"tab-page-header-item-select\"]",
+      "source_testid": "tab-page-header-item-select",
+      "source": "auto-classified",
+      "page": "tabpageheader",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.tab-page-header-title-select": {
+      "primary": "[data-testid=\"tab-page-header-title-select\"]",
+      "source_testid": "tab-page-header-title-select",
+      "source": "auto-classified",
+      "page": "tabpageheader",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.third-party-hw-ui-close-btn": {
+      "primary": "[data-testid=\"third-party-hw-ui-close-btn\"]",
+      "source_testid": "third-party-hw-ui-close-btn",
+      "source": "auto-classified",
+      "page": "thirdpartyhardwareuistatecontainer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.token-actions-swap-btn": {
+      "primary": "[data-testid=\"token-actions-swap-btn\"]",
+      "source_testid": "token-actions-swap-btn",
+      "source": "auto-classified",
+      "page": "tokenlistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.token-list-footer-add-token-btn": {
+      "primary": "[data-testid=\"token-list-footer-add-token-btn\"]",
+      "source_testid": "token-list-footer-add-token-btn",
+      "source": "auto-classified",
+      "page": "tokenlistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.token-list-footer-help-btn": {
+      "primary": "[data-testid=\"token-list-footer-help-btn\"]",
+      "source_testid": "token-list-footer-help-btn",
+      "source": "auto-classified",
+      "page": "tokenlistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.token-list-show-less-btn": {
+      "primary": "[data-testid=\"token-list-show-less-btn\"]",
+      "source_testid": "token-list-show-less-btn",
+      "source": "auto-classified",
+      "page": "tokenlistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.token-list-show-more-btn": {
+      "primary": "[data-testid=\"token-list-show-more-btn\"]",
+      "source_testid": "token-list-show-more-btn",
+      "source": "auto-classified",
+      "page": "tokenlistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.universal-search-clear-recent-btn": {
+      "primary": "[data-testid=\"universal-search-clear-recent-btn\"]",
+      "source_testid": "universal-search-clear-recent-btn",
+      "source": "auto-classified",
+      "page": "universalsearch",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.universal-search-gap-icon-btn": {
+      "primary": "[data-testid=\"universal-search-gap-icon-btn\"]",
+      "source_testid": "universal-search-gap-icon-btn",
+      "source": "auto-classified",
+      "page": "searchresultitems",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.universal-search-recent-item": {
+      "primary": "[data-testid=\"universal-search-recent-item\"]",
+      "source_testid": "universal-search-recent-item",
+      "source": "auto-classified",
+      "page": "universalsearch",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.universal-search-search-bar": {
+      "primary": "[data-testid=\"universal-search-search-bar\"]",
+      "source_testid": "universal-search-search-bar",
+      "source": "auto-classified",
+      "page": "universalsearch",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.universal-search-show-more-btn": {
+      "primary": "[data-testid=\"universal-search-show-more-btn\"]",
+      "source_testid": "universal-search-show-more-btn",
+      "source": "auto-classified",
+      "page": "universalsearch",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.unlock-screen": {
+      "primary": "[data-testid=\"unlock-screen\"]",
+      "source_testid": "unlock-screen",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.update-reminder-intl-btn": {
+      "primary": "[data-testid=\"update-reminder-intl-btn\"]",
+      "source_testid": "update-reminder-intl-btn",
+      "source": "auto-classified",
+      "page": "updatereminder",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.web-dapp-btn": {
+      "primary": "[data-testid=\"web-dapp-btn\"]",
+      "source_testid": "web-dapp-btn",
+      "source": "auto-classified",
+      "page": "webdapp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    },
+    "global.web-dapp-intl-btn": {
+      "primary": "[data-testid=\"web-dapp-intl-btn\"]",
+      "source_testid": "web-dapp-intl-btn",
+      "source": "auto-classified",
+      "page": "webdapp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "global"
+      ]
+    }
+  }
+}

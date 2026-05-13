@@ -1,0 +1,1797 @@
+{
+  "module": "defi",
+  "description": "Locators for defi module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "defi.borrow-action-btn": {
+      "primary": "[data-testid=\"borrow-action-btn\"]",
+      "source_testid": "borrow-action-btn",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-action-confirm-btn": {
+      "primary": "[data-testid=\"borrow-action-confirm-btn\"]",
+      "source_testid": "borrow-action-confirm-btn",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-amount-input": {
+      "primary": "[data-testid=\"borrow-amount-input\"]",
+      "source_testid": "borrow-amount-input",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-asset-select-row": {
+      "primary": "[data-testid=\"borrow-asset-select-row\"]",
+      "source_testid": "borrow-asset-select-row",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-borrow-card": {
+      "primary": "[data-testid=\"borrow-borrow-card\"]",
+      "source_testid": "borrow-borrow-card",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-borrow-table-list": {
+      "primary": "[data-testid=\"borrow-borrow-table-list\"]",
+      "source_testid": "borrow-borrow-table-list",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-btn": {
+      "primary": "[data-testid=\"borrow-btn\"]",
+      "source_testid": "borrow-btn",
+      "source": "auto-classified",
+      "page": "borrowtablelist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-claim-all-btn": {
+      "primary": "[data-testid=\"borrow-claim-all-btn\"]",
+      "source_testid": "borrow-claim-all-btn",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-claim-item-btn": {
+      "primary": "[data-testid=\"borrow-claim-item-btn\"]",
+      "source_testid": "borrow-claim-item-btn",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-handle-bridge-press-btn": {
+      "primary": "[data-testid=\"borrow-handle-bridge-press-btn\"]",
+      "source_testid": "borrow-handle-bridge-press-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-handle-swap-press-btn": {
+      "primary": "[data-testid=\"borrow-handle-swap-press-btn\"]",
+      "source_testid": "borrow-handle-swap-press-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-header-right-btn": {
+      "primary": "[data-testid=\"borrow-header-right-btn\"]",
+      "source_testid": "borrow-header-right-btn",
+      "source": "auto-classified",
+      "page": "borrowmanageposition",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-header-right-icon-btn": {
+      "primary": "[data-testid=\"borrow-header-right-icon-btn\"]",
+      "source_testid": "borrow-header-right-icon-btn",
+      "source": "auto-classified",
+      "page": "reservedetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-history-filter-select": {
+      "primary": "[data-testid=\"borrow-history-filter-select\"]",
+      "source_testid": "borrow-history-filter-select",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-history-list-item": {
+      "primary": "[data-testid=\"borrow-history-list-item\"]",
+      "source_testid": "borrow-history-list-item",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-icon-btn": {
+      "primary": "[data-testid=\"borrow-icon-btn\"]",
+      "source_testid": "borrow-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-is-confirm-disabled-checkbox": {
+      "primary": "[data-testid=\"borrow-is-confirm-disabled-checkbox\"]",
+      "source_testid": "borrow-is-confirm-disabled-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-overview-claim-rewards-btn": {
+      "primary": "[data-testid=\"borrow-overview-claim-rewards-btn\"]",
+      "source_testid": "borrow-overview-claim-rewards-btn",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-overview-history-btn": {
+      "primary": "[data-testid=\"borrow-overview-history-btn\"]",
+      "source_testid": "borrow-overview-history-btn",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-overview-refresh-btn": {
+      "primary": "[data-testid=\"borrow-overview-refresh-btn\"]",
+      "source_testid": "borrow-overview-refresh-btn",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-segment-control": {
+      "primary": "[data-testid=\"borrow-segment-control\"]",
+      "source_testid": "borrow-segment-control",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-supply-card": {
+      "primary": "[data-testid=\"borrow-supply-card\"]",
+      "source_testid": "borrow-supply-card",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-supply-table-list": {
+      "primary": "[data-testid=\"borrow-supply-table-list\"]",
+      "source_testid": "borrow-supply-table-list",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-supply-zero-balance-switch": {
+      "primary": "[data-testid=\"borrow-supply-zero-balance-switch\"]",
+      "source_testid": "borrow-supply-zero-balance-switch",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.borrow-unclaimable-item-btn": {
+      "primary": "[data-testid=\"borrow-unclaimable-item-btn\"]",
+      "source_testid": "borrow-unclaimable-item-btn",
+      "source": "auto-classified",
+      "page": "borrow",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-amount-input": {
+      "primary": "[data-testid=\"earn-amount-input\"]",
+      "source_testid": "earn-amount-input",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-asset-search-input": {
+      "primary": "[data-testid=\"earn-asset-search-input\"]",
+      "source_testid": "earn-asset-search-input",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-banner": {
+      "primary": "[data-testid=\"earn-banner\"]",
+      "source_testid": "earn-banner",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-btn": {
+      "primary": "[data-testid=\"earn-btn\"]",
+      "source_testid": "earn-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-button-text-btn": {
+      "primary": "[data-testid=\"earn-button-text-btn\"]",
+      "source_testid": "earn-button-text-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-checkbox": {
+      "primary": "[data-testid=\"earn-checkbox\"]",
+      "source_testid": "earn-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-claim-button": {
+      "primary": "[data-testid=\"earn-claim-button\"]",
+      "source_testid": "earn-claim-button",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-faq-section": {
+      "primary": "[data-testid=\"earn-faq-section\"]",
+      "source_testid": "earn-faq-section",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-handle-tab-press-icon-btn": {
+      "primary": "[data-testid=\"earn-handle-tab-press-icon-btn\"]",
+      "source_testid": "earn-handle-tab-press-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-header-right-icon-btn": {
+      "primary": "[data-testid=\"earn-header-right-icon-btn\"]",
+      "source_testid": "earn-header-right-icon-btn",
+      "source": "auto-classified",
+      "page": "earnprotocoldetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-icon-btn": {
+      "primary": "[data-testid=\"earn-icon-btn\"]",
+      "source_testid": "earn-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-intl-btn": {
+      "primary": "[data-testid=\"earn-intl-btn\"]",
+      "source_testid": "earn-intl-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-is-confirm-disabled-checkbox": {
+      "primary": "[data-testid=\"earn-is-confirm-disabled-checkbox\"]",
+      "source_testid": "earn-is-confirm-disabled-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-market-selector": {
+      "primary": "[data-testid=\"earn-market-selector\"]",
+      "source_testid": "earn-market-selector",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-max-button": {
+      "primary": "[data-testid=\"earn-max-button\"]",
+      "source_testid": "earn-max-button",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-network-filter-reset-button": {
+      "primary": "[data-testid=\"earn-network-filter-reset-button\"]",
+      "source_testid": "earn-network-filter-reset-button",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-page": {
+      "primary": "[data-testid=\"earn-page\"]",
+      "source_testid": "earn-page",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-portfolio-overview": {
+      "primary": "[data-testid=\"earn-portfolio-overview\"]",
+      "source_testid": "earn-portfolio-overview",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-risk-notice-confirm": {
+      "primary": "[data-testid=\"earn-risk-notice-confirm\"]",
+      "source_testid": "earn-risk-notice-confirm",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-risk-notice-dialog": {
+      "primary": "[data-testid=\"earn-risk-notice-dialog\"]",
+      "source_testid": "earn-risk-notice-dialog",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-stake-button": {
+      "primary": "[data-testid=\"earn-stake-button\"]",
+      "source_testid": "earn-stake-button",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-switch": {
+      "primary": "[data-testid=\"earn-switch\"]",
+      "source_testid": "earn-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-tab-available-assets": {
+      "primary": "[data-testid=\"earn-tab-available-assets\"]",
+      "source_testid": "earn-tab-available-assets",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-tab-portfolio": {
+      "primary": "[data-testid=\"earn-tab-portfolio\"]",
+      "source_testid": "earn-tab-portfolio",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-tab-protocols": {
+      "primary": "[data-testid=\"earn-tab-protocols\"]",
+      "source_testid": "earn-tab-protocols",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.earn-unstake-button": {
+      "primary": "[data-testid=\"earn-unstake-button\"]",
+      "source_testid": "earn-unstake-button",
+      "source": "auto-classified",
+      "page": "earn",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-action-buttons-content-btn": {
+      "primary": "[data-testid=\"staking-action-buttons-content-btn\"]",
+      "source_testid": "staking-action-buttons-content-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-btn": {
+      "primary": "[data-testid=\"staking-btn\"]",
+      "source_testid": "staking-btn",
+      "source": "auto-classified",
+      "page": "btcfeerateinput",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-checkbox": {
+      "primary": "[data-testid=\"staking-checkbox\"]",
+      "source_testid": "staking-checkbox",
+      "source": "auto-classified",
+      "page": "protocoldetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-claim-amount-input": {
+      "primary": "[data-testid=\"staking-claim-amount-input\"]",
+      "source_testid": "staking-claim-amount-input",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-claim-confirm-btn": {
+      "primary": "[data-testid=\"staking-claim-confirm-btn\"]",
+      "source_testid": "staking-claim-confirm-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-claim-max-btn": {
+      "primary": "[data-testid=\"staking-claim-max-btn\"]",
+      "source_testid": "staking-claim-max-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-claim-with-kyc-action-icon-btn": {
+      "primary": "[data-testid=\"staking-claim-with-kyc-action-icon-btn\"]",
+      "source_testid": "staking-claim-with-kyc-action-icon-btn",
+      "source": "auto-classified",
+      "page": "protocoldetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-handle-claim-action-btn": {
+      "primary": "[data-testid=\"staking-handle-claim-action-btn\"]",
+      "source_testid": "staking-handle-claim-action-btn",
+      "source": "auto-classified",
+      "page": "protocoldetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-handle-press-btn": {
+      "primary": "[data-testid=\"staking-handle-press-btn\"]",
+      "source_testid": "staking-handle-press-btn",
+      "source": "auto-classified",
+      "page": "protocoldetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-handle-select-change-select": {
+      "primary": "[data-testid=\"staking-handle-select-change-select\"]",
+      "source_testid": "staking-handle-select-change-select",
+      "source": "auto-classified",
+      "page": "historylist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-has-content-btn": {
+      "primary": "[data-testid=\"staking-has-content-btn\"]",
+      "source_testid": "staking-has-content-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-has-content-icon-btn": {
+      "primary": "[data-testid=\"staking-has-content-icon-btn\"]",
+      "source_testid": "staking-has-content-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-header-right-btn": {
+      "primary": "[data-testid=\"staking-header-right-btn\"]",
+      "source_testid": "staking-header-right-btn",
+      "source": "auto-classified",
+      "page": "stakingactivityindicator",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-header-right-icon-btn": {
+      "primary": "[data-testid=\"staking-header-right-icon-btn\"]",
+      "source_testid": "staking-header-right-icon-btn",
+      "source": "auto-classified",
+      "page": "stakingactivityindicator",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-history-filter-select": {
+      "primary": "[data-testid=\"staking-history-filter-select\"]",
+      "source_testid": "staking-history-filter-select",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-history-item": {
+      "primary": "[data-testid=\"staking-history-item\"]",
+      "source_testid": "staking-history-item",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-history-list": {
+      "primary": "[data-testid=\"staking-history-list\"]",
+      "source_testid": "staking-history-list",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-history-page": {
+      "primary": "[data-testid=\"staking-history-page\"]",
+      "source_testid": "staking-history-page",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-icon-btn": {
+      "primary": "[data-testid=\"staking-icon-btn\"]",
+      "source_testid": "staking-icon-btn",
+      "source": "auto-classified",
+      "page": "approvebasestake",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-intl-btn": {
+      "primary": "[data-testid=\"staking-intl-btn\"]",
+      "source_testid": "staking-intl-btn",
+      "source": "auto-classified",
+      "page": "portfoliodetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-is-confirm-disabled-btn": {
+      "primary": "[data-testid=\"staking-is-confirm-disabled-btn\"]",
+      "source_testid": "staking-is-confirm-disabled-btn",
+      "source": "auto-classified",
+      "page": "protocoldetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-is-disabled-input": {
+      "primary": "[data-testid=\"staking-is-disabled-input\"]",
+      "source_testid": "staking-is-disabled-input",
+      "source": "auto-classified",
+      "page": "btcfeerateinput",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-is-hidden-component-btn": {
+      "primary": "[data-testid=\"staking-is-hidden-component-btn\"]",
+      "source_testid": "staking-is-hidden-component-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-on-portfolio-details-btn": {
+      "primary": "[data-testid=\"staking-on-portfolio-details-btn\"]",
+      "source_testid": "staking-on-portfolio-details-btn",
+      "source": "auto-classified",
+      "page": "protocoldetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-open-link-icon-btn": {
+      "primary": "[data-testid=\"staking-open-link-icon-btn\"]",
+      "source_testid": "staking-open-link-icon-btn",
+      "source": "auto-classified",
+      "page": "protocoldetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-portfolio-claim-btn": {
+      "primary": "[data-testid=\"staking-portfolio-claim-btn\"]",
+      "source_testid": "staking-portfolio-claim-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-portfolio-details-btn": {
+      "primary": "[data-testid=\"staking-portfolio-details-btn\"]",
+      "source_testid": "staking-portfolio-details-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-portfolio-overflow-withdraw-btn": {
+      "primary": "[data-testid=\"staking-portfolio-overflow-withdraw-btn\"]",
+      "source_testid": "staking-portfolio-overflow-withdraw-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-portfolio-rewards-claim-btn": {
+      "primary": "[data-testid=\"staking-portfolio-rewards-claim-btn\"]",
+      "source_testid": "staking-portfolio-rewards-claim-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-portfolio-section": {
+      "primary": "[data-testid=\"staking-portfolio-section\"]",
+      "source_testid": "staking-portfolio-section",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-profit-apr": {
+      "primary": "[data-testid=\"staking-profit-apr\"]",
+      "source_testid": "staking-profit-apr",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-profit-earnings-24h": {
+      "primary": "[data-testid=\"staking-profit-earnings-24h\"]",
+      "source_testid": "staking-profit-earnings-24h",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-profit-section": {
+      "primary": "[data-testid=\"staking-profit-section\"]",
+      "source_testid": "staking-profit-section",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-profit-total-reward": {
+      "primary": "[data-testid=\"staking-profit-total-reward\"]",
+      "source_testid": "staking-profit-total-reward",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-details-page": {
+      "primary": "[data-testid=\"staking-protocol-details-page\"]",
+      "source_testid": "staking-protocol-details-page",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-details-register-btn": {
+      "primary": "[data-testid=\"staking-protocol-details-register-btn\"]",
+      "source_testid": "staking-protocol-details-register-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-details-stake-btn": {
+      "primary": "[data-testid=\"staking-protocol-details-stake-btn\"]",
+      "source_testid": "staking-protocol-details-stake-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-details-withdraw-btn": {
+      "primary": "[data-testid=\"staking-protocol-details-withdraw-btn\"]",
+      "source_testid": "staking-protocol-details-withdraw-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-list": {
+      "primary": "[data-testid=\"staking-protocol-list\"]",
+      "source_testid": "staking-protocol-list",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-list-apr": {
+      "primary": "[data-testid=\"staking-protocol-list-apr\"]",
+      "source_testid": "staking-protocol-list-apr",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-list-info-btn": {
+      "primary": "[data-testid=\"staking-protocol-list-info-btn\"]",
+      "source_testid": "staking-protocol-list-info-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-list-item": {
+      "primary": "[data-testid=\"staking-protocol-list-item\"]",
+      "source_testid": "staking-protocol-list-item",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-rewards-claim-btn": {
+      "primary": "[data-testid=\"staking-protocol-rewards-claim-btn\"]",
+      "source_testid": "staking-protocol-rewards-claim-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-protocol-rewards-section": {
+      "primary": "[data-testid=\"staking-protocol-rewards-section\"]",
+      "source_testid": "staking-protocol-rewards-section",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-render-action-buttons-btn": {
+      "primary": "[data-testid=\"staking-render-action-buttons-btn\"]",
+      "source_testid": "staking-render-action-buttons-btn",
+      "source": "auto-classified",
+      "page": "protocoldetailsv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-render-history-right-button-btn": {
+      "primary": "[data-testid=\"staking-render-history-right-button-btn\"]",
+      "source_testid": "staking-render-history-right-button-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-selected-option-select": {
+      "primary": "[data-testid=\"staking-selected-option-select\"]",
+      "source_testid": "staking-selected-option-select",
+      "source": "auto-classified",
+      "page": "protocoldetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-stake-amount-input": {
+      "primary": "[data-testid=\"staking-stake-amount-input\"]",
+      "source_testid": "staking-stake-amount-input",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-stake-confirm-btn": {
+      "primary": "[data-testid=\"staking-stake-confirm-btn\"]",
+      "source_testid": "staking-stake-confirm-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-stake-max-btn": {
+      "primary": "[data-testid=\"staking-stake-max-btn\"]",
+      "source_testid": "staking-stake-max-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-staked-value": {
+      "primary": "[data-testid=\"staking-staked-value\"]",
+      "source_testid": "staking-staked-value",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-staked-value-amount": {
+      "primary": "[data-testid=\"staking-staked-value-amount\"]",
+      "source_testid": "staking-staked-value-amount",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-staked-value-register-btn": {
+      "primary": "[data-testid=\"staking-staked-value-register-btn\"]",
+      "source_testid": "staking-staked-value-register-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-staked-value-stake-btn": {
+      "primary": "[data-testid=\"staking-staked-value-stake-btn\"]",
+      "source_testid": "staking-staked-value-stake-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-staked-value-token-amount": {
+      "primary": "[data-testid=\"staking-staked-value-token-amount\"]",
+      "source_testid": "staking-staked-value-token-amount",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-staked-value-withdraw-btn": {
+      "primary": "[data-testid=\"staking-staked-value-withdraw-btn\"]",
+      "source_testid": "staking-staked-value-withdraw-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-subtitle-icon-btn": {
+      "primary": "[data-testid=\"staking-subtitle-icon-btn\"]",
+      "source_testid": "staking-subtitle-icon-btn",
+      "source": "auto-classified",
+      "page": "historylist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-validator-select": {
+      "primary": "[data-testid=\"staking-validator-select\"]",
+      "source_testid": "staking-validator-select",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-validator-select-trigger": {
+      "primary": "[data-testid=\"staking-validator-select-trigger\"]",
+      "source_testid": "staking-validator-select-trigger",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-withdraw-amount-input": {
+      "primary": "[data-testid=\"staking-withdraw-amount-input\"]",
+      "source_testid": "staking-withdraw-amount-input",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-withdraw-confirm-btn": {
+      "primary": "[data-testid=\"staking-withdraw-confirm-btn\"]",
+      "source_testid": "staking-withdraw-confirm-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "defi.staking-withdraw-max-btn": {
+      "primary": "[data-testid=\"staking-withdraw-max-btn\"]",
+      "source_testid": "staking-withdraw-max-btn",
+      "source": "auto-classified",
+      "page": "staking",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "defi"
+      ]
+    }
+  }
+}

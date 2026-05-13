@@ -1,0 +1,1749 @@
+{
+  "module": "perps",
+  "description": "Locators for perps module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "perps.deposit.mobile_button": {
+      "primary": "[data-testid=\"perp-trading-form-mobile-deposit-button\"]",
+      "source_testid": "perp-trading-form-mobile-deposit-button",
+      "source": "app-monorepo",
+      "page": "perps-trading-form",
+      "platform": [
+        "mobile",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.header.refresh_button": {
+      "primary": "[data-testid=\"header-right-perp-trade-refresh\"]",
+      "source_testid": "header-right-perp-trade-refresh",
+      "source": "app-monorepo",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.settings.button": {
+      "primary": "[data-testid=\"perp-header-settings-button\"]",
+      "source_testid": "perp-header-settings-button",
+      "source": "app-monorepo",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.settings.mobile_button": {
+      "primary": "[data-testid=\"perp-mobile-settings-button\"]",
+      "source_testid": "perp-mobile-settings-button",
+      "source": "app-monorepo",
+      "page": "perps",
+      "platform": [
+        "mobile",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.hyperliquid-intro-confirmation-slide": {
+      "primary": "[data-testid=\"hyperliquid-intro-confirmation-slide\"]",
+      "source_testid": "hyperliquid-intro-confirmation-slide",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-account-tab": {
+      "primary": "[data-testid=\"perp-account-tab\"]",
+      "source_testid": "perp-account-tab",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-activity-center-button": {
+      "primary": "[data-testid=\"perp-activity-center-button\"]",
+      "source_testid": "perp-activity-center-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-already-favorite-icon-btn": {
+      "primary": "[data-testid=\"perp-already-favorite-icon-btn\"]",
+      "source_testid": "perp-already-favorite-icon-btn",
+      "source": "auto-classified",
+      "page": "tokenselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-balance-row-copy-contract-button": {
+      "primary": "[data-testid=\"perp-balance-row-copy-contract-button\"]",
+      "source_testid": "perp-balance-row-copy-contract-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-balance-row-open-contract-button": {
+      "primary": "[data-testid=\"perp-balance-row-open-contract-button\"]",
+      "source_testid": "perp-balance-row-open-contract-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-bbo-toggle-button": {
+      "primary": "[data-testid=\"perp-bbo-toggle-button\"]",
+      "source_testid": "perp-bbo-toggle-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-btn": {
+      "primary": "[data-testid=\"perp-btn\"]",
+      "source_testid": "perp-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-button-text-btn": {
+      "primary": "[data-testid=\"perp-button-text-btn\"]",
+      "source_testid": "perp-button-text-btn",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-button-text-checkbox": {
+      "primary": "[data-testid=\"perp-button-text-checkbox\"]",
+      "source_testid": "perp-button-text-checkbox",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-cancel-all-confirm-button": {
+      "primary": "[data-testid=\"perp-cancel-all-confirm-button\"]",
+      "source_testid": "perp-cancel-all-confirm-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-cancel-all-orders-button": {
+      "primary": "[data-testid=\"perp-cancel-all-orders-button\"]",
+      "source_testid": "perp-cancel-all-orders-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-candle-chart-button": {
+      "primary": "[data-testid=\"perp-candle-chart-button\"]",
+      "source_testid": "perp-candle-chart-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-checkbox": {
+      "primary": "[data-testid=\"perp-checkbox\"]",
+      "source_testid": "perp-checkbox",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-close-all-confirm-button": {
+      "primary": "[data-testid=\"perp-close-all-confirm-button\"]",
+      "source_testid": "perp-close-all-confirm-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-close-all-positions-button": {
+      "primary": "[data-testid=\"perp-close-all-positions-button\"]",
+      "source_testid": "perp-close-all-positions-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-close-position-amount-input": {
+      "primary": "[data-testid=\"perp-close-position-amount-input\"]",
+      "source_testid": "perp-close-position-amount-input",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-close-position-confirm-button": {
+      "primary": "[data-testid=\"perp-close-position-confirm-button\"]",
+      "source_testid": "perp-close-position-confirm-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-close-position-type-toggle": {
+      "primary": "[data-testid=\"perp-close-position-type-toggle\"]",
+      "source_testid": "perp-close-position-type-toggle",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-connect-wallet-button": {
+      "primary": "[data-testid=\"perp-connect-wallet-button\"]",
+      "source_testid": "perp-connect-wallet-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-content-icon-btn": {
+      "primary": "[data-testid=\"perp-content-icon-btn\"]",
+      "source_testid": "perp-content-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-create-address-btn": {
+      "primary": "[data-testid=\"perp-create-address-btn\"]",
+      "source_testid": "perp-create-address-btn",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-current-value-select": {
+      "primary": "[data-testid=\"perp-current-value-select\"]",
+      "source_testid": "perp-current-value-select",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-custom-suffix-select": {
+      "primary": "[data-testid=\"perp-custom-suffix-select\"]",
+      "source_testid": "perp-custom-suffix-select",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-debug-button-icon-btn": {
+      "primary": "[data-testid=\"perp-debug-button-icon-btn\"]",
+      "source_testid": "perp-debug-button-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-deposit-button": {
+      "primary": "[data-testid=\"perp-deposit-button\"]",
+      "source_testid": "perp-deposit-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-enable-trading-button": {
+      "primary": "[data-testid=\"perp-enable-trading-button\"]",
+      "source_testid": "perp-enable-trading-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-execution-price-input": {
+      "primary": "[data-testid=\"perp-execution-price-input\"]",
+      "source_testid": "perp-execution-price-input",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-footer-long-button": {
+      "primary": "[data-testid=\"perp-footer-long-button\"]",
+      "source_testid": "perp-footer-long-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-footer-short-button": {
+      "primary": "[data-testid=\"perp-footer-short-button\"]",
+      "source_testid": "perp-footer-short-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-guide-button": {
+      "primary": "[data-testid=\"perp-guide-button\"]",
+      "source_testid": "perp-guide-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-handle-filter-change-checkbox": {
+      "primary": "[data-testid=\"perp-handle-filter-change-checkbox\"]",
+      "source_testid": "perp-handle-filter-change-checkbox",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-handle-input-blur-icon-btn": {
+      "primary": "[data-testid=\"perp-handle-input-blur-icon-btn\"]",
+      "source_testid": "perp-handle-input-blur-icon-btn",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-header-right-btn": {
+      "primary": "[data-testid=\"perp-header-right-btn\"]",
+      "source_testid": "perp-header-right-btn",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-holdings-empty-deposit-button": {
+      "primary": "[data-testid=\"perp-holdings-empty-deposit-button\"]",
+      "source_testid": "perp-holdings-empty-deposit-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-holdings-empty-guide-button": {
+      "primary": "[data-testid=\"perp-holdings-empty-guide-button\"]",
+      "source_testid": "perp-holdings-empty-guide-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-icon-btn": {
+      "primary": "[data-testid=\"perp-icon-btn\"]",
+      "source_testid": "perp-icon-btn",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-input": {
+      "primary": "[data-testid=\"perp-input\"]",
+      "source_testid": "perp-input",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-input-with-accessory-done-view-input": {
+      "primary": "[data-testid=\"perp-input-with-accessory-done-view-input\"]",
+      "source_testid": "perp-input-with-accessory-done-view-input",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-intl-btn": {
+      "primary": "[data-testid=\"perp-intl-btn\"]",
+      "source_testid": "perp-intl-btn",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-intl-icon-btn": {
+      "primary": "[data-testid=\"perp-intl-icon-btn\"]",
+      "source_testid": "perp-intl-icon-btn",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-intl-switch": {
+      "primary": "[data-testid=\"perp-intl-switch\"]",
+      "source_testid": "perp-intl-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-is-disabled-btn": {
+      "primary": "[data-testid=\"perp-is-disabled-btn\"]",
+      "source_testid": "perp-is-disabled-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-is-keyboard-shown-btn": {
+      "primary": "[data-testid=\"perp-is-keyboard-shown-btn\"]",
+      "source_testid": "perp-is-keyboard-shown-btn",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-leverage-confirm-button": {
+      "primary": "[data-testid=\"perp-leverage-confirm-button\"]",
+      "source_testid": "perp-leverage-confirm-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-leverage-input": {
+      "primary": "[data-testid=\"perp-leverage-input\"]",
+      "source_testid": "perp-leverage-input",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-leverage-selector": {
+      "primary": "[data-testid=\"perp-leverage-selector\"]",
+      "source_testid": "perp-leverage-selector",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-leverage-slider": {
+      "primary": "[data-testid=\"perp-leverage-slider\"]",
+      "source_testid": "perp-leverage-slider",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-long-button": {
+      "primary": "[data-testid=\"perp-long-button\"]",
+      "source_testid": "perp-long-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-margin-mode-selector": {
+      "primary": "[data-testid=\"perp-margin-mode-selector\"]",
+      "source_testid": "perp-margin-mode-selector",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-market-detail-info-button": {
+      "primary": "[data-testid=\"perp-market-detail-info-button\"]",
+      "source_testid": "perp-market-detail-info-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-mobile-selected-order-type-select": {
+      "primary": "[data-testid=\"perp-mobile-selected-order-type-select\"]",
+      "source_testid": "perp-mobile-selected-order-type-select",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-open-order-row": {
+      "primary": "[data-testid=\"perp-open-order-row\"]",
+      "source_testid": "perp-open-order-row",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-open-orders-tab": {
+      "primary": "[data-testid=\"perp-open-orders-tab\"]",
+      "source_testid": "perp-open-orders-tab",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-open-photo-library-btn": {
+      "primary": "[data-testid=\"perp-open-photo-library-btn\"]",
+      "source_testid": "perp-open-photo-library-btn",
+      "source": "auto-classified",
+      "page": "positionshare",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-options-btn": {
+      "primary": "[data-testid=\"perp-options-btn\"]",
+      "source_testid": "perp-options-btn",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-order-confirm-btn": {
+      "primary": "[data-testid=\"perp-order-confirm-btn\"]",
+      "source_testid": "perp-order-confirm-btn",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-order-type-limit-tab": {
+      "primary": "[data-testid=\"perp-order-type-limit-tab\"]",
+      "source_testid": "perp-order-type-limit-tab",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-order-type-market-tab": {
+      "primary": "[data-testid=\"perp-order-type-market-tab\"]",
+      "source_testid": "perp-order-type-market-tab",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-order-type-options-select": {
+      "primary": "[data-testid=\"perp-order-type-options-select\"]",
+      "source_testid": "perp-order-type-options-select",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-order-type-selector": {
+      "primary": "[data-testid=\"perp-order-type-selector\"]",
+      "source_testid": "perp-order-type-selector",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-order-type-trigger-tab": {
+      "primary": "[data-testid=\"perp-order-type-trigger-tab\"]",
+      "source_testid": "perp-order-type-trigger-tab",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-place-order-button": {
+      "primary": "[data-testid=\"perp-place-order-button\"]",
+      "source_testid": "perp-place-order-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-portfolio-button": {
+      "primary": "[data-testid=\"perp-portfolio-button\"]",
+      "source_testid": "perp-portfolio-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-portfolio-buttons-btn": {
+      "primary": "[data-testid=\"perp-portfolio-buttons-btn\"]",
+      "source_testid": "perp-portfolio-buttons-btn",
+      "source": "auto-classified",
+      "page": "portfolio",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-position-adjust-margin-button": {
+      "primary": "[data-testid=\"perp-position-adjust-margin-button\"]",
+      "source_testid": "perp-position-adjust-margin-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-position-close-limit-button": {
+      "primary": "[data-testid=\"perp-position-close-limit-button\"]",
+      "source_testid": "perp-position-close-limit-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-position-close-market-button": {
+      "primary": "[data-testid=\"perp-position-close-market-button\"]",
+      "source_testid": "perp-position-close-market-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-position-row": {
+      "primary": "[data-testid=\"perp-position-row\"]",
+      "source_testid": "perp-position-row",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-position-row-desktop-margin-icon-btn": {
+      "primary": "[data-testid=\"perp-position-row-desktop-margin-icon-btn\"]",
+      "source_testid": "perp-position-row-desktop-margin-icon-btn",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-position-row-desktop-pn-l-icon-btn": {
+      "primary": "[data-testid=\"perp-position-row-desktop-pn-l-icon-btn\"]",
+      "source_testid": "perp-position-row-desktop-pn-l-icon-btn",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-position-set-tpsl-button": {
+      "primary": "[data-testid=\"perp-position-set-tpsl-button\"]",
+      "source_testid": "perp-position-set-tpsl-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-position-share-button": {
+      "primary": "[data-testid=\"perp-position-share-button\"]",
+      "source_testid": "perp-position-share-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-positions-empty-deposit-button": {
+      "primary": "[data-testid=\"perp-positions-empty-deposit-button\"]",
+      "source_testid": "perp-positions-empty-deposit-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-positions-empty-guide-button": {
+      "primary": "[data-testid=\"perp-positions-empty-guide-button\"]",
+      "source_testid": "perp-positions-empty-guide-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-positions-tab": {
+      "primary": "[data-testid=\"perp-positions-tab\"]",
+      "source_testid": "perp-positions-tab",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-price-input": {
+      "primary": "[data-testid=\"perp-price-input\"]",
+      "source_testid": "perp-price-input",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-processed-value-btn": {
+      "primary": "[data-testid=\"perp-processed-value-btn\"]",
+      "source_testid": "perp-processed-value-btn",
+      "source": "auto-classified",
+      "page": "orderinfopanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-refresh-button-actions-icon-btn": {
+      "primary": "[data-testid=\"perp-refresh-button-actions-icon-btn\"]",
+      "source_testid": "perp-refresh-button-actions-icon-btn",
+      "source": "auto-classified",
+      "page": "perprefreshbutton",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-select": {
+      "primary": "[data-testid=\"perp-select\"]",
+      "source_testid": "perp-select",
+      "source": "auto-classified",
+      "page": "orderbook",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-set-tpsl-confirm-button": {
+      "primary": "[data-testid=\"perp-set-tpsl-confirm-button\"]",
+      "source_testid": "perp-set-tpsl-confirm-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-short-button": {
+      "primary": "[data-testid=\"perp-short-button\"]",
+      "source_testid": "perp-short-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-size-input": {
+      "primary": "[data-testid=\"perp-size-input\"]",
+      "source_testid": "perp-size-input",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-size-slider": {
+      "primary": "[data-testid=\"perp-size-slider\"]",
+      "source_testid": "perp-size-slider",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-sl-input": {
+      "primary": "[data-testid=\"perp-sl-input\"]",
+      "source_testid": "perp-sl-input",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-switch": {
+      "primary": "[data-testid=\"perp-switch\"]",
+      "source_testid": "perp-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-ticker-bar-copy-contract-button": {
+      "primary": "[data-testid=\"perp-ticker-bar-copy-contract-button\"]",
+      "source_testid": "perp-ticker-bar-copy-contract-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-ticker-bar-open-contract-button": {
+      "primary": "[data-testid=\"perp-ticker-bar-open-contract-button\"]",
+      "source_testid": "perp-ticker-bar-open-contract-button",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-to-on-boarding-page-btn": {
+      "primary": "[data-testid=\"perp-to-on-boarding-page-btn\"]",
+      "source_testid": "perp-to-on-boarding-page-btn",
+      "source": "auto-classified",
+      "page": "inviteereward",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-token-selector": {
+      "primary": "[data-testid=\"perp-token-selector\"]",
+      "source_testid": "perp-token-selector",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-token-selector-mobile": {
+      "primary": "[data-testid=\"perp-token-selector-mobile\"]",
+      "source_testid": "perp-token-selector-mobile",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-token-selector-search": {
+      "primary": "[data-testid=\"perp-token-selector-search\"]",
+      "source_testid": "perp-token-selector-search",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-tp-input": {
+      "primary": "[data-testid=\"perp-tp-input\"]",
+      "source_testid": "perp-tp-input",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-tpsl-checkbox": {
+      "primary": "[data-testid=\"perp-tpsl-checkbox\"]",
+      "source_testid": "perp-tpsl-checkbox",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-tpsl-input-with-done-input": {
+      "primary": "[data-testid=\"perp-tpsl-input-with-done-input\"]",
+      "source_testid": "perp-tpsl-input-with-done-input",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-trade-connect-btn": {
+      "primary": "[data-testid=\"perp-trade-connect-btn\"]",
+      "source_testid": "perp-trade-connect-btn",
+      "source": "auto-classified",
+      "page": "perptrade",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-trade-disconnect-btn": {
+      "primary": "[data-testid=\"perp-trade-disconnect-btn\"]",
+      "source_testid": "perp-trade-disconnect-btn",
+      "source": "auto-classified",
+      "page": "perptrade",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-trade-refresh-btn": {
+      "primary": "[data-testid=\"perp-trade-refresh-btn\"]",
+      "source_testid": "perp-trade-refresh-btn",
+      "source": "auto-classified",
+      "page": "perptrade",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-trade-side-toggle": {
+      "primary": "[data-testid=\"perp-trade-side-toggle\"]",
+      "source_testid": "perp-trade-side-toggle",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-trades-history-tab": {
+      "primary": "[data-testid=\"perp-trades-history-tab\"]",
+      "source_testid": "perp-trades-history-tab",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-trading-form-spot-available-action-button": {
+      "primary": "[data-testid=\"perp-trading-form-spot-available-action-button\"]",
+      "source_testid": "perp-trading-form-spot-available-action-button",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-trigger-icon-btn": {
+      "primary": "[data-testid=\"perp-trigger-icon-btn\"]",
+      "source_testid": "perp-trigger-icon-btn",
+      "source": "auto-classified",
+      "page": "guide",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-trigger-price-input": {
+      "primary": "[data-testid=\"perp-trigger-price-input\"]",
+      "source_testid": "perp-trigger-price-input",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-trigger-reduce-only-checkbox": {
+      "primary": "[data-testid=\"perp-trigger-reduce-only-checkbox\"]",
+      "source_testid": "perp-trigger-reduce-only-checkbox",
+      "source": "auto-classified",
+      "page": "perp",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-url-input": {
+      "primary": "[data-testid=\"perp-url-input\"]",
+      "source_testid": "perp-url-input",
+      "source": "auto-classified",
+      "page": "guide",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    },
+    "perps.perp-view-show-btn": {
+      "primary": "[data-testid=\"perp-view-show-btn\"]",
+      "source_testid": "perp-view-show-btn",
+      "source": "auto-classified",
+      "page": "tradingpanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ]
+    }
+  }
+}

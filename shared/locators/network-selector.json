@@ -1,0 +1,244 @@
+{
+  "module": "network_selector",
+  "description": "Locators for network_selector module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "network_selector.input_text": {
+      "primary": "[data-testid=\"network-selector-input-text\"]",
+      "source_testid": "network-selector-input-text",
+      "source": "recording-2026-04-14",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "network-selector"
+      ]
+    },
+    "network_selector.search_input": {
+      "primary": "[data-testid=\"nav-header-search-chain-selector\"]",
+      "source_testid": "nav-header-search-chain-selector",
+      "source": "recording-2026-04-14",
+      "page": "network-selector-modal",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "network-selector"
+      ]
+    },
+    "network-selector.account-selector-actions-select": {
+      "primary": "[data-testid=\"account-selector-actions-select\"]",
+      "source_testid": "account-selector-actions-select",
+      "source": "auto-classified",
+      "page": "accountselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "network-selector.chain-selector-add-custom-network-btn": {
+      "primary": "[data-testid=\"chain-selector-add-custom-network-btn\"]",
+      "source_testid": "chain-selector-add-custom-network-btn",
+      "source": "auto-classified",
+      "page": "chainselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-add-custom-network-edit-mode-btn": {
+      "primary": "[data-testid=\"chain-selector-add-custom-network-edit-mode-btn\"]",
+      "source_testid": "chain-selector-add-custom-network-edit-mode-btn",
+      "source": "auto-classified",
+      "page": "chainselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-all-networks-confirm-btn": {
+      "primary": "[data-testid=\"chain-selector-all-networks-confirm-btn\"]",
+      "source_testid": "chain-selector-all-networks-confirm-btn",
+      "source": "auto-classified",
+      "page": "chainselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-all-networks-toggle-all-btn": {
+      "primary": "[data-testid=\"chain-selector-all-networks-toggle-all-btn\"]",
+      "source_testid": "chain-selector-all-networks-toggle-all-btn",
+      "source": "auto-classified",
+      "page": "chainselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-btn": {
+      "primary": "[data-testid=\"chain-selector-btn\"]",
+      "source_testid": "chain-selector-btn",
+      "source": "auto-classified",
+      "page": "editablechainselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-checkbox": {
+      "primary": "[data-testid=\"chain-selector-checkbox\"]",
+      "source_testid": "chain-selector-checkbox",
+      "source": "auto-classified",
+      "page": "allnetworksmanager",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-fn-icon-btn": {
+      "primary": "[data-testid=\"chain-selector-fn-icon-btn\"]",
+      "source_testid": "chain-selector-fn-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-handle-press-btn": {
+      "primary": "[data-testid=\"chain-selector-handle-press-btn\"]",
+      "source_testid": "chain-selector-handle-press-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-list-view-search-bar": {
+      "primary": "[data-testid=\"chain-selector-list-view-search-bar\"]",
+      "source_testid": "chain-selector-list-view-search-bar",
+      "source": "auto-classified",
+      "page": "chainselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-search-bar": {
+      "primary": "[data-testid=\"chain-selector-search-bar\"]",
+      "source_testid": "chain-selector-search-bar",
+      "source": "auto-classified",
+      "page": "chainselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-section-list-search-bar": {
+      "primary": "[data-testid=\"chain-selector-section-list-search-bar\"]",
+      "source_testid": "chain-selector-section-list-search-bar",
+      "source": "auto-classified",
+      "page": "chainselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "network-selector.chain-selector-unified-add-network-btn": {
+      "primary": "[data-testid=\"chain-selector-unified-add-network-btn\"]",
+      "source_testid": "chain-selector-unified-add-network-btn",
+      "source": "auto-classified",
+      "page": "chainselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    }
+  }
+}

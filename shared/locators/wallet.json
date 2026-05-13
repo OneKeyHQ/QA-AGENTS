@@ -1,0 +1,7304 @@
+{
+  "module": "wallet",
+  "description": "Locators for wallet module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "wallet.account.add_account_button": {
+      "primary": "[data-testid=\"add-account-button\"]",
+      "source_testid": "add-account-button",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.add_account_button.secondary": {
+      "primary": "[data-testid=\"account-add-account\"]",
+      "source_testid": "account-add-account",
+      "source": "app-monorepo",
+      "page": "wallet-details",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector",
+        "wallet-details"
+      ]
+    },
+    "wallet.account.batch_create_button": {
+      "primary": "[data-testid=\"batch-create-account-button-trigger\"]",
+      "source_testid": "batch-create-account-button-trigger",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.address": {
+      "primary": "[data-testid=\"account-selector-address\"]",
+      "source_testid": "account-selector-address",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.address_text": {
+      "primary": "[data-testid=\"account-selector-address-text\"]",
+      "source_testid": "account-selector-address-text",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.header": {
+      "primary": "[data-testid=\"account-selector-header\"]",
+      "source_testid": "account-selector-header",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.item_by_index": {
+      "primary": "[data-testid=\"account-item-index-{N}\"]",
+      "source_testid": "account-item-index-0",
+      "source": "qa-agents",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ],
+      "notes": "Pattern selector derived from app-monorepo indexed account rows."
+    },
+    "wallet.account.selector.list": {
+      "primary": "[data-testid=\"account-selector-accountList\"]",
+      "source_testid": "account-selector-accountList",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.modal": {
+      "primary": "[data-testid=\"account-selector\"]",
+      "source_testid": "account-selector",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "account-selector"
+      ],
+      "notes": "Account selector container surfaced in swap review dialog."
+    },
+    "wallet.account.selector.name": {
+      "primary": "[data-testid=\"account-name\"]",
+      "source_testid": "account-name",
+      "source": "app-monorepo",
+      "page": "account-selector-trigger",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.trigger": {
+      "primary": "[data-testid=\"AccountSelectorTriggerBase\"]",
+      "source_testid": "AccountSelectorTriggerBase",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "account-selector"
+      ]
+    },
+    "wallet.account.selector.wallet_list": {
+      "primary": "[data-testid=\"account-selector-wallet-list\"]",
+      "source_testid": "account-selector-wallet-list",
+      "source": "app-monorepo",
+      "page": "account-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.approval.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Approval-Empty\"]",
+      "source_testid": "Wallet-No-Approval-Empty",
+      "source": "app-monorepo",
+      "page": "approval",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.approval.list_header": {
+      "primary": "[data-testid=\"Wallet-Approval-List-Header\"]",
+      "source_testid": "Wallet-Approval-List-Header",
+      "source": "app-monorepo",
+      "page": "approval",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "approval"
+      ]
+    },
+    "wallet.approval.unsupported_empty_state": {
+      "primary": "[data-testid=\"Wallet-Approval-Unsupported-Empty\"]",
+      "source_testid": "Wallet-Approval-Unsupported-Empty",
+      "source": "app-monorepo",
+      "page": "approval",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "approval"
+      ],
+      "notes": "Dedicated empty state for unsupported approval assets."
+    },
+    "wallet.assets.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Token-Empty\"]",
+      "source_testid": "Wallet-No-Token-Empty",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "assets"
+      ]
+    },
+    "wallet.assets.search_empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Search-Empty\"]",
+      "source_testid": "Wallet-No-Search-Empty",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "assets"
+      ]
+    },
+    "wallet.defi.empty_state": {
+      "primary": "[data-testid=\"Wallet-DeFi-Empty\"]",
+      "source_testid": "Wallet-DeFi-Empty",
+      "source": "app-monorepo",
+      "page": "defi",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "defi"
+      ]
+    },
+    "wallet.derivation.path_selector.trigger": {
+      "primary": "[data-testid=\"wallet-derivation-path-selector-trigger\"]",
+      "source_testid": "wallet-derivation-path-selector-trigger",
+      "source": "app-monorepo",
+      "page": "wallet-derivation",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "account-selector",
+        "derivation",
+        "onboarding"
+      ]
+    },
+    "wallet.history.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-History-Empty\"]",
+      "source_testid": "Wallet-No-History-Empty",
+      "source": "app-monorepo",
+      "page": "history",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Wallet-Empty\"]",
+      "source_testid": "Wallet-No-Wallet-Empty",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home.header": {
+      "primary": "[data-testid=\"Wallet-Tab-Header\"]",
+      "source_testid": "Wallet-Tab-Header",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home.sidebar": {
+      "primary": "[data-testid=\"home\"]",
+      "source_testid": "home",
+      "source": "qa-agents",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "wallet-home"
+      ],
+      "notes": "Existing reliable selector in QA-AGENTS ui-map; not yet found in app-monorepo testID scan result."
+    },
+    "wallet.network.manager.search_bar": {
+      "primary": "[data-testid=\"all-networks-manager-search-bar\"]",
+      "source_testid": "all-networks-manager-search-bar",
+      "source": "app-monorepo",
+      "page": "chain-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "wallet.network.selector.modal": {
+      "primary": "[data-testid=\"chain-selector\"]",
+      "source_testid": "chain-selector",
+      "source": "app-monorepo",
+      "page": "chain-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "wallet.network.selector.search_input": {
+      "primary": "[data-testid=\"network-selector-input\"]",
+      "source_testid": "network-selector-input",
+      "source": "app-monorepo",
+      "page": "chain-selector",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "chain-selector"
+      ]
+    },
+    "wallet.network.selector.text": {
+      "primary": "[data-testid=\"account-network-trigger-button-text\"]",
+      "source_testid": "account-network-trigger-button-text",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "account-selector"
+      ]
+    },
+    "wallet.network.selector.trigger": {
+      "primary": "[data-testid=\"account-network-trigger-button\"]",
+      "source_testid": "account-network-trigger-button",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "account-selector"
+      ]
+    },
+    "wallet.nft.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-NFT-Empty\"]",
+      "source_testid": "Wallet-No-NFT-Empty",
+      "source": "app-monorepo",
+      "page": "nft",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.page.header.right_actions": {
+      "primary": "[data-testid=\"Wallet-Page-Header-Right\"]",
+      "source_testid": "Wallet-Page-Header-Right",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.receive.empty_state": {
+      "primary": "[data-testid=\"Wallet-No-Address-Empty\"]",
+      "source_testid": "Wallet-No-Address-Empty",
+      "source": "app-monorepo",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallets"
+      ]
+    },
+    "wallet.send.amount_input": {
+      "primary": "input[placeholder=\"0\"]",
+      "fallback": "[data-testid=\"APP-Modal-Screen\"] input[placeholder=\"0\"]",
+      "source_testid": "send-recipient-amount-form",
+      "source": "qa-agents",
+      "page": "send-amount",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "v6.2.0: 金额输入在独立的「输入金额」页面（modal 内），placeholder 为 0。不一定在 send-recipient-amount-form 内。"
+    },
+    "wallet.send.contacts_button": {
+      "primary": "[data-sentry-component=\"SvgPeopleCircle\"]",
+      "source_testid": "contacts-icon",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "deprecated": true,
+      "notes": "DEPRECATED v6.2.0: 新 UI 改为 send form 内 tab 切换（最近/账户/地址簿），不再用 SvgPeopleCircle 图标。改用 wallet.send.recipient_tab_accounts。"
+    },
+    "wallet.send.contacts_popover": {
+      "primary": "[data-testid=\"TMPopover-ScrollView\"]",
+      "source_testid": "TMPopover-ScrollView",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "deprecated": true,
+      "notes": "DEPRECATED v6.2.0: 收款人选择不再用 popover，改为 send form 内嵌 tab。"
+    },
+    "wallet.send.recipient_tab_accounts": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"] >> text=账户",
+      "source_testid": "send-recipient-amount-form",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "v6.2.0 新 UI: 发送表单内「最近/账户/地址簿」tab，点击「账户」显示我的账户列表。pattern selector，source_testid 为父容器。"
+    },
+    "wallet.send.recipient_item": {
+      "primary": "[data-testid^=\"recipient-item-\"]",
+      "source_testid": "recipient-item-{address}",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "收款人列表项，testid 格式 recipient-item-{address}。点击选择收款人。pattern selector，source_testid 为动态模板。"
+    },
+    "wallet.send.memo_field": {
+      "primary": "textarea[placeholder*=\"备忘标签\"]",
+      "source_testid": "none",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "备注/Memo 输入框，placeholder 含「备忘标签 (Memo, Tag, Comment)」。Cosmos 系链可见。无 data-testid，通过 placeholder 定位。"
+    },
+    "wallet.send.form": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"]",
+      "source_testid": "send-recipient-amount-form",
+      "source": "app-monorepo",
+      "page": "send-form",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send.max_button": {
+      "primary": "[data-testid=\"send-recipient-amount-form\"] >> text=最大",
+      "source_testid": "send-recipient-amount-form",
+      "source": "qa-agents",
+      "page": "send-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "send"
+      ],
+      "notes": "Derived semantic selector using form container + localized text."
+    },
+    "wallet.send.replace_tx.modal": {
+      "primary": "[data-testid=\"replace-tx-modal\"]",
+      "source_testid": "replace-tx-modal",
+      "source": "app-monorepo",
+      "page": "send-confirm",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.token_details.no_address_empty_state": {
+      "primary": "[data-testid=\"TokenDetailsViews__Wallet-No-Address-Empty\"]",
+      "source_testid": "TokenDetailsViews__Wallet-No-Address-Empty",
+      "source": "app-monorepo",
+      "page": "token-details",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "wallet",
+        "token-details",
+        "empty-state"
+      ]
+    },
+    "wallet.token_list.header": {
+      "primary": "[data-testid=\"Wallet-Token-List-Header\"]",
+      "source_testid": "Wallet-Token-List-Header",
+      "source": "app-monorepo",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "wallet-home",
+        "assets"
+      ]
+    },
+    "wallet.home.search": {
+      "primary": "[data-testid=\"nav-header-search\"]",
+      "source_testid": "nav-header-search",
+      "source": "device-observed",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home",
+        "search"
+      ]
+    },
+    "wallet.home.more_actions": {
+      "primary": "[data-testid=\"moreActions\"]",
+      "source_testid": "moreActions",
+      "source": "device-observed",
+      "page": "wallet-home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.account-generate-amount-input": {
+      "primary": "[data-testid=\"account-generate-amount-input\"]",
+      "source_testid": "account-generate-amount-input",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-item-value-address-splitter": {
+      "primary": "[data-testid=\"account-item-value-address-splitter\"]",
+      "source_testid": "account-item-value-address-splitter",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-key-input": {
+      "primary": "[data-testid=\"account-key-input\"]",
+      "source_testid": "account-key-input",
+      "source": "auto-classified",
+      "page": "exportkeys",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-account-remove-button": {
+      "primary": "[data-testid=\"account-manager-account-remove-button\"]",
+      "source_testid": "account-manager-account-remove-button",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-account-remove-confirm": {
+      "primary": "[data-testid=\"account-manager-account-remove-confirm\"]",
+      "source_testid": "account-manager-account-remove-confirm",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-account-rename-confirm": {
+      "primary": "[data-testid=\"account-manager-account-rename-confirm\"]",
+      "source_testid": "account-manager-account-rename-confirm",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-account-rename-input": {
+      "primary": "[data-testid=\"account-manager-account-rename-input\"]",
+      "source_testid": "account-manager-account-rename-input",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-btn": {
+      "primary": "[data-testid=\"account-manager-btn\"]",
+      "source_testid": "account-manager-btn",
+      "source": "auto-classified",
+      "page": "accountselectorstack",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-checkbox": {
+      "primary": "[data-testid=\"account-manager-checkbox\"]",
+      "source_testid": "account-manager-checkbox",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-icon-btn": {
+      "primary": "[data-testid=\"account-manager-icon-btn\"]",
+      "source_testid": "account-manager-icon-btn",
+      "source": "auto-classified",
+      "page": "accountselectorstack",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-intl-icon-btn": {
+      "primary": "[data-testid=\"account-manager-intl-icon-btn\"]",
+      "source_testid": "account-manager-intl-icon-btn",
+      "source": "auto-classified",
+      "page": "walletedit",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-is-checked-checkbox": {
+      "primary": "[data-testid=\"account-manager-is-checked-checkbox\"]",
+      "source_testid": "account-manager-is-checked-checkbox",
+      "source": "auto-classified",
+      "page": "pageresolvesamewallets",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-is-confirm-disabled-checkbox": {
+      "primary": "[data-testid=\"account-manager-is-confirm-disabled-checkbox\"]",
+      "source_testid": "account-manager-is-confirm-disabled-checkbox",
+      "source": "auto-classified",
+      "page": "walletedit",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-on-toggle-expand-icon-btn": {
+      "primary": "[data-testid=\"account-manager-on-toggle-expand-icon-btn\"]",
+      "source_testid": "account-manager-on-toggle-expand-icon-btn",
+      "source": "auto-classified",
+      "page": "hardwarehomescreen",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-plus-button-icon-btn": {
+      "primary": "[data-testid=\"account-manager-plus-button-icon-btn\"]",
+      "source_testid": "account-manager-plus-button-icon-btn",
+      "source": "auto-classified",
+      "page": "accountselectorstack",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-state-icon-btn": {
+      "primary": "[data-testid=\"account-manager-state-icon-btn\"]",
+      "source_testid": "account-manager-state-icon-btn",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-switch": {
+      "primary": "[data-testid=\"account-manager-switch\"]",
+      "source_testid": "account-manager-switch",
+      "source": "auto-classified",
+      "page": "walletedit",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-text-icon-btn": {
+      "primary": "[data-testid=\"account-manager-text-icon-btn\"]",
+      "source_testid": "account-manager-text-icon-btn",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-upload-button-icon-btn": {
+      "primary": "[data-testid=\"account-manager-upload-button-icon-btn\"]",
+      "source_testid": "account-manager-upload-button-icon-btn",
+      "source": "auto-classified",
+      "page": "hardwarehomescreen",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-value-num-input": {
+      "primary": "[data-testid=\"account-manager-value-num-input\"]",
+      "source_testid": "account-manager-value-num-input",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-wallet-remove-button": {
+      "primary": "[data-testid=\"account-manager-wallet-remove-button\"]",
+      "source_testid": "account-manager-wallet-remove-button",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-wallet-remove-confirm": {
+      "primary": "[data-testid=\"account-manager-wallet-remove-confirm\"]",
+      "source_testid": "account-manager-wallet-remove-confirm",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-wallet-rename-confirm": {
+      "primary": "[data-testid=\"account-manager-wallet-rename-confirm\"]",
+      "source_testid": "account-manager-wallet-rename-confirm",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-manager-wallet-rename-input": {
+      "primary": "[data-testid=\"account-manager-wallet-rename-input\"]",
+      "source_testid": "account-manager-wallet-rename-input",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-search-bar-add-button": {
+      "primary": "[data-testid=\"account-search-bar-add-button\"]",
+      "source_testid": "account-search-bar-add-button",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.account-selector-btn": {
+      "primary": "[data-testid=\"account-selector-btn\"]",
+      "source_testid": "account-selector-btn",
+      "source": "auto-classified",
+      "page": "accountselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account-selector-copy-address-btn": {
+      "primary": "[data-testid=\"account-selector-copy-address-btn\"]",
+      "source_testid": "account-selector-copy-address-btn",
+      "source": "auto-classified",
+      "page": "accountselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account-selector-create-address-btn": {
+      "primary": "[data-testid=\"account-selector-create-address-btn\"]",
+      "source_testid": "account-selector-create-address-btn",
+      "source": "auto-classified",
+      "page": "accountselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account-selector-derive-type-trigger-btn": {
+      "primary": "[data-testid=\"account-selector-derive-type-trigger-btn\"]",
+      "source_testid": "account-selector-derive-type-trigger-btn",
+      "source": "auto-classified",
+      "page": "accountselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account-selector-is-btc-only-wallet-btn": {
+      "primary": "[data-testid=\"account-selector-is-btc-only-wallet-btn\"]",
+      "source_testid": "account-selector-is-btc-only-wallet-btn",
+      "source": "auto-classified",
+      "page": "accountselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.account-selector-sync-btn": {
+      "primary": "[data-testid=\"account-selector-sync-btn\"]",
+      "source_testid": "account-selector-sync-btn",
+      "source": "auto-classified",
+      "page": "accountselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "account-selector"
+      ]
+    },
+    "wallet.AccountSelector-WalletOption-Backup": {
+      "primary": "[data-testid=\"AccountSelector-WalletOption-Backup\"]",
+      "source_testid": "AccountSelector-WalletOption-Backup",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.add-custom-token-modal-footer": {
+      "primary": "[data-testid=\"add-custom-token-modal-footer\"]",
+      "source_testid": "add-custom-token-modal-footer",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-list-view-icon-btn": {
+      "primary": "[data-testid=\"approval-list-view-icon-btn\"]",
+      "source_testid": "approval-list-view-icon-btn",
+      "source": "auto-classified",
+      "page": "approvallistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-list-view-intl-icon-btn": {
+      "primary": "[data-testid=\"approval-list-view-intl-icon-btn\"]",
+      "source_testid": "approval-list-view-intl-icon-btn",
+      "source": "auto-classified",
+      "page": "approvallistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-list-view-selected-tokens-temp-checkbox": {
+      "primary": "[data-testid=\"approval-list-view-selected-tokens-temp-checkbox\"]",
+      "source_testid": "approval-list-view-selected-tokens-temp-checkbox",
+      "source": "auto-classified",
+      "page": "approvallistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-bulk-revoke-cancel-retry-btn": {
+      "primary": "[data-testid=\"approval-management-bulk-revoke-cancel-retry-btn\"]",
+      "source_testid": "approval-management-bulk-revoke-cancel-retry-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-bulk-revoke-confirm-btn": {
+      "primary": "[data-testid=\"approval-management-bulk-revoke-confirm-btn\"]",
+      "source_testid": "approval-management-bulk-revoke-confirm-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-bulk-revoke-copy-contract-btn": {
+      "primary": "[data-testid=\"approval-management-bulk-revoke-copy-contract-btn\"]",
+      "source_testid": "approval-management-bulk-revoke-copy-contract-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-bulk-revoke-copy-tx-btn": {
+      "primary": "[data-testid=\"approval-management-bulk-revoke-copy-tx-btn\"]",
+      "source_testid": "approval-management-bulk-revoke-copy-tx-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-bulk-revoke-fill-up-btn": {
+      "primary": "[data-testid=\"approval-management-bulk-revoke-fill-up-btn\"]",
+      "source_testid": "approval-management-bulk-revoke-fill-up-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-bulk-revoke-info-btn": {
+      "primary": "[data-testid=\"approval-management-bulk-revoke-info-btn\"]",
+      "source_testid": "approval-management-bulk-revoke-info-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-bulk-revoke-toggle-btn": {
+      "primary": "[data-testid=\"approval-management-bulk-revoke-toggle-btn\"]",
+      "source_testid": "approval-management-bulk-revoke-toggle-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-bulk-revoke-view-tx-btn": {
+      "primary": "[data-testid=\"approval-management-bulk-revoke-view-tx-btn\"]",
+      "source_testid": "approval-management-bulk-revoke-view-tx-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-cancel-btn": {
+      "primary": "[data-testid=\"approval-management-cancel-btn\"]",
+      "source_testid": "approval-management-cancel-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-confirm-btn": {
+      "primary": "[data-testid=\"approval-management-confirm-btn\"]",
+      "source_testid": "approval-management-confirm-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-copy-contract-address-btn": {
+      "primary": "[data-testid=\"approval-management-copy-contract-address-btn\"]",
+      "source_testid": "approval-management-copy-contract-address-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-edit-btn": {
+      "primary": "[data-testid=\"approval-management-edit-btn\"]",
+      "source_testid": "approval-management-edit-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-network-filter": {
+      "primary": "[data-testid=\"approval-management-network-filter\"]",
+      "source_testid": "approval-management-network-filter",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-select-all-checkbox": {
+      "primary": "[data-testid=\"approval-management-select-all-checkbox\"]",
+      "source_testid": "approval-management-select-all-checkbox",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-token-item-checkbox": {
+      "primary": "[data-testid=\"approval-management-token-item-checkbox\"]",
+      "source_testid": "approval-management-token-item-checkbox",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-token-revoke-btn": {
+      "primary": "[data-testid=\"approval-management-token-revoke-btn\"]",
+      "source_testid": "approval-management-token-revoke-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approval-management-view-in-explorer-btn": {
+      "primary": "[data-testid=\"approval-management-view-in-explorer-btn\"]",
+      "source_testid": "approval-management-view-in-explorer-btn",
+      "source": "auto-classified",
+      "page": "approvalmanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approve-editor-allowance-input": {
+      "primary": "[data-testid=\"approve-editor-allowance-input\"]",
+      "source_testid": "approve-editor-allowance-input",
+      "source": "auto-classified",
+      "page": "approveeditor",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approve-editor-balance-btn": {
+      "primary": "[data-testid=\"approve-editor-balance-btn\"]",
+      "source_testid": "approve-editor-balance-btn",
+      "source": "auto-classified",
+      "page": "approveeditor",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.approve-editor-unlimited-switch": {
+      "primary": "[data-testid=\"approve-editor-unlimited-switch\"]",
+      "source_testid": "approve-editor-unlimited-switch",
+      "source": "auto-classified",
+      "page": "approveeditor",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-btn": {
+      "primary": "[data-testid=\"asset-details-btn\"]",
+      "source_testid": "asset-details-btn",
+      "source": "auto-classified",
+      "page": "historydetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-buy-btn": {
+      "primary": "[data-testid=\"asset-details-buy-btn\"]",
+      "source_testid": "asset-details-buy-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-copy-address-btn": {
+      "primary": "[data-testid=\"asset-details-copy-address-btn\"]",
+      "source_testid": "asset-details-copy-address-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-copy-contract-btn": {
+      "primary": "[data-testid=\"asset-details-copy-contract-btn\"]",
+      "source_testid": "asset-details-copy-contract-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-create-address-btn": {
+      "primary": "[data-testid=\"asset-details-create-address-btn\"]",
+      "source_testid": "asset-details-create-address-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-handle-mobile-press-btn": {
+      "primary": "[data-testid=\"asset-details-handle-mobile-press-btn\"]",
+      "source_testid": "asset-details-handle-mobile-press-btn",
+      "source": "auto-classified",
+      "page": "tokendetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-header-info-btn": {
+      "primary": "[data-testid=\"asset-details-header-info-btn\"]",
+      "source_testid": "asset-details-header-info-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-header-more-btn": {
+      "primary": "[data-testid=\"asset-details-header-more-btn\"]",
+      "source_testid": "asset-details-header-more-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-history-list-item": {
+      "primary": "[data-testid=\"asset-details-history-list-item\"]",
+      "source_testid": "asset-details-history-list-item",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-icon-btn": {
+      "primary": "[data-testid=\"asset-details-icon-btn\"]",
+      "source_testid": "asset-details-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-market-footer": {
+      "primary": "[data-testid=\"asset-details-market-footer\"]",
+      "source_testid": "asset-details-market-footer",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-open-explorer-btn": {
+      "primary": "[data-testid=\"asset-details-open-explorer-btn\"]",
+      "source_testid": "asset-details-open-explorer-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-receive-btn": {
+      "primary": "[data-testid=\"asset-details-receive-btn\"]",
+      "source_testid": "asset-details-receive-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-render-cancel-actions-btn": {
+      "primary": "[data-testid=\"asset-details-render-cancel-actions-btn\"]",
+      "source_testid": "asset-details-render-cancel-actions-btn",
+      "source": "auto-classified",
+      "page": "historydetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-render-check-speed-up-state-btn": {
+      "primary": "[data-testid=\"asset-details-render-check-speed-up-state-btn\"]",
+      "source_testid": "asset-details-render-check-speed-up-state-btn",
+      "source": "auto-classified",
+      "page": "historydetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-render-speed-up-cancel-action-btn": {
+      "primary": "[data-testid=\"asset-details-render-speed-up-cancel-action-btn\"]",
+      "source_testid": "asset-details-render-speed-up-cancel-action-btn",
+      "source": "auto-classified",
+      "page": "historydetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-send-btn": {
+      "primary": "[data-testid=\"asset-details-send-btn\"]",
+      "source_testid": "asset-details-send-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-details-swap-btn": {
+      "primary": "[data-testid=\"asset-details-swap-btn\"]",
+      "source_testid": "asset-details-swap-btn",
+      "source": "auto-classified",
+      "page": "assetdetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-add-custom-token-btn": {
+      "primary": "[data-testid=\"asset-list-add-custom-token-btn\"]",
+      "source_testid": "asset-list-add-custom-token-btn",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-add-custom-token-nav-btn": {
+      "primary": "[data-testid=\"asset-list-add-custom-token-nav-btn\"]",
+      "source_testid": "asset-list-add-custom-token-nav-btn",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-add-token-confirm-btn": {
+      "primary": "[data-testid=\"asset-list-add-token-confirm-btn\"]",
+      "source_testid": "asset-list-add-token-confirm-btn",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-contract-address-input": {
+      "primary": "[data-testid=\"asset-list-contract-address-input\"]",
+      "source_testid": "asset-list-contract-address-input",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-create-address-btn": {
+      "primary": "[data-testid=\"asset-list-create-address-btn\"]",
+      "source_testid": "asset-list-create-address-btn",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-decimals-input": {
+      "primary": "[data-testid=\"asset-list-decimals-input\"]",
+      "source_testid": "asset-list-decimals-input",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-intl-btn": {
+      "primary": "[data-testid=\"asset-list-intl-btn\"]",
+      "source_testid": "asset-list-intl-btn",
+      "source": "auto-classified",
+      "page": "tokenmanager",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-risk-token-edit-btn": {
+      "primary": "[data-testid=\"asset-list-risk-token-edit-btn\"]",
+      "source_testid": "asset-list-risk-token-edit-btn",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-risk-token-list-item": {
+      "primary": "[data-testid=\"asset-list-risk-token-list-item\"]",
+      "source_testid": "asset-list-risk-token-list-item",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-risk-token-toggle-btn": {
+      "primary": "[data-testid=\"asset-list-risk-token-toggle-btn\"]",
+      "source_testid": "asset-list-risk-token-toggle-btn",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-symbol-input": {
+      "primary": "[data-testid=\"asset-list-symbol-input\"]",
+      "source_testid": "asset-list-symbol-input",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-token-list": {
+      "primary": "[data-testid=\"asset-list-token-list\"]",
+      "source_testid": "asset-list-token-list",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-token-list-item": {
+      "primary": "[data-testid=\"asset-list-token-list-item\"]",
+      "source_testid": "asset-list-token-list-item",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-token-manager-list-item": {
+      "primary": "[data-testid=\"asset-list-token-manager-list-item\"]",
+      "source_testid": "asset-list-token-manager-list-item",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-token-manager-search-bar": {
+      "primary": "[data-testid=\"asset-list-token-manager-search-bar\"]",
+      "source_testid": "asset-list-token-manager-search-bar",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-list-token-manager-toggle-btn": {
+      "primary": "[data-testid=\"asset-list-token-manager-toggle-btn\"]",
+      "source_testid": "asset-list-token-manager-toggle-btn",
+      "source": "auto-classified",
+      "page": "assetlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-selector-aggregate-token-list": {
+      "primary": "[data-testid=\"asset-selector-aggregate-token-list\"]",
+      "source_testid": "asset-selector-aggregate-token-list",
+      "source": "auto-classified",
+      "page": "assetselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-selector-aggregate-token-list-item": {
+      "primary": "[data-testid=\"asset-selector-aggregate-token-list-item\"]",
+      "source_testid": "asset-selector-aggregate-token-list-item",
+      "source": "auto-classified",
+      "page": "assetselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-selector-token-item": {
+      "primary": "[data-testid=\"asset-selector-token-item\"]",
+      "source_testid": "asset-selector-token-item",
+      "source": "auto-classified",
+      "page": "assetselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.asset-selector-token-list": {
+      "primary": "[data-testid=\"asset-selector-token-list\"]",
+      "source_testid": "asset-selector-token-list",
+      "source": "auto-classified",
+      "page": "assetselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.batch-create-account-preview-loading-icon": {
+      "primary": "[data-testid=\"batch-create-account-preview-loading-icon\"]",
+      "source_testid": "batch-create-account-preview-loading-icon",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.batch-create-account-preview-page-next": {
+      "primary": "[data-testid=\"batch-create-account-preview-page-next\"]",
+      "source_testid": "batch-create-account-preview-page-next",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.batch-create-account-preview-page-number": {
+      "primary": "[data-testid=\"batch-create-account-preview-page-number\"]",
+      "source_testid": "batch-create-account-preview-page-number",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.batch-create-account-preview-page-number-input": {
+      "primary": "[data-testid=\"batch-create-account-preview-page-number-input\"]",
+      "source_testid": "batch-create-account-preview-page-number-input",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.batch-create-account-preview-page-prev": {
+      "primary": "[data-testid=\"batch-create-account-preview-page-prev\"]",
+      "source_testid": "batch-create-account-preview-page-prev",
+      "source": "auto-classified",
+      "page": "batchcreateaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bot-wallet-manager-create-btn": {
+      "primary": "[data-testid=\"bot-wallet-manager-create-btn\"]",
+      "source_testid": "bot-wallet-manager-create-btn",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bot-wallet-manager-create-name-input": {
+      "primary": "[data-testid=\"bot-wallet-manager-create-name-input\"]",
+      "source_testid": "bot-wallet-manager-create-name-input",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bot-wallet-manager-deactivate-btn": {
+      "primary": "[data-testid=\"bot-wallet-manager-deactivate-btn\"]",
+      "source_testid": "bot-wallet-manager-deactivate-btn",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bot-wallet-manager-export-mnemonic-btn": {
+      "primary": "[data-testid=\"bot-wallet-manager-export-mnemonic-btn\"]",
+      "source_testid": "bot-wallet-manager-export-mnemonic-btn",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bot-wallet-manager-export-to-cli-btn": {
+      "primary": "[data-testid=\"bot-wallet-manager-export-to-cli-btn\"]",
+      "source_testid": "bot-wallet-manager-export-to-cli-btn",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bot-wallet-manager-reactivate-btn": {
+      "primary": "[data-testid=\"bot-wallet-manager-reactivate-btn\"]",
+      "source_testid": "bot-wallet-manager-reactivate-btn",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bot-wallet-manager-refresh-btn": {
+      "primary": "[data-testid=\"bot-wallet-manager-refresh-btn\"]",
+      "source_testid": "bot-wallet-manager-refresh-btn",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bot-wallet-manager-visibility-toggle-btn": {
+      "primary": "[data-testid=\"bot-wallet-manager-visibility-toggle-btn\"]",
+      "source_testid": "bot-wallet-manager-visibility-toggle-btn",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-amount-input": {
+      "primary": "[data-testid=\"bulk-copy-addresses-amount-input\"]",
+      "source_testid": "bulk-copy-addresses-amount-input",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-copy-addresses-btn": {
+      "primary": "[data-testid=\"bulk-copy-addresses-copy-addresses-btn\"]",
+      "source_testid": "bulk-copy-addresses-copy-addresses-btn",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-copy-type-segment": {
+      "primary": "[data-testid=\"bulk-copy-addresses-copy-type-segment\"]",
+      "source_testid": "bulk-copy-addresses-copy-type-segment",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-derive-type-select": {
+      "primary": "[data-testid=\"bulk-copy-addresses-derive-type-select\"]",
+      "source_testid": "bulk-copy-addresses-derive-type-select",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-export-btn": {
+      "primary": "[data-testid=\"bulk-copy-addresses-export-btn\"]",
+      "source_testid": "bulk-copy-addresses-export-btn",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-export-csv-btn": {
+      "primary": "[data-testid=\"bulk-copy-addresses-export-csv-btn\"]",
+      "source_testid": "bulk-copy-addresses-export-csv-btn",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-export-without-device-btn": {
+      "primary": "[data-testid=\"bulk-copy-addresses-export-without-device-btn\"]",
+      "source_testid": "bulk-copy-addresses-export-without-device-btn",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-network-select": {
+      "primary": "[data-testid=\"bulk-copy-addresses-network-select\"]",
+      "source_testid": "bulk-copy-addresses-network-select",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-start-index-input": {
+      "primary": "[data-testid=\"bulk-copy-addresses-start-index-input\"]",
+      "source_testid": "bulk-copy-addresses-start-index-input",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-copy-addresses-wallet-select": {
+      "primary": "[data-testid=\"bulk-copy-addresses-wallet-select\"]",
+      "source_testid": "bulk-copy-addresses-wallet-select",
+      "source": "auto-classified",
+      "page": "bulkcopyaddresses",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-amount-interval-mode-select": {
+      "primary": "[data-testid=\"bulk-send-amount-interval-mode-select\"]",
+      "source_testid": "bulk-send-amount-interval-mode-select",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-amount-interval-mode-trigger-btn": {
+      "primary": "[data-testid=\"bulk-send-amount-interval-mode-trigger-btn\"]",
+      "source_testid": "bulk-send-amount-interval-mode-trigger-btn",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-amount-mode-segment": {
+      "primary": "[data-testid=\"bulk-send-amount-mode-segment\"]",
+      "source_testid": "bulk-send-amount-mode-segment",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-btn": {
+      "primary": "[data-testid=\"bulk-send-btn\"]",
+      "source_testid": "bulk-send-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-dp-btn": {
+      "primary": "[data-testid=\"bulk-send-dp-btn\"]",
+      "source_testid": "bulk-send-dp-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-filter-integer-input-input": {
+      "primary": "[data-testid=\"bulk-send-filter-integer-input-input\"]",
+      "source_testid": "bulk-send-filter-integer-input-input",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-icon-btn": {
+      "primary": "[data-testid=\"bulk-send-icon-btn\"]",
+      "source_testid": "bulk-send-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-input": {
+      "primary": "[data-testid=\"bulk-send-input\"]",
+      "source_testid": "bulk-send-input",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-interval-summary-btn": {
+      "primary": "[data-testid=\"bulk-send-interval-summary-btn\"]",
+      "source_testid": "bulk-send-interval-summary-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-next-btn": {
+      "primary": "[data-testid=\"bulk-send-next-btn\"]",
+      "source_testid": "bulk-send-next-btn",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-range-max-input": {
+      "primary": "[data-testid=\"bulk-send-range-max-input\"]",
+      "source_testid": "bulk-send-range-max-input",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-range-min-input": {
+      "primary": "[data-testid=\"bulk-send-range-min-input\"]",
+      "source_testid": "bulk-send-range-min-input",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-receiver-address-input": {
+      "primary": "[data-testid=\"bulk-send-receiver-address-input\"]",
+      "source_testid": "bulk-send-receiver-address-input",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-render-amount-input": {
+      "primary": "[data-testid=\"bulk-send-render-amount-input\"]",
+      "source_testid": "bulk-send-render-amount-input",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-render-header-right-icon-btn": {
+      "primary": "[data-testid=\"bulk-send-render-header-right-icon-btn\"]",
+      "source_testid": "bulk-send-render-header-right-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-render-status-text-icon-btn": {
+      "primary": "[data-testid=\"bulk-send-render-status-text-icon-btn\"]",
+      "source_testid": "bulk-send-render-status-text-icon-btn",
+      "source": "auto-classified",
+      "page": "bulksendprocess",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-review-confirm-btn": {
+      "primary": "[data-testid=\"bulk-send-review-confirm-btn\"]",
+      "source_testid": "bulk-send-review-confirm-btn",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-select": {
+      "primary": "[data-testid=\"bulk-send-select\"]",
+      "source_testid": "bulk-send-select",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-sender-address-input": {
+      "primary": "[data-testid=\"bulk-send-sender-address-input\"]",
+      "source_testid": "bulk-send-sender-address-input",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-specified-amount-input": {
+      "primary": "[data-testid=\"bulk-send-specified-amount-input\"]",
+      "source_testid": "bulk-send-specified-amount-input",
+      "source": "auto-classified",
+      "page": "bulksend",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-status-btn": {
+      "primary": "[data-testid=\"bulk-send-status-btn\"]",
+      "source_testid": "bulk-send-status-btn",
+      "source": "auto-classified",
+      "page": "bulksendprocess",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.bulk-send-value-switch": {
+      "primary": "[data-testid=\"bulk-send-value-switch\"]",
+      "source_testid": "bulk-send-value-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.coin-control-strategy-trigger": {
+      "primary": "[data-testid=\"coin-control-strategy-trigger\"]",
+      "source_testid": "coin-control-strategy-trigger",
+      "source": "auto-classified",
+      "page": "coincontrol",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.create-address-btn": {
+      "primary": "[data-testid=\"create-address-btn\"]",
+      "source_testid": "create-address-btn",
+      "source": "auto-classified",
+      "page": "createaddresscontainer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.fiat-crypto-segment-control": {
+      "primary": "[data-testid=\"fiat-crypto-segment-control\"]",
+      "source_testid": "fiat-crypto-segment-control",
+      "source": "auto-classified",
+      "page": "fiatcrypto",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.fiat-crypto-token-list": {
+      "primary": "[data-testid=\"fiat-crypto-token-list\"]",
+      "source_testid": "fiat-crypto-token-list",
+      "source": "auto-classified",
+      "page": "fiatcrypto",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.fiat-crypto-token-list-item": {
+      "primary": "[data-testid=\"fiat-crypto-token-list-item\"]",
+      "source_testid": "fiat-crypto-token-list-item",
+      "source": "auto-classified",
+      "page": "fiatcrypto",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.fiat-crypto-token-search-bar": {
+      "primary": "[data-testid=\"fiat-crypto-token-search-bar\"]",
+      "source_testid": "fiat-crypto-token-search-bar",
+      "source": "auto-classified",
+      "page": "fiatcrypto",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.history-details-body": {
+      "primary": "[data-testid=\"history-details-body\"]",
+      "source_testid": "history-details-body",
+      "source": "auto-classified",
+      "page": "historydetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.history-details-inputs-and-outputs": {
+      "primary": "[data-testid=\"history-details-inputs-and-outputs\"]",
+      "source_testid": "history-details-inputs-and-outputs",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.history-details-main-content": {
+      "primary": "[data-testid=\"history-details-main-content\"]",
+      "source_testid": "history-details-main-content",
+      "source": "auto-classified",
+      "page": "historydetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.history-details-what-assets-change": {
+      "primary": "[data-testid=\"history-details-what-assets-change\"]",
+      "source_testid": "history-details-what-assets-change",
+      "source": "auto-classified",
+      "page": "historydetails",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.history-list-item-speed-up-and-cancel-buttons": {
+      "primary": "[data-testid=\"history-list-item-speed-up-and-cancel-buttons\"]",
+      "source_testid": "history-list-item-speed-up-and-cancel-buttons",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.home-action-item-btn": {
+      "primary": "[data-testid=\"home-action-item-btn\"]",
+      "source_testid": "home-action-item-btn",
+      "source": "auto-classified",
+      "page": "walletactions",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-block-data-btn": {
+      "primary": "[data-testid=\"home-block-data-btn\"]",
+      "source_testid": "home-block-data-btn",
+      "source": "auto-classified",
+      "page": "earnlistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-btn": {
+      "primary": "[data-testid=\"home-btn\"]",
+      "source_testid": "home-btn",
+      "source": "auto-classified",
+      "page": "notbakcedup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-buy-button": {
+      "primary": "[data-testid=\"home-buy-button\"]",
+      "source_testid": "home-buy-button",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-columns-icon-btn": {
+      "primary": "[data-testid=\"home-columns-icon-btn\"]",
+      "source_testid": "home-columns-icon-btn",
+      "source": "auto-classified",
+      "page": "populartrading",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-filter-scam-history-supported-icon-btn": {
+      "primary": "[data-testid=\"home-filter-scam-history-supported-icon-btn\"]",
+      "source_testid": "home-filter-scam-history-supported-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-handle-snooze-change-checkbox": {
+      "primary": "[data-testid=\"home-handle-snooze-change-checkbox\"]",
+      "source_testid": "home-handle-snooze-change-checkbox",
+      "source": "auto-classified",
+      "page": "walletbanner",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-header-account-selector": {
+      "primary": "[data-testid=\"home-header-account-selector\"]",
+      "source_testid": "home-header-account-selector",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-header-actions-btn": {
+      "primary": "[data-testid=\"home-header-actions-btn\"]",
+      "source_testid": "home-header-actions-btn",
+      "source": "auto-classified",
+      "page": "populartrading",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-header-network-selector": {
+      "primary": "[data-testid=\"home-header-network-selector\"]",
+      "source_testid": "home-header-network-selector",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-header-scan-button": {
+      "primary": "[data-testid=\"home-header-scan-button\"]",
+      "source_testid": "home-header-scan-button",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-header-search-button": {
+      "primary": "[data-testid=\"home-header-search-button\"]",
+      "source_testid": "home-header-search-button",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-help-link-btn": {
+      "primary": "[data-testid=\"home-help-link-btn\"]",
+      "source_testid": "home-help-link-btn",
+      "source": "auto-classified",
+      "page": "walletactions",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-icon-btn": {
+      "primary": "[data-testid=\"home-icon-btn\"]",
+      "source_testid": "home-icon-btn",
+      "source": "auto-classified",
+      "page": "notbakcedup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-intl-btn": {
+      "primary": "[data-testid=\"home-intl-btn\"]",
+      "source_testid": "home-intl-btn",
+      "source": "auto-classified",
+      "page": "walletxfpstatusreminder",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-media-icon-btn": {
+      "primary": "[data-testid=\"home-media-icon-btn\"]",
+      "source_testid": "home-media-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-more-button": {
+      "primary": "[data-testid=\"home-more-button\"]",
+      "source_testid": "home-more-button",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-navigation-icon-btn": {
+      "primary": "[data-testid=\"home-navigation-icon-btn\"]",
+      "source_testid": "home-navigation-icon-btn",
+      "source": "auto-classified",
+      "page": "urlaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-page": {
+      "primary": "[data-testid=\"home-page\"]",
+      "source_testid": "home-page",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-popular-view-more-btn": {
+      "primary": "[data-testid=\"home-popular-view-more-btn\"]",
+      "source_testid": "home-popular-view-more-btn",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-receive-button": {
+      "primary": "[data-testid=\"home-receive-button\"]",
+      "source_testid": "home-receive-button",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-referral-landing-bind-btn": {
+      "primary": "[data-testid=\"home-referral-landing-bind-btn\"]",
+      "source_testid": "home-referral-landing-bind-btn",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-referral-landing-download-btn": {
+      "primary": "[data-testid=\"home-referral-landing-download-btn\"]",
+      "source_testid": "home-referral-landing-download-btn",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-referral-landing-download-hint-btn": {
+      "primary": "[data-testid=\"home-referral-landing-download-hint-btn\"]",
+      "source_testid": "home-referral-landing-download-hint-btn",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-referral-landing-trade-btn": {
+      "primary": "[data-testid=\"home-referral-landing-trade-btn\"]",
+      "source_testid": "home-referral-landing-trade-btn",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-refresh-button-icon-btn": {
+      "primary": "[data-testid=\"home-refresh-button-icon-btn\"]",
+      "source_testid": "home-refresh-button-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-render-backup-wallet-actions-btn": {
+      "primary": "[data-testid=\"home-render-backup-wallet-actions-btn\"]",
+      "source_testid": "home-render-backup-wallet-actions-btn",
+      "source": "auto-classified",
+      "page": "notbakcedup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-render-backup-wallet-actions-icon-btn": {
+      "primary": "[data-testid=\"home-render-backup-wallet-actions-icon-btn\"]",
+      "source_testid": "home-render-backup-wallet-actions-icon-btn",
+      "source": "auto-classified",
+      "page": "notbakcedup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-render-content-btn": {
+      "primary": "[data-testid=\"home-render-content-btn\"]",
+      "source_testid": "home-render-content-btn",
+      "source": "auto-classified",
+      "page": "defilistblock",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-render-frozen-balance-btn": {
+      "primary": "[data-testid=\"home-render-frozen-balance-btn\"]",
+      "source_testid": "home-render-frozen-balance-btn",
+      "source": "auto-classified",
+      "page": "balancedetailsdialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-render-header-actions-icon-btn": {
+      "primary": "[data-testid=\"home-render-header-actions-icon-btn\"]",
+      "source_testid": "home-render-header-actions-icon-btn",
+      "source": "auto-classified",
+      "page": "tokenlistblock",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-render-manage-button-icon-btn": {
+      "primary": "[data-testid=\"home-render-manage-button-icon-btn\"]",
+      "source_testid": "home-render-manage-button-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-render-referral-code-actions-input": {
+      "primary": "[data-testid=\"home-render-referral-code-actions-input\"]",
+      "source_testid": "home-render-referral-code-actions-input",
+      "source": "auto-classified",
+      "page": "notbakcedup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-reset-ref-btn": {
+      "primary": "[data-testid=\"home-reset-ref-btn\"]",
+      "source_testid": "home-reset-ref-btn",
+      "source": "auto-classified",
+      "page": "btcfreshaddressprovider",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-send-button": {
+      "primary": "[data-testid=\"home-send-button\"]",
+      "source_testid": "home-send-button",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-show-view-more-button-btn": {
+      "primary": "[data-testid=\"home-show-view-more-button-btn\"]",
+      "source_testid": "home-show-view-more-button-btn",
+      "source": "auto-classified",
+      "page": "populartrading",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-staking-button": {
+      "primary": "[data-testid=\"home-staking-button\"]",
+      "source_testid": "home-staking-button",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-swap-button": {
+      "primary": "[data-testid=\"home-swap-button\"]",
+      "source_testid": "home-swap-button",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-switch": {
+      "primary": "[data-testid=\"home-switch\"]",
+      "source_testid": "home-switch",
+      "source": "auto-classified",
+      "page": "balancedetailsdialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-tab-defi": {
+      "primary": "[data-testid=\"home-tab-defi\"]",
+      "source_testid": "home-tab-defi",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-tab-history": {
+      "primary": "[data-testid=\"home-tab-history\"]",
+      "source_testid": "home-tab-history",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-tab-nft": {
+      "primary": "[data-testid=\"home-tab-nft\"]",
+      "source_testid": "home-tab-nft",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-tab-portfolio": {
+      "primary": "[data-testid=\"home-tab-portfolio\"]",
+      "source_testid": "home-tab-portfolio",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-token-item": {
+      "primary": "[data-testid=\"home-token-item\"]",
+      "source_testid": "home-token-item",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-total-balance": {
+      "primary": "[data-testid=\"home-total-balance\"]",
+      "source_testid": "home-total-balance",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-wallet-actions-zero-gas-continue-btn": {
+      "primary": "[data-testid=\"home-wallet-actions-zero-gas-continue-btn\"]",
+      "source_testid": "home-wallet-actions-zero-gas-continue-btn",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.home-wallet-overview": {
+      "primary": "[data-testid=\"home-wallet-overview\"]",
+      "source_testid": "home-wallet-overview",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.left": {
+      "primary": "[data-testid=\"left\"]",
+      "source_testid": "left",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet-home"
+      ]
+    },
+    "wallet.lightning-connect-hardware-btn": {
+      "primary": "[data-testid=\"lightning-connect-hardware-btn\"]",
+      "source_testid": "lightning-connect-hardware-btn",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-invoice-amount-input": {
+      "primary": "[data-testid=\"lightning-invoice-amount-input\"]",
+      "source_testid": "lightning-invoice-amount-input",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-invoice-description-input": {
+      "primary": "[data-testid=\"lightning-invoice-description-input\"]",
+      "source_testid": "lightning-invoice-description-input",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-lnurl-auth-confirm-btn": {
+      "primary": "[data-testid=\"lightning-lnurl-auth-confirm-btn\"]",
+      "source_testid": "lightning-lnurl-auth-confirm-btn",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-lnurl-pay-confirm-btn": {
+      "primary": "[data-testid=\"lightning-lnurl-pay-confirm-btn\"]",
+      "source_testid": "lightning-lnurl-pay-confirm-btn",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-lnurl-withdraw-confirm-btn": {
+      "primary": "[data-testid=\"lightning-lnurl-withdraw-confirm-btn\"]",
+      "source_testid": "lightning-lnurl-withdraw-confirm-btn",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-network-name-textarea": {
+      "primary": "[data-testid=\"lightning-network-name-textarea\"]",
+      "source_testid": "lightning-network-name-textarea",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-send-amount-input": {
+      "primary": "[data-testid=\"lightning-send-amount-input\"]",
+      "source_testid": "lightning-send-amount-input",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-send-comment-input": {
+      "primary": "[data-testid=\"lightning-send-comment-input\"]",
+      "source_testid": "lightning-send-comment-input",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-webln-create-invoice-btn": {
+      "primary": "[data-testid=\"lightning-webln-create-invoice-btn\"]",
+      "source_testid": "lightning-webln-create-invoice-btn",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.lightning-webln-send-payment-btn": {
+      "primary": "[data-testid=\"lightning-webln-send-payment-btn\"]",
+      "source_testid": "lightning-webln-send-payment-btn",
+      "source": "auto-classified",
+      "page": "lightningnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.LNHardware": {
+      "primary": "[data-testid=\"LNHardware\"]",
+      "source_testid": "LNHardware",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.LNHardwareAuth": {
+      "primary": "[data-testid=\"LNHardwareAuth\"]",
+      "source_testid": "LNHardwareAuth",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.private-key-copy-check": {
+      "primary": "[data-testid=\"private-key-copy-check\"]",
+      "source_testid": "private-key-copy-check",
+      "source": "auto-classified",
+      "page": "exportkeys",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-address-text": {
+      "primary": "[data-testid=\"receive-address-text\"]",
+      "source_testid": "receive-address-text",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-address-type-selector": {
+      "primary": "[data-testid=\"receive-address-type-selector\"]",
+      "source_testid": "receive-address-type-selector",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-banner": {
+      "primary": "[data-testid=\"receive-banner\"]",
+      "source_testid": "receive-banner",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-btc-address-copy-button": {
+      "primary": "[data-testid=\"receive-btc-address-copy-button\"]",
+      "source_testid": "receive-btc-address-copy-button",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-btc-address-pagination": {
+      "primary": "[data-testid=\"receive-btc-address-pagination\"]",
+      "source_testid": "receive-btc-address-pagination",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-btc-address-table": {
+      "primary": "[data-testid=\"receive-btc-address-table\"]",
+      "source_testid": "receive-btc-address-table",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-btc-addresses-page": {
+      "primary": "[data-testid=\"receive-btc-addresses-page\"]",
+      "source_testid": "receive-btc-addresses-page",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-btc-fresh-address-link": {
+      "primary": "[data-testid=\"receive-btc-fresh-address-link\"]",
+      "source_testid": "receive-btc-fresh-address-link",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-btn": {
+      "primary": "[data-testid=\"receive-btn\"]",
+      "source_testid": "receive-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-buy-crypto-option": {
+      "primary": "[data-testid=\"receive-buy-crypto-option\"]",
+      "source_testid": "receive-buy-crypto-option",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-copy-address-button": {
+      "primary": "[data-testid=\"receive-copy-address-button\"]",
+      "source_testid": "receive-copy-address-button",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-copy-invoice-button": {
+      "primary": "[data-testid=\"receive-copy-invoice-button\"]",
+      "source_testid": "receive-copy-invoice-button",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-create-invoice-amount-input": {
+      "primary": "[data-testid=\"receive-create-invoice-amount-input\"]",
+      "source_testid": "receive-create-invoice-amount-input",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-create-invoice-description-input": {
+      "primary": "[data-testid=\"receive-create-invoice-description-input\"]",
+      "source_testid": "receive-create-invoice-description-input",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-create-invoice-page": {
+      "primary": "[data-testid=\"receive-create-invoice-page\"]",
+      "source_testid": "receive-create-invoice-page",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-create-invoice-unit-switch": {
+      "primary": "[data-testid=\"receive-create-invoice-unit-switch\"]",
+      "source_testid": "receive-create-invoice-unit-switch",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-exchange-item": {
+      "primary": "[data-testid=\"receive-exchange-item\"]",
+      "source_testid": "receive-exchange-item",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-exchange-list": {
+      "primary": "[data-testid=\"receive-exchange-list\"]",
+      "source_testid": "receive-exchange-list",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-exchange-redirect-countdown": {
+      "primary": "[data-testid=\"receive-exchange-redirect-countdown\"]",
+      "source_testid": "receive-exchange-redirect-countdown",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-exchange-redirect-logo": {
+      "primary": "[data-testid=\"receive-exchange-redirect-logo\"]",
+      "source_testid": "receive-exchange-redirect-logo",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-exchange-redirect-page": {
+      "primary": "[data-testid=\"receive-exchange-redirect-page\"]",
+      "source_testid": "receive-exchange-redirect-page",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-from-wallet-option": {
+      "primary": "[data-testid=\"receive-from-wallet-option\"]",
+      "source_testid": "receive-from-wallet-option",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-invoice-page": {
+      "primary": "[data-testid=\"receive-invoice-page\"]",
+      "source_testid": "receive-invoice-page",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-invoice-qr-code": {
+      "primary": "[data-testid=\"receive-invoice-qr-code\"]",
+      "source_testid": "receive-invoice-qr-code",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-invoice-text": {
+      "primary": "[data-testid=\"receive-invoice-text\"]",
+      "source_testid": "receive-invoice-text",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-qr-code": {
+      "primary": "[data-testid=\"receive-qr-code\"]",
+      "source_testid": "receive-qr-code",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-selector-page": {
+      "primary": "[data-testid=\"receive-selector-page\"]",
+      "source_testid": "receive-selector-page",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-skip-verify-button": {
+      "primary": "[data-testid=\"receive-skip-verify-button\"]",
+      "source_testid": "receive-skip-verify-button",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-token-page": {
+      "primary": "[data-testid=\"receive-token-page\"]",
+      "source_testid": "receive-token-page",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.receive-verify-on-device-button": {
+      "primary": "[data-testid=\"receive-verify-on-device-button\"]",
+      "source_testid": "receive-verify-on-device-button",
+      "source": "auto-classified",
+      "page": "receive",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-btc-reward-copy-btn": {
+      "primary": "[data-testid=\"redemption-btc-reward-copy-btn\"]",
+      "source_testid": "redemption-btc-reward-copy-btn",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-btc-reward-open-explorer-btn": {
+      "primary": "[data-testid=\"redemption-btc-reward-open-explorer-btn\"]",
+      "source_testid": "redemption-btc-reward-open-explorer-btn",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-code-input": {
+      "primary": "[data-testid=\"redemption-code-input\"]",
+      "source_testid": "redemption-code-input",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-history-btn": {
+      "primary": "[data-testid=\"redemption-history-btn\"]",
+      "source_testid": "redemption-history-btn",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-history-item": {
+      "primary": "[data-testid=\"redemption-history-item\"]",
+      "source_testid": "redemption-history-item",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-history-list": {
+      "primary": "[data-testid=\"redemption-history-list\"]",
+      "source_testid": "redemption-history-list",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-redeem-confirm-btn": {
+      "primary": "[data-testid=\"redemption-redeem-confirm-btn\"]",
+      "source_testid": "redemption-redeem-confirm-btn",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-success-done-btn": {
+      "primary": "[data-testid=\"redemption-success-done-btn\"]",
+      "source_testid": "redemption-success-done-btn",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-success-view-changes-btn": {
+      "primary": "[data-testid=\"redemption-success-view-changes-btn\"]",
+      "source_testid": "redemption-success-view-changes-btn",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.redemption-verify-voucher-input": {
+      "primary": "[data-testid=\"redemption-verify-voucher-input\"]",
+      "source_testid": "redemption-verify-voucher-input",
+      "source": "auto-classified",
+      "page": "redemption",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.reward-center-account-selector-trigger": {
+      "primary": "[data-testid=\"reward-center-account-selector-trigger\"]",
+      "source_testid": "reward-center-account-selector-trigger",
+      "source": "auto-classified",
+      "page": "rewardcenter",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.reward-center-add-account-btn": {
+      "primary": "[data-testid=\"reward-center-add-account-btn\"]",
+      "source_testid": "reward-center-add-account-btn",
+      "source": "auto-classified",
+      "page": "rewardcenter",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.reward-center-btn": {
+      "primary": "[data-testid=\"reward-center-btn\"]",
+      "source_testid": "reward-center-btn",
+      "source": "auto-classified",
+      "page": "rewardcenter",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.reward-center-claim-btn": {
+      "primary": "[data-testid=\"reward-center-claim-btn\"]",
+      "source_testid": "reward-center-claim-btn",
+      "source": "auto-classified",
+      "page": "rewardcenter",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.reward-center-input": {
+      "primary": "[data-testid=\"reward-center-input\"]",
+      "source_testid": "reward-center-input",
+      "source": "auto-classified",
+      "page": "rewardcenter",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.reward-center-redeem-btn": {
+      "primary": "[data-testid=\"reward-center-redeem-btn\"]",
+      "source_testid": "reward-center-redeem-btn",
+      "source": "auto-classified",
+      "page": "rewardcenter",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.reward-center-redeem-code-input": {
+      "primary": "[data-testid=\"reward-center-redeem-code-input\"]",
+      "source_testid": "reward-center-redeem-code-input",
+      "source": "auto-classified",
+      "page": "rewardcenter",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.scan-open-photo": {
+      "primary": "[data-testid=\"scan-open-photo\"]",
+      "source_testid": "scan-open-photo",
+      "source": "auto-classified",
+      "page": "scanqrcode",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.scan-qr-code-btn": {
+      "primary": "[data-testid=\"scan-qr-code-btn\"]",
+      "source_testid": "scan-qr-code-btn",
+      "source": "auto-classified",
+      "page": "scanqrcode",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.scan-qr-code-debug-close-btn": {
+      "primary": "[data-testid=\"scan-qr-code-debug-close-btn\"]",
+      "source_testid": "scan-qr-code-debug-close-btn",
+      "source": "auto-classified",
+      "page": "scanqrcode",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.scan-qr-code-debug-confirm-btn": {
+      "primary": "[data-testid=\"scan-qr-code-debug-confirm-btn\"]",
+      "source_testid": "scan-qr-code-debug-confirm-btn",
+      "source": "auto-classified",
+      "page": "scanqrcode",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.scan-qr-code-debug-text-area": {
+      "primary": "[data-testid=\"scan-qr-code-debug-text-area\"]",
+      "source_testid": "scan-qr-code-debug-text-area",
+      "source": "auto-classified",
+      "page": "scanqrcode",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.scan-qr-code-debug-trigger": {
+      "primary": "[data-testid=\"scan-qr-code-debug-trigger\"]",
+      "source_testid": "scan-qr-code-debug-trigger",
+      "source": "auto-classified",
+      "page": "scanqrcode",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.scan-qr-code-toast-btn": {
+      "primary": "[data-testid=\"scan-qr-code-toast-btn\"]",
+      "source_testid": "scan-qr-code-toast-btn",
+      "source": "auto-classified",
+      "page": "scanqrcode",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.send-address-book-button": {
+      "primary": "[data-testid=\"send-address-book-button\"]",
+      "source_testid": "send-address-book-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-advanced-settings": {
+      "primary": "[data-testid=\"send-advanced-settings\"]",
+      "source_testid": "send-advanced-settings",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-amount-input": {
+      "primary": "[data-testid=\"send-amount-input\"]",
+      "source_testid": "send-amount-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-btn": {
+      "primary": "[data-testid=\"send-btn\"]",
+      "source_testid": "send-btn",
+      "source": "auto-classified",
+      "page": "coincontrol",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-buy-token-button": {
+      "primary": "[data-testid=\"send-buy-token-button\"]",
+      "source_testid": "send-buy-token-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-callback-btn": {
+      "primary": "[data-testid=\"send-callback-btn\"]",
+      "source_testid": "send-callback-btn",
+      "source": "auto-classified",
+      "page": "sendfee",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-cancel-button": {
+      "primary": "[data-testid=\"send-cancel-button\"]",
+      "source_testid": "send-cancel-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-checkbox": {
+      "primary": "[data-testid=\"send-checkbox\"]",
+      "source_testid": "send-checkbox",
+      "source": "auto-classified",
+      "page": "coincontrol",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-coin-control-page": {
+      "primary": "[data-testid=\"send-coin-control-page\"]",
+      "source_testid": "send-coin-control-page",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-confirm-button": {
+      "primary": "[data-testid=\"send-confirm-button\"]",
+      "source_testid": "send-confirm-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-compute-unit-price-input": {
+      "primary": "[data-testid=\"send-fee-compute-unit-price-input\"]",
+      "source_testid": "send-fee-compute-unit-price-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-container": {
+      "primary": "[data-testid=\"send-fee-container\"]",
+      "source_testid": "send-fee-container",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-dot-extra-tip-input": {
+      "primary": "[data-testid=\"send-fee-dot-extra-tip-input\"]",
+      "source_testid": "send-fee-dot-extra-tip-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-gas-limit-input": {
+      "primary": "[data-testid=\"send-fee-gas-limit-input\"]",
+      "source_testid": "send-fee-gas-limit-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-gas-price-input": {
+      "primary": "[data-testid=\"send-fee-gas-price-input\"]",
+      "source_testid": "send-fee-gas-price-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-gas-sui-budget-input": {
+      "primary": "[data-testid=\"send-fee-gas-sui-budget-input\"]",
+      "source_testid": "send-fee-gas-sui-budget-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-gas-sui-price-input": {
+      "primary": "[data-testid=\"send-fee-gas-sui-price-input\"]",
+      "source_testid": "send-fee-gas-sui-price-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-max-base-fee-input": {
+      "primary": "[data-testid=\"send-fee-max-base-fee-input\"]",
+      "source_testid": "send-fee-max-base-fee-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-priority-fee-input": {
+      "primary": "[data-testid=\"send-fee-priority-fee-input\"]",
+      "source_testid": "send-fee-priority-fee-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-rate-ckb-input": {
+      "primary": "[data-testid=\"send-fee-rate-ckb-input\"]",
+      "source_testid": "send-fee-rate-ckb-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-rate-utxo-input": {
+      "primary": "[data-testid=\"send-fee-rate-utxo-input\"]",
+      "source_testid": "send-fee-rate-utxo-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-fee-selector": {
+      "primary": "[data-testid=\"send-fee-selector\"]",
+      "source_testid": "send-fee-selector",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-formatted-value-btn": {
+      "primary": "[data-testid=\"send-formatted-value-btn\"]",
+      "source_testid": "send-formatted-value-btn",
+      "source": "auto-classified",
+      "page": "sendconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-handle-resource-details-on-press-icon-btn": {
+      "primary": "[data-testid=\"send-handle-resource-details-on-press-icon-btn\"]",
+      "source_testid": "send-handle-resource-details-on-press-icon-btn",
+      "source": "auto-classified",
+      "page": "sendconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-hex-data-faq-button": {
+      "primary": "[data-testid=\"send-hex-data-faq-button\"]",
+      "source_testid": "send-hex-data-faq-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-hex-data-input": {
+      "primary": "[data-testid=\"send-hex-data-input\"]",
+      "source_testid": "send-hex-data-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-icon-btn": {
+      "primary": "[data-testid=\"send-icon-btn\"]",
+      "source_testid": "send-icon-btn",
+      "source": "auto-classified",
+      "page": "sendreplacetx",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-input": {
+      "primary": "[data-testid=\"send-input\"]",
+      "source_testid": "send-input",
+      "source": "auto-classified",
+      "page": "sendconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-insufficient-funds-button": {
+      "primary": "[data-testid=\"send-insufficient-funds-button\"]",
+      "source_testid": "send-insufficient-funds-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-intl-btn": {
+      "primary": "[data-testid=\"send-intl-btn\"]",
+      "source_testid": "send-intl-btn",
+      "source": "auto-classified",
+      "page": "sendfee",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-intl-checkbox": {
+      "primary": "[data-testid=\"send-intl-checkbox\"]",
+      "source_testid": "send-intl-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-max-button": {
+      "primary": "[data-testid=\"send-max-button\"]",
+      "source_testid": "send-max-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-memo-input": {
+      "primary": "[data-testid=\"send-memo-input\"]",
+      "source_testid": "send-memo-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-memo-textarea": {
+      "primary": "[data-testid=\"send-memo-textarea\"]",
+      "source_testid": "send-memo-textarea",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-network-selector": {
+      "primary": "[data-testid=\"send-network-selector\"]",
+      "source_testid": "send-network-selector",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-nft-max-button": {
+      "primary": "[data-testid=\"send-nft-max-button\"]",
+      "source_testid": "send-nft-max-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-note-textarea": {
+      "primary": "[data-testid=\"send-note-textarea\"]",
+      "source_testid": "send-note-textarea",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-paste-button": {
+      "primary": "[data-testid=\"send-paste-button\"]",
+      "source_testid": "send-paste-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-payment-id-textarea": {
+      "primary": "[data-testid=\"send-payment-id-textarea\"]",
+      "source_testid": "send-payment-id-textarea",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-recipient-input": {
+      "primary": "[data-testid=\"send-recipient-input\"]",
+      "source_testid": "send-recipient-input",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-recipient-quick-network-trigger": {
+      "primary": "[data-testid=\"send-recipient-quick-network-trigger\"]",
+      "source_testid": "send-recipient-quick-network-trigger",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-recipient-quick-wallet-toggle": {
+      "primary": "[data-testid=\"send-recipient-quick-wallet-toggle\"]",
+      "source_testid": "send-recipient-quick-wallet-toggle",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-render-fee-editor-form-input": {
+      "primary": "[data-testid=\"send-render-fee-editor-form-input\"]",
+      "source_testid": "send-render-fee-editor-form-input",
+      "source": "auto-classified",
+      "page": "sendfee",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-scan-qr-button": {
+      "primary": "[data-testid=\"send-scan-qr-button\"]",
+      "source_testid": "send-scan-qr-button",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-select": {
+      "primary": "[data-testid=\"send-select\"]",
+      "source_testid": "send-select",
+      "source": "auto-classified",
+      "page": "coincontrol",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-shortened-address-checkbox": {
+      "primary": "[data-testid=\"send-shortened-address-checkbox\"]",
+      "source_testid": "send-shortened-address-checkbox",
+      "source": "auto-classified",
+      "page": "coincontrol",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-token-selector": {
+      "primary": "[data-testid=\"send-token-selector\"]",
+      "source_testid": "send-token-selector",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.send-tx-btn": {
+      "primary": "[data-testid=\"send-tx-btn\"]",
+      "source_testid": "send-tx-btn",
+      "source": "auto-classified",
+      "page": "sendconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.sig-confirm-advanced-accordion": {
+      "primary": "[data-testid=\"sig-confirm-advanced-accordion\"]",
+      "source_testid": "sig-confirm-advanced-accordion",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-approve-allowance-input": {
+      "primary": "[data-testid=\"sig-confirm-approve-allowance-input\"]",
+      "source_testid": "sig-confirm-approve-allowance-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-approve-balance-btn": {
+      "primary": "[data-testid=\"sig-confirm-approve-balance-btn\"]",
+      "source_testid": "sig-confirm-approve-balance-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-approve-unlimited-switch": {
+      "primary": "[data-testid=\"sig-confirm-approve-unlimited-switch\"]",
+      "source_testid": "sig-confirm-approve-unlimited-switch",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-dapp-site-mark": {
+      "primary": "[data-testid=\"sig-confirm-dapp-site-mark\"]",
+      "source_testid": "sig-confirm-dapp-site-mark",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-data-viewer-copy": {
+      "primary": "[data-testid=\"sig-confirm-data-viewer-copy\"]",
+      "source_testid": "sig-confirm-data-viewer-copy",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-data-viewer-tab": {
+      "primary": "[data-testid=\"sig-confirm-data-viewer-tab\"]",
+      "source_testid": "sig-confirm-data-viewer-tab",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-compute-unit-price-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-compute-unit-price-input\"]",
+      "source_testid": "sig-confirm-fee-compute-unit-price-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-dot-extra-tip-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-dot-extra-tip-input\"]",
+      "source_testid": "sig-confirm-fee-dot-extra-tip-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-gas-eip1559-limit-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-gas-eip1559-limit-input\"]",
+      "source_testid": "sig-confirm-fee-gas-eip1559-limit-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-gas-limit-legacy-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-gas-limit-legacy-input\"]",
+      "source_testid": "sig-confirm-fee-gas-limit-legacy-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-gas-price-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-gas-price-input\"]",
+      "source_testid": "sig-confirm-fee-gas-price-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-gas-sui-budget-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-gas-sui-budget-input\"]",
+      "source_testid": "sig-confirm-fee-gas-sui-budget-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-gas-sui-price-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-gas-sui-price-input\"]",
+      "source_testid": "sig-confirm-fee-gas-sui-price-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-info": {
+      "primary": "[data-testid=\"sig-confirm-fee-info\"]",
+      "source_testid": "sig-confirm-fee-info",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-max-base-fee-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-max-base-fee-input\"]",
+      "source_testid": "sig-confirm-fee-max-base-fee-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-neo-n3-network-fee-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-neo-n3-network-fee-input\"]",
+      "source_testid": "sig-confirm-fee-neo-n3-network-fee-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-neo-n3-priority-fee-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-neo-n3-priority-fee-input\"]",
+      "source_testid": "sig-confirm-fee-neo-n3-priority-fee-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-neo-n3-system-fee-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-neo-n3-system-fee-input\"]",
+      "source_testid": "sig-confirm-fee-neo-n3-system-fee-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-priority-fee-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-priority-fee-input\"]",
+      "source_testid": "sig-confirm-fee-priority-fee-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-rate-ckb-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-rate-ckb-input\"]",
+      "source_testid": "sig-confirm-fee-rate-ckb-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-rate-utxo-input": {
+      "primary": "[data-testid=\"sig-confirm-fee-rate-utxo-input\"]",
+      "source_testid": "sig-confirm-fee-rate-utxo-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-selector-trigger": {
+      "primary": "[data-testid=\"sig-confirm-fee-selector-trigger\"]",
+      "source_testid": "sig-confirm-fee-selector-trigger",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-fee-sponsored-got-it-btn": {
+      "primary": "[data-testid=\"sig-confirm-fee-sponsored-got-it-btn\"]",
+      "source_testid": "sig-confirm-fee-sponsored-got-it-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-loading": {
+      "primary": "[data-testid=\"sig-confirm-loading\"]",
+      "source_testid": "sig-confirm-loading",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-actions": {
+      "primary": "[data-testid=\"sig-confirm-msg-actions\"]",
+      "source_testid": "sig-confirm-msg-actions",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-advanced": {
+      "primary": "[data-testid=\"sig-confirm-msg-advanced\"]",
+      "source_testid": "sig-confirm-msg-advanced",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-alert": {
+      "primary": "[data-testid=\"sig-confirm-msg-alert\"]",
+      "source_testid": "sig-confirm-msg-alert",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-body": {
+      "primary": "[data-testid=\"sig-confirm-msg-body\"]",
+      "source_testid": "sig-confirm-msg-body",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-dapp-loading": {
+      "primary": "[data-testid=\"sig-confirm-msg-dapp-loading\"]",
+      "source_testid": "sig-confirm-msg-dapp-loading",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-dapp-page": {
+      "primary": "[data-testid=\"sig-confirm-msg-dapp-page\"]",
+      "source_testid": "sig-confirm-msg-dapp-page",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-data-viewer": {
+      "primary": "[data-testid=\"sig-confirm-msg-data-viewer\"]",
+      "source_testid": "sig-confirm-msg-data-viewer",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-footer": {
+      "primary": "[data-testid=\"sig-confirm-msg-footer\"]",
+      "source_testid": "sig-confirm-msg-footer",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-page": {
+      "primary": "[data-testid=\"sig-confirm-msg-page\"]",
+      "source_testid": "sig-confirm-msg-page",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-referral-checkbox": {
+      "primary": "[data-testid=\"sig-confirm-msg-referral-checkbox\"]",
+      "source_testid": "sig-confirm-msg-referral-checkbox",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-msg-risk-checkbox": {
+      "primary": "[data-testid=\"sig-confirm-msg-risk-checkbox\"]",
+      "source_testid": "sig-confirm-msg-risk-checkbox",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-nonce-input": {
+      "primary": "[data-testid=\"sig-confirm-nonce-input\"]",
+      "source_testid": "sig-confirm-nonce-input",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-similar-address-cancel-btn": {
+      "primary": "[data-testid=\"sig-confirm-similar-address-cancel-btn\"]",
+      "source_testid": "sig-confirm-similar-address-cancel-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-similar-address-confirm-btn": {
+      "primary": "[data-testid=\"sig-confirm-similar-address-confirm-btn\"]",
+      "source_testid": "sig-confirm-similar-address-confirm-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-similar-address-dialog": {
+      "primary": "[data-testid=\"sig-confirm-similar-address-dialog\"]",
+      "source_testid": "sig-confirm-similar-address-dialog",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-similar-address-risk-checkbox": {
+      "primary": "[data-testid=\"sig-confirm-similar-address-risk-checkbox\"]",
+      "source_testid": "sig-confirm-similar-address-risk-checkbox",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-task-queue": {
+      "primary": "[data-testid=\"sig-confirm-task-queue\"]",
+      "source_testid": "sig-confirm-task-queue",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-task-queue-label": {
+      "primary": "[data-testid=\"sig-confirm-task-queue-label\"]",
+      "source_testid": "sig-confirm-task-queue-label",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-task-queue-next-btn": {
+      "primary": "[data-testid=\"sig-confirm-task-queue-next-btn\"]",
+      "source_testid": "sig-confirm-task-queue-next-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-task-queue-prev-btn": {
+      "primary": "[data-testid=\"sig-confirm-task-queue-prev-btn\"]",
+      "source_testid": "sig-confirm-task-queue-prev-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-tx-actions": {
+      "primary": "[data-testid=\"sig-confirm-tx-actions\"]",
+      "source_testid": "sig-confirm-tx-actions",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-tx-advanced": {
+      "primary": "[data-testid=\"sig-confirm-tx-advanced\"]",
+      "source_testid": "sig-confirm-tx-advanced",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-tx-alert": {
+      "primary": "[data-testid=\"sig-confirm-tx-alert\"]",
+      "source_testid": "sig-confirm-tx-alert",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-tx-details": {
+      "primary": "[data-testid=\"sig-confirm-tx-details\"]",
+      "source_testid": "sig-confirm-tx-details",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-tx-footer": {
+      "primary": "[data-testid=\"sig-confirm-tx-footer\"]",
+      "source_testid": "sig-confirm-tx-footer",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-tx-header-right": {
+      "primary": "[data-testid=\"sig-confirm-tx-header-right\"]",
+      "source_testid": "sig-confirm-tx-header-right",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-tx-page": {
+      "primary": "[data-testid=\"sig-confirm-tx-page\"]",
+      "source_testid": "sig-confirm-tx-page",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sig-confirm-tx-risk-checkbox": {
+      "primary": "[data-testid=\"sig-confirm-tx-risk-checkbox\"]",
+      "source_testid": "sig-confirm-tx-risk-checkbox",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-and-verify-message-btn": {
+      "primary": "[data-testid=\"sign-and-verify-message-btn\"]",
+      "source_testid": "sign-and-verify-message-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-and-verify-message-hex-format-btn": {
+      "primary": "[data-testid=\"sign-and-verify-message-hex-format-btn\"]",
+      "source_testid": "sign-and-verify-message-hex-format-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-confirm-btn": {
+      "primary": "[data-testid=\"sign-verify-confirm-btn\"]",
+      "source_testid": "sign-verify-confirm-btn",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-segment-control": {
+      "primary": "[data-testid=\"sign-verify-segment-control\"]",
+      "source_testid": "sign-verify-segment-control",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-sign-address-select": {
+      "primary": "[data-testid=\"sign-verify-sign-address-select\"]",
+      "source_testid": "sign-verify-sign-address-select",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-sign-copy-address-btn": {
+      "primary": "[data-testid=\"sign-verify-sign-copy-address-btn\"]",
+      "source_testid": "sign-verify-sign-copy-address-btn",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-sign-copy-all-btn": {
+      "primary": "[data-testid=\"sign-verify-sign-copy-all-btn\"]",
+      "source_testid": "sign-verify-sign-copy-all-btn",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-sign-copy-message-btn": {
+      "primary": "[data-testid=\"sign-verify-sign-copy-message-btn\"]",
+      "source_testid": "sign-verify-sign-copy-message-btn",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-sign-copy-signature-btn": {
+      "primary": "[data-testid=\"sign-verify-sign-copy-signature-btn\"]",
+      "source_testid": "sign-verify-sign-copy-signature-btn",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-sign-format-radio": {
+      "primary": "[data-testid=\"sign-verify-sign-format-radio\"]",
+      "source_testid": "sign-verify-sign-format-radio",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-sign-hex-format-switch": {
+      "primary": "[data-testid=\"sign-verify-sign-hex-format-switch\"]",
+      "source_testid": "sign-verify-sign-hex-format-switch",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-sign-message-input": {
+      "primary": "[data-testid=\"sign-verify-sign-message-input\"]",
+      "source_testid": "sign-verify-sign-message-input",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-sign-signature-output": {
+      "primary": "[data-testid=\"sign-verify-sign-signature-output\"]",
+      "source_testid": "sign-verify-sign-signature-output",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-verify-address-input": {
+      "primary": "[data-testid=\"sign-verify-verify-address-input\"]",
+      "source_testid": "sign-verify-verify-address-input",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-verify-format-radio": {
+      "primary": "[data-testid=\"sign-verify-verify-format-radio\"]",
+      "source_testid": "sign-verify-verify-format-radio",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-verify-hex-format-switch": {
+      "primary": "[data-testid=\"sign-verify-verify-hex-format-switch\"]",
+      "source_testid": "sign-verify-verify-hex-format-switch",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-verify-message-input": {
+      "primary": "[data-testid=\"sign-verify-verify-message-input\"]",
+      "source_testid": "sign-verify-verify-message-input",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.sign-verify-verify-signature-input": {
+      "primary": "[data-testid=\"sign-verify-verify-signature-input\"]",
+      "source_testid": "sign-verify-verify-signature-input",
+      "source": "auto-classified",
+      "page": "signandverifymessage",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.signature-confirm-btn": {
+      "primary": "[data-testid=\"signature-confirm-btn\"]",
+      "source_testid": "signature-confirm-btn",
+      "source": "auto-classified",
+      "page": "customhexdataalert",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.signature-confirm-checkbox": {
+      "primary": "[data-testid=\"signature-confirm-checkbox\"]",
+      "source_testid": "signature-confirm-checkbox",
+      "source": "auto-classified",
+      "page": "customhexdataalert",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.signature-confirm-formatted-value-btn": {
+      "primary": "[data-testid=\"signature-confirm-formatted-value-btn\"]",
+      "source_testid": "signature-confirm-formatted-value-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirmadvanced",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.signature-confirm-icon-btn": {
+      "primary": "[data-testid=\"signature-confirm-icon-btn\"]",
+      "source_testid": "signature-confirm-icon-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirmcomponents",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.signature-confirm-ratio-btn": {
+      "primary": "[data-testid=\"signature-confirm-ratio-btn\"]",
+      "source_testid": "signature-confirm-ratio-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirmheader",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.signature-confirm-render-fee-editor-form-input": {
+      "primary": "[data-testid=\"signature-confirm-render-fee-editor-form-input\"]",
+      "source_testid": "signature-confirm-render-fee-editor-form-input",
+      "source": "auto-classified",
+      "page": "txfee",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.signature-confirm-resource-rental-help-link-btn": {
+      "primary": "[data-testid=\"signature-confirm-resource-rental-help-link-btn\"]",
+      "source_testid": "signature-confirm-resource-rental-help-link-btn",
+      "source": "auto-classified",
+      "page": "signatureconfirmextrainfo",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.signature-confirm-switch": {
+      "primary": "[data-testid=\"signature-confirm-switch\"]",
+      "source_testid": "signature-confirm-switch",
+      "source": "auto-classified",
+      "page": "signatureconfirmextrainfo",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.staking-info": {
+      "primary": "[data-testid=\"staking-info\"]",
+      "source_testid": "staking-info",
+      "source": "auto-classified",
+      "page": "stakinginfo",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.swap-info": {
+      "primary": "[data-testid=\"swap-info\"]",
+      "source_testid": "swap-info",
+      "source": "auto-classified",
+      "page": "swapinfo",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.swap-tx-action": {
+      "primary": "[data-testid=\"swap-tx-action\"]",
+      "source_testid": "swap-tx-action",
+      "source": "auto-classified",
+      "page": "txaction",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.transfer-tx-action": {
+      "primary": "[data-testid=\"transfer-tx-action\"]",
+      "source_testid": "transfer-tx-action",
+      "source": "auto-classified",
+      "page": "txaction",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.transfer-tx-amount": {
+      "primary": "[data-testid=\"transfer-tx-amount\"]",
+      "source_testid": "transfer-tx-amount",
+      "source": "auto-classified",
+      "page": "txaction",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-action-btn": {
+      "primary": "[data-testid=\"tx-action-btn\"]",
+      "source_testid": "tx-action-btn",
+      "source": "auto-classified",
+      "page": "txaction",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-action-common-list-view": {
+      "primary": "[data-testid=\"tx-action-common-list-view\"]",
+      "source_testid": "tx-action-common-list-view",
+      "source": "auto-classified",
+      "page": "txaction",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-confirmation-body": {
+      "primary": "[data-testid=\"tx-confirmation-body\"]",
+      "source_testid": "tx-confirmation-body",
+      "source": "auto-classified",
+      "page": "send",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "send"
+      ]
+    },
+    "wallet.tx-history-explorer-btn": {
+      "primary": "[data-testid=\"tx-history-explorer-btn\"]",
+      "source_testid": "tx-history-explorer-btn",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-history-list-view-btn": {
+      "primary": "[data-testid=\"tx-history-list-view-btn\"]",
+      "source_testid": "tx-history-list-view-btn",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-history-list-view-render-cancel-actions-btn": {
+      "primary": "[data-testid=\"tx-history-list-view-render-cancel-actions-btn\"]",
+      "source_testid": "tx-history-list-view-render-cancel-actions-btn",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-history-list-view-render-check-speed-up-state-btn": {
+      "primary": "[data-testid=\"tx-history-list-view-render-check-speed-up-state-btn\"]",
+      "source_testid": "tx-history-list-view-render-check-speed-up-state-btn",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-history-list-view-render-speed-up-cancel-action-btn": {
+      "primary": "[data-testid=\"tx-history-list-view-render-speed-up-cancel-action-btn\"]",
+      "source_testid": "tx-history-list-view-render-speed-up-cancel-action-btn",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-history-low-value-filter-switch": {
+      "primary": "[data-testid=\"tx-history-low-value-filter-switch\"]",
+      "source_testid": "tx-history-low-value-filter-switch",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-history-scam-filter-switch": {
+      "primary": "[data-testid=\"tx-history-scam-filter-switch\"]",
+      "source_testid": "tx-history-scam-filter-switch",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-history-settings-btn": {
+      "primary": "[data-testid=\"tx-history-settings-btn\"]",
+      "source_testid": "tx-history-settings-btn",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.tx-history-speed-up-btn": {
+      "primary": "[data-testid=\"tx-history-speed-up-btn\"]",
+      "source_testid": "tx-history-speed-up-btn",
+      "source": "auto-classified",
+      "page": "txhistorylistview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.verify-tx-fee-checkbox": {
+      "primary": "[data-testid=\"verify-tx-fee-checkbox\"]",
+      "source_testid": "verify-tx-fee-checkbox",
+      "source": "auto-classified",
+      "page": "signatureconfirm",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.wallet_backup_backup_warning": {
+      "primary": "[data-testid=\"wallet_backup_backup_warning\"]",
+      "source_testid": "wallet_backup_backup_warning",
+      "source": "auto-classified",
+      "page": "walletbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.wallet-address-derive-type-item": {
+      "primary": "[data-testid=\"wallet-address-derive-type-item\"]",
+      "source_testid": "wallet-address-derive-type-item",
+      "source": "auto-classified",
+      "page": "walletaddress",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.wallet-address-enable-more-btn": {
+      "primary": "[data-testid=\"wallet-address-enable-more-btn\"]",
+      "source_testid": "wallet-address-enable-more-btn",
+      "source": "auto-classified",
+      "page": "walletaddress",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.wallet-address-search-bar": {
+      "primary": "[data-testid=\"wallet-address-search-bar\"]",
+      "source_testid": "wallet-address-search-bar",
+      "source": "auto-classified",
+      "page": "walletaddress",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.wallet-address-settings-popover-btn": {
+      "primary": "[data-testid=\"wallet-address-settings-popover-btn\"]",
+      "source_testid": "wallet-address-settings-popover-btn",
+      "source": "auto-classified",
+      "page": "walletaddress",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.wallet-address-show-enabled-only-switch": {
+      "primary": "[data-testid=\"wallet-address-show-enabled-only-switch\"]",
+      "source_testid": "wallet-address-show-enabled-only-switch",
+      "source": "auto-classified",
+      "page": "walletaddress",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.wallet-backup-btn": {
+      "primary": "[data-testid=\"wallet-backup-btn\"]",
+      "source_testid": "wallet-backup-btn",
+      "source": "auto-classified",
+      "page": "walletbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.wallet-backup-dialog-btn": {
+      "primary": "[data-testid=\"wallet-backup-dialog-btn\"]",
+      "source_testid": "wallet-backup-dialog-btn",
+      "source": "auto-classified",
+      "page": "walletbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    },
+    "wallet.wallet-bound-referral-code-button": {
+      "primary": "[data-testid=\"wallet-bound-referral-code-button\"]",
+      "source_testid": "wallet-bound-referral-code-button",
+      "source": "auto-classified",
+      "page": "accountmanagerstacks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "wallet"
+      ]
+    }
+  }
+}

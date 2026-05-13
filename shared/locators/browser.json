@@ -1,0 +1,1857 @@
+{
+  "module": "browser",
+  "description": "Locators for browser module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "browser.bar.add": {
+      "primary": "[data-testid=\"browser-bar-add\"]",
+      "source_testid": "browser-bar-add",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.back": {
+      "primary": "[data-testid=\"browser-bar-go-back\"]",
+      "source_testid": "browser-bar-go-back",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.forward": {
+      "primary": "[data-testid=\"browser-bar-go-forward\"]",
+      "source_testid": "browser-bar-go-forward",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.home": {
+      "primary": "[data-testid=\"browser-bar-home\"]",
+      "source_testid": "browser-bar-home",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.options": {
+      "primary": "[data-testid=\"browser-bar-options\"]",
+      "source_testid": "browser-bar-options",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.refresh": {
+      "primary": "[data-testid=\"browser-bar-refresh\"]",
+      "source_testid": "browser-bar-refresh",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.tabs": {
+      "primary": "[data-testid=\"browser-bar-tabs\"]",
+      "source_testid": "browser-bar-tabs",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "ios",
+        "android",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.bar.translate": {
+      "primary": "[data-testid=\"browser-bar-translate\"]",
+      "source_testid": "browser-bar-translate",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "ios",
+        "android",
+        "mobile"
+      ],
+      "feature": [
+        "browser",
+        "discovery",
+        "translation"
+      ]
+    },
+    "browser.find.close_button": {
+      "primary": "[data-testid=\"browser-find-close-button\"]",
+      "source_testid": "browser-find-close-button",
+      "source": "app-monorepo",
+      "page": "browser-find",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.find.next_button": {
+      "primary": "[data-testid=\"browser-find-next-button\"]",
+      "source_testid": "browser-find-next-button",
+      "source": "app-monorepo",
+      "page": "browser-find",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.find.prev_button": {
+      "primary": "[data-testid=\"browser-find-prev-button\"]",
+      "source_testid": "browser-find-prev-button",
+      "source": "app-monorepo",
+      "page": "browser-find",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.header.tabs": {
+      "primary": "[data-testid=\"browser-header-tabs\"]",
+      "source_testid": "browser-header-tabs",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.history.button": {
+      "primary": "[data-testid=\"browser-history-button\"]",
+      "source_testid": "browser-history-button",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.search.input": {
+      "primary": "[data-testid=\"search-input\"]",
+      "source_testid": "search-input",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.shortcuts.button": {
+      "primary": "[data-testid=\"browser-shortcuts-button\"]",
+      "source_testid": "browser-shortcuts-button",
+      "source": "app-monorepo",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.sidebar.section": {
+      "primary": "[data-testid=\"sidebar-browser-section\"]",
+      "source_testid": "sidebar-browser-section",
+      "source": "app-monorepo",
+      "page": "browser-sidebar",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.tabs.close_all": {
+      "primary": "[data-testid=\"tab-list-modal-close-all\"]",
+      "source_testid": "tab-list-modal-close-all",
+      "source": "app-monorepo",
+      "page": "browser-tabs-modal",
+      "platform": [
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.tabs.done": {
+      "primary": "[data-testid=\"tab-list-modal-done\"]",
+      "source_testid": "tab-list-modal-done",
+      "source": "app-monorepo",
+      "page": "browser-tabs-modal",
+      "platform": [
+        "mobile"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.action-list-item-rename": {
+      "primary": "[data-testid=\"action-list-item-rename\"]",
+      "source_testid": "action-list-item-rename",
+      "source": "auto-classified",
+      "page": "bookmarklistmodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.browser-sidebar-more": {
+      "primary": "[data-testid=\"browser-sidebar-more\"]",
+      "source_testid": "browser-sidebar-more",
+      "source": "auto-classified",
+      "page": "desktopcustomtabbar",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.d-app-connection-checkbox": {
+      "primary": "[data-testid=\"d-app-connection-checkbox\"]",
+      "source_testid": "d-app-connection-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.d-app-connection-icon-btn": {
+      "primary": "[data-testid=\"d-app-connection-icon-btn\"]",
+      "source_testid": "d-app-connection-icon-btn",
+      "source": "auto-classified",
+      "page": "dappconnectextensionfloatingtrigger",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.d-app-connection-render-encrypt-sign-event-plaintext-textarea": {
+      "primary": "[data-testid=\"d-app-connection-render-encrypt-sign-event-plaintext-textarea\"]",
+      "source_testid": "d-app-connection-render-encrypt-sign-event-plaintext-textarea",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.d-app-connection-render-event-details-btn": {
+      "primary": "[data-testid=\"d-app-connection-render-event-details-btn\"]",
+      "source_testid": "d-app-connection-render-event-details-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.d-app-connection-render-event-details-textarea": {
+      "primary": "[data-testid=\"d-app-connection-render-event-details-textarea\"]",
+      "source_testid": "d-app-connection-render-event-details-textarea",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.d-app-connection-switch": {
+      "primary": "[data-testid=\"d-app-connection-switch\"]",
+      "source_testid": "d-app-connection-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.d-app-connection-textarea": {
+      "primary": "[data-testid=\"d-app-connection-textarea\"]",
+      "source_testid": "d-app-connection-textarea",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-account-list-item": {
+      "primary": "[data-testid=\"dapp-connection-account-list-item\"]",
+      "source_testid": "dapp-connection-account-list-item",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-account-selector": {
+      "primary": "[data-testid=\"dapp-connection-account-selector\"]",
+      "source_testid": "dapp-connection-account-selector",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-account-selector-trigger": {
+      "primary": "[data-testid=\"dapp-connection-account-selector-trigger\"]",
+      "source_testid": "dapp-connection-account-selector-trigger",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-approve-btn": {
+      "primary": "[data-testid=\"dapp-connection-approve-btn\"]",
+      "source_testid": "dapp-connection-approve-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-continue-operate-checkbox": {
+      "primary": "[data-testid=\"dapp-connection-continue-operate-checkbox\"]",
+      "source_testid": "dapp-connection-continue-operate-checkbox",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-cosmos-confirm-btn": {
+      "primary": "[data-testid=\"dapp-connection-cosmos-confirm-btn\"]",
+      "source_testid": "dapp-connection-cosmos-confirm-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-cosmos-enigma-modal": {
+      "primary": "[data-testid=\"dapp-connection-cosmos-enigma-modal\"]",
+      "source_testid": "dapp-connection-cosmos-enigma-modal",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-cosmos-reject-btn": {
+      "primary": "[data-testid=\"dapp-connection-cosmos-reject-btn\"]",
+      "source_testid": "dapp-connection-cosmos-reject-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-current-align-account-btn": {
+      "primary": "[data-testid=\"dapp-connection-current-align-account-btn\"]",
+      "source_testid": "dapp-connection-current-align-account-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-current-dapp-info": {
+      "primary": "[data-testid=\"dapp-connection-current-dapp-info\"]",
+      "source_testid": "dapp-connection-current-dapp-info",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-current-default-wallet-btn": {
+      "primary": "[data-testid=\"dapp-connection-current-default-wallet-btn\"]",
+      "source_testid": "dapp-connection-current-default-wallet-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-current-disconnect-btn": {
+      "primary": "[data-testid=\"dapp-connection-current-disconnect-btn\"]",
+      "source_testid": "dapp-connection-current-disconnect-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-current-manage-btn": {
+      "primary": "[data-testid=\"dapp-connection-current-manage-btn\"]",
+      "source_testid": "dapp-connection-current-manage-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-current-modal": {
+      "primary": "[data-testid=\"dapp-connection-current-modal\"]",
+      "source_testid": "dapp-connection-current-modal",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-dapp-list": {
+      "primary": "[data-testid=\"dapp-connection-dapp-list\"]",
+      "source_testid": "dapp-connection-dapp-list",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-default-wallet-modal": {
+      "primary": "[data-testid=\"dapp-connection-default-wallet-modal\"]",
+      "source_testid": "dapp-connection-default-wallet-modal",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-default-wallet-toggle": {
+      "primary": "[data-testid=\"dapp-connection-default-wallet-toggle\"]",
+      "source_testid": "dapp-connection-default-wallet-toggle",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-derive-context-hash-context-textarea": {
+      "primary": "[data-testid=\"dapp-connection-derive-context-hash-context-textarea\"]",
+      "source_testid": "dapp-connection-derive-context-hash-context-textarea",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-ext-floating-disconnect-btn": {
+      "primary": "[data-testid=\"dapp-connection-ext-floating-disconnect-btn\"]",
+      "source_testid": "dapp-connection-ext-floating-disconnect-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-ext-floating-switch-cancel-btn": {
+      "primary": "[data-testid=\"dapp-connection-ext-floating-switch-cancel-btn\"]",
+      "source_testid": "dapp-connection-ext-floating-switch-cancel-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-ext-floating-switch-confirm-btn": {
+      "primary": "[data-testid=\"dapp-connection-ext-floating-switch-confirm-btn\"]",
+      "source_testid": "dapp-connection-ext-floating-switch-confirm-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-ext-floating-trigger": {
+      "primary": "[data-testid=\"dapp-connection-ext-floating-trigger\"]",
+      "source_testid": "dapp-connection-ext-floating-trigger",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-list": {
+      "primary": "[data-testid=\"dapp-connection-list\"]",
+      "source_testid": "dapp-connection-list",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-list-disconnect-btn": {
+      "primary": "[data-testid=\"dapp-connection-list-disconnect-btn\"]",
+      "source_testid": "dapp-connection-list-disconnect-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-list-item": {
+      "primary": "[data-testid=\"dapp-connection-list-item\"]",
+      "source_testid": "dapp-connection-list-item",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-list-remove-all-btn": {
+      "primary": "[data-testid=\"dapp-connection-list-remove-all-btn\"]",
+      "source_testid": "dapp-connection-list-remove-all-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-modal": {
+      "primary": "[data-testid=\"dapp-connection-modal\"]",
+      "source_testid": "dapp-connection-modal",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-network-selector": {
+      "primary": "[data-testid=\"dapp-connection-network-selector\"]",
+      "source_testid": "dapp-connection-network-selector",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-nostr-auto-sign-checkbox": {
+      "primary": "[data-testid=\"dapp-connection-nostr-auto-sign-checkbox\"]",
+      "source_testid": "dapp-connection-nostr-auto-sign-checkbox",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-nostr-confirm-btn": {
+      "primary": "[data-testid=\"dapp-connection-nostr-confirm-btn\"]",
+      "source_testid": "dapp-connection-nostr-confirm-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-nostr-reject-btn": {
+      "primary": "[data-testid=\"dapp-connection-nostr-reject-btn\"]",
+      "source_testid": "dapp-connection-nostr-reject-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-nostr-sign-content": {
+      "primary": "[data-testid=\"dapp-connection-nostr-sign-content\"]",
+      "source_testid": "dapp-connection-nostr-sign-content",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-nostr-sign-modal": {
+      "primary": "[data-testid=\"dapp-connection-nostr-sign-modal\"]",
+      "source_testid": "dapp-connection-nostr-sign-modal",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-nostr-view-details-btn": {
+      "primary": "[data-testid=\"dapp-connection-nostr-view-details-btn\"]",
+      "source_testid": "dapp-connection-nostr-view-details-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-permissions": {
+      "primary": "[data-testid=\"dapp-connection-permissions\"]",
+      "source_testid": "dapp-connection-permissions",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-reject-btn": {
+      "primary": "[data-testid=\"dapp-connection-reject-btn\"]",
+      "source_testid": "dapp-connection-reject-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-request-layout": {
+      "primary": "[data-testid=\"dapp-connection-request-layout\"]",
+      "source_testid": "dapp-connection-request-layout",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-request-subtitle": {
+      "primary": "[data-testid=\"dapp-connection-request-subtitle\"]",
+      "source_testid": "dapp-connection-request-subtitle",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-request-title": {
+      "primary": "[data-testid=\"dapp-connection-request-title\"]",
+      "source_testid": "dapp-connection-request-title",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-risk-whitelist-confirm-btn": {
+      "primary": "[data-testid=\"dapp-connection-risk-whitelist-confirm-btn\"]",
+      "source_testid": "dapp-connection-risk-whitelist-confirm-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-risk-whitelist-modal": {
+      "primary": "[data-testid=\"dapp-connection-risk-whitelist-modal\"]",
+      "source_testid": "dapp-connection-risk-whitelist-modal",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-risk-whitelist-reject-btn": {
+      "primary": "[data-testid=\"dapp-connection-risk-whitelist-reject-btn\"]",
+      "source_testid": "dapp-connection-risk-whitelist-reject-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-risky-alert": {
+      "primary": "[data-testid=\"dapp-connection-risky-alert\"]",
+      "source_testid": "dapp-connection-risky-alert",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-sign-confirm-btn": {
+      "primary": "[data-testid=\"dapp-connection-sign-confirm-btn\"]",
+      "source_testid": "dapp-connection-sign-confirm-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-sign-message-content": {
+      "primary": "[data-testid=\"dapp-connection-sign-message-content\"]",
+      "source_testid": "dapp-connection-sign-message-content",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-sign-message-modal": {
+      "primary": "[data-testid=\"dapp-connection-sign-message-modal\"]",
+      "source_testid": "dapp-connection-sign-message-modal",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-sign-reject-btn": {
+      "primary": "[data-testid=\"dapp-connection-sign-reject-btn\"]",
+      "source_testid": "dapp-connection-sign-reject-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-sign-toggle-raw-btn": {
+      "primary": "[data-testid=\"dapp-connection-sign-toggle-raw-btn\"]",
+      "source_testid": "dapp-connection-sign-toggle-raw-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-site-mark": {
+      "primary": "[data-testid=\"dapp-connection-site-mark\"]",
+      "source_testid": "dapp-connection-site-mark",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-wc-approve-btn": {
+      "primary": "[data-testid=\"dapp-connection-wc-approve-btn\"]",
+      "source_testid": "dapp-connection-wc-approve-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-wc-proposal-modal": {
+      "primary": "[data-testid=\"dapp-connection-wc-proposal-modal\"]",
+      "source_testid": "dapp-connection-wc-proposal-modal",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.dapp-connection-wc-reject-btn": {
+      "primary": "[data-testid=\"dapp-connection-wc-reject-btn\"]",
+      "source_testid": "dapp-connection-wc-reject-btn",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.DAppAccountListStandAloneItem": {
+      "primary": "[data-testid=\"DAppAccountListStandAloneItem\"]",
+      "source_testid": "DAppAccountListStandAloneItem",
+      "source": "auto-classified",
+      "page": "dappconnection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.discovery-banner-carousel": {
+      "primary": "[data-testid=\"discovery-banner-carousel\"]",
+      "source_testid": "discovery-banner-carousel",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-bookmarks-section": {
+      "primary": "[data-testid=\"discovery-bookmarks-section\"]",
+      "source_testid": "discovery-bookmarks-section",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-browser-share": {
+      "primary": "[data-testid=\"discovery-browser-share\"]",
+      "source_testid": "discovery-browser-share",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-btn": {
+      "primary": "[data-testid=\"discovery-btn\"]",
+      "source_testid": "discovery-btn",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-dashboard-page": {
+      "primary": "[data-testid=\"discovery-dashboard-page\"]",
+      "source_testid": "discovery-dashboard-page",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-default-color-btn": {
+      "primary": "[data-testid=\"discovery-default-color-btn\"]",
+      "source_testid": "discovery-default-color-btn",
+      "source": "auto-classified",
+      "page": "dashboard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-handle-action-btn": {
+      "primary": "[data-testid=\"discovery-handle-action-btn\"]",
+      "source_testid": "discovery-handle-action-btn",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-handle-rename-tab-input": {
+      "primary": "[data-testid=\"discovery-handle-rename-tab-input\"]",
+      "source_testid": "discovery-handle-rename-tab-input",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-header-right-btn": {
+      "primary": "[data-testid=\"discovery-header-right-btn\"]",
+      "source_testid": "discovery-header-right-btn",
+      "source": "auto-classified",
+      "page": "bookmarklistmodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-history-list-page": {
+      "primary": "[data-testid=\"discovery-history-list-page\"]",
+      "source_testid": "discovery-history-list-page",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-icon-btn": {
+      "primary": "[data-testid=\"discovery-icon-btn\"]",
+      "source_testid": "discovery-icon-btn",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-input": {
+      "primary": "[data-testid=\"discovery-input\"]",
+      "source_testid": "discovery-input",
+      "source": "auto-classified",
+      "page": "browser",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-intl-btn": {
+      "primary": "[data-testid=\"discovery-intl-btn\"]",
+      "source_testid": "discovery-intl-btn",
+      "source": "auto-classified",
+      "page": "searchmodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-localhost-dev-setting-hint": {
+      "primary": "[data-testid=\"discovery-localhost-dev-setting-hint\"]",
+      "source_testid": "discovery-localhost-dev-setting-hint",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-open-chain-selector-select": {
+      "primary": "[data-testid=\"discovery-open-chain-selector-select\"]",
+      "source_testid": "discovery-open-chain-selector-select",
+      "source": "auto-classified",
+      "page": "dashboard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-page-translation-retry-btn": {
+      "primary": "[data-testid=\"discovery-page-translation-retry-btn\"]",
+      "source_testid": "discovery-page-translation-retry-btn",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-page-translation-switch-engine-btn": {
+      "primary": "[data-testid=\"discovery-page-translation-switch-engine-btn\"]",
+      "source_testid": "discovery-page-translation-switch-engine-btn",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-search-input": {
+      "primary": "[data-testid=\"discovery-search-input\"]",
+      "source_testid": "discovery-search-input",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-search-modal": {
+      "primary": "[data-testid=\"discovery-search-modal\"]",
+      "source_testid": "discovery-search-modal",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-section-button-btn": {
+      "primary": "[data-testid=\"discovery-section-button-btn\"]",
+      "source_testid": "discovery-section-button-btn",
+      "source": "auto-classified",
+      "page": "dashboard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-select": {
+      "primary": "[data-testid=\"discovery-select\"]",
+      "source_testid": "discovery-select",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-tab-action-bookmark": {
+      "primary": "[data-testid=\"discovery-tab-action-bookmark\"]",
+      "source_testid": "discovery-tab-action-bookmark",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-tab-action-close": {
+      "primary": "[data-testid=\"discovery-tab-action-close\"]",
+      "source_testid": "discovery-tab-action-close",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.discovery-trending-section": {
+      "primary": "[data-testid=\"discovery-trending-section\"]",
+      "source_testid": "discovery-trending-section",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.multi-avatar": {
+      "primary": "[data-testid=\"multi-avatar\"]",
+      "source_testid": "multi-avatar",
+      "source": "auto-classified",
+      "page": "headerrighttoolbar",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.pin-tab-divider": {
+      "primary": "[data-testid=\"pin-tab-divider\"]",
+      "source_testid": "pin-tab-divider",
+      "source": "auto-classified",
+      "page": "desktopcustomtabbar",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.suggested-category-info-button": {
+      "primary": "[data-testid=\"suggested-category-info-button\"]",
+      "source_testid": "suggested-category-info-button",
+      "source": "auto-classified",
+      "page": "dashboard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.tab-container": {
+      "primary": "[data-testid=\"tab-container\"]",
+      "source_testid": "tab-container",
+      "source": "auto-classified",
+      "page": "mobiletablistmodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.tab-pined-container": {
+      "primary": "[data-testid=\"tab-pined-container\"]",
+      "source_testid": "tab-pined-container",
+      "source": "auto-classified",
+      "page": "mobiletablistmodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.un-pin": {
+      "primary": "[data-testid=\"un-pin\"]",
+      "source_testid": "un-pin",
+      "source": "auto-classified",
+      "page": "discovery",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "browser.web-view-open-btn": {
+      "primary": "[data-testid=\"web-view-open-btn\"]",
+      "source_testid": "web-view-open-btn",
+      "source": "auto-classified",
+      "page": "webview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.webview-copy-url-btn": {
+      "primary": "[data-testid=\"webview-copy-url-btn\"]",
+      "source_testid": "webview-copy-url-btn",
+      "source": "auto-classified",
+      "page": "webview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.webview-dev-tools": {
+      "primary": "[data-testid=\"webview-dev-tools\"]",
+      "source_testid": "webview-dev-tools",
+      "source": "auto-classified",
+      "page": "webview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.webview-open-in-browser-btn": {
+      "primary": "[data-testid=\"webview-open-in-browser-btn\"]",
+      "source_testid": "webview-open-in-browser-btn",
+      "source": "auto-classified",
+      "page": "webview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.webview-options-menu-btn": {
+      "primary": "[data-testid=\"webview-options-menu-btn\"]",
+      "source_testid": "webview-options-menu-btn",
+      "source": "auto-classified",
+      "page": "webview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.webview-overlay-inset": {
+      "primary": "[data-testid=\"webview-overlay-inset\"]",
+      "source_testid": "webview-overlay-inset",
+      "source": "auto-classified",
+      "page": "webview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.webview-overlay-outer": {
+      "primary": "[data-testid=\"webview-overlay-outer\"]",
+      "source_testid": "webview-overlay-outer",
+      "source": "auto-classified",
+      "page": "webview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.webview-refresh-btn": {
+      "primary": "[data-testid=\"webview-refresh-btn\"]",
+      "source_testid": "webview-refresh-btn",
+      "source": "auto-classified",
+      "page": "webview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    },
+    "browser.webview-share-btn": {
+      "primary": "[data-testid=\"webview-share-btn\"]",
+      "source_testid": "webview-share-btn",
+      "source": "auto-classified",
+      "page": "webview",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "browser"
+      ]
+    }
+  }
+}

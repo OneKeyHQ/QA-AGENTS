@@ -19,6 +19,12 @@ const SKIP_DIRS = new Set([
 
 const CODE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
 const TEST_ID_PATTERN = /\b(testID|data-testid)\s*=\s*(["'`])([^"'`]+)\2/g;
+// PR #10966 introduced testID registry files (named testIDs.ts) where IDs live
+// as string values inside an exported object: `key: 'some-test-id'`. The
+// JSX inline pattern above misses these because the consuming site reads from
+// the variable, not a literal. Match `: 'kebab-or-camel-id'` in those files.
+const REGISTRY_FILE = /(^|[\\/])testIDs?\.ts$/i;
+const REGISTRY_VALUE_PATTERN = /:\s*(["'`])([A-Za-z][A-Za-z0-9_.-]+)\1/g;
 
 function resolveAppMonorepoPath() {
   const candidates = [
@@ -224,6 +230,28 @@ function main() {
       current.files.add(relPath);
       for (const hint of featureHints) current.featureHints.add(hint);
       entries.set(id, current);
+    }
+
+    // Registry files: every `: 'value'` string inside the object literal
+    // is a testID definition. We only run this on files named testIDs.ts to
+    // avoid sweeping every codebase string.
+    if (REGISTRY_FILE.test(relPath)) {
+      for (const match of content.matchAll(REGISTRY_VALUE_PATTERN)) {
+        const id = match[2].trim();
+        if (!id || id.length > 80) continue;
+        const current = entries.get(id) || {
+          id,
+          occurrences: 0,
+          attributes: new Set(),
+          files: new Set(),
+          featureHints: new Set(),
+        };
+        current.occurrences += 1;
+        current.attributes.add('testID-registry');
+        current.files.add(relPath);
+        for (const hint of featureHints) current.featureHints.add(hint);
+        entries.set(id, current);
+      }
     }
   }
 

@@ -1,0 +1,34 @@
+{
+  "module": "discover",
+  "description": "Locators for discover module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "discover.search.input": {
+      "primary": "[data-testid=\"explore-index-search-input\"]",
+      "source_testid": "explore-index-search-input",
+      "source": "app-monorepo",
+      "page": "discover",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    },
+    "discover.search.trigger": {
+      "primary": "[data-testid=\"explore-index-search\"]",
+      "source_testid": "explore-index-search",
+      "source": "app-monorepo",
+      "page": "discover",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "discovery"
+      ]
+    }
+  }
+}

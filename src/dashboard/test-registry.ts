@@ -32,6 +32,8 @@ const ZH_LABELS: Record<string, string> = {
   transfer: '转账',
   utility: '通用',
   wallet: '钱包',
+  onboarding: 'Onboarding',
+  'address-book': '通讯录',
 
   // Feature groups (file slug)
   'chart': '图表',
@@ -112,7 +114,7 @@ export async function getTestRegistry(): Promise<TestGroup[]> {
 
       const rel = relative(TESTS_DIR, file);
       const parts = rel.replace(/\.test\.mjs$/, '').split('/');
-      const knownPlatforms = ['desktop', 'web', 'extension'];
+      const knownPlatforms = ['desktop', 'web', 'extension', 'mobile'];
       const platform = knownPlatforms.includes(parts[0]) ? parts[0] : 'desktop';
 
       // Normalize path: "{platform}/{module}/{feature}"

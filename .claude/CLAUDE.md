@@ -222,6 +222,14 @@ if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 ## Conventions
 - **新建 `.test.mjs` 必须导出 `displayName`**（中文名）。Dashboard 侧栏和 Checklist 编辑器会优先用它显示分组名；不写则回退到 `ZH_LABELS` 中央映射，再回退到英文 titleized 并打 console 警告。新增用例时直接在文件顶部写 `export const displayName = '中文名';`，不要回去改中央映射表。
 - Test case IDs: `<FEATURE>-<NNN>` (e.g., COSMOS-001)
+- **移动端 ID 前缀规范**（强制）：
+  | 前缀 | 含义 | 用例文件位置 |
+  |------|------|----------|
+  | `MOBILE-<MODULE>-<NNN>` | 两端共用的通用流程 | `src/tests/mobile/<module>/*.test.mjs` |
+  | `ANDROID-<MODULE>-<NNN>` | 仅 Android 特有（指纹、back 键、系统弹窗等） | `src/tests/mobile/android/<module>/*.test.mjs` |
+  | `IOS-<MODULE>-<NNN>` | 仅 iOS 特有（Face ID、Allow Notification 弹窗等） | `src/tests/mobile/ios/<module>/*.test.mjs` |
+
+  默认走 `MOBILE-*`——除非真的存在平台差异（非共享 testID、非共享业务流），否则不要拆。在 `_appium.mjs` 里通过 `MOBILE_TARGET_PLATFORM` 环境变量决定当前会话跑 Android 还是 iOS，同一份 `MOBILE-*` 用例代码两端复用。
 - Result files: `shared/results/<id>.json`
 - Selector strategy (current execution path): ui-map primary → fallbacks → JS evaluate emergency
 - Selector reference order for new test generation / maintenance: `shared/ui-semantic-map.json` → `shared/generated/app-monorepo-testid-index.json` → `shared/ui-map.json` → runtime exploration

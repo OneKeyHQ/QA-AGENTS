@@ -1,0 +1,815 @@
+{
+  "module": "referral",
+  "description": "Locators for referral module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "referral.all-bound": {
+      "primary": "[data-testid=\"all-bound\"]",
+      "source_testid": "all-bound",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.all-unavailable": {
+      "primary": "[data-testid=\"all-unavailable\"]",
+      "source_testid": "all-unavailable",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.app-get-render-content-icon-btn": {
+      "primary": "[data-testid=\"app-get-render-content-icon-btn\"]",
+      "source_testid": "app-get-render-content-icon-btn",
+      "source": "auto-classified",
+      "page": "hooks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.app-icon-btn": {
+      "primary": "[data-testid=\"app-icon-btn\"]",
+      "source_testid": "app-icon-btn",
+      "source": "auto-classified",
+      "page": "hooks",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.confirm-button": {
+      "primary": "[data-testid=\"confirm-button\"]",
+      "source_testid": "confirm-button",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.no-wallet": {
+      "primary": "[data-testid=\"no-wallet\"]",
+      "source_testid": "no-wallet",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-accept-btn": {
+      "primary": "[data-testid=\"refer-friends-accept-btn\"]",
+      "source_testid": "refer-friends-accept-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-add-note-btn": {
+      "primary": "[data-testid=\"refer-friends-add-note-btn\"]",
+      "source_testid": "refer-friends-add-note-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-all-wallets-unavailable-create-wallet-btn": {
+      "primary": "[data-testid=\"refer-friends-all-wallets-unavailable-create-wallet-btn\"]",
+      "source_testid": "refer-friends-all-wallets-unavailable-create-wallet-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-apply-code-btn": {
+      "primary": "[data-testid=\"refer-friends-apply-code-btn\"]",
+      "source_testid": "refer-friends-apply-code-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-bn-icon-btn": {
+      "primary": "[data-testid=\"refer-friends-bn-icon-btn\"]",
+      "source_testid": "refer-friends-bn-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-cancel-btn": {
+      "primary": "[data-testid=\"refer-friends-cancel-btn\"]",
+      "source_testid": "refer-friends-cancel-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-code-cell-copy-btn": {
+      "primary": "[data-testid=\"refer-friends-code-cell-copy-btn\"]",
+      "source_testid": "refer-friends-code-cell-copy-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-code-cell-edit-btn": {
+      "primary": "[data-testid=\"refer-friends-code-cell-edit-btn\"]",
+      "source_testid": "refer-friends-code-cell-edit-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-copy-link-btn": {
+      "primary": "[data-testid=\"refer-friends-copy-link-btn\"]",
+      "source_testid": "refer-friends-copy-link-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-create-code-btn": {
+      "primary": "[data-testid=\"refer-friends-create-code-btn\"]",
+      "source_testid": "refer-friends-create-code-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-debug-code-length-selector": {
+      "primary": "[data-testid=\"refer-friends-debug-code-length-selector\"]",
+      "source_testid": "refer-friends-debug-code-length-selector",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-edit-address-input": {
+      "primary": "[data-testid=\"refer-friends-edit-address-input\"]",
+      "source_testid": "refer-friends-edit-address-input",
+      "source": "auto-classified",
+      "page": "editaddress",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-edit-address-save-btn": {
+      "primary": "[data-testid=\"refer-friends-edit-address-save-btn\"]",
+      "source_testid": "refer-friends-edit-address-save-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-edit-code-dialog-cancel-btn": {
+      "primary": "[data-testid=\"refer-friends-edit-code-dialog-cancel-btn\"]",
+      "source_testid": "refer-friends-edit-code-dialog-cancel-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-edit-code-dialog-code-input": {
+      "primary": "[data-testid=\"refer-friends-edit-code-dialog-code-input\"]",
+      "source_testid": "refer-friends-edit-code-dialog-code-input",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-edit-code-dialog-note-input": {
+      "primary": "[data-testid=\"refer-friends-edit-code-dialog-note-input\"]",
+      "source_testid": "refer-friends-edit-code-dialog-note-input",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-edit-code-dialog-save-btn": {
+      "primary": "[data-testid=\"refer-friends-edit-code-dialog-save-btn\"]",
+      "source_testid": "refer-friends-edit-code-dialog-save-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-edit-note-btn": {
+      "primary": "[data-testid=\"refer-friends-edit-note-btn\"]",
+      "source_testid": "refer-friends-edit-note-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-export-btn": {
+      "primary": "[data-testid=\"refer-friends-export-btn\"]",
+      "source_testid": "refer-friends-export-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-filter-btn": {
+      "primary": "[data-testid=\"refer-friends-filter-btn\"]",
+      "source_testid": "refer-friends-filter-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-get-extension-btn": {
+      "primary": "[data-testid=\"refer-friends-get-extension-btn\"]",
+      "source_testid": "refer-friends-get-extension-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-get-value-size-icon-btn": {
+      "primary": "[data-testid=\"refer-friends-get-value-size-icon-btn\"]",
+      "source_testid": "refer-friends-get-value-size-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-handle-copy-link-btn": {
+      "primary": "[data-testid=\"refer-friends-handle-copy-link-btn\"]",
+      "source_testid": "refer-friends-handle-copy-link-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-icon-btn": {
+      "primary": "[data-testid=\"refer-friends-icon-btn\"]",
+      "source_testid": "refer-friends-icon-btn",
+      "source": "auto-classified",
+      "page": "cumulativerewards",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-invite-url-btn": {
+      "primary": "[data-testid=\"refer-friends-invite-url-btn\"]",
+      "source_testid": "refer-friends-invite-url-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-join-btn": {
+      "primary": "[data-testid=\"refer-friends-join-btn\"]",
+      "source_testid": "refer-friends-join-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-logout-btn": {
+      "primary": "[data-testid=\"refer-friends-logout-btn\"]",
+      "source_testid": "refer-friends-logout-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-navigation-btn": {
+      "primary": "[data-testid=\"refer-friends-navigation-btn\"]",
+      "source_testid": "refer-friends-navigation-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-new-visibility-icon-btn": {
+      "primary": "[data-testid=\"refer-friends-new-visibility-icon-btn\"]",
+      "source_testid": "refer-friends-new-visibility-icon-btn",
+      "source": "auto-classified",
+      "page": "cumulativerewards",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-next-btn": {
+      "primary": "[data-testid=\"refer-friends-next-btn\"]",
+      "source_testid": "refer-friends-next-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-open-desktop-btn": {
+      "primary": "[data-testid=\"refer-friends-open-desktop-btn\"]",
+      "source_testid": "refer-friends-open-desktop-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-previous-btn": {
+      "primary": "[data-testid=\"refer-friends-previous-btn\"]",
+      "source_testid": "refer-friends-previous-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-referral-code-card-mobile-btn": {
+      "primary": "[data-testid=\"refer-friends-referral-code-card-mobile-btn\"]",
+      "source_testid": "refer-friends-referral-code-card-mobile-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-referral-code-input": {
+      "primary": "[data-testid=\"refer-friends-referral-code-input\"]",
+      "source_testid": "refer-friends-referral-code-input",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-referral-list-btn": {
+      "primary": "[data-testid=\"refer-friends-referral-list-btn\"]",
+      "source_testid": "refer-friends-referral-list-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-render-trigger-icon-btn": {
+      "primary": "[data-testid=\"refer-friends-render-trigger-icon-btn\"]",
+      "source_testid": "refer-friends-render-trigger-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-rules-btn": {
+      "primary": "[data-testid=\"refer-friends-rules-btn\"]",
+      "source_testid": "refer-friends-rules-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-select": {
+      "primary": "[data-testid=\"refer-friends-select\"]",
+      "source_testid": "refer-friends-select",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-switch": {
+      "primary": "[data-testid=\"refer-friends-switch\"]",
+      "source_testid": "refer-friends-switch",
+      "source": "auto-classified",
+      "page": "perpsdetailssection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-wallet-select": {
+      "primary": "[data-testid=\"refer-friends-wallet-select\"]",
+      "source_testid": "refer-friends-wallet-select",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.refer-friends-web-options-cancel-btn": {
+      "primary": "[data-testid=\"refer-friends-web-options-cancel-btn\"]",
+      "source_testid": "refer-friends-web-options-cancel-btn",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.spinner": {
+      "primary": "[data-testid=\"spinner\"]",
+      "source_testid": "spinner",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.UndistributedRewardCard": {
+      "primary": "[data-testid=\"UndistributedRewardCard\"]",
+      "source_testid": "UndistributedRewardCard",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.wallet-avatar": {
+      "primary": "[data-testid=\"wallet-avatar\"]",
+      "source_testid": "wallet-avatar",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    },
+    "referral.wallet-select": {
+      "primary": "[data-testid=\"wallet-select\"]",
+      "source_testid": "wallet-select",
+      "source": "auto-classified",
+      "page": "referfriends",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "referral"
+      ]
+    }
+  }
+}
