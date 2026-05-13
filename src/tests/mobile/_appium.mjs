@@ -82,14 +82,24 @@ export async function connectDriver({ platform } = {}) {
         'appium:fullReset': false,
       }
     : {
+        // iOS config uses APPIUM_IOS_* namespace so iOS + Android can both
+        // be configured in the same .env without colliding on shared keys
+        // (APPIUM_DEVICENAME, APPIUM_APP, etc.).
         platformName: 'iOS',
         'appium:automationName': 'XCUITest',
-        'appium:platformVersion': process.env.APPIUM_PLATFORMVERSION,
-        'appium:deviceName': process.env.APPIUM_DEVICENAME,
-        'appium:udid': process.env.APPIUM_UDID,
-        'appium:bundleId': process.env.APPIUM_BUNDLEID,
-        'appium:app': process.env.APPIUM_APP,
-        'appium:xcodeOrgId': process.env.APPIUM_XCODEORGID,
+        'appium:platformVersion': process.env.APPIUM_IOS_PLATFORMVERSION,
+        'appium:udid': process.env.APPIUM_IOS_UDID,
+        'appium:bundleId': process.env.APPIUM_IOS_BUNDLEID,
+        ...(process.env.APPIUM_IOS_APP ? { 'appium:app': process.env.APPIUM_IOS_APP } : {}),
+        ...(process.env.APPIUM_IOS_XCODEORGID ? {
+          'appium:xcodeOrgId': process.env.APPIUM_IOS_XCODEORGID,
+          'appium:xcodeSigningId': 'iPhone Developer',
+        } : {}),
+        'appium:showXcodeLog': false,
+        // Reuse an already-installed WDA on subsequent runs so we don't
+        // rebuild + reinstall it every session (saves ~30s per run).
+        'appium:usePrebuiltWDA': false,
+        'appium:useNewWDA': false,
       };
 
   const driver = await remote({
