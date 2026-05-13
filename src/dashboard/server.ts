@@ -196,6 +196,37 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // ── Mobile target platform (android | ios) ─────────────────────────────
+  // Session-scoped: stored in process.env.MOBILE_TARGET_PLATFORM so the
+  // executor's call to connectDriver() picks it up. Persists for the
+  // lifetime of the Dashboard process, not across restarts.
+  if (url.pathname === '/api/mobile-target' && req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json', ...cors });
+    res.end(JSON.stringify({ platform: process.env.MOBILE_TARGET_PLATFORM || 'android' }));
+    return;
+  }
+  if (url.pathname === '/api/mobile-target' && req.method === 'POST') {
+    let body = '';
+    req.on('data', (c) => (body += c));
+    req.on('end', () => {
+      try {
+        const { platform } = JSON.parse(body || '{}') as { platform?: string };
+        if (!['android', 'ios'].includes(platform || '')) {
+          res.writeHead(400, { 'Content-Type': 'application/json', ...cors });
+          res.end(JSON.stringify({ error: 'platform must be android or ios' }));
+          return;
+        }
+        process.env.MOBILE_TARGET_PLATFORM = platform!;
+        res.writeHead(200, { 'Content-Type': 'application/json', ...cors });
+        res.end(JSON.stringify({ ok: true, platform }));
+      } catch (e: any) {
+        res.writeHead(400, { 'Content-Type': 'application/json', ...cors });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   if (url.pathname === '/api/tests') {
     // Always re-scan to pick up code changes (skipSteps etc.)
     registryCache = await getTestRegistry();

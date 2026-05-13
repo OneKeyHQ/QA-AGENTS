@@ -1,0 +1,2132 @@
+{
+  "module": "settings",
+  "description": "Locators for settings module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "settings.always-sign-only-send-tx": {
+      "primary": "[data-testid=\"always-sign-only-send-tx\"]",
+      "source_testid": "always-sign-only-send-tx",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-notification-badge-menu": {
+      "primary": "[data-testid=\"app-notification-badge-menu\"]",
+      "source_testid": "app-notification-badge-menu",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-action-btn": {
+      "primary": "[data-testid=\"app-update-action-btn\"]",
+      "source_testid": "app-update-action-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-contact-us-btn": {
+      "primary": "[data-testid=\"app-update-contact-us-btn\"]",
+      "source_testid": "app-update-contact-us-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-featured-carousel-close-btn": {
+      "primary": "[data-testid=\"app-update-featured-carousel-close-btn\"]",
+      "source_testid": "app-update-featured-carousel-close-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-featured-footer-cta-btn": {
+      "primary": "[data-testid=\"app-update-featured-footer-cta-btn\"]",
+      "source_testid": "app-update-featured-footer-cta-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-featured-footer-view-changelog-btn": {
+      "primary": "[data-testid=\"app-update-featured-footer-view-changelog-btn\"]",
+      "source_testid": "app-update-featured-footer-view-changelog-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-install-btn": {
+      "primary": "[data-testid=\"app-update-install-btn\"]",
+      "source_testid": "app-update-install-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-manual-install-btn": {
+      "primary": "[data-testid=\"app-update-manual-install-btn\"]",
+      "source_testid": "app-update-manual-install-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-retry-btn": {
+      "primary": "[data-testid=\"app-update-retry-btn\"]",
+      "source_testid": "app-update-retry-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-view-history-btn": {
+      "primary": "[data-testid=\"app-update-view-history-btn\"]",
+      "source_testid": "app-update-view-history-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.app-update-whats-new-done-btn": {
+      "primary": "[data-testid=\"app-update-whats-new-done-btn\"]",
+      "source_testid": "app-update-whats-new-done-btn",
+      "source": "auto-classified",
+      "page": "appupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.clear-address-book-data": {
+      "primary": "[data-testid=\"clear-address-book-data\"]",
+      "source_testid": "clear-address-book-data",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.clear-data-menu": {
+      "primary": "[data-testid=\"clear-data-menu\"]",
+      "source_testid": "clear-data-menu",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.clear-discovery-data": {
+      "primary": "[data-testid=\"clear-discovery-data\"]",
+      "source_testid": "clear-discovery-data",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.clear-history": {
+      "primary": "[data-testid=\"clear-history\"]",
+      "source_testid": "clear-history",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.clear-password": {
+      "primary": "[data-testid=\"clear-password\"]",
+      "source_testid": "clear-password",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.clear-settings": {
+      "primary": "[data-testid=\"clear-settings\"]",
+      "source_testid": "clear-settings",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.clear-wallets-data": {
+      "primary": "[data-testid=\"clear-wallets-data\"]",
+      "source_testid": "clear-wallets-data",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-_render-backup-status-btn": {
+      "primary": "[data-testid=\"cloud-backup-_render-backup-status-btn\"]",
+      "source_testid": "cloud-backup-_render-backup-status-btn",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-btn": {
+      "primary": "[data-testid=\"cloud-backup-btn\"]",
+      "source_testid": "cloud-backup-btn",
+      "source": "auto-classified",
+      "page": "home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-delete-confirm-btn": {
+      "primary": "[data-testid=\"cloud-backup-delete-confirm-btn\"]",
+      "source_testid": "cloud-backup-delete-confirm-btn",
+      "source": "auto-classified",
+      "page": "cloudbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-detail-delete-action-btn": {
+      "primary": "[data-testid=\"cloud-backup-detail-delete-action-btn\"]",
+      "source_testid": "cloud-backup-detail-delete-action-btn",
+      "source": "auto-classified",
+      "page": "cloudbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-detail-header-menu-btn": {
+      "primary": "[data-testid=\"cloud-backup-detail-header-menu-btn\"]",
+      "source_testid": "cloud-backup-detail-header-menu-btn",
+      "source": "auto-classified",
+      "page": "cloudbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-detail-import-btn": {
+      "primary": "[data-testid=\"cloud-backup-detail-import-btn\"]",
+      "source_testid": "cloud-backup-detail-import-btn",
+      "source": "auto-classified",
+      "page": "cloudbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-detail-segment-control": {
+      "primary": "[data-testid=\"cloud-backup-detail-segment-control\"]",
+      "source_testid": "cloud-backup-detail-segment-control",
+      "source": "auto-classified",
+      "page": "cloudbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-device-list": {
+      "primary": "[data-testid=\"cloud-backup-device-list\"]",
+      "source_testid": "cloud-backup-device-list",
+      "source": "auto-classified",
+      "page": "cloudbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-device-list-item": {
+      "primary": "[data-testid=\"cloud-backup-device-list-item\"]",
+      "source_testid": "cloud-backup-device-list-item",
+      "source": "auto-classified",
+      "page": "cloudbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-intl-input": {
+      "primary": "[data-testid=\"cloud-backup-intl-input\"]",
+      "source_testid": "cloud-backup-intl-input",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-list-item": {
+      "primary": "[data-testid=\"cloud-backup-list-item\"]",
+      "source_testid": "cloud-backup-list-item",
+      "source": "auto-classified",
+      "page": "cloudbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.cloud-backup-toggle-confirm-btn": {
+      "primary": "[data-testid=\"cloud-backup-toggle-confirm-btn\"]",
+      "source_testid": "cloud-backup-toggle-confirm-btn",
+      "source": "auto-classified",
+      "page": "cloudbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.CustomRpcItemContainer": {
+      "primary": "[data-testid=\"CustomRpcItemContainer\"]",
+      "source_testid": "CustomRpcItemContainer",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.desktop-api-proxy-test-menu": {
+      "primary": "[data-testid=\"desktop-api-proxy-test-menu\"]",
+      "source_testid": "desktop-api-proxy-test-menu",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.dev-only-password": {
+      "primary": "[data-testid=\"dev-only-password\"]",
+      "source_testid": "dev-only-password",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.dev-unit-tests-menu": {
+      "primary": "[data-testid=\"dev-unit-tests-menu\"]",
+      "source_testid": "dev-unit-tests-menu",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-connected-site-btn": {
+      "primary": "[data-testid=\"developer-connected-site-btn\"]",
+      "source_testid": "developer-connected-site-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-custom-sign-message-btn": {
+      "primary": "[data-testid=\"developer-custom-sign-message-btn\"]",
+      "source_testid": "developer-custom-sign-message-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-custom-sign-message-input": {
+      "primary": "[data-testid=\"developer-custom-sign-message-input\"]",
+      "source_testid": "developer-custom-sign-message-input",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-dev-home-btn": {
+      "primary": "[data-testid=\"developer-dev-home-btn\"]",
+      "source_testid": "developer-dev-home-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-gallery-btn": {
+      "primary": "[data-testid=\"developer-gallery-btn\"]",
+      "source_testid": "developer-gallery-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-home-page-btn": {
+      "primary": "[data-testid=\"developer-home-page-btn\"]",
+      "source_testid": "developer-home-page-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-next-page-btn": {
+      "primary": "[data-testid=\"developer-next-page-btn\"]",
+      "source_testid": "developer-next-page-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-prev-page-btn": {
+      "primary": "[data-testid=\"developer-prev-page-btn\"]",
+      "source_testid": "developer-prev-page-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-sign-message-btn": {
+      "primary": "[data-testid=\"developer-sign-message-btn\"]",
+      "source_testid": "developer-sign-message-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-sign-transaction-btn": {
+      "primary": "[data-testid=\"developer-sign-transaction-btn\"]",
+      "source_testid": "developer-sign-transaction-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-signature-records-btn": {
+      "primary": "[data-testid=\"developer-signature-records-btn\"]",
+      "source_testid": "developer-signature-records-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-wallet-connect-btn": {
+      "primary": "[data-testid=\"developer-wallet-connect-btn\"]",
+      "source_testid": "developer-wallet-connect-btn",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.developer-wallet-connect-input": {
+      "primary": "[data-testid=\"developer-wallet-connect-input\"]",
+      "source_testid": "developer-wallet-connect-input",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.erase-data-confirm": {
+      "primary": "[data-testid=\"erase-data-confirm\"]",
+      "source_testid": "erase-data-confirm",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.erase-data-input": {
+      "primary": "[data-testid=\"erase-data-input\"]",
+      "source_testid": "erase-data-input",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.export-private-key": {
+      "primary": "[data-testid=\"export-private-key\"]",
+      "source_testid": "export-private-key",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.firmware-update-dev-settings-menu": {
+      "primary": "[data-testid=\"firmware-update-dev-settings-menu\"]",
+      "source_testid": "firmware-update-dev-settings-menu",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.manual-backup-wallet-list": {
+      "primary": "[data-testid=\"manual-backup-wallet-list\"]",
+      "source_testid": "manual-backup-wallet-list",
+      "source": "auto-classified",
+      "page": "manualbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.manual-backup-wallet-list-item": {
+      "primary": "[data-testid=\"manual-backup-wallet-list-item\"]",
+      "source_testid": "manual-backup-wallet-list-item",
+      "source": "auto-classified",
+      "page": "manualbackup",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.me-settings": {
+      "primary": "[data-testid=\"me-settings\"]",
+      "source_testid": "me-settings",
+      "source": "auto-classified",
+      "page": "developer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.network-doctor-close-btn": {
+      "primary": "[data-testid=\"network-doctor-close-btn\"]",
+      "source_testid": "network-doctor-close-btn",
+      "source": "auto-classified",
+      "page": "networkdoctor",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.network-doctor-contact-support-btn": {
+      "primary": "[data-testid=\"network-doctor-contact-support-btn\"]",
+      "source_testid": "network-doctor-contact-support-btn",
+      "source": "auto-classified",
+      "page": "networkdoctor",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.network-doctor-footer-close-btn": {
+      "primary": "[data-testid=\"network-doctor-footer-close-btn\"]",
+      "source_testid": "network-doctor-footer-close-btn",
+      "source": "auto-classified",
+      "page": "networkdoctor",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.network-doctor-footer-confirm-btn": {
+      "primary": "[data-testid=\"network-doctor-footer-confirm-btn\"]",
+      "source_testid": "network-doctor-footer-confirm-btn",
+      "source": "auto-classified",
+      "page": "networkdoctor",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.permission-grant-access-btn": {
+      "primary": "[data-testid=\"permission-grant-access-btn\"]",
+      "source_testid": "permission-grant-access-btn",
+      "source": "auto-classified",
+      "page": "permission",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.permissions-dialog-show-notification-permissions-dialog-btn": {
+      "primary": "[data-testid=\"permissions-dialog-show-notification-permissions-dialog-btn\"]",
+      "source_testid": "permissions-dialog-show-notification-permissions-dialog-btn",
+      "source": "auto-classified",
+      "page": "permissionsdialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-about": {
+      "primary": "[data-testid=\"setting-about\"]",
+      "source_testid": "setting-about",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-address-book": {
+      "primary": "[data-testid=\"setting-address-book\"]",
+      "source_testid": "setting-address-book",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-addresses-btn": {
+      "primary": "[data-testid=\"setting-addresses-btn\"]",
+      "source_testid": "setting-addresses-btn",
+      "source": "auto-classified",
+      "page": "exportcustomnetworkconfig",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-api-endpoint-cancel-btn": {
+      "primary": "[data-testid=\"setting-api-endpoint-cancel-btn\"]",
+      "source_testid": "setting-api-endpoint-cancel-btn",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-api-endpoint-enabled-switch": {
+      "primary": "[data-testid=\"setting-api-endpoint-enabled-switch\"]",
+      "source_testid": "setting-api-endpoint-enabled-switch",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-api-endpoint-list-item-icon-btn": {
+      "primary": "[data-testid=\"setting-api-endpoint-list-item-icon-btn\"]",
+      "source_testid": "setting-api-endpoint-list-item-icon-btn",
+      "source": "auto-classified",
+      "page": "apiendpointlistitem",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-api-endpoint-list-item-switch": {
+      "primary": "[data-testid=\"setting-api-endpoint-list-item-switch\"]",
+      "source_testid": "setting-api-endpoint-list-item-switch",
+      "source": "auto-classified",
+      "page": "apiendpointlistitem",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-api-endpoint-name-input": {
+      "primary": "[data-testid=\"setting-api-endpoint-name-input\"]",
+      "source_testid": "setting-api-endpoint-name-input",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-api-endpoint-save-btn": {
+      "primary": "[data-testid=\"setting-api-endpoint-save-btn\"]",
+      "source_testid": "setting-api-endpoint-save-btn",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-api-endpoint-service-module-select": {
+      "primary": "[data-testid=\"setting-api-endpoint-service-module-select\"]",
+      "source_testid": "setting-api-endpoint-service-module-select",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-api-endpoint-url-input": {
+      "primary": "[data-testid=\"setting-api-endpoint-url-input\"]",
+      "source_testid": "setting-api-endpoint-url-input",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-btn": {
+      "primary": "[data-testid=\"setting-btn\"]",
+      "source_testid": "setting-btn",
+      "source": "auto-classified",
+      "page": "apiendpointlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-chain-id-input": {
+      "primary": "[data-testid=\"setting-chain-id-input\"]",
+      "source_testid": "setting-chain-id-input",
+      "source": "auto-classified",
+      "page": "customnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-content-btn": {
+      "primary": "[data-testid=\"setting-content-btn\"]",
+      "source_testid": "setting-content-btn",
+      "source": "auto-classified",
+      "page": "exportcustomnetworkconfig",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-currency": {
+      "primary": "[data-testid=\"setting-currency\"]",
+      "source_testid": "setting-currency",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-custom-rpc-add-button": {
+      "primary": "[data-testid=\"setting-custom-rpc-add-button\"]",
+      "source_testid": "setting-custom-rpc-add-button",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-custom-rpc-page": {
+      "primary": "[data-testid=\"setting-custom-rpc-page\"]",
+      "source_testid": "setting-custom-rpc-page",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-custom-tx-data-help-link-btn": {
+      "primary": "[data-testid=\"setting-custom-tx-data-help-link-btn\"]",
+      "source_testid": "setting-custom-tx-data-help-link-btn",
+      "source": "auto-classified",
+      "page": "customtransaction",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-dev-split-bundle-concurrent-btn": {
+      "primary": "[data-testid=\"setting-dev-split-bundle-concurrent-btn\"]",
+      "source_testid": "setting-dev-split-bundle-concurrent-btn",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-dev-split-bundle-refresh-btn": {
+      "primary": "[data-testid=\"setting-dev-split-bundle-refresh-btn\"]",
+      "source_testid": "setting-dev-split-bundle-refresh-btn",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-dev-split-bundle-run-tests-btn": {
+      "primary": "[data-testid=\"setting-dev-split-bundle-run-tests-btn\"]",
+      "source_testid": "setting-dev-split-bundle-run-tests-btn",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-download-disabled-icon-btn": {
+      "primary": "[data-testid=\"setting-download-disabled-icon-btn\"]",
+      "source_testid": "setting-download-disabled-icon-btn",
+      "source": "auto-classified",
+      "page": "devbundleswitcher",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-erase-data": {
+      "primary": "[data-testid=\"setting-erase-data\"]",
+      "source_testid": "setting-erase-data",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-handle-edit-email-input": {
+      "primary": "[data-testid=\"setting-handle-edit-email-input\"]",
+      "source_testid": "setting-handle-edit-email-input",
+      "source": "auto-classified",
+      "page": "onekeyid",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-handle-edit-name-input": {
+      "primary": "[data-testid=\"setting-handle-edit-name-input\"]",
+      "source_testid": "setting-handle-edit-name-input",
+      "source": "auto-classified",
+      "page": "onekeyid",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-handle-keys-recovery-switch": {
+      "primary": "[data-testid=\"setting-handle-keys-recovery-switch\"]",
+      "source_testid": "setting-handle-keys-recovery-switch",
+      "source": "auto-classified",
+      "page": "onekeyid",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-header-right-icon-btn": {
+      "primary": "[data-testid=\"setting-header-right-icon-btn\"]",
+      "source_testid": "setting-header-right-icon-btn",
+      "source": "auto-classified",
+      "page": "customnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-icon-btn": {
+      "primary": "[data-testid=\"setting-icon-btn\"]",
+      "source_testid": "setting-icon-btn",
+      "source": "auto-classified",
+      "page": "customrpc",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-input": {
+      "primary": "[data-testid=\"setting-input\"]",
+      "source_testid": "setting-input",
+      "source": "auto-classified",
+      "page": "customnetwork",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-intl-btn": {
+      "primary": "[data-testid=\"setting-intl-btn\"]",
+      "source_testid": "setting-intl-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-intl-switch": {
+      "primary": "[data-testid=\"setting-intl-switch\"]",
+      "source_testid": "setting-intl-switch",
+      "source": "auto-classified",
+      "page": "customtransaction",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-language": {
+      "primary": "[data-testid=\"setting-language\"]",
+      "source_testid": "setting-language",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-language-list-item-select": {
+      "primary": "[data-testid=\"setting-language-list-item-select\"]",
+      "source_testid": "setting-language-list-item-select",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-loading-view-switch": {
+      "primary": "[data-testid=\"setting-loading-view-switch\"]",
+      "source_testid": "setting-loading-view-switch",
+      "source": "auto-classified",
+      "page": "notifications",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-new-transport-type-select": {
+      "primary": "[data-testid=\"setting-new-transport-type-select\"]",
+      "source_testid": "setting-new-transport-type-select",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-notifications": {
+      "primary": "[data-testid=\"setting-notifications\"]",
+      "source_testid": "setting-notifications",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-on-change-select": {
+      "primary": "[data-testid=\"setting-on-change-select\"]",
+      "source_testid": "setting-on-change-select",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-on-press-icon-btn": {
+      "primary": "[data-testid=\"setting-on-press-icon-btn\"]",
+      "source_testid": "setting-on-press-icon-btn",
+      "source": "auto-classified",
+      "page": "signaturerecord",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-onekey-id-page": {
+      "primary": "[data-testid=\"setting-onekey-id-page\"]",
+      "source_testid": "setting-onekey-id-page",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-onekey-id-personal-info": {
+      "primary": "[data-testid=\"setting-onekey-id-personal-info\"]",
+      "source_testid": "setting-onekey-id-personal-info",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-onekey-id-settings": {
+      "primary": "[data-testid=\"setting-onekey-id-settings\"]",
+      "source_testid": "setting-onekey-id-settings",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-onekey-id-sign-in": {
+      "primary": "[data-testid=\"setting-onekey-id-sign-in\"]",
+      "source_testid": "setting-onekey-id-sign-in",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-onekey-id-sign-in-security": {
+      "primary": "[data-testid=\"setting-onekey-id-sign-in-security\"]",
+      "source_testid": "setting-onekey-id-sign-in-security",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-page": {
+      "primary": "[data-testid=\"setting-page\"]",
+      "source_testid": "setting-page",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-page-v4-migration-dev-settings-btn": {
+      "primary": "[data-testid=\"setting-page-v4-migration-dev-settings-btn\"]",
+      "source_testid": "setting-page-v4-migration-dev-settings-btn",
+      "source": "auto-classified",
+      "page": "v4migrationdevsettings",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-pipeline-icon-btn": {
+      "primary": "[data-testid=\"setting-pipeline-icon-btn\"]",
+      "source_testid": "setting-pipeline-icon-btn",
+      "source": "auto-classified",
+      "page": "devbundleupdatestatus",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-render-enable-protection-btn": {
+      "primary": "[data-testid=\"setting-render-enable-protection-btn\"]",
+      "source_testid": "setting-render-enable-protection-btn",
+      "source": "auto-classified",
+      "page": "protection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-result-icon-btn": {
+      "primary": "[data-testid=\"setting-result-icon-btn\"]",
+      "source_testid": "setting-result-icon-btn",
+      "source": "auto-classified",
+      "page": "signaturerecord",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-security": {
+      "primary": "[data-testid=\"setting-security\"]",
+      "source_testid": "setting-security",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-set-align-primary-account-mode-radio": {
+      "primary": "[data-testid=\"setting-set-align-primary-account-mode-radio\"]",
+      "source_testid": "setting-set-align-primary-account-mode-radio",
+      "source": "auto-classified",
+      "page": "alignprimaryaccount",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-signature-connected-sites": {
+      "primary": "[data-testid=\"setting-signature-connected-sites\"]",
+      "source_testid": "setting-signature-connected-sites",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-signature-record-page": {
+      "primary": "[data-testid=\"setting-signature-record-page\"]",
+      "source_testid": "setting-signature-record-page",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-signature-sign-text": {
+      "primary": "[data-testid=\"setting-signature-sign-text\"]",
+      "source_testid": "setting-signature-sign-text",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-signature-transactions": {
+      "primary": "[data-testid=\"setting-signature-transactions\"]",
+      "source_testid": "setting-signature-transactions",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-social-github-btn": {
+      "primary": "[data-testid=\"setting-social-github-btn\"]",
+      "source_testid": "setting-social-github-btn",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-social-onekey-website-btn": {
+      "primary": "[data-testid=\"setting-social-onekey-website-btn\"]",
+      "source_testid": "setting-social-onekey-website-btn",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-social-support-btn": {
+      "primary": "[data-testid=\"setting-social-support-btn\"]",
+      "source_testid": "setting-social-support-btn",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-social-x-btn": {
+      "primary": "[data-testid=\"setting-social-x-btn\"]",
+      "source_testid": "setting-social-x-btn",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-switch": {
+      "primary": "[data-testid=\"setting-switch\"]",
+      "source_testid": "setting-switch",
+      "source": "auto-classified",
+      "page": "customrpc",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-switch-disabled-switch": {
+      "primary": "[data-testid=\"setting-switch-disabled-switch\"]",
+      "source_testid": "setting-switch-disabled-switch",
+      "source": "auto-classified",
+      "page": "appautolock",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-tab-menu-bar-tray-switch": {
+      "primary": "[data-testid=\"setting-tab-menu-bar-tray-switch\"]",
+      "source_testid": "setting-tab-menu-bar-tray-switch",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-tab-split-view-switch": {
+      "primary": "[data-testid=\"setting-tab-split-view-switch\"]",
+      "source_testid": "setting-tab-split-view-switch",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-tab-use-gas-account-by-default-switch": {
+      "primary": "[data-testid=\"setting-tab-use-gas-account-by-default-switch\"]",
+      "source_testid": "setting-tab-use-gas-account-by-default-switch",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-textarea": {
+      "primary": "[data-testid=\"setting-textarea\"]",
+      "source_testid": "setting-textarea",
+      "source": "auto-classified",
+      "page": "signaturerecord",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-theme": {
+      "primary": "[data-testid=\"setting-theme\"]",
+      "source_testid": "setting-theme",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-toggle-b-t-c-fresh-address-switch": {
+      "primary": "[data-testid=\"setting-toggle-b-t-c-fresh-address-switch\"]",
+      "source_testid": "setting-toggle-b-t-c-fresh-address-switch",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-toggle-bluetooth-switch": {
+      "primary": "[data-testid=\"setting-toggle-bluetooth-switch\"]",
+      "source_testid": "setting-toggle-bluetooth-switch",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-trimmed-value-input": {
+      "primary": "[data-testid=\"setting-trimmed-value-input\"]",
+      "source_testid": "setting-trimmed-value-input",
+      "source": "auto-classified",
+      "page": "customrpc",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.setting-version": {
+      "primary": "[data-testid=\"setting-version\"]",
+      "source_testid": "setting-version",
+      "source": "auto-classified",
+      "page": "setting",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.show-dev-overlay": {
+      "primary": "[data-testid=\"show-dev-overlay\"]",
+      "source_testid": "show-dev-overlay",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.v4-migration-dev-settings-menu": {
+      "primary": "[data-testid=\"v4-migration-dev-settings-menu\"]",
+      "source_testid": "v4-migration-dev-settings-menu",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    },
+    "settings.wallet-connect-session": {
+      "primary": "[data-testid=\"wallet-connect-session\"]",
+      "source_testid": "wallet-connect-session",
+      "source": "auto-classified",
+      "page": "tab",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "settings"
+      ]
+    }
+  }
+}

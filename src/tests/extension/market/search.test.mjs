@@ -1,26 +1,23 @@
 // Market Search Tests (Extension) — EXT-MARKET-SEARCH-001 ~ EXT-MARKET-SEARCH-005
-// Browser extension version using shared market-search helpers.
-// Connects via CDP port 9224 (Chrome with extension loaded).
+// Thin wrapper: test logic lives in src/tests/shared/market/search.mjs
+// Connects via CDP port 9224 using connectExtensionCDP.
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { sleep } from '../../helpers/constants.mjs';
-import { createStepTracker, safeStep, openSearchModal as componentOpenSearch } from '../../helpers/components.mjs';
-import {
-  isSearchModalOpen, getModalSearchInput,
-  openSearchModal, setSearchValueStrict, ensureSearchOpen,
-  setSearchValue, clearSearch, closeSearch,
-  assertHasSomeTableLikeContent, clickShowMoreIfPresent,
-  scrollToBottomAndAssert, clickFirstSuggestionIfPresent,
-  clickClearHistoryIfPresent, toggleFavoriteOnFirstRow,
-  getSearchHistory, clickSearchResult, clickClearHistory,
-  snapshotWatchlistCount,
-} from '../../helpers/market-search.mjs';
 import { connectExtensionCDP, getExtensionId } from '../../helpers/extension-cdp.mjs';
+import { createMarketSearchTests } from '../../shared/market/search.mjs';
 
 const RESULTS_DIR = resolve(import.meta.dirname, '../../../../shared/results');
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'ext-market-search');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
+
+async function screenshotExt(page, name) {
+  try {
+    const path = `${SCREENSHOT_DIR}/${name}.png`;
+    await page.screenshot({ path });
+  } catch {}
+}
 
 // ── Platform-specific: Extension ─────────────────────────────
 
@@ -57,13 +54,6 @@ async function goToMarket(page) {
   // Fallback: direct URL navigation within extension
   await page.goto(`chrome-extension://${extId}/ui-expand-tab.html#/market`);
   await sleep(3000);
-}
-
-async function screenshotExt(page, name) {
-  try {
-    const path = `${SCREENSHOT_DIR}/${name}.png`;
-    await page.screenshot({ path });
-  } catch {}
 }
 
 /**
@@ -112,226 +102,20 @@ async function openSearchTrigger(page) {
   await page.mouse.click(pos.x, pos.y);
 }
 
-// Convenience wrappers that bind the extension trigger
-const _open = (page) => openSearchModal(page, openSearchTrigger);
-const _ensure = (page) => ensureSearchOpen(page, openSearchTrigger);
-const _setStrict = (page, v) => setSearchValueStrict(page, v, openSearchTrigger);
-const _set = (page, v) => setSearchValue(page, v, openSearchTrigger);
-const _scrollBottom = (page, opts) => scrollToBottomAndAssert(page, opts, openSearchTrigger);
-const _safeStep = (page, t, name, fn) => safeStep(page, t, name, fn, screenshotExt);
+// ── Test Cases (from shared module) ──────────────────────────
 
-// ── Test Cases ───────────────────────────────────────────────
+export const displayName = '搜索';
 
-async function testExtMarketSearch001(page) {
-  const t = createStepTracker('EXT-MARKET-SEARCH-001');
+const { testCases, setup } = createMarketSearchTests({
+  prefix: 'EXT-MARKET-SEARCH',
+  namePrefix: 'Ext-',
+  goToMarket,
+  openSearchTrigger,
+});
 
-  await goToMarket(page);
-  await _ensure(page);
+export { testCases, setup };
 
-  await assertHasSomeTableLikeContent(page);
-  t.add('打开搜索界面可见内容/空状态', 'passed');
-
-  const clicked = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    if (!modal) return false;
-    const blocks = modal.querySelectorAll('div');
-    for (const b of blocks) {
-      const r = b.getBoundingClientRect();
-      if (r.width < 400 || r.height < 24 || r.height > 90) continue;
-      if (r.y < 160) continue;
-      const txt = b.textContent?.trim() || '';
-      if (!txt) continue;
-      if (txt.includes('名称') && txt.includes('价格')) continue;
-      b.click();
-      return true;
-    }
-    return false;
-  });
-  if (clicked) {
-    await sleep(2000);
-    t.add('Trending/结果行可点击（直达交易页/可交互）', 'passed');
-    await page.keyboard.press('Escape').catch(() => {});
-    await sleep(800);
-  } else {
-    t.add('Trending/结果行点击（软校验）', 'passed', 'skip: no stable clickable row detected');
-  }
-
-  await closeSearch(page);
-  return t.result();
-}
-
-async function testExtMarketSearch002(page) {
-  const t = createStepTracker('EXT-MARKET-SEARCH-002');
-
-  await goToMarket(page);
-  await _ensure(page);
-
-  const params = {
-    mainSymbols: ['BTC', 'ETH', 'SOL'],
-    caseInsensitive: ['btc'],
-    fuzzy: ['bt'],
-    multiResultSymbols: ['USDT', 'UNI'],
-  };
-
-  for (const sym of params.mainSymbols) {
-    await _setStrict(page, sym);
-    await assertHasSomeTableLikeContent(page);
-    t.add(`主币搜索 ${sym} 有展示/空状态`, 'passed');
-  }
-
-  for (const sym of params.caseInsensitive) {
-    await _setStrict(page, sym);
-    await assertHasSomeTableLikeContent(page);
-    t.add(`大小写不敏感 ${sym}`, 'passed');
-  }
-
-  for (const sym of params.fuzzy) {
-    await _setStrict(page, sym);
-    await assertHasSomeTableLikeContent(page);
-    t.add(`模糊匹配 ${sym}`, 'passed');
-  }
-
-  await _setStrict(page, 'USDT');
-  await assertHasSomeTableLikeContent(page);
-  const showMoreClicked = await clickShowMoreIfPresent(page);
-  t.add('USDT 显示更多（如出现则点击）', 'passed', showMoreClicked ? 'clicked' : 'not present');
-  await _scrollBottom(page, { maxRounds: 40, roundWaitMs: 250 });
-  t.add('USDT 列表可滚动到底', 'passed');
-
-  await closeSearch(page);
-  return t.result();
-}
-
-async function testExtMarketSearch003(page) {
-  const t = createStepTracker('EXT-MARKET-SEARCH-003');
-
-  await goToMarket(page);
-  await _ensure(page);
-
-  const params = {
-    contractAddresses: ['0xdAC17F958D2ee523a2206206994597C13D831ec7'],
-    incompleteAddresses: ['0x1234'],
-    noResults: ['ABCDEFG123'],
-    invalidInputs: ['@#$%', '\u{1F680}', '   '],
-    longString: ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'],
-  };
-
-  for (const addr of params.contractAddresses) {
-    await _set(page, addr);
-    await assertHasSomeTableLikeContent(page);
-    t.add('合约地址搜索有展示/空状态', 'passed');
-  }
-
-  for (const v of params.incompleteAddresses) {
-    await _set(page, v);
-    await assertHasSomeTableLikeContent(page);
-    t.add('不完整合约地址空状态', 'passed');
-  }
-
-  for (const v of params.noResults) {
-    await _set(page, v);
-    await assertHasSomeTableLikeContent(page);
-    t.add('无结果空状态', 'passed');
-  }
-
-  for (const v of params.invalidInputs) {
-    await _set(page, v);
-    await assertHasSomeTableLikeContent(page);
-    t.add(`异常输入空状态/不报错 (${JSON.stringify(v)})`, 'passed');
-  }
-
-  for (const v of params.longString) {
-    await _set(page, v);
-    await assertHasSomeTableLikeContent(page);
-    t.add('超长字符串输入不崩溃', 'passed');
-  }
-
-  await clearSearch(page);
-  t.add('点击清空（X）', 'passed');
-
-  await closeSearch(page);
-  t.add('关闭搜索返回 Market 首页', 'passed');
-
-  return t.result();
-}
-
-async function testExtMarketSearch004(page) {
-  const t = createStepTracker('EXT-MARKET-SEARCH-004');
-
-  await goToMarket(page);
-
-  const before = await snapshotWatchlistCount(page);
-
-  await _ensure(page);
-  await _set(page, 'USDT');
-  await assertHasSomeTableLikeContent(page);
-
-  await toggleFavoriteOnFirstRow(page);
-  await closeSearch(page);
-
-  const afterAdd = await snapshotWatchlistCount(page);
-  t.add('收藏后自选列表有变化（+1 或出现条目）', afterAdd !== before ? 'passed' : 'failed',
-    `${before} → ${afterAdd}`);
-
-  await _ensure(page);
-  await _set(page, 'USDT');
-  await toggleFavoriteOnFirstRow(page);
-  await closeSearch(page);
-
-  const afterRemove = await snapshotWatchlistCount(page);
-  t.add('取消收藏后自选列表有变化（-1 或消失）', afterRemove !== afterAdd ? 'passed' : 'failed',
-    `${afterAdd} → ${afterRemove}`);
-
-  return t.result();
-}
-
-async function testExtMarketSearch005(page) {
-  const t = createStepTracker('EXT-MARKET-SEARCH-005');
-
-  await goToMarket(page);
-  await _ensure(page);
-
-  const history = await getSearchHistory(page);
-  t.add('检查最近搜索区域', 'passed',
-    history.hasHistory ? `有历史: [${history.keywords.slice(0, 5).join(', ')}]` : '无历史记录');
-
-  if (history.hasHistory && history.keywords.length > 0) {
-    const cleared = await clickClearHistory(page);
-    t.add('点击清空历史按钮', cleared ? 'passed' : 'failed',
-      cleared ? 'cleared' : 'clear button not found');
-
-    await sleep(500);
-    const historyAfter = await getSearchHistory(page);
-    const historyCleared = !historyAfter.hasHistory || historyAfter.keywords.length === 0;
-    t.add('验证历史已清空', historyCleared ? 'passed' : 'failed',
-      historyCleared ? 'history empty' : `still has: [${historyAfter.keywords.join(', ')}]`);
-  }
-
-  const clicked = await clickSearchResult(page, openSearchTrigger, 'ETH');
-  t.add('搜索 ETH 并点击结果', clicked ? 'passed' : 'failed',
-    clicked ? 'clicked' : 'no clickable result');
-
-  await goToMarket(page);
-  await _ensure(page);
-  const newHistory = await getSearchHistory(page);
-  t.add('验证搜索后产生新历史', 'passed',
-    newHistory.hasHistory ? `keywords: [${newHistory.keywords.slice(0, 5).join(', ')}]` : '无新历史（可能需要刷新页面生效）');
-
-  await closeSearch(page);
-  return t.result();
-}
-
-export const testCases = [
-  { id: 'EXT-MARKET-SEARCH-001', name: 'Ext-Market-搜索-入口与Trending跳转', fn: testExtMarketSearch001 },
-  { id: 'EXT-MARKET-SEARCH-002', name: 'Ext-Market-搜索-Symbol搜索与滚动加载', fn: testExtMarketSearch002 },
-  { id: 'EXT-MARKET-SEARCH-003', name: 'Ext-Market-搜索-合约地址与异常输入', fn: testExtMarketSearch003 },
-  { id: 'EXT-MARKET-SEARCH-004', name: 'Ext-Market-搜索-收藏联动（自选Tab）', fn: testExtMarketSearch004 },
-  { id: 'EXT-MARKET-SEARCH-005', name: 'Ext-Market-搜索-历史与建议', fn: testExtMarketSearch005 },
-];
-
-export async function setup(page) {
-  await goToMarket(page);
-}
+// ── Main (CLI Runner) ────────────────────────────────────────
 
 export async function run() {
   const filter = process.argv.slice(2).find(a => a.startsWith('EXT-MARKET-SEARCH-'));

@@ -537,6 +537,7 @@ nav .nav-links a:hover { color: #667eea; }
 .platform-icon-blue { background: rgba(102,126,234,0.12); }
 .platform-icon-green { background: rgba(72,187,120,0.12); }
 .platform-icon-orange { background: rgba(237,137,54,0.12); }
+.platform-icon-purple { background: rgba(159,122,234,0.12); }
 .platform-card h4 { font-size: 1.1rem; margin-bottom: 8px; }
 .platform-card p { font-size: 0.88rem; color: #718096; margin-bottom: 12px; }
 .platform-sub { font-size: 0.8rem; color: #a0aec0; margin-top: 8px; }
@@ -971,7 +972,7 @@ footer a { color: #667eea; text-decoration: none; }
 <section class="hero">
   <div class="hero-content">
     <h1>QA-AGENTS</h1>
-    <p class="tagline">多 Agent 协作的自动化测试系统<br>覆盖 Desktop、Web、Extension 三个平台<br>下面带你看看它是怎么运转的</p>
+    <p class="tagline">多 Agent 协作的自动化测试系统<br>覆盖 Desktop、Web、Extension、Android 四个平台<br>下面带你看看它是怎么运转的</p>
     <div class="metaphor">
       🎬 想象一下：你操作一遍 App，AI 就自动帮你写好测试剧本，以后每次更新都替你演一遍，确保没出岔子。
     </div>
@@ -999,6 +1000,13 @@ footer a { color: #667eea; text-decoration: none; }
             <div>
               <div class="arch-role-name">QA 总导演 (Director)</div>
               <div class="arch-role-desc">整个测试流程的总调度。它决定先跑哪些测试、检查前置条件够不够、测试失败了要不要重试。就像电影导演喊"Action!"的那个人。</div>
+            </div>
+          </div>
+          <div class="arch-role">
+            <div class="arch-role-avatar arch-role-avatar-blue">🚦</div>
+            <div>
+              <div class="arch-role-name">环境准备员 (QATest)</div>
+              <div class="arch-role-desc">说一句"qatest 开始执行"，它就自动检查/启动 OneKey CDP 和 Dashboard 面板，把执行环境一键准备好，省得你手动开一堆终端。</div>
             </div>
           </div>
         </div>
@@ -1036,6 +1044,13 @@ footer a { color: #667eea; text-decoration: none; }
               <div class="arch-role-desc">测试失败时的"医生"。它只负责诊断问题出在哪（是按钮找不到了？还是网络太慢？），但不动手修——修的活儿交给别人。</div>
             </div>
           </div>
+          <div class="arch-role">
+            <div class="arch-role-avatar arch-role-avatar-purple">🔎</div>
+            <div>
+              <div class="arch-role-name">代码审查员 (QA Review)</div>
+              <div class="arch-role-desc">提交前的最后一道把关。检查用例 / 规则 / 脚本 / Skill 的规范性、一致性和安全性。安全问题硬拦截，其他可确认跳过。审查报告存到 <code>shared/reports/review-*.md</code>。</div>
+            </div>
+          </div>
         </div>
         <div class="arch-expand-hint">👆 点击展开</div>
       </div>
@@ -1054,14 +1069,28 @@ footer a { color: #667eea; text-decoration: none; }
             <div class="arch-role-avatar arch-role-avatar-green">🎥</div>
             <div>
               <div class="arch-role-name">录制员 (Recorder)</div>
-              <div class="arch-role-desc">像一台摄像机，你在 App 上点哪里、输入什么，它都记下来。录完之后会问你"我记对了吗？"，确认后才交给下一步。</div>
+              <div class="arch-role-desc">像一台摄像机，你在 App 上点哪里、输入什么，它都记下来。桌面 / Web / Extension 三种端各有专门的录制监控页面。录完之后会问你"我记对了吗？"，确认后才交给下一步。</div>
+            </div>
+          </div>
+          <div class="arch-role">
+            <div class="arch-role-avatar arch-role-avatar-green">📂</div>
+            <div>
+              <div class="arch-role-name">用例录制员 (Record From File)</div>
+              <div class="arch-role-desc">指着一个用例文档说"@这个文件 开始录制"——它会先把里面的场景重新编排成连续操作流、列出覆盖映射，再引导你一段段录，最后生成可执行的 <code>.test.mjs</code>。</div>
+            </div>
+          </div>
+          <div class="arch-role">
+            <div class="arch-role-avatar arch-role-avatar-green">📱</div>
+            <div>
+              <div class="arch-role-name">手机录制员 (Record to Test)</div>
+              <div class="arch-role-desc">专门负责 Android：你在真机上操作，它录下来 → 列操作清单让你确认 → 生成 Midscene Hybrid 测试脚本（UIAutomator 优先 + AI Vision 兜底）。</div>
             </div>
           </div>
           <div class="arch-role">
             <div class="arch-role-avatar arch-role-avatar-green">🏃</div>
             <div>
               <div class="arch-role-name">执行员 (Runner)</div>
-              <div class="arch-role-desc">拿着写好的"测试剧本"在 App 上自动跑一遍。它按顺序点击、输入、检查结果，就像一个不知疲倦的测试工程师。</div>
+              <div class="arch-role-desc">拿着写好的"测试剧本"在 App 上自动跑一遍。它按顺序点击、输入、检查结果，就像一个不知疲倦的测试工程师。统一入口：<code>src/tests/run.mjs</code>。</div>
             </div>
           </div>
           <div class="arch-role">
@@ -1198,32 +1227,40 @@ footer a { color: #667eea; text-decoration: none; }
 <!-- ===== Platforms ===== -->
 <section id="platforms" class="section platform-section">
   <div class="container">
-    <h2 class="section-title fade-in">三个平台，一套测试</h2>
-    <p class="section-subtitle fade-in">OneKey 有 Desktop、Web 和 Extension 三种形态。QA-AGENTS 能分别连接它们，用类似的方式测试。</p>
+    <h2 class="section-title fade-in">四个平台，一套测试</h2>
+    <p class="section-subtitle fade-in">OneKey 有 Desktop、Web、Extension、Android 四种形态。QA-AGENTS 能分别连接它们，用类似的方式测试。每次会话首次连接时会让你 4 选 1。</p>
 
     <div class="platform-cards">
       <div class="platform-card glass fade-in">
         <div class="platform-icon platform-icon-blue">🖥️</div>
         <h4>Desktop</h4>
-        <p>装在电脑上的 OneKey 应用。通过 <span class="term">Electron<span class="tip">一种让网页技术变成桌面软件的技术。你用的 VS Code、Discord 都是用它做的。</span></span> 技术开发，所以能用网页测试工具来测。</p>
+        <p>装在电脑上的 OneKey 应用（TF 包 / MAS 包）。通过 <span class="term">Electron<span class="tip">一种让网页技术变成桌面软件的技术。你用的 VS Code、Discord 都是用它做的。</span></span> 技术开发，所以能用网页测试工具来测。</p>
         <div class="platform-port">端口 9222</div>
-        <p class="platform-sub">录制监控：localhost:3210</p>
+        <p class="platform-sub">录制监控：localhost:3210<br>路径配置：<code>ONEKEY_BIN</code></p>
       </div>
 
       <div class="platform-card glass fade-in">
         <div class="platform-icon platform-icon-green">🌐</div>
         <h4>Web</h4>
-        <p>在浏览器里打开的 OneKey 网页版。直接用 Chrome 打开测试，会自动复制你的浏览器配置，这样登录状态什么的都在。</p>
-        <div class="platform-port">端口 9223</div>
+        <p>在浏览器里打开的 OneKey 网页版。直接用 Chrome 打开测试，会自动扫描可用 Chrome Profile 让你选，登录状态保留。</p>
+        <div class="platform-port">端口 9222 (复用)</div>
         <p class="platform-sub">录制监控：localhost:3211</p>
       </div>
 
       <div class="platform-card glass fade-in">
         <div class="platform-icon platform-icon-orange">🧩</div>
         <h4>Extension</h4>
-        <p>安装在 Chrome 浏览器里的 OneKey 扩展。测试时会复制完整的浏览器数据目录，保留扩展和设置，就像克隆了一个你的浏览器。</p>
-        <div class="platform-port">端口 9224</div>
-        <p class="platform-sub">录制监控：localhost:3212</p>
+        <p>安装在 Chrome 浏览器里的 OneKey 扩展。需要提供 Extension ID + Chrome Profile，自动通过 CDP 连接。</p>
+        <div class="platform-port">端口 9222 (复用)</div>
+        <p class="platform-sub">录制监控：localhost:3210</p>
+      </div>
+
+      <div class="platform-card glass fade-in">
+        <div class="platform-icon platform-icon-purple">📱</div>
+        <h4>Android</h4>
+        <p>真机 USB 连接，通过 <span class="term">UIAutomator<span class="tip">Android 系统自带的 UI 测试框架，可以读 App 内的按钮、文字等元素。</span></span> + <span class="term">AI Vision<span class="tip">无 testid 时用 AI 看截图找元素，类似肉眼定位。</span></span> 混合执行。Midscene 框架。</p>
+        <div class="platform-port">adb USB</div>
+        <p class="platform-sub">录制监控：localhost:3210<br>引擎：Midscene Hybrid</p>
       </div>
     </div>
 
@@ -1335,6 +1372,31 @@ footer a { color: #667eea; text-decoration: none; }
             <td><span class="writer-badge writer-builder">知识管理员</span></td>
             <td>归类后的"错题集"，相似问题归到一起</td>
           </tr>
+          <tr>
+            <td><span class="state-filename">ui-semantic-map.json</span></td>
+            <td><span class="writer-badge writer-builder">知识管理员</span></td>
+            <td>新版"语义定位层"：生成用例和维护时优先引用，比 ui-map 更稳定</td>
+          </tr>
+          <tr>
+            <td><span class="state-filename">generated/app-monorepo-testid-index.json</span></td>
+            <td><span class="writer-badge writer-builder">知识管理员</span></td>
+            <td>从 app-monorepo 源码 <code>x</code> 分支同步过来的 testID 全集</td>
+          </tr>
+          <tr>
+            <td><span class="state-filename">runtime-config.json</span></td>
+            <td><span class="writer-badge writer-runner">Dashboard UI</span></td>
+            <td>本机钱包账户配置（转账用例需要），<strong>gitignored</strong>，每人本地配一次</td>
+          </tr>
+          <tr>
+            <td><span class="state-filename">checklists.json</span></td>
+            <td><span class="writer-badge writer-runner">Dashboard UI</span></td>
+            <td>回归 Checklist 集合，Dashboard 左侧面板可视化管理</td>
+          </tr>
+          <tr>
+            <td><span class="state-filename">reports/review-*.md</span></td>
+            <td><span class="writer-badge writer-reporter">代码审查员</span></td>
+            <td>提交前 <code>/qa-review</code> 跑出来的审查报告</td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -1426,22 +1488,23 @@ footer a { color: #667eea; text-decoration: none; }
           <span class="toggle-icon">▶</span>
           <span class="file-icon">📁</span>
           <span class="file-name">src/tests/</span>
-          <span class="file-desc">— 所有测试脚本</span>
+          <span class="file-desc">— 所有测试脚本（按平台分层）</span>
           <ul>
+            <li><span class="file-icon">📄</span><span class="file-name">run.mjs</span><span class="file-desc">— 统一 CLI Runner 入口</span></li>
             <li class="file-dir" onclick="toggleDir(event, this)">
               <span class="toggle-icon">▶</span>
               <span class="file-icon">📁</span>
               <span class="file-name">desktop/</span>
-              <span class="file-desc">— 桌面端用例 (端口 9222)</span>
+              <span class="file-desc">— 桌面端用例（TF / MAS 包）</span>
               <ul>
                 <li class="file-dir" onclick="toggleDir(event, this)">
                   <span class="toggle-icon">▶</span>
                   <span class="file-icon">📁</span>
                   <span class="file-name">market/</span>
-                  <span class="file-desc">— 行情模块</span>
+                  <span class="file-desc">— 行情模块（搜索 / 收藏 / 图表）</span>
                   <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">search.test.mjs</span><span class="file-desc">— 搜索代币 (5个用例)</span></li>
-                    <li><span class="file-icon">📄</span><span class="file-name">favorite.test.mjs</span><span class="file-desc">— 收藏功能 (6个用例)</span></li>
+                    <li><span class="file-icon">📄</span><span class="file-name">search.test.mjs</span><span class="file-desc">— 搜索代币</span></li>
+                    <li><span class="file-icon">📄</span><span class="file-name">favorite.test.mjs</span><span class="file-desc">— 收藏功能</span></li>
                     <li><span class="file-icon">📄</span><span class="file-name">chart.test.mjs</span><span class="file-desc">— K线图表</span></li>
                   </ul>
                 </li>
@@ -1449,94 +1512,43 @@ footer a { color: #667eea; text-decoration: none; }
                   <span class="toggle-icon">▶</span>
                   <span class="file-icon">📁</span>
                   <span class="file-name">perps/</span>
-                  <span class="file-desc">— 合约交易</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">favorites.test.mjs</span><span class="file-desc">— 合约收藏</span></li>
-                    <li><span class="file-icon">📄</span><span class="file-name">token-search.test.mjs</span><span class="file-desc">— 合约代币搜索</span></li>
-                  </ul>
+                  <span class="file-desc">— 合约交易（图表 / 收藏 / 搜索 / 持仓）</span>
                 </li>
                 <li class="file-dir" onclick="toggleDir(event, this)">
                   <span class="toggle-icon">▶</span>
                   <span class="file-icon">📁</span>
-                  <span class="file-name">settings/</span>
-                  <span class="file-desc">— 系统设置</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">language-switch.test.mjs</span><span class="file-desc">— 切换语言</span></li>
-                    <li><span class="file-icon">📄</span><span class="file-name">theme-switch.test.mjs</span><span class="file-desc">— 切换主题</span></li>
-                  </ul>
+                  <span class="file-name">swap/</span>
+                  <span class="file-desc">— 兑换</span>
+                </li>
+                <li class="file-dir" onclick="toggleDir(event, this)">
+                  <span class="toggle-icon">▶</span>
+                  <span class="file-icon">📁</span>
+                  <span class="file-name">transfer/</span>
+                  <span class="file-desc">— 多链转账（含 Cosmos 等）</span>
                 </li>
                 <li class="file-dir" onclick="toggleDir(event, this)">
                   <span class="toggle-icon">▶</span>
                   <span class="file-icon">📁</span>
                   <span class="file-name">wallet/</span>
-                  <span class="file-desc">— 钱包操作</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">create-mnemonic.test.mjs</span><span class="file-desc">— 创建助记词钱包</span></li>
-                  </ul>
+                  <span class="file-desc">— 钱包创建 / 导入</span>
+                </li>
+                <li class="file-dir" onclick="toggleDir(event, this)">
+                  <span class="toggle-icon">▶</span>
+                  <span class="file-icon">📁</span>
+                  <span class="file-name">settings/</span>
+                  <span class="file-desc">— 语言 / 主题 / 通用设置</span>
                 </li>
                 <li class="file-dir" onclick="toggleDir(event, this)">
                   <span class="toggle-icon">▶</span>
                   <span class="file-icon">📁</span>
                   <span class="file-name">referral/</span>
                   <span class="file-desc">— 推荐返佣</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">bind-invite-code.test.mjs</span><span class="file-desc">— 绑定邀请码</span></li>
-                  </ul>
-                </li>
-                <li class="file-dir" onclick="toggleDir(event, this)">
-                  <span class="toggle-icon">▶</span>
-                  <span class="file-icon">📁</span>
-                  <span class="file-name">transfer/cosmos/</span>
-                  <span class="file-desc">— Cosmos 转账</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">transfer.test.mjs</span><span class="file-desc">— Cosmos 链转账</span></li>
-                  </ul>
                 </li>
                 <li class="file-dir" onclick="toggleDir(event, this)">
                   <span class="toggle-icon">▶</span>
                   <span class="file-icon">📁</span>
                   <span class="file-name">utility/</span>
-                  <span class="file-desc">— 通用功能</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">universal-search.test.mjs</span><span class="file-desc">— 全局搜索</span></li>
-                  </ul>
-                </li>
-              </ul>
-            </li>
-            <li class="file-dir" onclick="toggleDir(event, this)">
-              <span class="toggle-icon">▶</span>
-              <span class="file-icon">📁</span>
-              <span class="file-name">web/</span>
-              <span class="file-desc">— 网页端用例 (端口 9223)</span>
-              <ul>
-                <li class="file-dir" onclick="toggleDir(event, this)">
-                  <span class="toggle-icon">▶</span>
-                  <span class="file-icon">📁</span>
-                  <span class="file-name">market/</span>
-                  <span class="file-desc">— 行情模块</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">search.test.mjs</span><span class="file-desc">— WEB 搜索用例</span></li>
-                    <li><span class="file-icon">📄</span><span class="file-name">chart.test.mjs</span><span class="file-desc">— WEB K线图表</span></li>
-                  </ul>
-                </li>
-                <li class="file-dir" onclick="toggleDir(event, this)">
-                  <span class="toggle-icon">▶</span>
-                  <span class="file-icon">📁</span>
-                  <span class="file-name">perps/</span>
-                  <span class="file-desc">— 合约交易</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">favorites.test.mjs</span><span class="file-desc">— WEB 合约收藏</span></li>
-                    <li><span class="file-icon">📄</span><span class="file-name">token-search.test.mjs</span><span class="file-desc">— WEB 合约代币搜索</span></li>
-                  </ul>
-                </li>
-                <li class="file-dir" onclick="toggleDir(event, this)">
-                  <span class="toggle-icon">▶</span>
-                  <span class="file-icon">📁</span>
-                  <span class="file-name">utility/</span>
-                  <span class="file-desc">— 通用功能</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">universal-search.test.mjs</span><span class="file-desc">— WEB 全局搜索</span></li>
-                  </ul>
+                  <span class="file-desc">— 地址簿 / 全局搜索 / 货币切换等通用工具</span>
                 </li>
               </ul>
             </li>
@@ -1544,38 +1556,31 @@ footer a { color: #667eea; text-decoration: none; }
               <span class="toggle-icon">▶</span>
               <span class="file-icon">📁</span>
               <span class="file-name">extension/</span>
-              <span class="file-desc">— 插件端用例 (端口 9224)</span>
+              <span class="file-desc">— 浏览器插件端用例（市场 / 合约 / 钱包 / 转账 / 推荐...）</span>
+            </li>
+            <li class="file-dir" onclick="toggleDir(event, this)">
+              <span class="toggle-icon">▶</span>
+              <span class="file-icon">📁</span>
+              <span class="file-name">web/</span>
+              <span class="file-desc">— Web 端用例（app.onekey.so）</span>
+            </li>
+            <li class="file-dir" onclick="toggleDir(event, this)">
+              <span class="toggle-icon">▶</span>
+              <span class="file-icon">📁</span>
+              <span class="file-name">android/</span>
+              <span class="file-desc">— Android 真机用例（Midscene Hybrid + UIAutomator）</span>
               <ul>
-                <li class="file-dir" onclick="toggleDir(event, this)">
-                  <span class="toggle-icon">▶</span>
-                  <span class="file-icon">📁</span>
-                  <span class="file-name">market/</span>
-                  <span class="file-desc">— 行情模块</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">search.test.mjs</span><span class="file-desc">— 插件搜索用例</span></li>
-                    <li><span class="file-icon">📄</span><span class="file-name">chart.test.mjs</span><span class="file-desc">— 插件 K线图表</span></li>
-                  </ul>
-                </li>
-                <li class="file-dir" onclick="toggleDir(event, this)">
-                  <span class="toggle-icon">▶</span>
-                  <span class="file-icon">📁</span>
-                  <span class="file-name">perps/</span>
-                  <span class="file-desc">— 合约交易</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">favorites.test.mjs</span><span class="file-desc">— 插件合约收藏</span></li>
-                    <li><span class="file-icon">📄</span><span class="file-name">token-search.test.mjs</span><span class="file-desc">— 插件合约代币搜索</span></li>
-                  </ul>
-                </li>
-                <li class="file-dir" onclick="toggleDir(event, this)">
-                  <span class="toggle-icon">▶</span>
-                  <span class="file-icon">📁</span>
-                  <span class="file-name">utility/</span>
-                  <span class="file-desc">— 通用功能</span>
-                  <ul>
-                    <li><span class="file-icon">📄</span><span class="file-name">universal-search.test.mjs</span><span class="file-desc">— 插件全局搜索</span></li>
-                  </ul>
-                </li>
+                <li><span class="file-icon">📄</span><span class="file-name">recorder.mjs</span><span class="file-desc">— Android 录制器</span></li>
+                <li><span class="file-icon">📄</span><span class="file-name">runner.mjs</span><span class="file-desc">— Android 执行器</span></li>
+                <li><span class="file-icon">📁</span><span class="file-name">helpers/</span><span class="file-desc">— smartTap / hybridTap / hasText 等</span></li>
+                <li><span class="file-icon">📁</span><span class="file-name">wallet/ contract/ ...</span><span class="file-desc">— 各模块用例</span></li>
               </ul>
+            </li>
+            <li class="file-dir" onclick="toggleDir(event, this)">
+              <span class="toggle-icon">▶</span>
+              <span class="file-icon">📁</span>
+              <span class="file-name">mobile/</span>
+              <span class="file-desc">— 部分跨端 mobile 通用脚本</span>
             </li>
             <li class="file-dir" onclick="toggleDir(event, this)">
               <span class="toggle-icon">▶</span>
@@ -1584,17 +1589,15 @@ footer a { color: #667eea; text-decoration: none; }
               <span class="file-desc">— 共享工具函数</span>
               <ul>
                 <li><span class="file-icon">📄</span><span class="file-name">index.mjs</span><span class="file-desc">— CDP 连接、截图、基础工具</span></li>
-                <li><span class="file-icon">📄</span><span class="file-name">market-search.mjs</span><span class="file-desc">— 搜索逻辑 (三端复用)</span></li>
-                <li><span class="file-icon">📄</span><span class="file-name">market-chart.mjs</span><span class="file-desc">— K线图表逻辑 (三端复用)</span></li>
-                <li><span class="file-icon">📄</span><span class="file-name">preconditions.mjs</span><span class="file-desc">— 前置条件检查</span></li>
                 <li><span class="file-icon">📄</span><span class="file-name">navigation.mjs</span><span class="file-desc">— 页面导航、关闭弹窗</span></li>
                 <li><span class="file-icon">📄</span><span class="file-name">accounts.mjs</span><span class="file-desc">— 账户/钱包操作</span></li>
-                <li><span class="file-icon">📄</span><span class="file-name">extension-cdp.mjs</span><span class="file-desc">— 插件端 CDP 连接</span></li>
                 <li><span class="file-icon">📄</span><span class="file-name">network.mjs</span><span class="file-desc">— 网络请求工具</span></li>
                 <li><span class="file-icon">📄</span><span class="file-name">transfer.mjs</span><span class="file-desc">— 转账操作工具</span></li>
+                <li><span class="file-icon">📄</span><span class="file-name">preconditions.mjs</span><span class="file-desc">— 前置条件检查 + 跟踪</span></li>
+                <li><span class="file-icon">📄</span><span class="file-name">components.mjs</span><span class="file-desc">— 公共组件（safeStep / createStepTracker）</span></li>
+                <li><span class="file-icon">📄</span><span class="file-name">runtime-config.mjs</span><span class="file-desc">— 读取 Dashboard 配置的钱包账户</span></li>
               </ul>
             </li>
-            <li><span class="file-icon">📄</span><span class="file-name">run.mjs</span><span class="file-desc">— 测试批量执行入口</span></li>
           </ul>
         </li>
         <li class="file-dir" onclick="toggleDir(event, this)">
@@ -1641,9 +1644,18 @@ footer a { color: #667eea; text-decoration: none; }
           <span class="toggle-icon">▶</span>
           <span class="file-icon">📁</span>
           <span class="file-name">src/runner/</span>
-          <span class="file-desc">— 测试执行引擎</span>
+          <span class="file-desc">— ⚠️ 已废弃，请用 <code>src/tests/run.mjs</code></span>
+        </li>
+        <li class="file-dir" onclick="toggleDir(event, this)">
+          <span class="toggle-icon">▶</span>
+          <span class="file-icon">📁</span>
+          <span class="file-name">scripts/</span>
+          <span class="file-desc">— 项目脚本</span>
           <ul>
-            <li><span class="file-icon">📄</span><span class="file-name">index.mjs</span><span class="file-desc">— Runner 主逻辑 (状态恢复 + 多策略选择器)</span></li>
+            <li><span class="file-icon">📄</span><span class="file-name">clean.mjs</span><span class="file-desc">— <code>npm run clean</code> 清理产物</span></li>
+            <li><span class="file-icon">📄</span><span class="file-name">build-locator-map.mjs</span><span class="file-desc">— 构建定位器映射</span></li>
+            <li><span class="file-icon">📄</span><span class="file-name">sync-app-monorepo-selectors.mjs</span><span class="file-desc">— 同步 app-monorepo x 分支 testID</span></li>
+            <li><span class="file-icon">📄</span><span class="file-name">start-chrome-debug.sh</span><span class="file-desc">— 带 CDP 启动 Chrome</span></li>
           </ul>
         </li>
         <li class="file-dir" onclick="toggleDir(event, this)">
@@ -1653,15 +1665,20 @@ footer a { color: #667eea; text-decoration: none; }
           <span class="file-desc">— 共享数据文件 (Agent 间通信)</span>
           <ul>
             <li><span class="file-icon">📋</span><span class="file-name">test_cases.json</span><span class="file-desc">— 测试用例清单</span></li>
-            <li><span class="file-icon">📋</span><span class="file-name">ui-map.json</span><span class="file-desc">— 页面元素地址簿</span></li>
+            <li><span class="file-icon">📋</span><span class="file-name">ui-map.json</span><span class="file-desc">— 页面元素地址簿（执行期，三层选择器）</span></li>
+            <li><span class="file-icon">📋</span><span class="file-name">ui-semantic-map.json</span><span class="file-desc">— 语义定位层（生成/维护优先引用）</span></li>
             <li><span class="file-icon">📋</span><span class="file-name">knowledge.json</span><span class="file-desc">— 经验知识库</span></li>
             <li><span class="file-icon">📋</span><span class="file-name">diagnosis.json</span><span class="file-desc">— 失败诊断表</span></li>
             <li><span class="file-icon">📋</span><span class="file-name">preconditions.json</span><span class="file-desc">— 公共前置条件</span></li>
             <li><span class="file-icon">📋</span><span class="file-name">mem_cells.json</span><span class="file-desc">— 原始记忆事件</span></li>
             <li><span class="file-icon">📋</span><span class="file-name">mem_scenes.json</span><span class="file-desc">— 聚类场景</span></li>
             <li><span class="file-icon">📋</span><span class="file-name">profile.json</span><span class="file-desc">— Agent 能力画像</span></li>
-            <li><span class="file-icon">📁</span><span class="file-name">results/</span><span class="file-desc">— 执行结果文件</span></li>
-            <li><span class="file-icon">📁</span><span class="file-name">reports/</span><span class="file-desc">— 质量报告</span></li>
+            <li><span class="file-icon">📋</span><span class="file-name">runtime-config.json</span><span class="file-desc">— 钱包账户配置（本机，gitignored）</span></li>
+            <li><span class="file-icon">📋</span><span class="file-name">checklists.json</span><span class="file-desc">— 回归 Checklist 集合（Dashboard 管理）</span></li>
+            <li><span class="file-icon">📋</span><span class="file-name">tasks.json</span><span class="file-desc">— 任务队列</span></li>
+            <li><span class="file-icon">📁</span><span class="file-name">generated/</span><span class="file-desc">— app-monorepo 同步产物（testID 索引等）</span></li>
+            <li><span class="file-icon">📁</span><span class="file-name">results/</span><span class="file-desc">— 执行结果文件 (&lt;TEST-ID&gt;.json)</span></li>
+            <li><span class="file-icon">📁</span><span class="file-name">reports/</span><span class="file-desc">— 质量报告 + Review 报告</span></li>
           </ul>
         </li>
       </ul>
@@ -1681,9 +1698,10 @@ footer a { color: #667eea; text-decoration: none; }
         <table class="cmd-table">
           <thead><tr><th>你说</th><th>AI 做什么</th></tr></thead>
           <tbody>
-            <tr><td><span class="cmd-input">@用例文件.md 开始录制</span></td><td class="cmd-effect">读取用例 → 启动录制器 → 引导你逐场景操作</td></tr>
+            <tr><td><span class="cmd-input">@用例文件.md 开始录制</span></td><td class="cmd-effect">读取用例 → 启动录制器 → 引导你逐场景操作（Desktop/Web/Extension）</td></tr>
+            <tr><td><span class="cmd-input">@文件 /onekey-record-from-file</span></td><td class="cmd-effect">用例文件 → 场景重编排 → 输出覆盖映射 → 引导录制 → 生成 <code>.test.mjs</code></td></tr>
             <tr><td><span class="cmd-input">录完了</span></td><td class="cmd-effect">展示录制到的每一步，等你确认</td></tr>
-            <tr><td><span class="cmd-input">录制测试</span></td><td class="cmd-effect">完整流程：录制 → 确认 → 生成脚本 → 验证通过</td></tr>
+            <tr><td><span class="cmd-input">录制测试</span></td><td class="cmd-effect">Android 流程：真机录制 → 确认 → 生成 Midscene 脚本 → 验证</td></tr>
           </tbody>
         </table>
       </div>
@@ -1720,6 +1738,18 @@ footer a { color: #667eea; text-decoration: none; }
           <tbody>
             <tr><td><span class="cmd-input">设计用例</span></td><td class="cmd-effect">从需求文档分析，设计测试场景</td></tr>
             <tr><td><span class="cmd-input">写用例</span></td><td class="cmd-effect">同上</td></tr>
+            <tr><td><span class="cmd-input">@需求文档 生成测试用例</span></td><td class="cmd-effect">PRD → 结构化用例 → 输出到 <code>docs/qa/testcases/cases/&lt;模块&gt;/</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cmd-category">
+        <div class="cmd-category-title">审查 / 清理</div>
+        <table class="cmd-table">
+          <thead><tr><th>你说</th><th>AI 做什么</th></tr></thead>
+          <tbody>
+            <tr><td><span class="cmd-input">/qa-review</span> 或 <span class="cmd-input">审查提交</span></td><td class="cmd-effect">提交前检查用例 / 规则 / 脚本 / Skill 的规范性 + 安全性，报告存到 <code>shared/reports/review-*.md</code></td></tr>
+            <tr><td><span class="cmd-input">npm run clean</span></td><td class="cmd-effect">清理 dist、录制截图、Android session、DS_Store（保留 result JSON）</td></tr>
           </tbody>
         </table>
       </div>
@@ -1738,35 +1768,31 @@ footer a { color: #667eea; text-decoration: none; }
         <h4>需要安装的软件</h4>
         <div class="setup-item">
           <span class="setup-item-name">OneKey Desktop</span>
-          <span class="setup-item-value">桌面端测试用（自动启动）</span>
+          <span class="setup-item-value">TF / MAS 包（桌面端测试用，自动启动）</span>
         </div>
         <div class="setup-item">
           <span class="setup-item-name">Google Chrome</span>
-          <span class="setup-item-value">Web / 插件端测试用</span>
+          <span class="setup-item-value">Web / 插件端测试用（自动扫描 Profile）</span>
+        </div>
+        <div class="setup-item">
+          <span class="setup-item-name">Android 真机 + adb</span>
+          <span class="setup-item-value">Android 测试用，USB 连接</span>
         </div>
         <div class="setup-item">
           <span class="setup-item-name">Node.js 20+</span>
           <span class="setup-item-value">运行脚本和面板</span>
         </div>
         <div class="setup-item">
-          <span class="setup-item-name">playwright-core</span>
-          <span class="setup-item-value">npm install 即可</span>
+          <span class="setup-item-name">npm install</span>
+          <span class="setup-item-value">playwright-core / midscene / webdriverio 等</span>
         </div>
       </div>
 
       <div class="glass-strong setup-card fade-in">
         <h4>端口分配</h4>
         <div class="setup-item">
-          <span class="setup-item-name">桌面端 CDP</span>
+          <span class="setup-item-name">CDP（统一）</span>
           <span class="setup-port">9222</span>
-        </div>
-        <div class="setup-item">
-          <span class="setup-item-name">Web 端 CDP</span>
-          <span class="setup-port">9223</span>
-        </div>
-        <div class="setup-item">
-          <span class="setup-item-name">插件端 CDP</span>
-          <span class="setup-port">9224</span>
         </div>
         <div class="setup-item">
           <span class="setup-item-name">Dashboard 面板</span>
@@ -1780,30 +1806,30 @@ footer a { color: #667eea; text-decoration: none; }
           <span class="setup-item-name">Web 端录制监控</span>
           <span class="setup-port">3211</span>
         </div>
+        <div class="setup-item">
+          <span class="setup-item-name">Android</span>
+          <span class="setup-port">adb (USB)</span>
+        </div>
       </div>
     </div>
 
     <div class="setup-env glass-strong fade-in">
-      <h4>环境变量（可选，不设也能跑）</h4>
+      <h4>环境变量（.env 文件）</h4>
+      <div class="env-var">
+        <span class="env-var-key">ONEKEY_BIN</span>
+        <span class="env-var-desc">OneKey 桌面端可执行文件路径（必填，桌面测试用）— 默认 <code>/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey</code></span>
+      </div>
       <div class="env-var">
         <span class="env-var-key">CDP_URL</span>
-        <span class="env-var-desc">桌面端连接地址，默认 http://127.0.0.1:9222</span>
-      </div>
-      <div class="env-var">
-        <span class="env-var-key">WEB_CDP_URL</span>
-        <span class="env-var-desc">Web 端连接地址，默认 http://127.0.0.1:9223</span>
-      </div>
-      <div class="env-var">
-        <span class="env-var-key">EXT_CDP_URL</span>
-        <span class="env-var-desc">插件端连接地址，默认 http://127.0.0.1:9224</span>
-      </div>
-      <div class="env-var">
-        <span class="env-var-key">ONEKEY_EXT_ID</span>
-        <span class="env-var-desc">插件 ID（默认自动检测）</span>
+        <span class="env-var-desc">CDP 连接地址，默认 http://127.0.0.1:9222</span>
       </div>
       <div class="env-var">
         <span class="env-var-key">WALLET_PASSWORD</span>
         <span class="env-var-desc">钱包解锁密码</span>
+      </div>
+      <div class="env-var">
+        <span class="env-var-key">AI 视觉模型 (Android)</span>
+        <span class="env-var-desc">OpenAI / Anthropic API key（Android 测试需要）</span>
       </div>
     </div>
   </div>

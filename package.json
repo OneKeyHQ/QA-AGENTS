@@ -13,7 +13,10 @@
     "preflight": "tsx src/cli/index.ts preflight",
     "result": "tsx src/cli/index.ts result",
     "report": "tsx src/cli/index.ts report",
-    "sync:selectors": "node scripts/sync-app-monorepo-selectors.mjs"
+    "sync:selectors": "node scripts/sync-app-monorepo-selectors.mjs",
+    "build:locators": "node scripts/build-locator-map.mjs",
+    "build:locators:check": "node scripts/build-locator-map.mjs --check",
+    "clean": "node scripts/clean.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
@@ -23,12 +26,10 @@
     "openai": "^6.25.0",
     "sharp": "^0.34.5",
     "uuid": "^14.0.0",
+    "webdriverio": "^9.0.0",
     "yaml": "^2.8.3"
   },
   "devDependencies": {
-    "@midscene/android": "^1.4.9",
-    "@midscene/core": "^1.4.2",
-    "@midscene/web": "^1.4.2",
     "@playwright/test": "^1.58.2",
     "@types/node": "^22.0.0",
     "@types/uuid": "^10.0.0",
@@ -37,5 +38,10 @@
     "playwright-core": "^1.58.2",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "basic-ftp": ">=5.2.0"
+    }
   }
 }

@@ -1,0 +1,1253 @@
+{
+  "module": "hardware",
+  "description": "Locators for hardware module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "hardware.blank-page": {
+      "primary": "[data-testid=\"blank-page\"]",
+      "source_testid": "blank-page",
+      "source": "auto-classified",
+      "page": "deviceguidemodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.blank-page-mobile-buttons": {
+      "primary": "[data-testid=\"blank-page-mobile-buttons\"]",
+      "source_testid": "blank-page-mobile-buttons",
+      "source": "auto-classified",
+      "page": "deviceguidemodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.blank-page-video": {
+      "primary": "[data-testid=\"blank-page-video\"]",
+      "source_testid": "blank-page-video",
+      "source": "auto-classified",
+      "page": "deviceguidemodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-details-content": {
+      "primary": "[data-testid=\"device-details-content\"]",
+      "source_testid": "device-details-content",
+      "source": "auto-classified",
+      "page": "devicedetailsmodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-management-intl-btn": {
+      "primary": "[data-testid=\"device-management-intl-btn\"]",
+      "source_testid": "device-management-intl-btn",
+      "source": "auto-classified",
+      "page": "devicedetailsmodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-management-on-add-device-icon-btn": {
+      "primary": "[data-testid=\"device-management-on-add-device-icon-btn\"]",
+      "source_testid": "device-management-on-add-device-icon-btn",
+      "source": "auto-classified",
+      "page": "devicemanagementlistmodal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-about-device-item": {
+      "primary": "[data-testid=\"device-mgmt-about-device-item\"]",
+      "source_testid": "device-mgmt-about-device-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-add-new-device-btn": {
+      "primary": "[data-testid=\"device-mgmt-add-new-device-btn\"]",
+      "source_testid": "device-mgmt-add-new-device-btn",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-auth-request-item": {
+      "primary": "[data-testid=\"device-mgmt-auth-request-item\"]",
+      "source_testid": "device-mgmt-auth-request-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-auto-lock-select": {
+      "primary": "[data-testid=\"device-mgmt-auto-lock-select\"]",
+      "source_testid": "device-mgmt-auto-lock-select",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-auto-shutdown-select": {
+      "primary": "[data-testid=\"device-mgmt-auto-shutdown-select\"]",
+      "source_testid": "device-mgmt-auto-shutdown-select",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-brightness-item": {
+      "primary": "[data-testid=\"device-mgmt-brightness-item\"]",
+      "source_testid": "device-mgmt-brightness-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-buy-onekey-btn": {
+      "primary": "[data-testid=\"device-mgmt-buy-onekey-btn\"]",
+      "source_testid": "device-mgmt-buy-onekey-btn",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-change-pin-item": {
+      "primary": "[data-testid=\"device-mgmt-change-pin-item\"]",
+      "source_testid": "device-mgmt-change-pin-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-check-for-updates-item": {
+      "primary": "[data-testid=\"device-mgmt-check-for-updates-item\"]",
+      "source_testid": "device-mgmt-check-for-updates-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-connect-hardware-btn": {
+      "primary": "[data-testid=\"device-mgmt-connect-hardware-btn\"]",
+      "source_testid": "device-mgmt-connect-hardware-btn",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-contact-support-btn": {
+      "primary": "[data-testid=\"device-mgmt-contact-support-btn\"]",
+      "source_testid": "device-mgmt-contact-support-btn",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-copy-serial-btn": {
+      "primary": "[data-testid=\"device-mgmt-copy-serial-btn\"]",
+      "source_testid": "device-mgmt-copy-serial-btn",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-details-content": {
+      "primary": "[data-testid=\"device-mgmt-details-content\"]",
+      "source_testid": "device-mgmt-details-content",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-device-list-item": {
+      "primary": "[data-testid=\"device-mgmt-device-list-item\"]",
+      "source_testid": "device-mgmt-device-list-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-faq-item": {
+      "primary": "[data-testid=\"device-mgmt-faq-item\"]",
+      "source_testid": "device-mgmt-faq-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-forget-device-item": {
+      "primary": "[data-testid=\"device-mgmt-forget-device-item\"]",
+      "source_testid": "device-mgmt-forget-device-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-haptic-feedback-switch": {
+      "primary": "[data-testid=\"device-mgmt-haptic-feedback-switch\"]",
+      "source_testid": "device-mgmt-haptic-feedback-switch",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-help-center-btn": {
+      "primary": "[data-testid=\"device-mgmt-help-center-btn\"]",
+      "source_testid": "device-mgmt-help-center-btn",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-input-pin-on-software-switch": {
+      "primary": "[data-testid=\"device-mgmt-input-pin-on-software-switch\"]",
+      "source_testid": "device-mgmt-input-pin-on-software-switch",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-language-select": {
+      "primary": "[data-testid=\"device-mgmt-language-select\"]",
+      "source_testid": "device-mgmt-language-select",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-more-faqs-btn": {
+      "primary": "[data-testid=\"device-mgmt-more-faqs-btn\"]",
+      "source_testid": "device-mgmt-more-faqs-btn",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-passphrase-switch": {
+      "primary": "[data-testid=\"device-mgmt-passphrase-switch\"]",
+      "source_testid": "device-mgmt-passphrase-switch",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-switch-firmware-type-item": {
+      "primary": "[data-testid=\"device-mgmt-switch-firmware-type-item\"]",
+      "source_testid": "device-mgmt-switch-firmware-type-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-troubleshooting-item": {
+      "primary": "[data-testid=\"device-mgmt-troubleshooting-item\"]",
+      "source_testid": "device-mgmt-troubleshooting-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-wallpaper-item": {
+      "primary": "[data-testid=\"device-mgmt-wallpaper-item\"]",
+      "source_testid": "device-mgmt-wallpaper-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.device-mgmt-wipe-device-item": {
+      "primary": "[data-testid=\"device-mgmt-wipe-device-item\"]",
+      "source_testid": "device-mgmt-wipe-device-item",
+      "source": "auto-classified",
+      "page": "devicemanagement",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-btn": {
+      "primary": "[data-testid=\"firmware-update-btn\"]",
+      "source_testid": "firmware-update-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-changelog-accordion": {
+      "primary": "[data-testid=\"firmware-update-changelog-accordion\"]",
+      "source_testid": "firmware-update-changelog-accordion",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-checklist-checkbox": {
+      "primary": "[data-testid=\"firmware-update-checklist-checkbox\"]",
+      "source_testid": "firmware-update-checklist-checkbox",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-checklist-continue-btn": {
+      "primary": "[data-testid=\"firmware-update-checklist-continue-btn\"]",
+      "source_testid": "firmware-update-checklist-continue-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-debug-info-btn": {
+      "primary": "[data-testid=\"firmware-update-debug-info-btn\"]",
+      "source_testid": "firmware-update-debug-info-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-done-confirm-btn": {
+      "primary": "[data-testid=\"firmware-update-done-confirm-btn\"]",
+      "source_testid": "firmware-update-done-confirm-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-grant-usb-access-btn": {
+      "primary": "[data-testid=\"firmware-update-grant-usb-access-btn\"]",
+      "source_testid": "firmware-update-grant-usb-access-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-install-v2-close-btn": {
+      "primary": "[data-testid=\"firmware-update-install-v2-close-btn\"]",
+      "source_testid": "firmware-update-install-v2-close-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-install-v2-import-wallet-btn": {
+      "primary": "[data-testid=\"firmware-update-install-v2-import-wallet-btn\"]",
+      "source_testid": "firmware-update-install-v2-import-wallet-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-now-btn": {
+      "primary": "[data-testid=\"firmware-update-now-btn\"]",
+      "source_testid": "firmware-update-now-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-progress-bar": {
+      "primary": "[data-testid=\"firmware-update-progress-bar\"]",
+      "source_testid": "firmware-update-progress-bar",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-reminder-view-btn": {
+      "primary": "[data-testid=\"firmware-update-reminder-view-btn\"]",
+      "source_testid": "firmware-update-reminder-view-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-retry-btn": {
+      "primary": "[data-testid=\"firmware-update-retry-btn\"]",
+      "source_testid": "firmware-update-retry-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-view-tutorial-btn": {
+      "primary": "[data-testid=\"firmware-update-view-tutorial-btn\"]",
+      "source_testid": "firmware-update-view-tutorial-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.firmware-update-visit-website-btn": {
+      "primary": "[data-testid=\"firmware-update-visit-website-btn\"]",
+      "source_testid": "firmware-update-visit-website-btn",
+      "source": "auto-classified",
+      "page": "firmwareupdate",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-timeout-icon-btn": {
+      "primary": "[data-testid=\"hardware-timeout-icon-btn\"]",
+      "source_testid": "hardware-timeout-icon-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-bluetooth-go-to-settings-btn": {
+      "primary": "[data-testid=\"hardware-ui-bluetooth-go-to-settings-btn\"]",
+      "source_testid": "hardware-ui-bluetooth-go-to-settings-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-confirm-passphrase-confirm-btn": {
+      "primary": "[data-testid=\"hardware-ui-confirm-passphrase-confirm-btn\"]",
+      "source_testid": "hardware-ui-confirm-passphrase-confirm-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-confirm-passphrase-input": {
+      "primary": "[data-testid=\"hardware-ui-confirm-passphrase-input\"]",
+      "source_testid": "hardware-ui-confirm-passphrase-input",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-confirm-passphrase-switch-on-device-btn": {
+      "primary": "[data-testid=\"hardware-ui-confirm-passphrase-switch-on-device-btn\"]",
+      "source_testid": "hardware-ui-confirm-passphrase-switch-on-device-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-contact-us-btn": {
+      "primary": "[data-testid=\"hardware-ui-contact-us-btn\"]",
+      "source_testid": "hardware-ui-contact-us-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-passphrase-attach-pin-btn": {
+      "primary": "[data-testid=\"hardware-ui-passphrase-attach-pin-btn\"]",
+      "source_testid": "hardware-ui-passphrase-attach-pin-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-passphrase-confirm-btn": {
+      "primary": "[data-testid=\"hardware-ui-passphrase-confirm-btn\"]",
+      "source_testid": "hardware-ui-passphrase-confirm-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-passphrase-hide-immediately-switch": {
+      "primary": "[data-testid=\"hardware-ui-passphrase-hide-immediately-switch\"]",
+      "source_testid": "hardware-ui-passphrase-hide-immediately-switch",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-passphrase-info-btn": {
+      "primary": "[data-testid=\"hardware-ui-passphrase-info-btn\"]",
+      "source_testid": "hardware-ui-passphrase-info-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-passphrase-input": {
+      "primary": "[data-testid=\"hardware-ui-passphrase-input\"]",
+      "source_testid": "hardware-ui-passphrase-input",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-passphrase-switch-on-device-btn": {
+      "primary": "[data-testid=\"hardware-ui-passphrase-switch-on-device-btn\"]",
+      "source_testid": "hardware-ui-passphrase-switch-on-device-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-pin-switch-on-device-btn": {
+      "primary": "[data-testid=\"hardware-ui-pin-switch-on-device-btn\"]",
+      "source_testid": "hardware-ui-pin-switch-on-device-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.hardware-ui-troubleshooting-btn": {
+      "primary": "[data-testid=\"hardware-ui-troubleshooting-btn\"]",
+      "source_testid": "hardware-ui-troubleshooting-btn",
+      "source": "auto-classified",
+      "page": "hardware",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.keytag-backup-confirm-checkbox": {
+      "primary": "[data-testid=\"keytag-backup-confirm-checkbox\"]",
+      "source_testid": "keytag-backup-confirm-checkbox",
+      "source": "auto-classified",
+      "page": "keytag",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.keytag-backup-item": {
+      "primary": "[data-testid=\"keytag-backup-item\"]",
+      "source_testid": "keytag-backup-item",
+      "source": "auto-classified",
+      "page": "keytag",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.keytag-enter-recovery-phrase-item": {
+      "primary": "[data-testid=\"keytag-enter-recovery-phrase-item\"]",
+      "source_testid": "keytag-enter-recovery-phrase-item",
+      "source": "auto-classified",
+      "page": "keytag",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.keytag-get-one-btn": {
+      "primary": "[data-testid=\"keytag-get-one-btn\"]",
+      "source_testid": "keytag-get-one-btn",
+      "source": "auto-classified",
+      "page": "keytag",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.keytag-got-it-btn": {
+      "primary": "[data-testid=\"keytag-got-it-btn\"]",
+      "source_testid": "keytag-got-it-btn",
+      "source": "auto-classified",
+      "page": "keytag",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.keytag-help-btn": {
+      "primary": "[data-testid=\"keytag-help-btn\"]",
+      "source_testid": "keytag-help-btn",
+      "source": "auto-classified",
+      "page": "keytag",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.keytag-import-item": {
+      "primary": "[data-testid=\"keytag-import-item\"]",
+      "source_testid": "keytag-import-item",
+      "source": "auto-classified",
+      "page": "keytag",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.keytag-wallet-list-item": {
+      "primary": "[data-testid=\"keytag-wallet-list-item\"]",
+      "source_testid": "keytag-wallet-list-item",
+      "source": "auto-classified",
+      "page": "keytag",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.lite-card-backup-item": {
+      "primary": "[data-testid=\"lite-card-backup-item\"]",
+      "source_testid": "lite-card-backup-item",
+      "source": "auto-classified",
+      "page": "litecard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.lite-card-change-pin-item": {
+      "primary": "[data-testid=\"lite-card-change-pin-item\"]",
+      "source_testid": "lite-card-change-pin-item",
+      "source": "auto-classified",
+      "page": "litecard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.lite-card-get-one-btn": {
+      "primary": "[data-testid=\"lite-card-get-one-btn\"]",
+      "source_testid": "lite-card-get-one-btn",
+      "source": "auto-classified",
+      "page": "litecard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.lite-card-import-item": {
+      "primary": "[data-testid=\"lite-card-import-item\"]",
+      "source_testid": "lite-card-import-item",
+      "source": "auto-classified",
+      "page": "litecard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.lite-card-keyboard-delete-btn": {
+      "primary": "[data-testid=\"lite-card-keyboard-delete-btn\"]",
+      "source_testid": "lite-card-keyboard-delete-btn",
+      "source": "auto-classified",
+      "page": "litecard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.lite-card-keyboard-key": {
+      "primary": "[data-testid=\"lite-card-keyboard-key\"]",
+      "source_testid": "lite-card-keyboard-key",
+      "source": "auto-classified",
+      "page": "litecard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.lite-card-reset-item": {
+      "primary": "[data-testid=\"lite-card-reset-item\"]",
+      "source_testid": "lite-card-reset-item",
+      "source": "auto-classified",
+      "page": "litecard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.lite-card-show-backup-overwritten-dialog-checkbox": {
+      "primary": "[data-testid=\"lite-card-show-backup-overwritten-dialog-checkbox\"]",
+      "source_testid": "lite-card-show-backup-overwritten-dialog-checkbox",
+      "source": "auto-classified",
+      "page": "litecard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    },
+    "hardware.lite-card-show-reset-warning-dialog-input": {
+      "primary": "[data-testid=\"lite-card-show-reset-warning-dialog-input\"]",
+      "source_testid": "lite-card-show-reset-warning-dialog-input",
+      "source": "auto-classified",
+      "page": "litecard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "hardware"
+      ]
+    }
+  }
+}

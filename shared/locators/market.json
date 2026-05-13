@@ -1,0 +1,939 @@
+{
+  "module": "market",
+  "description": "Locators for market module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "market.action.button": {
+      "primary": "[data-testid=\"action-button\"]",
+      "source_testid": "action-button",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "action"
+      ],
+      "notes": "Generic action CTA inside market swap panel; keep page-scoped to avoid global overloading."
+    },
+    "market.panel.top": {
+      "primary": "[data-testid=\"panel-top\"]",
+      "source_testid": "panel-top",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "panel"
+      ]
+    },
+    "market.review.dialog": {
+      "primary": "[data-testid=\"market-review-dialog\"]",
+      "source_testid": "market-review-dialog",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "review"
+      ]
+    },
+    "market.market-amounts-length-btn": {
+      "primary": "[data-testid=\"market-amounts-length-btn\"]",
+      "source_testid": "market-amounts-length-btn",
+      "source": "auto-classified",
+      "page": "tokeninputsection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-banner-detail-notification": {
+      "primary": "[data-testid=\"market-banner-detail-notification\"]",
+      "source_testid": "market-banner-detail-notification",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-btn": {
+      "primary": "[data-testid=\"market-btn\"]",
+      "source_testid": "market-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-confirm-button-btn": {
+      "primary": "[data-testid=\"market-confirm-button-btn\"]",
+      "source_testid": "market-confirm-button-btn",
+      "source": "auto-classified",
+      "page": "marketrecommendlist",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-copy-icon-icon": {
+      "primary": "[data-testid=\"market-copy-icon-icon\"]",
+      "source_testid": "market-copy-icon-icon",
+      "source": "auto-classified",
+      "page": "addressdisplay",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-detail-about": {
+      "primary": "[data-testid=\"market-detail-about\"]",
+      "source_testid": "market-detail-about",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-detail-buy-button": {
+      "primary": "[data-testid=\"market-detail-buy-button\"]",
+      "source_testid": "market-detail-buy-button",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-detail-chart": {
+      "primary": "[data-testid=\"market-detail-chart\"]",
+      "source_testid": "market-detail-chart",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-detail-page": {
+      "primary": "[data-testid=\"market-detail-page\"]",
+      "source_testid": "market-detail-page",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-detail-swap-button": {
+      "primary": "[data-testid=\"market-detail-swap-button\"]",
+      "source_testid": "market-detail-swap-button",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-handle-buy-btn": {
+      "primary": "[data-testid=\"market-handle-buy-btn\"]",
+      "source_testid": "market-handle-buy-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-handle-dismiss-keyboard-input": {
+      "primary": "[data-testid=\"market-handle-dismiss-keyboard-input\"]",
+      "source_testid": "market-handle-dismiss-keyboard-input",
+      "source": "auto-classified",
+      "page": "tokeninputsection",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-icon": {
+      "primary": "[data-testid=\"market-icon\"]",
+      "source_testid": "market-icon",
+      "source": "auto-classified",
+      "page": "marketdetailheader",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-icon-btn": {
+      "primary": "[data-testid=\"market-icon-btn\"]",
+      "source_testid": "market-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-input": {
+      "primary": "[data-testid=\"market-input\"]",
+      "source_testid": "market-input",
+      "source": "auto-classified",
+      "page": "liquidityfiltercontrol",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-intl-btn": {
+      "primary": "[data-testid=\"market-intl-btn\"]",
+      "source_testid": "market-intl-btn",
+      "source": "auto-classified",
+      "page": "approvebutton",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-intl-icon-btn": {
+      "primary": "[data-testid=\"market-intl-icon-btn\"]",
+      "source_testid": "market-intl-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-is-full-text-shown-btn": {
+      "primary": "[data-testid=\"market-is-full-text-shown-btn\"]",
+      "source_testid": "market-is-full-text-shown-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-is-spot-or-perps-icon-btn": {
+      "primary": "[data-testid=\"market-is-spot-or-perps-icon-btn\"]",
+      "source_testid": "market-is-spot-or-perps-icon-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-liquidity-pool-copy-address-btn": {
+      "primary": "[data-testid=\"market-liquidity-pool-copy-address-btn\"]",
+      "source_testid": "market-liquidity-pool-copy-address-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-liquidity-pool-open-address-btn": {
+      "primary": "[data-testid=\"market-liquidity-pool-open-address-btn\"]",
+      "source_testid": "market-liquidity-pool-open-address-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-list-buy-btn": {
+      "primary": "[data-testid=\"market-list-buy-btn\"]",
+      "source_testid": "market-list-buy-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-list-connect-btn": {
+      "primary": "[data-testid=\"market-list-connect-btn\"]",
+      "source_testid": "market-list-connect-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-list-earn-btn": {
+      "primary": "[data-testid=\"market-list-earn-btn\"]",
+      "source_testid": "market-list-earn-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-list-trade-btn": {
+      "primary": "[data-testid=\"market-list-trade-btn\"]",
+      "source_testid": "market-list-trade-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-no-account-btn": {
+      "primary": "[data-testid=\"market-no-account-btn\"]",
+      "source_testid": "market-no-account-btn",
+      "source": "auto-classified",
+      "page": "swappanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-open-in-browser-button-icon": {
+      "primary": "[data-testid=\"market-open-in-browser-button-icon\"]",
+      "source_testid": "market-open-in-browser-button-icon",
+      "source": "auto-classified",
+      "page": "addressdisplay",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-options-btn": {
+      "primary": "[data-testid=\"market-options-btn\"]",
+      "source_testid": "market-options-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-page": {
+      "primary": "[data-testid=\"market-page\"]",
+      "source_testid": "market-page",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-platform-btn": {
+      "primary": "[data-testid=\"market-platform-btn\"]",
+      "source_testid": "market-platform-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-popover-title-btn": {
+      "primary": "[data-testid=\"market-popover-title-btn\"]",
+      "source_testid": "market-popover-title-btn",
+      "source": "auto-classified",
+      "page": "liquidityfiltercontrol",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-preset-quick-switch": {
+      "primary": "[data-testid=\"market-preset-quick-switch\"]",
+      "source_testid": "market-preset-quick-switch",
+      "source": "auto-classified",
+      "page": "marketpresetselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-preset-selector": {
+      "primary": "[data-testid=\"market-preset-selector\"]",
+      "source_testid": "market-preset-selector",
+      "source": "auto-classified",
+      "page": "swappanel",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-preset-selector-confirm-btn": {
+      "primary": "[data-testid=\"market-preset-selector-confirm-btn\"]",
+      "source_testid": "market-preset-selector-confirm-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-preset-selector-ok-btn": {
+      "primary": "[data-testid=\"market-preset-selector-ok-btn\"]",
+      "source_testid": "market-preset-selector-ok-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-preset-selector-priority-fee-custom-input": {
+      "primary": "[data-testid=\"market-preset-selector-priority-fee-custom-input\"]",
+      "source_testid": "market-preset-selector-priority-fee-custom-input",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-preset-selector-reset-btn": {
+      "primary": "[data-testid=\"market-preset-selector-reset-btn\"]",
+      "source_testid": "market-preset-selector-reset-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-preset-settings-trigger": {
+      "primary": "[data-testid=\"market-preset-settings-trigger\"]",
+      "source_testid": "market-preset-settings-trigger",
+      "source": "auto-classified",
+      "page": "marketpresetselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-render-preset-row-btn": {
+      "primary": "[data-testid=\"market-render-preset-row-btn\"]",
+      "source_testid": "market-render-preset-row-btn",
+      "source": "auto-classified",
+      "page": "liquidityfiltercontrol",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-render-preset-row-input": {
+      "primary": "[data-testid=\"market-render-preset-row-input\"]",
+      "source_testid": "market-render-preset-row-input",
+      "source": "auto-classified",
+      "page": "liquidityfiltercontrol",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-render-trigger-btn": {
+      "primary": "[data-testid=\"market-render-trigger-btn\"]",
+      "source_testid": "market-render-trigger-btn",
+      "source": "auto-classified",
+      "page": "markettokenlistnetworkselector",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-render-watchlist-sub-header-content-icon-btn": {
+      "primary": "[data-testid=\"market-render-watchlist-sub-header-content-icon-btn\"]",
+      "source_testid": "market-render-watchlist-sub-header-content-icon-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-search-bar": {
+      "primary": "[data-testid=\"market-search-bar\"]",
+      "source_testid": "market-search-bar",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-select": {
+      "primary": "[data-testid=\"market-select\"]",
+      "source_testid": "market-select",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-sort-change": {
+      "primary": "[data-testid=\"market-sort-change\"]",
+      "source_testid": "market-sort-change",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-sort-market-cap": {
+      "primary": "[data-testid=\"market-sort-market-cap\"]",
+      "source_testid": "market-sort-market-cap",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-sort-price": {
+      "primary": "[data-testid=\"market-sort-price\"]",
+      "source_testid": "market-sort-price",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-sort-volume": {
+      "primary": "[data-testid=\"market-sort-volume\"]",
+      "source_testid": "market-sort-volume",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-swap-flash-btn-btn": {
+      "primary": "[data-testid=\"market-swap-flash-btn-btn\"]",
+      "source_testid": "market-swap-flash-btn-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-title-icon-btn": {
+      "primary": "[data-testid=\"market-title-icon-btn\"]",
+      "source_testid": "market-title-icon-btn",
+      "source": "auto-classified",
+      "page": "perpetualtradingbanner",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-token-selector-row-star-btn": {
+      "primary": "[data-testid=\"market-token-selector-row-star-btn\"]",
+      "source_testid": "market-token-selector-row-star-btn",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-url-icon": {
+      "primary": "[data-testid=\"market-url-icon\"]",
+      "source_testid": "market-url-icon",
+      "source": "auto-classified",
+      "page": "tokendetailheader",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-url-icon-btn": {
+      "primary": "[data-testid=\"market-url-icon-btn\"]",
+      "source_testid": "market-url-icon-btn",
+      "source": "auto-classified",
+      "page": "tokendetailheader",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.market-watch-list": {
+      "primary": "[data-testid=\"market-watch-list\"]",
+      "source_testid": "market-watch-list",
+      "source": "auto-classified",
+      "page": "market",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.tab-bar": {
+      "primary": "[data-testid=\"tab-bar\"]",
+      "source_testid": "tab-bar",
+      "source": "auto-classified",
+      "page": "informationtabs",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    },
+    "market.transactions-list": {
+      "primary": "[data-testid=\"transactions-list\"]",
+      "source_testid": "transactions-list",
+      "source": "auto-classified",
+      "page": "transactionshistory",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "market"
+      ]
+    }
+  }
+}

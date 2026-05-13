@@ -156,23 +156,58 @@ export function restartRun() {
   });
 }
 
-async function executeQueue() {
-  // Dynamic import helpers (ESM .mjs)
-  const helpers = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'index.mjs')).href}?t=${Date.now()}`);
-  const { connectCDP, sleep, dismissOverlays, unlockWalletIfNeeded } = helpers;
+function isMobileFile(filePath: string): boolean {
+  // Registry passes paths relative to src/tests/ (e.g. "mobile/wallet/x.test.mjs"),
+  // so we match on the "mobile/" segment without requiring a leading slash.
+  return /(^|[\\/])mobile[\\/]/.test(filePath);
+}
 
-  let page: any;
-  try {
-    const cdp = await connectCDP();
-    page = cdp.page;
-    await unlockWalletIfNeeded(page);
-  } catch (e: any) {
-    // Fail all remaining
-    for (let i = currentIndex; i < queue.length; i++) {
-      queue[i].status = 'failed';
-      queue[i].error = 'CDP connection failed: ' + e.message;
-      emit({ event: 'fail', id: queue[i].id, error: queue[i].error, timestamp: new Date().toISOString() });
+async function executeQueue() {
+  // Lazy session handles — only the platforms actually used get initialized.
+  let desktopPage: any = null;
+  let mobileDriver: any = null;
+  let appiumModule: any = null;
+
+  // Pre-decide which platforms appear in this run so connection failures fail
+  // only the cases that need them, not the whole queue.
+  const hasDesktop = queue.some(q => !isMobileFile(q.file));
+  const hasMobile = queue.some(q => isMobileFile(q.file));
+
+  if (hasDesktop) {
+    try {
+      const helpers = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'index.mjs')).href}?t=${Date.now()}`);
+      const cdp = await helpers.connectCDP();
+      desktopPage = cdp.page;
+      await helpers.unlockWalletIfNeeded(desktopPage);
+    } catch (e: any) {
+      for (const item of queue) {
+        if (!isMobileFile(item.file) && item.status === 'pending') {
+          item.status = 'failed';
+          item.error = 'CDP connection failed: ' + e.message;
+          emit({ event: 'fail', id: item.id, error: item.error, timestamp: new Date().toISOString() });
+        }
+      }
     }
+  }
+
+  if (hasMobile) {
+    try {
+      appiumModule = await import(`${pathToFileURL(join(TESTS_DIR, 'mobile', '_appium.mjs')).href}?t=${Date.now()}`);
+      // Platform comes from MOBILE_TARGET_PLATFORM env (set by the Dashboard
+      // mobile-target picker via /api/mobile-target). Defaults to 'android'.
+      mobileDriver = await appiumModule.connectDriver();
+    } catch (e: any) {
+      for (const item of queue) {
+        if (isMobileFile(item.file) && item.status === 'pending') {
+          item.status = 'failed';
+          item.error = 'Appium connection failed: ' + e.message;
+          emit({ event: 'fail', id: item.id, error: item.error, timestamp: new Date().toISOString() });
+        }
+      }
+    }
+  }
+
+  if (!desktopPage && !mobileDriver) {
     running = false;
     emit({ event: 'done', ...getSummary(), timestamp: new Date().toISOString() });
     return;
@@ -207,10 +242,28 @@ async function executeQueue() {
       // Strategy 1: testCases has fn property (e.g. perps)
       const tc = mod.testCases?.find((c: any) => c.id === item.id);
 
+      const sessionHandle = isMobileFile(item.file) ? mobileDriver : desktopPage;
+      if (isMobileFile(item.file) && !mobileDriver) {
+        item.status = 'failed';
+        item.error = 'Mobile driver not available';
+        item.duration = Date.now() - startTime;
+        emit({ event: 'fail', id: item.id, error: item.error, timestamp: new Date().toISOString() });
+        currentIndex++;
+        continue;
+      }
+      if (!isMobileFile(item.file) && !desktopPage) {
+        item.status = 'failed';
+        item.error = 'Desktop page not available';
+        item.duration = Date.now() - startTime;
+        emit({ event: 'fail', id: item.id, error: item.error, timestamp: new Date().toISOString() });
+        currentIndex++;
+        continue;
+      }
+
       if (tc?.fn) {
         // If file changed, run setup (navigate to correct page)
         if (item.file !== lastFile && mod.setup) {
-          await mod.setup(page);
+          await mod.setup(sessionHandle);
         }
 
         // Intercept console.log to capture step-level output and emit as events
@@ -256,7 +309,7 @@ async function executeQueue() {
           });
           let result: any;
           try {
-            result = await Promise.race([tc.fn(page), stopChecker]);
+            result = await Promise.race([tc.fn(sessionHandle), stopChecker]);
           } finally {
             clearStopChecker?.();
           }
@@ -318,6 +371,11 @@ async function executeQueue() {
     });
 
     currentIndex++;
+  }
+
+  // Tear down mobile session (desktop CDP belongs to the user — leave open).
+  if (mobileDriver && appiumModule) {
+    try { await appiumModule.disconnectDriver(mobileDriver); } catch {}
   }
 
   running = false;

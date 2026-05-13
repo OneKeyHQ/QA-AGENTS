@@ -1,0 +1,38 @@
+{
+  "module": "discovery",
+  "description": "Locators for discovery module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "discovery.history.clear_all": {
+      "primary": "[data-testid=\"history-clear-all-button\"]",
+      "source_testid": "history-clear-all-button",
+      "source": "app-monorepo",
+      "page": "discovery-history",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "discovery",
+        "history"
+      ]
+    },
+    "discovery.history.list": {
+      "primary": "[data-testid=\"History-SectionList\"]",
+      "source_testid": "History-SectionList",
+      "source": "app-monorepo",
+      "page": "discovery-history",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "discovery",
+        "history"
+      ]
+    }
+  }
+}

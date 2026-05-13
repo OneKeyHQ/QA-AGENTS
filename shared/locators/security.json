@@ -1,0 +1,154 @@
+{
+  "module": "security",
+  "description": "Locators for security module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "security.password.confirm_input": {
+      "primary": "[data-testid=\"confirm-password\"]",
+      "source_testid": "confirm-password",
+      "source": "app-monorepo",
+      "page": "password-setup",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "security",
+        "password"
+      ]
+    },
+    "security.password.input": {
+      "primary": "[data-testid=\"password-input\"]",
+      "source_testid": "password-input",
+      "source": "qa-agents",
+      "page": "security",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "security"
+      ],
+      "notes": "Existing QA-AGENTS stable selector; not discovered in current app-monorepo scan subset."
+    },
+    "security.password.verifying": {
+      "primary": "[data-testid=\"verifying-password\"]",
+      "source_testid": "verifying-password",
+      "source": "qa-agents",
+      "page": "security",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "security"
+      ],
+      "notes": "Existing QA-AGENTS stable selector; not discovered in current app-monorepo scan subset."
+    },
+    "security.biology-auth-switch": {
+      "primary": "[data-testid=\"biology-auth-switch\"]",
+      "source_testid": "biology-auth-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "security"
+      ]
+    },
+    "security.password": {
+      "primary": "[data-testid=\"password\"]",
+      "source_testid": "password",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "security"
+      ]
+    },
+    "security.password-btn": {
+      "primary": "[data-testid=\"password-btn\"]",
+      "source_testid": "password-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "security"
+      ]
+    },
+    "security.password-icon-btn": {
+      "primary": "[data-testid=\"password-icon-btn\"]",
+      "source_testid": "password-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "security"
+      ]
+    },
+    "security.password-pass-code-protection-switch-switch": {
+      "primary": "[data-testid=\"password-pass-code-protection-switch-switch\"]",
+      "source_testid": "password-pass-code-protection-switch-switch",
+      "source": "auto-classified",
+      "page": "password",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "security"
+      ]
+    },
+    "security.set-password": {
+      "primary": "[data-testid=\"set-password\"]",
+      "source_testid": "set-password",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "security"
+      ]
+    },
+    "security.web-auth-switch": {
+      "primary": "[data-testid=\"web-auth-switch\"]",
+      "source_testid": "web-auth-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "security"
+      ]
+    }
+  }
+}

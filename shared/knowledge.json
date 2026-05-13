@@ -1,6 +1,6 @@
 {
   "version": "2.3.7",
-  "lastUpdated": "2026-05-12T08:32:29.182Z",
+  "lastUpdated": "2026-05-13",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
     "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074 — DOM定位/选择器/testid陷阱",
@@ -817,6 +817,38 @@
       "pattern": "Web Perps 搜索弹窗两级 tab 结构（2026-05 起）：顶级 自选/永续合约/现货 在 y≈180；子级 全部/加密货币/股票/贵金属/指数/大宗商品/外汇/预上线 仅在 永续合约 下出现于 y≈227；现货 tab 下无子级，直接列表",
       "details": "Web 端 (app.onekeytest.com/perps) 在 SILVER 增加现货支持后，token 选择器弹窗改成两级 tab。由于 \"自选\" 同名在顶级出现，\"全部\" 在子级出现，按 textContent 直接 click 会撞名。必须按 popover 相对 y-offset 区分：顶级 tab `(span.y - popover.y) < 100`，子级 tab `100 <= dy < 200`。脚本中已封装 `clickTopTab(name)` 和 `clickSubTab(name)` 两个 helper（见 `src/tests/web/perps/token-search.test.mjs`）。\\n\\n另一关键差异：现货 tab 下 token 行格式为 `BTC/USDC` 带斜杠 pair；永续合约下是单 ticker `BTC` + `40x` 杠杆 + `比特币` 中文标签。提取代币正则必须同时兼容 `/^[A-Z][A-Z0-9]{1,9}$/` 与 `/^[A-Z][A-Z0-9]{1,9}\\/[A-Z]{2,6}$/`。现货 tab 列头：资产 / 最新价格 / 24h涨跌 / 成交量 / 市值（无资金费率列）。\\n\\n触发场景：编写 / 维护 Web Perps token 选择器相关测试时。",
       "confidence": 0.95
+    },
+    {
+      "id": "K-104",
+      "category": "process",
+      "platform": "all",
+      "pattern": "shared/results/recording/ 目录被清空会导致 recorder 崩溃（ENOENT），录制前必须 mkdir -p",
+      "details": "录制器 listen.mjs 在用户点击时同步 writeFileSync 到 shared/results/recording/steps.json，如果目录不存在会抛 ENOENT 直接退出（错误堆栈在 /tmp/recorder.log）。\n\n症状：用户操作 OneKey 但 Monitor UI (http://localhost:3210) 看不到事件流，停止录制后 steps.json 不存在。\n\n解决：在启动 recorder 前总是 `mkdir -p shared/results/recording`。建议把这个 mkdir 写到 listen.mjs 启动逻辑里防呆。\n\n触发场景：新会话首次录制；用户手动清理过该目录。\n\n相关 commit/issue：2026-05-13 Lista DeFi 录制时首次遇到。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-105",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "Lista DeFi 预估年收益公式：USDT(USD) = (原生APY − 业绩费) × 认购价值；LISTA(USD) = LISTA奖励 APY × 认购价值（不扣业绩费）",
+      "details": "Lista 简单赚币产品的预估年收益拆分：\n\n①USDT 部分(USD) = (原生 APY − 业绩费率) × 认购价值(USD)\n②LISTA 奖励(USD) = LISTA APY × 认购价值(USD)，**LISTA 奖励不扣业绩费**\n③综合 APY = 原生 APY + LISTA APY − 业绩费 ≈ 1.79% 之类\n④页面同时显示代币数量 = USD 收益 / 该代币当前价格（带四舍五入）\n⑤业绩费规则：利润的 10%（OneKey 5% + 金库管理者 5%），仅对利润收，不收本金（小金额测试时业绩费 ≈ 0）\n\n断言写法：从 APY 弹窗读 native/lista/perfFee 三个百分比值，从输入框附近读 USD 价值，套公式计算预期，允许误差 ±$0.01 或 5% 相对误差。\n\n触发场景：编写 / 维护 DeFi Lista 用例时使用；其他渠道的公式不同（Kamino / Pendle 等需各自验证）。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-106",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "DeFi 渠道详情页关键 testid：APY icon 是 svg 兄弟；`testid=page-footer-confirm` 在「授权 → 确认 → 确认」中复用三次；`testid=ovelay-popover` 关闭收益组成弹窗",
+      "details": "DeFi 渠道详情页（如 Lista USDT）的稳定 testid：\n\n- `data-testid=\"page-footer-confirm\"`: 底部主操作按钮。同一容器在不同阶段文本不同（授权 / 确认 / 赎回），但 testid 不变 — 因此「授权 → 签名确认 → 认购交易确认」三次点击都用同一 selector，要靠轮询等待按钮文本/状态变化来区分。\n- `data-testid=\"ovelay-popover\"`: 收益组成弹窗、说明类弹窗的遮罩层，点击关闭。\n- `data-testid=\"nav-header-back\"` / `nav-header-close`: 返回 / 关闭子页面。\n- `data-testid=\"select-item-subtitle-...\"`: 列表项（历史记录里 Lista 条目用这个）。\n- `data-testid=\"APP-Modal-Screen\"`: 持仓「管理」面板（认购/赎回 tab 容器）。\n- 顶部综合 APY 旁的 icon 没有 testid，需通过「找包含 'XX% APY' 的元素 → 同 parent 下首个 svg」定位。\n- 认购输入框：`input[placeholder=\"0\"]` 是稳定的选择器（注意页面可能有多个隐藏的此类 input，需取可见的）。\n\n触发场景：编写 DeFi 渠道流程脚本时。",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-107",
+      "category": "timing",
+      "platform": "all",
+      "pattern": "DeFi 质押/赎回交易：提交立即返回成功，但历史记录列表更新延迟最长 60 秒，必须轮询",
+      "details": "用户实测：质押/赎回的两步签名（授权 + 认购，或单步赎回）按钮点击后立即返回成功状态。但要在「历史记录」入口的列表中看到对应条目，最长需要约 60 秒（链上确认 + 后端索引 + 前端轮询周期）。\n\n断言写法：进入历史记录后，用轮询循环（每 2 秒查一次，超时 60 秒），匹配条件「列表项文本同时包含 'Lista' 和质押金额字符串（如 '0.001'）」。\n\n触发场景：所有 DeFi 渠道质押/赎回后验证历史记录条目时；其他链上交易（Swap、Transfer）也建议用类似轮询模式。",
+      "confidence": 1.0
     }
   ]
 }

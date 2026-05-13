@@ -1,0 +1,807 @@
+{
+  "module": "swap",
+  "description": "Locators for swap module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "swap.action.button": {
+      "primary": "[data-testid=\"swap-action\"]",
+      "source_testid": "swap-action",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "action"
+      ]
+    },
+    "swap.initializer": {
+      "primary": "[data-testid=\"initializer\"]",
+      "source_testid": "initializer",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review",
+        "initializer"
+      ]
+    },
+    "swap.pre_review.dialog": {
+      "primary": "[data-testid=\"pre-swap-dialog-content\"]",
+      "source_testid": "pre-swap-dialog-content",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review"
+      ]
+    },
+    "swap.provider": {
+      "primary": "[data-testid=\"swap-provider\"]",
+      "source_testid": "swap-provider",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review",
+        "provider"
+      ]
+    },
+    "swap.rate.display": {
+      "primary": "[data-testid=\"rate-display\"]",
+      "source_testid": "rate-display",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "rate"
+      ]
+    },
+    "swap.review.confirm_button": {
+      "primary": "[data-testid=\"review-confirm\"]",
+      "source_testid": "review-confirm",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review"
+      ]
+    },
+    "swap.review.done": {
+      "primary": "[data-testid=\"review-done\"]",
+      "source_testid": "review-done",
+      "source": "app-monorepo",
+      "page": "swap-review-dialog",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "swap",
+        "review"
+      ]
+    },
+    "swap.sell.selector": {
+      "primary": "[data-testid=\"sell-selector\"]",
+      "source_testid": "sell-selector",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "sell-selector"
+      ]
+    },
+    "swap.slippage": {
+      "primary": "[data-testid=\"slippage\"]",
+      "source_testid": "slippage",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "slippage"
+      ]
+    },
+    "swap.token.input": {
+      "primary": "[data-testid=\"token-input\"]",
+      "source_testid": "token-input",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "token-input"
+      ]
+    },
+    "swap.trade_type.selector": {
+      "primary": "[data-testid=\"trade-type\"]",
+      "source_testid": "trade-type",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "trade-type"
+      ]
+    },
+    "swap.wrap.action": {
+      "primary": "[data-testid=\"wrap-action\"]",
+      "source_testid": "wrap-action",
+      "source": "app-monorepo",
+      "page": "market-swap-panel",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "market",
+        "swap",
+        "wrap"
+      ]
+    },
+    "swap.swap-action-button": {
+      "primary": "[data-testid=\"swap-action-button\"]",
+      "source_testid": "swap-action-button",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-action-primary-button": {
+      "primary": "[data-testid=\"swap-action-primary-button\"]",
+      "source_testid": "swap-action-primary-button",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-approve-button": {
+      "primary": "[data-testid=\"swap-approve-button\"]",
+      "source_testid": "swap-approve-button",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-btn": {
+      "primary": "[data-testid=\"swap-btn\"]",
+      "source_testid": "swap-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-checkbox": {
+      "primary": "[data-testid=\"swap-checkbox\"]",
+      "source_testid": "swap-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-content-container": {
+      "primary": "[data-testid=\"swap-content-container\"]",
+      "source_testid": "swap-content-container",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-currency-input": {
+      "primary": "[data-testid=\"swap-currency-input\"]",
+      "source_testid": "swap-currency-input",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-currency-symbol-add-on-input": {
+      "primary": "[data-testid=\"swap-currency-symbol-add-on-input\"]",
+      "source_testid": "swap-currency-symbol-add-on-input",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-from-amount-input": {
+      "primary": "[data-testid=\"swap-from-amount-input\"]",
+      "source_testid": "swap-from-amount-input",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-from-token-selector": {
+      "primary": "[data-testid=\"swap-from-token-selector\"]",
+      "source_testid": "swap-from-token-selector",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-header-right-btn": {
+      "primary": "[data-testid=\"swap-header-right-btn\"]",
+      "source_testid": "swap-header-right-btn",
+      "source": "auto-classified",
+      "page": "modal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-icon-btn": {
+      "primary": "[data-testid=\"swap-icon-btn\"]",
+      "source_testid": "swap-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-incognito-mode-switch": {
+      "primary": "[data-testid=\"swap-incognito-mode-switch\"]",
+      "source_testid": "swap-incognito-mode-switch",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-incognito-recipient-picker-button": {
+      "primary": "[data-testid=\"swap-incognito-recipient-picker-button\"]",
+      "source_testid": "swap-incognito-recipient-picker-button",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-input-b-n-input": {
+      "primary": "[data-testid=\"swap-input-b-n-input\"]",
+      "source_testid": "swap-input-b-n-input",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-intl-btn": {
+      "primary": "[data-testid=\"swap-intl-btn\"]",
+      "source_testid": "swap-intl-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-limit-price-input": {
+      "primary": "[data-testid=\"swap-limit-price-input\"]",
+      "source_testid": "swap-limit-price-input",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-max-button": {
+      "primary": "[data-testid=\"swap-max-button\"]",
+      "source_testid": "swap-max-button",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-network-fee-select-select": {
+      "primary": "[data-testid=\"swap-network-fee-select-select\"]",
+      "source_testid": "swap-network-fee-select-select",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-pending-history-list": {
+      "primary": "[data-testid=\"swap-pending-history-list\"]",
+      "source_testid": "swap-pending-history-list",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-pro-buy-sell-group": {
+      "primary": "[data-testid=\"swap-pro-buy-sell-group\"]",
+      "source_testid": "swap-pro-buy-sell-group",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-pro-container": {
+      "primary": "[data-testid=\"swap-pro-container\"]",
+      "source_testid": "swap-pro-container",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.Swap-Pro-Position-List-Header": {
+      "primary": "[data-testid=\"Swap-Pro-Position-List-Header\"]",
+      "source_testid": "Swap-Pro-Position-List-Header",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-pro-search-token-list": {
+      "primary": "[data-testid=\"swap-pro-search-token-list\"]",
+      "source_testid": "swap-pro-search-token-list",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-provider-selector": {
+      "primary": "[data-testid=\"swap-provider-selector\"]",
+      "source_testid": "swap-provider-selector",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-render-header-title-select": {
+      "primary": "[data-testid=\"swap-render-header-title-select\"]",
+      "source_testid": "swap-render-header-title-select",
+      "source": "auto-classified",
+      "page": "modal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-render-limit-order-price-icon-btn": {
+      "primary": "[data-testid=\"swap-render-limit-order-price-icon-btn\"]",
+      "source_testid": "swap-render-limit-order-price-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-right-info-component-icon-btn": {
+      "primary": "[data-testid=\"swap-right-info-component-icon-btn\"]",
+      "source_testid": "swap-right-info-component-icon-btn",
+      "source": "auto-classified",
+      "page": "modal",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-select": {
+      "primary": "[data-testid=\"swap-select\"]",
+      "source_testid": "swap-select",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-settings-button": {
+      "primary": "[data-testid=\"swap-settings-button\"]",
+      "source_testid": "swap-settings-button",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-slippage-selector": {
+      "primary": "[data-testid=\"swap-slippage-selector\"]",
+      "source_testid": "swap-slippage-selector",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-stage-list-to-show-btn": {
+      "primary": "[data-testid=\"swap-stage-list-to-show-btn\"]",
+      "source_testid": "swap-stage-list-to-show-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-sub-value-btn": {
+      "primary": "[data-testid=\"swap-sub-value-btn\"]",
+      "source_testid": "swap-sub-value-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-swap-settings-common-item-switch": {
+      "primary": "[data-testid=\"swap-swap-settings-common-item-switch\"]",
+      "source_testid": "swap-swap-settings-common-item-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-switch": {
+      "primary": "[data-testid=\"swap-switch\"]",
+      "source_testid": "swap-switch",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-switch-tokens-button": {
+      "primary": "[data-testid=\"swap-switch-tokens-button\"]",
+      "source_testid": "swap-switch-tokens-button",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-text-btn": {
+      "primary": "[data-testid=\"swap-text-btn\"]",
+      "source_testid": "swap-text-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-to-amount-input": {
+      "primary": "[data-testid=\"swap-to-amount-input\"]",
+      "source_testid": "swap-to-amount-input",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-to-token-selector": {
+      "primary": "[data-testid=\"swap-to-token-selector\"]",
+      "source_testid": "swap-to-token-selector",
+      "source": "auto-classified",
+      "page": "swap",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    },
+    "swap.swap-toggle-swap-pro-enable-current-symbol-checkbox": {
+      "primary": "[data-testid=\"swap-toggle-swap-pro-enable-current-symbol-checkbox\"]",
+      "source_testid": "swap-toggle-swap-pro-enable-current-symbol-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "swap"
+      ]
+    }
+  }
+}

@@ -1,0 +1,276 @@
+{
+  "module": "address_book",
+  "description": "Locators for address_book module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "address_book.add_button": {
+      "primary": "[data-testid=\"address-book-add-icon\"]",
+      "source_testid": "address-book-add-icon",
+      "source": "app-monorepo",
+      "page": "address-book",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address_book.form.address": {
+      "primary": "[data-testid=\"address-form-address\"]",
+      "source_testid": "address-form-address",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.address_field": {
+      "primary": "[data-testid=\"address-form-address-field\"]",
+      "source_testid": "address-form-address-field",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.name": {
+      "primary": "[data-testid=\"address-form-name\"]",
+      "source_testid": "address-form-name",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.name_field": {
+      "primary": "[data-testid=\"address-form-name-field\"]",
+      "source_testid": "address-form-name-field",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.remove": {
+      "primary": "[data-testid=\"address-form-remove\"]",
+      "source_testid": "address-form-remove",
+      "source": "app-monorepo",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.save": {
+      "primary": "[data-testid=\"address-form-save\"]",
+      "source_testid": "address-form-save",
+      "source": "recording-2026-04-14",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.form.address_clear": {
+      "primary": "[data-testid=\"address-form-address-clear\"]",
+      "source_testid": "address-form-address-clear",
+      "source": "recording-2026-04-14",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ],
+      "notes": "仅在地址栏有内容时显示，与粘贴按钮互斥"
+    },
+    "address_book.form.address_clip": {
+      "primary": "[data-testid=\"address-form-address-clip\"]",
+      "source_testid": "address-form-address-clip",
+      "source": "recording-2026-04-14",
+      "page": "address-book-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ios",
+        "android"
+      ],
+      "feature": [
+        "address-book",
+        "form"
+      ]
+    },
+    "address_book.search.empty_state": {
+      "primary": "[data-testid=\"address-book-search-empty\"]",
+      "source_testid": "address-book-search-empty",
+      "source": "app-monorepo",
+      "page": "address-book",
+      "platform": [
+        "desktop",
+        "web",
+        "mobile"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address-book.address-book-add-footer-btn": {
+      "primary": "[data-testid=\"address-book-add-footer-btn\"]",
+      "source_testid": "address-book-add-footer-btn",
+      "source": "auto-classified",
+      "page": "addressbook",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address-book.address-book-form-memo-input": {
+      "primary": "[data-testid=\"address-book-form-memo-input\"]",
+      "source_testid": "address-book-form-memo-input",
+      "source": "auto-classified",
+      "page": "addressbook",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address-book.address-book-form-note-input": {
+      "primary": "[data-testid=\"address-book-form-note-input\"]",
+      "source_testid": "address-book-form-note-input",
+      "source": "auto-classified",
+      "page": "addressbook",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address-book.address-book-form-save-btn": {
+      "primary": "[data-testid=\"address-book-form-save-btn\"]",
+      "source_testid": "address-book-form-save-btn",
+      "source": "auto-classified",
+      "page": "addressbook",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address-book.address-book-pick-search-bar": {
+      "primary": "[data-testid=\"address-book-pick-search-bar\"]",
+      "source_testid": "address-book-pick-search-bar",
+      "source": "auto-classified",
+      "page": "addressbook",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address-book.address-book-safe-notification-btn": {
+      "primary": "[data-testid=\"address-book-safe-notification-btn\"]",
+      "source_testid": "address-book-safe-notification-btn",
+      "source": "auto-classified",
+      "page": "addressbook",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    },
+    "address-book.address-book-search-bar": {
+      "primary": "[data-testid=\"address-book-search-bar\"]",
+      "source_testid": "address-book-search-bar",
+      "source": "auto-classified",
+      "page": "addressbook",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "address-book"
+      ]
+    }
+  }
+}

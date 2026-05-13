@@ -35,7 +35,7 @@
   .platform-tab { border: none; border-radius: 4px; padding: 5px 16px; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text2); transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
   .platform-tab:hover { color: var(--text); }
   .platform-tab.active { background: var(--accent); color: #fff; }
-  .platform-tab .platform-count { font-size: 10px; opacity: 0.7; }
+  .panel-header h2 .case-count { font-size: 11px; font-weight: 500; color: var(--text2); margin-left: 6px; }
 
   /* Control Bar */
   .control-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 16px; flex-shrink: 0; position: relative; z-index: 20; }
@@ -229,6 +229,18 @@
   .checklist-platform-pill.desktop { background: rgba(96,165,250,0.15); color: var(--blue); }
   .checklist-platform-pill.web { background: rgba(34,211,238,0.15); color: var(--cyan); }
   .checklist-platform-pill.extension { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .checklist-platform-pill.mobile { background: rgba(74,222,128,0.15); color: var(--green); }
+  .mt-btn {
+    padding: 4px 12px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .mt-btn:hover { background: rgba(255,255,255,0.08); color: var(--text); }
+  .mt-btn.active { background: rgba(74,222,128,0.18); color: var(--green); border-color: rgba(74,222,128,0.35); }
   .checklist-row-name { flex: 1; font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .checklist-row-count { font-size: 10px; color: var(--text2); flex-shrink: 0; }
   .checklist-orphan-badge { font-size: 9px; color: var(--red); background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); border-radius: 3px; padding: 1px 5px; flex-shrink: 0; cursor: help; }
@@ -319,14 +331,22 @@
   <span class="platform-label">测试平台</span>
   <div class="platform-tabs" id="platformTabs">
     <button class="platform-tab active" data-platform="desktop" onclick="switchPlatform('desktop')">
-      &#9109; 桌面端 <span class="platform-count" id="countDesktop"></span>
+      &#9109; 桌面端
     </button>
     <button class="platform-tab" data-platform="web" onclick="switchPlatform('web')">
-      &#9784; Web端 <span class="platform-count" id="countWeb"></span>
+      &#9784; Web端
     </button>
     <button class="platform-tab" data-platform="extension" onclick="switchPlatform('extension')">
-      &#10697; 插件端 <span class="platform-count" id="countExtension"></span>
+      &#10697; 插件端
     </button>
+    <button class="platform-tab" data-platform="mobile" onclick="switchPlatform('mobile')">
+      &#9742; 移动端
+    </button>
+  </div>
+  <div id="mobileTargetPicker" data-build="mobile-picker-v2" style="display:flex; margin-left:auto; gap:8px; align-items:center;">
+    <span class="platform-label" style="font-size:12px;">移动端目标</span>
+    <button class="mt-btn active" id="mtBtnAndroid" data-mt="android" onclick="setMobileTarget('android')">Android</button>
+    <button class="mt-btn" id="mtBtnIos" data-mt="ios" onclick="setMobileTarget('ios')">iOS</button>
   </div>
 </div>
 
@@ -360,7 +380,7 @@
       <div class="checklists-list" id="checklistsList"></div>
     </div>
     <div class="panel-header">
-      <h2>测试用例</h2>
+      <h2>测试用例<span class="case-count" id="caseCount"></span></h2>
       <button class="toggle-all-btn" id="toggleAllBtn" onclick="toggleSelectAll()">全选</button>
     </div>
     <div class="tree-container" id="treeContainer">
@@ -489,6 +509,13 @@ function switchPlatform(platform) {
   document.querySelectorAll('.platform-tab').forEach(tab => {
     tab.classList.toggle('active', tab.dataset.platform === platform);
   });
+  // Show/hide mobile-target picker — only meaningful when on mobile tab.
+  // Default is visible (flex). Hide on non-mobile tabs.
+  const picker = document.getElementById('mobileTargetPicker');
+  if (picker) {
+    picker.style.display = platform === 'mobile' ? 'flex' : 'none';
+    console.log('[dashboard] mobile target picker:', platform === 'mobile' ? 'shown' : 'hidden');
+  }
   // Filter registry and reset selection
   applyPlatformFilter();
   selected.clear();
@@ -497,19 +524,40 @@ function switchPlatform(platform) {
   renderCdpStatus();
 }
 
+async function setMobileTarget(target) {
+  if (state === 'running') return;
+  document.getElementById('mtBtnAndroid').classList.toggle('active', target === 'android');
+  document.getElementById('mtBtnIos').classList.toggle('active', target === 'ios');
+  try {
+    await fetch('/api/mobile-target', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ platform: target }),
+    });
+  } catch (e) { console.error('setMobileTarget failed:', e); }
+}
+
+async function loadMobileTarget() {
+  try {
+    const r = await fetch('/api/mobile-target');
+    const { platform } = await r.json();
+    document.getElementById('mtBtnAndroid').classList.toggle('active', platform === 'android');
+    document.getElementById('mtBtnIos').classList.toggle('active', platform === 'ios');
+  } catch {}
+}
+
 function applyPlatformFilter() {
   registry = registryAll.filter(g => g.platform === currentPlatform);
   expandedGroups.clear();
   registry.forEach(g => expandedGroups.add(g.file || g.group));
+  updateCaseCount();
 }
 
-function updatePlatformCounts() {
-  const desktopCount = registryAll.filter(g => g.platform === 'desktop').reduce((n, g) => n + (g.cases?.length || 0), 0);
-  const webCount = registryAll.filter(g => g.platform === 'web').reduce((n, g) => n + (g.cases?.length || 0), 0);
-  const extCount = registryAll.filter(g => g.platform === 'extension').reduce((n, g) => n + (g.cases?.length || 0), 0);
-  document.getElementById('countDesktop').textContent = desktopCount > 0 ? `(${desktopCount})` : '';
-  document.getElementById('countWeb').textContent = webCount > 0 ? `(${webCount})` : '';
-  document.getElementById('countExtension').textContent = extCount > 0 ? `(${extCount})` : '';
+function updateCaseCount() {
+  // 用例代码已在三端共用，按当前选中平台显示该端的总用例数
+  const total = registry.reduce((n, g) => n + (g.cases?.length || 0), 0);
+  const el = document.getElementById('caseCount');
+  if (el) el.textContent = total > 0 ? `(${total})` : '';
 }
 
 // ---- Fetch Registry ----
@@ -518,9 +566,13 @@ async function fetchRegistry() {
     const res = await fetch('/api/tests');
     registryAll = await res.json();
     applyPlatformFilter();
-    updatePlatformCounts();
+    updateCaseCount();
     renderTree();
     setConnection(true);
+    loadMobileTarget();   // restore mobile target picker state
+    // Initial visibility — hide picker if landing on a non-mobile tab.
+    const picker = document.getElementById('mobileTargetPicker');
+    if (picker) picker.style.display = currentPlatform === 'mobile' ? 'flex' : 'none';
   } catch (e) {
     document.getElementById('treeContainer').innerHTML =
       '<div class="empty-state" style="color:var(--red)">无法加载用例列表</div>';
@@ -590,7 +642,7 @@ function renderCdpStatus() {
   if (!dot || !label) return;
 
   // Show status for the currently selected platform
-  const platformMap = { desktop: 'desktop', web: 'web', extension: 'extension' };
+  const platformMap = { desktop: 'desktop', web: 'web', extension: 'extension', mobile: 'mobile' };
   const key = platformMap[currentPlatform] || 'desktop';
   const info = cdpStatus[key];
   const ok = info && info.ok;

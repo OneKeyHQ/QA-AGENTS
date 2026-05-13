@@ -1,0 +1,529 @@
+{
+  "module": "prime",
+  "description": "Locators for prime module. source_testid values come from app-monorepo React Native source and are shared across all platforms.",
+  "elements": {
+    "prime.headerRightPrimeButton": {
+      "primary": "[data-testid=\"headerRightPrimeButton\"]",
+      "source_testid": "headerRightPrimeButton",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-action-icon-btn": {
+      "primary": "[data-testid=\"prime-action-icon-btn\"]",
+      "source_testid": "prime-action-icon-btn",
+      "source": "auto-classified",
+      "page": "primedashboard",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-agree-checkbox": {
+      "primary": "[data-testid=\"prime-agree-checkbox\"]",
+      "source_testid": "prime-agree-checkbox",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-btn": {
+      "primary": "[data-testid=\"prime-btn\"]",
+      "source_testid": "prime-btn",
+      "source": "auto-classified",
+      "page": "primeloginemailcodedialogv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-checkbox": {
+      "primary": "[data-testid=\"prime-checkbox\"]",
+      "source_testid": "prime-checkbox",
+      "source": "auto-classified",
+      "page": "pageprimetransfer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-cloud-sync-id-sync-switch": {
+      "primary": "[data-testid=\"prime-cloud-sync-id-sync-switch\"]",
+      "source_testid": "prime-cloud-sync-id-sync-switch",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-cloud-sync-keyless-switch": {
+      "primary": "[data-testid=\"prime-cloud-sync-keyless-switch\"]",
+      "source_testid": "prime-cloud-sync-keyless-switch",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-confirm-password-input": {
+      "primary": "[data-testid=\"prime-confirm-password-input\"]",
+      "source_testid": "prime-confirm-password-input",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-container-props-checkbox": {
+      "primary": "[data-testid=\"prime-container-props-checkbox\"]",
+      "source_testid": "prime-container-props-checkbox",
+      "source": "auto-classified",
+      "page": "primeloginpassworddialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-data-btn": {
+      "primary": "[data-testid=\"prime-data-btn\"]",
+      "source_testid": "prime-data-btn",
+      "source": "auto-classified",
+      "page": "pageprimetransfer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-debug-buttons-btn": {
+      "primary": "[data-testid=\"prime-debug-buttons-btn\"]",
+      "source_testid": "prime-debug-buttons-btn",
+      "source": "auto-classified",
+      "page": "pageprimetransfer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-email-input": {
+      "primary": "[data-testid=\"prime-email-input\"]",
+      "source_testid": "prime-email-input",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-email-submit-btn": {
+      "primary": "[data-testid=\"prime-email-submit-btn\"]",
+      "source_testid": "prime-email-submit-btn",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-features-pagination": {
+      "primary": "[data-testid=\"prime-features-pagination\"]",
+      "source_testid": "prime-features-pagination",
+      "source": "auto-classified",
+      "page": "primefeatures",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-icon-btn": {
+      "primary": "[data-testid=\"prime-icon-btn\"]",
+      "source_testid": "prime-icon-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-input": {
+      "primary": "[data-testid=\"prime-input\"]",
+      "source_testid": "prime-input",
+      "source": "auto-classified",
+      "page": "primeloginemaildialogv2",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-intl-btn": {
+      "primary": "[data-testid=\"prime-intl-btn\"]",
+      "source_testid": "prime-intl-btn",
+      "source": "auto-classified",
+      "page": "pageprimetransfer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-login-confirm-password-input": {
+      "primary": "[data-testid=\"prime-login-confirm-password-input\"]",
+      "source_testid": "prime-login-confirm-password-input",
+      "source": "auto-classified",
+      "page": "primeloginpassworddialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-login-forget-password-btn": {
+      "primary": "[data-testid=\"prime-login-forget-password-btn\"]",
+      "source_testid": "prime-login-forget-password-btn",
+      "source": "auto-classified",
+      "page": "primeloginpassworddialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-login-forget-password-checkbox": {
+      "primary": "[data-testid=\"prime-login-forget-password-checkbox\"]",
+      "source_testid": "prime-login-forget-password-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-login-master-password-hint-checkbox": {
+      "primary": "[data-testid=\"prime-login-master-password-hint-checkbox\"]",
+      "source_testid": "prime-login-master-password-hint-checkbox",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-login-password-input": {
+      "primary": "[data-testid=\"prime-login-password-input\"]",
+      "source_testid": "prime-login-password-input",
+      "source": "auto-classified",
+      "page": "primeloginpassworddialog",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-otp-input": {
+      "primary": "[data-testid=\"prime-otp-input\"]",
+      "source_testid": "prime-otp-input",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-param-btn": {
+      "primary": "[data-testid=\"prime-param-btn\"]",
+      "source_testid": "prime-param-btn",
+      "source": "auto-classified",
+      "page": "pageprimetransfer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-password-input": {
+      "primary": "[data-testid=\"prime-password-input\"]",
+      "source_testid": "prime-password-input",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-radio": {
+      "primary": "[data-testid=\"prime-radio\"]",
+      "source_testid": "prime-radio",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-render-debug-header-right-btn": {
+      "primary": "[data-testid=\"prime-render-debug-header-right-btn\"]",
+      "source_testid": "prime-render-debug-header-right-btn",
+      "source": "auto-classified",
+      "page": "primecloudsync",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-resend-code-btn": {
+      "primary": "[data-testid=\"prime-resend-code-btn\"]",
+      "source_testid": "prime-resend-code-btn",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-result-btn": {
+      "primary": "[data-testid=\"prime-result-btn\"]",
+      "source_testid": "prime-result-btn",
+      "source": "auto-classified",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-subscription-plan-select": {
+      "primary": "[data-testid=\"prime-subscription-plan-select\"]",
+      "source_testid": "prime-subscription-plan-select",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-switch": {
+      "primary": "[data-testid=\"prime-switch\"]",
+      "source_testid": "prime-switch",
+      "source": "auto-classified",
+      "page": "primecloudsync",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.prime-user-info-more-btn": {
+      "primary": "[data-testid=\"prime-user-info-more-btn\"]",
+      "source_testid": "prime-user-info-more-btn",
+      "source": "auto-classified",
+      "page": "prime",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    },
+    "prime.remote-device-password-input": {
+      "primary": "[data-testid=\"remote-device-password-input\"]",
+      "source_testid": "remote-device-password-input",
+      "source": "auto-classified",
+      "page": "pageprimetransfer",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "prime"
+      ]
+    }
+  }
+}
