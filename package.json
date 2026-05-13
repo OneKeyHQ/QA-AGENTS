@@ -38,5 +38,10 @@
     "playwright-core": "^1.58.2",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "basic-ftp": ">=5.2.0"
+    }
   }
 }
