@@ -1792,6 +1792,22 @@
       "feature": [
         "defi"
       ]
+    },
+    "defi.redemption-history-btn": {
+      "primary": "[data-testid=\"redemption-history-btn\"]",
+      "source_testid": "redemption-history-btn",
+      "description": "历史记录入口按钮",
+      "source": "app-monorepo packages/kit/src/views/Earn/testIDs.ts",
+      "page": "earn-protocol-detail",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "defi"
+      ],
+      "last_verified": "2026-05-14"
     }
   }
 }
