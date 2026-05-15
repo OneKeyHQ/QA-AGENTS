@@ -84,24 +84,33 @@ async function dismissOverlayPopover(page) {
   await sleep(500);
 }
 
-/** 用 pressSequentially 输入金额到当前可见的认购/赎回输入框 */
-async function fillAmount(page, amount) {
-  const inputHandle = await page.evaluateHandle(() => {
-    for (const inp of document.querySelectorAll('input[placeholder="0"]')) {
-      const r = inp.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) return inp;
+/** 用 pressSequentially 输入金额到当前可见的认购/赎回输入框（优先 staking-* testid，fallback placeholder） */
+async function fillAmount(page, amount, kind = 'stake') {
+  // kind: 'stake' | 'withdraw'，决定优先用哪个 testid
+  const testidOrder = kind === 'withdraw'
+    ? ['staking-withdraw-amount-input', 'staking-claim-amount-input', 'earn-amount-input', 'staking-stake-amount-input']
+    : ['staking-stake-amount-input', 'earn-amount-input'];
+
+  let inputLocator = null;
+  for (const tid of testidOrder) {
+    const cnt = await page.locator(`[data-testid="${tid}"]`).count();
+    if (cnt > 0) {
+      inputLocator = page.locator(`[data-testid="${tid}"]`).first();
+      break;
     }
-    return null;
-  });
-  const inp = inputHandle.asElement();
-  if (!inp) throw new Error('Amount input not found');
-  // 先清空
-  await inp.click({ clickCount: 3 }).catch(() => {});
+  }
+  // fallback: placeholder="0" 的可见 input
+  if (!inputLocator) {
+    inputLocator = page.locator('input[placeholder="0"]').first();
+  }
+
+  // 先 focus + 清空
+  await inputLocator.click({ clickCount: 3 }).catch(() => {});
+  await sleep(200);
   await page.keyboard.press('Backspace').catch(() => {});
   await sleep(200);
-  const loc = page.locator('input[placeholder="0"]').first();
-  await loc.pressSequentially(amount, { delay: 50 });
-  await sleep(800);
+  await inputLocator.pressSequentially(amount, { delay: 50 });
+  await sleep(1000);
 }
 
 /** 读取「预估年收益」两行（USDT 部分 + LISTA 部分），返回 { usdt: { tokenAmt, usdAmt }, lista: { tokenAmt, usdAmt } } */
@@ -241,64 +250,366 @@ async function scrollToText(page, text) {
   await sleep(500);
 }
 
-/** 进入 Lista USDT 详情页（从任意位置） */
-async function goToListaUsdtDetail(page) {
-  // 先回到所有资产 / DeFi 入口
-  // 尝试点 nav-header-close（关掉可能开着的子页面）
-  await page.evaluate(() => {
-    for (const el of document.querySelectorAll('[data-testid="nav-header-close"]')) {
-      const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) { el.click(); return; }
-    }
-  });
-  await sleep(800);
-
-  // 切到 DeFi/Trade tab（侧栏）
-  await page.evaluate(() => {
-    // 尝试 testid=tab-modal-no-active-item-TradeOutline
-    const tabs = document.querySelectorAll('[data-testid^="tab-modal-"]');
-    for (const t of tabs) {
-      const id = t.getAttribute('data-testid') || '';
-      if (id.includes('TradeOutline') || id.includes('CoinsOutline')) {
-        const r = t.getBoundingClientRect();
-        if (r.width > 0) { t.click(); return; }
+/** 等待 DeFi 主页加载完毕（任一就绪标识出现即可） */
+async function waitForDefiPageReady(page, timeoutMs = 15000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    const ready = await page.evaluate(() => {
+      const sels = [
+        '[data-testid="earn-portfolio-overview"]',
+        '[data-testid="earn-faq-section"]',
+        '[data-testid="earn-portfolio-item-Lista"]',
+        '[data-testid="earn-icon-btn"]',
+      ];
+      for (const sel of sels) {
+        const el = document.querySelector(sel);
+        if (el && el.getBoundingClientRect().width > 0) return sel;
       }
-    }
-  });
-  await sleep(1500);
-
-  // 点 USDT 卡片
-  await clickText(page, 'USDT最新', { tag: 'div,span', scrollIntoView: true }).catch(async () => {
-    // fallback: 模糊匹配 USDT 开头
-    await page.evaluate(() => {
-      for (const el of document.querySelectorAll('div, span')) {
-        const t = el.textContent?.trim() || '';
-        if (t.startsWith('USDT') && el.children.length === 0) {
+      // 兜底：找「所有资产/持仓/常见问题」三个 tab 文本之一
+      for (const el of document.querySelectorAll('span, div')) {
+        const t = (el.textContent || '').trim();
+        if (['所有资产', '持仓', '常见问题'].includes(t) && el.children.length === 0) {
           const r = el.getBoundingClientRect();
-          if (r.width > 0 && r.height > 30 && r.height < 120) {
-            el.click(); return;
+          if (r.width > 0 && r.y < 400) return `tab:"${t}"`;
+        }
+      }
+      return null;
+    });
+    if (ready) {
+      console.log(`  [defi-ready] ${ready} (waited ${Date.now() - start}ms)`);
+      return;
+    }
+    await sleep(500);
+  }
+  console.log(`  [warn] DeFi 主页就绪标识超时（${timeoutMs}ms），继续执行`);
+}
+
+/**
+ * 点击 DeFi 页面顶部 tab：「所有资产」/「持仓」/「常见问题」。
+ * 这些 tab 文本是 span 且没有 data-testid，需要按文本+y 范围定位。带 retry。
+ */
+async function clickDefiTopTab(page, tabText) {
+  let pos = null;
+  // 最多 10 次重试（每次 500ms），覆盖 SwipeView 切换中、首次进 DeFi 慢加载等情况
+  for (let i = 0; i < 10; i++) {
+    pos = await page.evaluate((text) => {
+      let best = null;
+      for (const el of document.querySelectorAll('span, div')) {
+        if (el.textContent?.trim() !== text || el.children.length !== 0) continue;
+        const r = el.getBoundingClientRect();
+        // DeFi 顶部 tab 大约在 y=240，宽度 < 200
+        if (r.width > 0 && r.width < 200 && r.y > 150 && r.y < 350 && r.x >= 0) {
+          if (!best || r.y < best.y) {
+            best = { x: r.x + r.width / 2, y: r.y + r.height / 2 };
           }
         }
       }
-    });
-    await sleep(1500);
-  });
-  await sleep(1500);
+      return best;
+    }, tabText);
+    if (pos) break;
+    await sleep(500);
+  }
+  if (!pos) throw new Error(`DeFi 顶部 tab "${tabText}" 未找到（10 次重试 × 500ms）`);
+  await page.mouse.click(pos.x, pos.y);
+  await sleep(1200);
+}
 
-  // 点 Lista 渠道
-  await clickText(page, 'Lista最新Pangolins USDT', { tag: 'div,span' }).catch(async () => {
-    await page.evaluate(() => {
-      for (const el of document.querySelectorAll('div, span')) {
-        const t = el.textContent?.trim() || '';
-        if (t.startsWith('Lista') && t.includes('USDT') && el.children.length === 0) {
-          const r = el.getBoundingClientRect();
-          if (r.width > 0 && r.height > 30 && r.height < 150) { el.click(); return; }
+/** 用 mouse.click 安全点击元素（兼容 SVG / Pointer events 拦截） */
+async function safeClickTestid(page, testid, opts = {}) {
+  const { containsText } = opts;
+  const pos = await page.evaluate(({ testid, containsText }) => {
+    const elements = document.querySelectorAll(`[data-testid="${testid}"]`);
+    for (const el of elements) {
+      const r = el.getBoundingClientRect();
+      if (r.width === 0 || r.height === 0) continue;
+      if (containsText) {
+        const t = el.textContent || '';
+        if (!t.includes(containsText)) continue;
+      }
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+    }
+    return null;
+  }, { testid, containsText });
+  if (!pos) throw new Error(`testid="${testid}"${containsText ? ` containing "${containsText}"` : ''} not found or invisible`);
+  await page.mouse.click(pos.x, pos.y);
+  await sleep(800);
+}
+
+/**
+ * 找到包含目标 anchor 元素的实际滚动容器（祖先链上首个 overflow-y: auto/scroll 且 scrollHeight > clientHeight 的）。
+ * OneKey (React Native Web) 主滚动容器不是 window，是嵌套的 <div overflow:auto>，所以必须用容器滚不能用 window。
+ */
+function findScrollContainerJS() {
+  return `
+    function _findScrollContainer(anchor) {
+      // 从 anchor 往上找祖先：overflow-y in (auto/scroll/overlay) 且 scrollHeight > clientHeight
+      let el = anchor;
+      while (el && el !== document.body) {
+        const cs = window.getComputedStyle(el);
+        const oy = cs.overflowY;
+        if ((oy === 'auto' || oy === 'scroll' || oy === 'overlay') && el.scrollHeight > el.clientHeight + 5) {
+          return el;
+        }
+        el = el.parentElement;
+      }
+      // 兜底：全页扫一个最大的可滚动 div
+      let best = null, bestArea = 0;
+      for (const cand of document.querySelectorAll('div')) {
+        const cs = window.getComputedStyle(cand);
+        const oy = cs.overflowY;
+        if ((oy === 'auto' || oy === 'scroll' || oy === 'overlay') && cand.scrollHeight > cand.clientHeight + 5) {
+          const r = cand.getBoundingClientRect();
+          const area = r.width * r.height;
+          if (area > bestArea) { bestArea = area; best = cand; }
         }
       }
+      return best;
+    }
+  `;
+}
+
+/**
+ * 滚动找到「文本完全等于 text 的元素」，并点击其最近的可点击祖先（onClick / cursor:pointer / role=button / 宽度大的 row 容器）。
+ * 用于 DeFi 资产列表这种**没有 testid 的列表行**（USDT/Lista 渠道行等）。
+ *
+ * 配套 K-111 更新：DeFi 「所有资产」列表里的代币行没有 data-testid，必须靠文本+祖先 onClick 定位。
+ *
+ * @param {object} opts
+ * @param {string} opts.text - 要匹配的文本
+ * @param {number} [opts.rowMinHeight=30] - 可点击祖先 row 的最小高度（过滤掉过小元素）
+ * @param {number} [opts.rowMaxHeight=80] - 可点击祖先 row 的最大高度（**默认 80，排除"热门"卡片那种 130~ 的高卡片**）
+ * @param {number} [opts.parentMinWidth=800] - 可点击祖先 row 的最小宽度（确保是 list-row 级别）
+ */
+async function scrollAndClickRowByText(page, opts) {
+  const { text, maxScrolls = 20, scrollStep = 350, parentMinWidth = 800, rowMinHeight = 30, rowMaxHeight = 80 } = opts;
+
+  for (let i = 0; i <= maxScrolls; i++) {
+    const result = await page.evaluate(({ text, helperJS, step, parentMinWidth, rowMinHeight, rowMaxHeight }) => {
+      eval(helperJS);
+
+      // 找所有视口内 (x>=0, y in [80, innerHeight-50]) 的文本元素候选
+      const candidates = [];
+      const domCandidates = [];
+      for (const el of document.querySelectorAll('span, div')) {
+        if (el.textContent?.trim() !== text || el.children.length !== 0) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0 || r.x < 0) continue;
+        if (r.y > 80 && r.y < window.innerHeight - 50) candidates.push(el);
+        else domCandidates.push(el);
+      }
+
+      // 在候选里找一个：其可点击祖先 row 的 height 在 [rowMinHeight, rowMaxHeight] 范围内
+      for (const textEl of candidates) {
+        let p = textEl;
+        for (let d = 0; d < 10 && p; d++) {
+          const cs = window.getComputedStyle(p);
+          const r = p.getBoundingClientRect();
+          const hasClickIntent = p.onclick || cs.cursor === 'pointer' || p.getAttribute('role') === 'button';
+          if ((hasClickIntent || r.width >= parentMinWidth)
+              && r.height >= rowMinHeight && r.height <= rowMaxHeight
+              && r.width >= parentMinWidth) {
+            return { inView: true, x: r.x + r.width / 2, y: r.y + r.height / 2,
+                     debug: { rowH: Math.round(r.height), rowW: Math.round(r.width) } };
+          }
+          p = p.parentElement;
+        }
+      }
+
+      // 视口里没找到合适的 row，DOM 里有的话滚到那
+      const domTextEl = domCandidates[0];
+      const anchor = domTextEl || document.querySelector('[data-testid="earn-portfolio-overview"]') || document.querySelector('[data-testid="earn-faq-section"]');
+      const container = _findScrollContainer(anchor);
+      if (domTextEl) {
+        domTextEl.scrollIntoView({ block: 'center', behavior: 'instant' });
+        return { needRescan: true };
+      }
+      if (container) {
+        container.scrollBy(0, step);
+        return { scrolled: true };
+      }
+      window.scrollBy(0, step);
+      return { scrolled: true };
+    }, { text, helperJS: findScrollContainerJS(), step: scrollStep, parentMinWidth, rowMinHeight, rowMaxHeight });
+
+    if (result?.inView) {
+      await page.mouse.click(result.x, result.y);
+      await sleep(800);
+      return;
+    }
+    await sleep(500);
+  }
+  throw new Error(`scrollAndClickRowByText: text="${text}" not found in viewport after ${maxScrolls} scrolls`);
+}
+
+/**
+ * 滚动列表直到匹配「testid 前缀 + 后缀」的元素出现在视口里，然后点击。
+ * 比如 testidPrefix='home-token-item-' + testidSuffix='-USDT' 可匹配各链下的 USDT 卡片。
+ */
+async function scrollAndClickByTestidPrefix(page, opts) {
+  const { testidPrefix, testidSuffix = '', maxScrolls = 20, scrollStep = 400 } = opts;
+
+  for (let i = 0; i <= maxScrolls; i++) {
+    const result = await page.evaluate(({ testidPrefix, testidSuffix, helperJS, step }) => {
+      eval(helperJS);
+      const allEls = document.querySelectorAll(`[data-testid^="${testidPrefix}"]`);
+      let visibleHit = null;
+      let domHit = null;
+      for (const el of allEls) {
+        const tid = el.getAttribute('data-testid') || '';
+        if (testidSuffix && !tid.endsWith(testidSuffix)) continue;
+        const r = el.getBoundingClientRect();
+        // 既要在视口 y 范围内，也要 x 在屏幕里（>= 0）—— DeFi panel 切换会把非 active panel 推到 x<0
+        if (r.width > 0 && r.height > 0 && r.x >= 0 && r.y > 80 && r.y < window.innerHeight - 50) {
+          visibleHit = { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+          break;
+        }
+        if (r.x >= 0 && (r.width > 0 || el.offsetParent)) {
+          domHit = el;
+        }
+      }
+      if (visibleHit) return { inView: true, ...visibleHit };
+
+      const anchor = domHit || allEls[0] || document.querySelector('[data-testid="earn-portfolio-overview"]') || document.querySelector('[data-testid="earn-faq-section"]');
+      const container = _findScrollContainer(anchor);
+      if (domHit) {
+        domHit.scrollIntoView({ block: 'center', behavior: 'instant' });
+        return { needRescan: true };
+      }
+      if (container) {
+        container.scrollBy(0, step);
+        return { scrolled: true };
+      }
+      window.scrollBy(0, step);
+      return { scrolled: true };
+    }, { testidPrefix, testidSuffix, helperJS: findScrollContainerJS(), step: scrollStep });
+
+    if (result?.inView) {
+      await page.mouse.click(result.x, result.y);
+      await sleep(800);
+      return;
+    }
+    await sleep(500);
+  }
+  throw new Error(`scrollAndClickByTestidPrefix: prefix="${testidPrefix}" suffix="${testidSuffix}" not found after ${maxScrolls} scrolls`);
+}
+
+/**
+ * 滚动列表直到匹配 (testid + 包含某文本) 的元素出现在视口里，然后点击。
+ * OneKey 用的是嵌套 overflow:auto 容器（不是 window），自动检测并滚动正确的容器。
+ */
+async function scrollAndClickTestidByText(page, opts) {
+  const { testid, containsText, maxScrolls = 20, scrollStep = 400 } = opts;
+
+  // 先找一个 anchor（任意一个该 testid 的元素，或页面主内容区）来推断滚动容器
+  for (let i = 0; i <= maxScrolls; i++) {
+    const result = await page.evaluate(({ testid, containsText, helperJS, step }) => {
+      eval(helperJS);
+      const elements = document.querySelectorAll(`[data-testid="${testid}"]`);
+      let visibleHit = null;
+      let domHit = null;
+      for (const el of elements) {
+        const t = el.textContent || '';
+        if (containsText && !t.includes(containsText)) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0 && r.y > 80 && r.y < window.innerHeight - 50) {
+          visibleHit = { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+          break;
+        }
+        if (r.width > 0 || (r.width === 0 && el.offsetParent)) {
+          domHit = el;
+        }
+      }
+      if (visibleHit) return { inView: true, ...visibleHit };
+
+      // 找滚动容器
+      const anchor = domHit || elements[0] || document.querySelector('[data-testid="earn-portfolio-overview"]') || document.querySelector('[data-testid="earn-faq-section"]') || document.body.querySelector('div');
+      const container = _findScrollContainer(anchor);
+
+      if (domHit) {
+        domHit.scrollIntoView({ block: 'center', behavior: 'instant' });
+        return { needRescan: true, scrollContainer: container ? container.getAttribute('data-testid') || container.tagName : 'none' };
+      }
+      if (container) {
+        container.scrollBy(0, step);
+        return { scrolled: true, scrollContainer: container.getAttribute('data-testid') || container.tagName };
+      }
+      // 兜底滚 window（基本无效但留着）
+      window.scrollBy(0, step);
+      return { scrolled: true, scrollContainer: 'window' };
+    }, { testid, containsText, helperJS: findScrollContainerJS(), step: scrollStep });
+
+    if (result?.inView) {
+      await page.mouse.click(result.x, result.y);
+      await sleep(800);
+      return;
+    }
+
+    await sleep(500);
+  }
+
+  throw new Error(`scrollAndClickTestidByText: testid="${testid}" containing "${containsText}" not found after ${maxScrolls} scrolls`);
+}
+
+/** 进入 Lista USDT 详情页（从任意位置） */
+async function goToListaUsdtDetail(page) {
+  // 1. 关掉可能开着的子页面（nav-header-close / nav-header-back）
+  for (let i = 0; i < 3; i++) {
+    const closed = await page.evaluate(() => {
+      for (const sel of ['[data-testid="nav-header-close"]', '[data-testid="nav-header-back"]']) {
+        for (const el of document.querySelectorAll(sel)) {
+          const r = el.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) { el.click(); return true; }
+        }
+      }
+      return false;
     });
-    await sleep(2000);
-  });
-  await sleep(2000);
+    if (!closed) break;
+    await sleep(600);
+  }
+
+  // 2. 点侧栏 DeFi 入口 [data-testid="earn"]
+  await safeClickTestid(page, 'earn');
+
+  // 2.5. 等待 DeFi 主页就绪（路由跳转 + RN 渲染 + token 列表 fetch 都需要时间）
+  await waitForDefiPageReady(page, 15000);
+
+  // 2.6. DeFi 默认进入「持仓」tab，必须切到「所有资产」才能看到代币列表
+  //      三个顶部 tab（所有资产/持仓/常见问题）是 SwipeView 横向 panel，非 active 的 panel 被偏移到 x<0
+  await clickDefiTopTab(page, '所有资产');
+  await sleep(1500);
+
+  // 3. 「所有资产」tab 下 USDT 行**没有 testid**（CDP 实探证实），必须用文本+祖先 onClick 定位
+  //    现象：USDT 文本 span 没 testid，但祖先 depth=3 的 DIV (1062x48) 有 onClick
+  await scrollAndClickRowByText(page, { text: 'USDT', maxScrolls: 20, scrollStep: 350 });
+  await sleep(2500);
+
+  // 4. 在 USDT 详情页（多渠道列表），点 Lista 渠道（同样没 testid，用 row by text）
+  await scrollAndClickRowByText(page, { text: 'Lista', maxScrolls: 10, scrollStep: 350 });
+  await sleep(2500);
+
+  // 5. 等待详情页加载（多种就绪标识，任一出现即可）
+  for (let i = 0; i < 12; i++) {
+    const ready = await page.evaluate(() => {
+      const candidates = [
+        '[data-testid="staking-protocol-details-page"]',
+        '[data-testid="staking-stake-amount-input"]',
+        '[data-testid="staking-stake-confirm-btn"]',
+        '[data-testid="earn-faq-section"]',
+        '[data-testid="earn-risk-notice-dialog"]',
+      ];
+      for (const sel of candidates) {
+        const el = document.querySelector(sel);
+        if (el && el.getBoundingClientRect().width > 0) return sel;
+      }
+      return null;
+    });
+    if (ready) {
+      console.log(`  [ready] detail page anchor found: ${ready}`);
+      return;
+    }
+    await sleep(800);
+  }
+  console.log('  [warn] 未在 10 秒内检测到详情页就绪标识，继续执行（可能页面结构变更）');
 }
 
 // ── 测试用例 ───────────────────────────────────────────────
@@ -485,41 +796,40 @@ async function testDefiLista003(page) {
 async function testDefiLista004(page) {
   const t = createStepTracker('DEFI-LISTA-004');
 
+  // 按优先级尝试点击：staking-stake-confirm-btn → earn-stake-button → page-footer-confirm
+  const tryConfirmClick = async () => {
+    for (const tid of ['staking-stake-confirm-btn', 'earn-stake-button', 'page-footer-confirm']) {
+      try { await clickByTestid(page, tid); return tid; } catch {}
+    }
+    throw new Error('no confirm button found');
+  };
+
   await sStep(page, t, '点击「授权」按钮', async () => {
-    await clickByTestid(page, 'page-footer-confirm');
+    const used = await tryConfirmClick();
     await sleep(2000);
-    return 'authorize clicked';
+    return `clicked via testid=${used}`;
   });
 
   await sStep(page, t, '签名弹窗 → 点击「确认」（授权交易）', async () => {
-    // 等待确认按钮出现
-    let confirmed = false;
-    for (let i = 0; i < 10; i++) {
-      try {
-        await clickByTestid(page, 'page-footer-confirm');
-        confirmed = true;
-        break;
-      } catch {}
+    let used = null;
+    for (let i = 0; i < 12; i++) {
+      try { used = await tryConfirmClick(); break; } catch {}
       await sleep(500);
     }
-    if (!confirmed) throw new Error('未找到授权交易的确认按钮');
+    if (!used) throw new Error('未找到授权交易的确认按钮');
     await sleep(3000);
-    return 'authorize confirmed';
+    return `clicked via testid=${used}`;
   });
 
   await sStep(page, t, '认购交易 → 点击「确认」（提交认购）', async () => {
-    let confirmed = false;
+    let used = null;
     for (let i = 0; i < 20; i++) {
-      try {
-        await clickByTestid(page, 'page-footer-confirm');
-        confirmed = true;
-        break;
-      } catch {}
+      try { used = await tryConfirmClick(); break; } catch {}
       await sleep(500);
     }
-    if (!confirmed) throw new Error('未找到认购交易的确认按钮');
+    if (!used) throw new Error('未找到认购交易的确认按钮');
     await sleep(3000);
-    return 'subscribe confirmed';
+    return `clicked via testid=${used}`;
   });
 
   await sStep(page, t, '验证：交易立即提交成功（无错误提示）', async () => {
@@ -641,29 +951,33 @@ async function testDefiLista006(page) {
   });
 
   await sStep(page, t, `输入赎回金额 ${REDEEM_AMOUNT}`, async () => {
-    await fillAmount(page, REDEEM_AMOUNT);
+    await fillAmount(page, REDEEM_AMOUNT, 'withdraw');
     return `input=${REDEEM_AMOUNT}`;
   });
 
+  // 赎回按钮优先 staking-withdraw-confirm-btn → earn-unstake-button → page-footer-confirm
+  const tryRedeemClick = async () => {
+    for (const tid of ['staking-withdraw-confirm-btn', 'earn-unstake-button', 'redemption-redeem-confirm-btn', 'page-footer-confirm']) {
+      try { await clickByTestid(page, tid); return tid; } catch {}
+    }
+    throw new Error('no redeem button found');
+  };
+
   await sStep(page, t, '点击「赎回」按钮', async () => {
-    await clickByTestid(page, 'page-footer-confirm');
+    const used = await tryRedeemClick();
     await sleep(2000);
-    return 'redeem clicked';
+    return `clicked via testid=${used}`;
   });
 
   await sStep(page, t, '签名 / 确认赎回交易', async () => {
-    let confirmed = false;
+    let used = null;
     for (let i = 0; i < 20; i++) {
-      try {
-        await clickByTestid(page, 'page-footer-confirm');
-        confirmed = true;
-        break;
-      } catch {}
+      try { used = await tryRedeemClick(); break; } catch {}
       await sleep(500);
     }
-    if (!confirmed) throw new Error('未找到赎回确认按钮');
+    if (!used) throw new Error('未找到赎回确认按钮');
     await sleep(3000);
-    return 'redeem confirmed';
+    return `clicked via testid=${used}`;
   });
 
   await sStep(page, t, '验证赎回交易立即提交成功（无失败提示）', async () => {

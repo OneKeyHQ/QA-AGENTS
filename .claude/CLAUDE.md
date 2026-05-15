@@ -219,6 +219,73 @@ if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 - **永远不要关闭 browser** — 那是用户的 OneKey 实例
 - 脚本必须连贯执行：一个用例 = 一段连续操作流，不拆成多个孤立用例
 
+## Locator 维护流程（严格执行 ⚠️）
+
+testid 三层结构：
+
+| 层级 | 文件 | 是否手编辑 |
+|------|------|----------|
+| 外部源头 | `OneKeyHQ/app-monorepo` 仓库的 `views/<Module>/testIDs.ts` 等 | ❌（外部）|
+| 同步索引 | `shared/generated/app-monorepo-testid-index.json` | ❌（generated，1478 个原始 testid）|
+| **真源** ⭐ | `shared/locators/<module>.json`（17 个模块文件）| ✅ 编辑这里 |
+| **构建产物** | `shared/ui-semantic-map.json` | ❌ **严禁直接改** |
+| 运行时映射 | `shared/ui-map.json` | ✅ 运行时自动更新 |
+
+模块拆分（已有 17 个）：`address-book / browser / defi / discover / discovery / global / hardware / market / network-selector / onboarding / perps / prime / referral / security / settings / swap / wallet`
+
+每个 element 必填字段：
+```json
+{
+  "<module>.<short-name>": {
+    "primary": "[data-testid=\"<testid>\"]",
+    "source_testid": "<testid>",
+    "ui_display_name": "DeFi",     // 可选但强烈推荐：UI 上用户看到的中文/英文名
+    "description": "中文描述",
+    "page": "<page-key>",          // 如 earn-home / earn-protocol-detail / global-sidebar
+    "platform": ["desktop", "web", "ext", "android", "ios"],
+    "feature": ["<feature-tag>"],
+    "last_verified": "YYYY-MM-DD"
+  }
+}
+```
+
+### Locator 命名规则（key 用 UI 显示名，primary 用 source testid）
+
+**问题背景**：OneKey 部分 UI 名字和 source testid 不一致，例如：
+
+| UI 显示名（用户视角）| source testid（代码视角）|
+|------------------|----------------------|
+| DeFi | earn |
+| 合约 / Perps | perp |
+| 浏览器 | discovery |
+| 返佣 / 推荐 | referfriends |
+
+**命名规则**：
+- locator **key** 用 **UI 显示名**（稳定，跟用户/产品对齐）：`global.sidebar.defi` ✓
+- **primary** 字段用 **source testid 真值**（OneKey 代码里实际值）：`[data-testid="earn"]`
+- 另加 `ui_display_name` 字段记录 UI 中文/英文名
+
+**禁止行为**：
+- ❌ 直接拿 source testid 当 key（如 `global.sidebar.earn`）→ 写脚本时容易混淆「DeFi 入口 = earn」这种不直观映射
+- ❌ 把 UI 名硬写到 `primary` 里（UI 名会改、本地化、A/B 测试，testid 才稳定）
+
+**正确流程**：
+
+```bash
+# 1. 编辑对应 module 文件
+vim shared/locators/defi.json
+
+# 2. 重建（合并所有 module 到 ui-semantic-map.json）
+node scripts/build-locator-map.mjs
+
+# 3. （可选）CI 检漂移
+node scripts/build-locator-map.mjs --check
+```
+
+**严禁行为**：
+- ❌ 直接编辑 `shared/ui-semantic-map.json`（是构建产物，下次重建会被覆盖）
+- ❌ 在脚本里 hardcode 没登记的 testid（要先入 `shared/locators/<module>.json`）
+
 ## Conventions
 - **新建 `.test.mjs` 必须导出 `displayName`**（中文名）。Dashboard 侧栏和 Checklist 编辑器会优先用它显示分组名；不写则回退到 `ZH_LABELS` 中央映射，再回退到英文 titleized 并打 console 警告。新增用例时直接在文件顶部写 `export const displayName = '中文名';`，不要回去改中央映射表。
 - Test case IDs: `<FEATURE>-<NNN>` (e.g., COSMOS-001)
@@ -357,14 +424,57 @@ CDP 自动化 + 录制器启动（监控 UI `http://localhost:3210`）
 反馈处理：确认 → 下一场景 / 脚本生成；删步骤/改顺序/补充 → 更新清单重新展示。
 
 #### 录制结束自动更新（强制 ⚠️）
-1. 更新 `shared/ui-semantic-map.json`：新发现的 testid
+1. 更新 `shared/locators/<module>.json` 真源（**严禁直接改 `ui-semantic-map.json` 构建产物**，详见「locator 维护流程」一节），跑 `node scripts/build-locator-map.mjs` 重建
 2. 更新 `shared/knowledge.json`：新经验/坑（K-NNN 递增）
 3. 生成脚本：读对应用例文档 → 逐条对照「预期结果」断言 → 脚本头部含覆盖映射表 → `createStepTracker` + `safeStep` 模式 → 参数化数据在脚本顶部定义
 
-#### 录制结束门禁（三项全满足才算完成）
+#### Phase 5: **CDP 实探验证**（强制 ⚠️，不能跳过）
+
+> 生成脚本后**严禁直接交付让用户去跑发现问题**。必须在交付前通过 CDP 实时探测验证关键定位/导航。这是为了避免"生成 → 用户跑 → 报错 → 改 → 再跑"的低效循环。
+
+**最小验证清单（每条都必须执行）**：
+
+1. **导航定位**：脚本里每个 `safeClickTestid(page, '<X>')` 都必须通过 CDP 真实查询确认 `[data-testid="<X>"]` 存在且 `getBoundingClientRect()` 的 `x>=0 && y>=0 && width>0 && height>0`。如果不在视口，记录是否需要 scrollIntoView / 切 tab / 切 panel。
+
+2. **可点性验证**：对每个动作目标元素，确认它不在 SwipeView 屏外 panel（`r.x < 0` 是典型信号），不被 overlay 遮罩。
+
+3. **滚动容器验证**：所有「scroll then click」操作，要真实测试 `window.scrollBy` 是否生效（一般无效）→ 找正确的 overflow-y 祖先容器（参考 K-113 的 `findScrollContainer` helper）。
+
+4. **testid 真假对照**：用 `document.querySelectorAll('[data-testid^="<prefix>"]')` 列出页面真实存在的 testid 模式，对比脚本里写的，发现错的（比如以为是 `staking-protocol-list-item` 但实际是 `home-token-item-evm--*`）立刻改。
+
+5. **断言可读性**：每个 DOM 读取断言（getTopBarValues / readApyBreakdown 等）要真实跑一次确认返回非 null/undefined/[]，否则脚本会卡在「未读到 X」类错误上。
+
+**实操方式**（在脚本生成完后做）：
+
+```bash
+node << 'NODE'
+import('playwright-core').then(async ({ chromium }) => {
+  const browser = await chromium.connectOverCDP('http://127.0.0.1:9222');
+  const page = browser.contexts()[0].pages()[0];
+  const probe = await page.evaluate(() => {
+    // 验证脚本依赖的每个 testid 是否真实存在、可见、可点
+    const targets = ['earn', 'staking-stake-amount-input', /* ... */];
+    return targets.map(tid => {
+      const el = document.querySelector(`[data-testid="${tid}"]`);
+      if (!el) return { tid, status: 'not-found' };
+      const r = el.getBoundingClientRect();
+      return { tid, x: r.x, y: r.y, w: r.width, h: r.height,
+               clickable: r.x >= 0 && r.y > 80 && r.y < window.innerHeight - 50 && r.width > 0 };
+    });
+  });
+  console.log(JSON.stringify(probe, null, 2));
+  await browser.close();
+}).catch(e => console.error(e));
+NODE
+```
+
+**发现问题后必须**：①脚本自动修正（用真实 testid / 加滚动 / 切 tab）→ ②补 knowledge.json 条目 → ③重新跑 probe 直到全绿 → ④才能交付。
+
+#### 录制结束门禁（**四项全满足才算完成**）
 1. **Strict Replay**：脚本按确认清单顺序执行
 2. **定位收敛**：每个关键动作都落到稳定定位（data-testid 优先）
-3. **可重复执行**：至少本地跑通一次
+3. **CDP 实探通过**：Phase 5 的 5 条最小验证清单全部通过
+4. **可重复执行**：本地实跑一次（或至少跑通入口几个动作）
 
 ### 4. `录制完了` / `停止录制` / `录完了` / `recording done`
 

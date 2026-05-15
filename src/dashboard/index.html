@@ -487,7 +487,7 @@
 
 <script>
 // ---- State ----
-let state = 'idle'; // idle | running | paused | finished
+let state = 'idle'; // idle | running | paused | stopped | finished
 let registryAll = [];  // full registry from /api/tests
 let registry = [];     // filtered by platform
 let selected = new Set();
@@ -899,15 +899,21 @@ function renderControls() {
   const badge = document.getElementById('statusBadge');
 
   updateSelectedCount();
-  badge.textContent = { idle: 'idle', running: 'running', paused: 'paused', finished: 'finished' }[state] || state;
+  badge.textContent = { idle: 'idle', running: 'running', paused: 'paused', finished: 'finished', stopped: 'stopped' }[state] || state;
 
   let btns = '';
   indicator.style.display = 'none';
   progressContainer.style.display = 'none';
 
+  // 「清空记录」按钮：当有运行结果（队列非空）且不在运行中时显示，用于清除上一轮失败/已完成的展示
+  const clearBtn = (queueItems.length > 0 && state !== 'running')
+    ? `<button class="ctrl-btn" id="clearBtn" title="清空当前展示的执行结果">&#9851; 清空记录</button>`
+    : '';
+
   switch (state) {
     case 'idle':
-      btns = `<button class="ctrl-btn start" id="startBtn" ${selected.size === 0 ? 'disabled' : ''}>&#9654; 开始执行</button>`;
+      btns = `<button class="ctrl-btn start" id="startBtn" ${selected.size === 0 ? 'disabled' : ''}>&#9654; 开始执行</button>${clearBtn}`;
+      if (queueItems.length > 0) progressContainer.style.display = 'flex';
       break;
     case 'running':
       btns = `<button class="ctrl-btn stop" id="stopBtn">&#9632; 停止</button>`;
@@ -916,12 +922,18 @@ function renderControls() {
       break;
     case 'paused':
       btns = `<button class="ctrl-btn resume" id="resumeBtn">&#9654; 继续</button>
-              <button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>`;
+              <button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>${clearBtn}`;
+      progressContainer.style.display = 'flex';
+      break;
+    case 'stopped':
+      // 用户主动停止 / 上一轮被中断：允许继续、重新开始或清空
+      btns = `<button class="ctrl-btn resume" id="resumeBtn">&#9654; 继续</button>
+              <button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>${clearBtn}`;
       progressContainer.style.display = 'flex';
       break;
     case 'finished':
       btns = `<button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>
-              <button class="ctrl-btn start" id="resetBtn">&#9654; 新一轮</button>`;
+              <button class="ctrl-btn start" id="resetBtn">&#9654; 新一轮</button>${clearBtn}`;
       progressContainer.style.display = 'flex';
       break;
   }
@@ -938,6 +950,8 @@ function renderControls() {
   if (restartBtn) restartBtn.onclick = () => restartRun();
   const resetBtn = document.getElementById('resetBtn');
   if (resetBtn) resetBtn.onclick = () => resetAndNewRun();
+  const clearBtnEl = document.getElementById('clearBtn');
+  if (clearBtnEl) clearBtnEl.onclick = () => resetAndNewRun();
 
   updateProgressBar();
 }

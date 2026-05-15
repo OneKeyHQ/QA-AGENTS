@@ -34,6 +34,10 @@ function broadcastStatus() {
 }
 
 function saveSteps() {
+  // 防御：录制中目录可能被外部清空（用户 / dashboard reset），写入前重新确保目录存在
+  try {
+    mkdirSync(RECORDING_DIR, { recursive: true });
+  } catch {}
   writeFileSync(`${RECORDING_DIR}/steps.json`, JSON.stringify(allSteps, null, 2));
 }
 

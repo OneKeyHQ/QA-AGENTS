@@ -1,6 +1,6 @@
 {
   "version": "2.3.7",
-  "lastUpdated": "2026-05-13",
+  "lastUpdated": "2026-05-15",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
     "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074 — DOM定位/选择器/testid陷阱",
@@ -848,6 +848,120 @@
       "platform": "all",
       "pattern": "DeFi 质押/赎回交易：提交立即返回成功，但历史记录列表更新延迟最长 60 秒，必须轮询",
       "details": "用户实测：质押/赎回的两步签名（授权 + 认购，或单步赎回）按钮点击后立即返回成功状态。但要在「历史记录」入口的列表中看到对应条目，最长需要约 60 秒（链上确认 + 后端索引 + 前端轮询周期）。\n\n断言写法：进入历史记录后，用轮询循环（每 2 秒查一次，超时 60 秒），匹配条件「列表项文本同时包含 'Lista' 和质押金额字符串（如 '0.001'）」。\n\n触发场景：所有 DeFi 渠道质押/赎回后验证历史记录条目时；其他链上交易（Swap、Transfer）也建议用类似轮询模式。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-108",
+      "category": "locator",
+      "platform": "all",
+      "pattern": "OneKey 主页一级 tab vs 子 tab：`tab-modal-no-active-item-{TradeOutline|CoinsOutline}` 是 mobile 一级 tab；进 DeFi 必须用 `home-tab-defi` 子 tab",
+      "details": "⚠️ 此条内容部分错误，已被 K-109 替代。home-tab-defi 是钱包页面的子 tab，不是 DeFi 主入口；侧栏 DeFi 入口的正确 testid 是 `earn`。\n\n录制器抓到的 `tab-modal-no-active-item-TradeOutline` / `CoinsOutline` 是 OneKey 顶部一级 tab（资产 / 交易），点 TradeOutline 会跳到合约/Swap，跟 DeFi 是完全不同区域。\n\n正确进入 DeFi 的方法：\n1. 先确保在 Wallet/Home 主页（不在 → 点侧栏 `Desktop-AppSideBar-Content-Container` 里的「钱包」）\n2. 点 `[data-testid=\"home-tab-defi\"]`（DeFi 子 tab，在主页面 tabs 里）\n3. 此时显示 DeFi 模块（容器 `[data-testid=\"earn-page\"]`）\n\nDeFi 子 tabs：\n- 简单赚币 / 可用资产：`earn-tab-available-assets`\n- 协议：`earn-tab-protocols`\n- 持仓：`earn-tab-portfolio`\n\n触发场景：写任何 DeFi 用例的脚本时；如果脚本跑到「合约」页面去找 DeFi 资产，就是这个 tab 用错了。",
+      "confidence": 1.0,
+      "superseded_by": "K-109"
+    },
+    {
+      "id": "K-109",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "OneKey 侧栏每个 tab item 有两层 testid：语义层（home/market/swap/perp/earn/referfriends/discovery）+ 图标层（tab-modal-{active|no-active}-item-{IconName}Solid|Outline）。脚本里**只用语义层**。图标层名字会误导（perp 的图标叫 TradeOutline，earn 的图标叫 CoinsOutline）",
+      "details": "通过 CDP 实时探测 [data-testid=\"Desktop-AppSideBar-Content-Container\"] 内的所有元素，发现侧栏每个 item 由两个套娃 testid 标记同一坐标：\n\n| 位置 | 语义层（稳定）| 图标层（按图标命名）|\n|------|---|---|\n| 钱包/首页 | home | tab-modal-active-item-Wallet4Solid |\n| 市场 | market | tab-modal-no-active-item-TradingViewCandlesOutline |\n| 交易/Swap | swap | tab-modal-no-active-item-SwitchHorOutline |\n| **合约/Perps** | **perp** | tab-modal-no-active-item-**TradeOutline** ⚠️ 名字误导 |\n| **DeFi/Earn** | **earn** | tab-modal-no-active-item-**CoinsOutline** ⚠️ 名字误导 |\n| 推荐/邀请 | referfriends | tab-modal-no-active-item-GiftOutline |\n| 浏览器 | discovery | tab-modal-no-active-item-CompassOutline |\n\n**规则**：脚本里只用语义层（短名），图标层 testid 不可靠（图标可能改名 Solid/Outline 切换）。\n\n另注：`home-tab-defi` testid 是钱包页面内的子 tab（截图里现货/DeFi/NFT/历史记录那行），跟侧栏 `earn` 是两个不同位置。写 DeFi 脚本要进的是侧栏 `earn` 整页，不是 home-tab-defi。\n\n触发场景：导航到任何主模块时；纠正之前 K-108 提到的 home-tab-defi（那条已过时）。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-110",
+      "category": "timing",
+      "platform": "all",
+      "pattern": "DeFi/Earn 所有资产列表里的代币卡片是虚拟列表 lazy render，要点击下方代币（如 USDT）必须先滚动让其进入视口，否则即使 textContent 匹配，getBoundingClientRect 也是 0×0",
+      "details": "OneKey DeFi 页面「所有资产 → 简单赚币」列表里，USDT 是排在 USDC / USDe 之后的第 3 行，初始视口下不可见。如果直接 `querySelectorAll('[data-testid=\"staking-protocol-list-item\"]')` 然后过滤 textContent='USDT'，可能匹配到但 rect 为 0（虚拟列表未渲染）或在视口外。\n\n稳定做法：写一个 scrollAndClickTestidByText helper：\n1. 每次轮询查找匹配元素\n2. 如果元素在 DOM 但在视口外 → 调 `el.scrollIntoView({ block: 'center' })`\n3. 如果元素根本不在 DOM → `window.scrollBy(0, 350)`\n4. 重试 15 次后还找不到才报错\n\n判断「在视口」用 `r.y > 80 && r.y < window.innerHeight - 50`（避开顶部 header 和底部 footer）。\n\n触发场景：DeFi 资产列表、协议列表、持仓列表；任何长列表里点指定行。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-111",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "DeFi 资产列表里代币卡片复用 Home 组件，testid 是 `home-token-item-evm--<chainId>-<SYMBOL>`，不是 `staking-protocol-list-item`",
+      "details": "⚠️ 此条信息错误（当时探测的页面是 Wallet 不是 DeFi），由 K-120 替代。\n\nOneKey 的 DeFi 「所有资产」tab 下的代币卡片，DOM testid 是：`home-token-item-evm--<chainId>-<SYMBOL>`（比如 Arbitrum USDT = `home-token-item-evm--42161-USDT`）。这是因为 DeFi tab 复用了 Home/Wallet 的 TokenListView 组件。\n\n稳定匹配方式（不依赖具体 chainId）：用 querySelector `[data-testid^=\"home-token-item-\"]` 然后 endsWith('-USDT' / '-USDC' 等)。脚本里封装为 `scrollAndClickByTestidPrefix({ testidPrefix, testidSuffix })`。\n\n常见 chainId：1=ETH 主网，42161=Arbitrum，56=BSC，137=Polygon，10=Optimism，8453=Base，43114=Avalanche。\n\n触发场景：写 DeFi 「所有资产」tab 下选币的脚本。",
+      "confidence": 1.0,
+      "superseded_by": "K-120"
+    },
+    {
+      "id": "K-112",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "DeFi 页面顶部三个 tab（所有资产/持仓/常见问题）是横向 SwipeView 三个 panel，非 active panel 的内容会被偏移到 x<0 屏外，看似在 DOM 但不可点",
+      "details": "OneKey DeFi 页面三个顶部 tab 不是常规的 tab-switch（隐藏/显示），而是 React Native SwipeView 横向并排三个 panel。当前 active tab 的 panel 在 x=0 视口里，其他两个 panel 被 transform 推到 x≈-3000 或 x≈+3000 屏外。\n\n症状：直接查询 `[data-testid=\"home-token-item-evm--42161-USDT\"]` 返回 elementCount=1，但 getBoundingClientRect.x = -3153（USDT 在「所有资产」panel，但当前可能停在「持仓」）。即使 scrollIntoView 也救不了（它只调整 y）。\n\n解决：进入 DeFi 后**必须先显式点击「所有资产」tab**让对应 panel 横向归位到 x=0，然后再查找/滚动 USDT 等元素。\n\n判断元素是否可点：除 y 在视口外，还要 `r.x >= 0`。\n\n触发场景：所有 DeFi 主页/详情页里的 tab 切换逻辑；类似 swipe-view 实现的页面（可能还有别的模块用同款组件）。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-113",
+      "category": "locator",
+      "platform": "all",
+      "pattern": "OneKey (RN Web) 的页面主滚动容器是嵌套 div（如 class='contract-trigger' 等），不是 window。`window.scrollBy` 完全无效。必须找祖先链上 overflow-y:auto/scroll 且 scrollHeight>clientHeight 的 div 才能滚动",
+      "details": "React Native Web 把 ScrollView 渲染为带 overflow:auto 的 div，不是 window 整页滚动。所以 page.evaluate(() => window.scrollBy(0, 350)) 在 OneKey 里完全没效果。\n\n通用 helper：\n```js\nfunction findScrollContainer(anchor) {\n  let el = anchor;\n  while (el && el !== document.body) {\n    const cs = getComputedStyle(el);\n    if ((cs.overflowY === 'auto' || cs.overflowY === 'scroll' || cs.overflowY === 'overlay')\n        && el.scrollHeight > el.clientHeight + 5) return el;\n    el = el.parentElement;\n  }\n  // 兜底：全页找最大可滚 div\n  let best = null, bestArea = 0;\n  for (const cand of document.querySelectorAll('div')) {\n    const cs = getComputedStyle(cand);\n    if ((cs.overflowY === 'auto' || cs.overflowY === 'scroll') && cand.scrollHeight > cand.clientHeight + 5) {\n      const r = cand.getBoundingClientRect();\n      if (r.width * r.height > bestArea) { bestArea = r.width * r.height; best = cand; }\n    }\n  }\n  return best;\n}\nfindScrollContainer(anchor).scrollBy(0, 350);\n```\n\n触发场景：所有 OneKey 桌面端长列表滚动；Extension/Web 端同理。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-114",
+      "category": "process",
+      "platform": "all",
+      "pattern": "脚本生成后必须做 Phase 5 CDP 实探（验证每个 testid 真实存在、可见、可点），发现错就当场修正再交付，不能丢给用户去跑发现错",
+      "details": "新工作流写进 CLAUDE.md「Phase 5: CDP 实探验证」章节。流程：\n\n1. 录制 → 用户确认操作清单\n2. 生成 `.test.mjs` 脚本\n3. **Phase 5 实探**：通过 CDP 连接 OneKey，对脚本里每个 `safeClickTestid('<X>')` / `[data-testid=\"<X>\"]` 查询，验证：\n   - testid 是否真实存在（querySelector 不为空）\n   - 元素是否在视口（r.x>=0 && r.y>80 && r.y<window.innerHeight-50）\n   - 不在视口的话是 SwipeView 屏外（r.x<0）还是需要滚动\n4. 发现问题 → 当场修脚本（用真实 testid / 加滚动 / 切 tab）+ 补 knowledge\n5. 重跑 probe 直到全绿才交付\n\n实例：本次给 Lista 脚本生成后，第一轮 probe 发现 `earn-page` testid 不存在（脚本里用它做 fallback anchor），第二轮改成 `earn-portfolio-overview || earn-faq-section`。\n\n触发场景：所有 .test.mjs 生成完毕、交付用户前。**违反此流程会回到「生成→报错→改→再报错」死循环**。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-115",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "SVG 元素没有 HTMLElement.click() 方法。`svg.click()` 会抛 `TypeError: svg.click is not a function`。必须用 `page.mouse.click(rect.x + w/2, rect.y + h/2)` 坐标点击，或 `el.dispatchEvent(new MouseEvent('click', { bubbles: true }))`",
+      "details": "JS DOM 规范里 SVGElement 不继承 HTMLElement.click()。在 OneKey 桌面端常遇到：APY icon 旁的小 svg、nav-header-back 等图标按钮、tab 图标。\n\n现象：脚本 `await page.evaluate(() => { const svg = ...; svg.click(); })` 抛 `svg.click is not a function`。\n\n通用 helper：\n```js\nasync function safeClickElement(page, queryFn) {\n  const pos = await page.evaluate(queryFn); // returns {x, y, width, height}\n  if (!pos) throw new Error('not found');\n  await page.mouse.click(pos.x + pos.width/2, pos.y + pos.height/2);\n}\n```\n\n触发场景：所有「图标按钮」点击——尤其 nav-header-* / 关闭按钮 / icon-btn 类。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-116",
+      "category": "process",
+      "platform": "all",
+      "pattern": "重启 Dashboard 必须先 `lsof -ti:5050 | xargs kill -9`，单纯 `pkill -f tsx src/dashboard` 会漏掉某些子进程，导致新进程 EADDRINUSE 启动失败但旧进程接管请求 → API 看着正常但用的是旧代码（最难发现的 bug）",
+      "details": "本会话踩过的真实 bug：\n1. 改了 dashboard/index.html\n2. `pkill -f \"tsx src/dashboard\"` + 启动新进程\n3. API 返回 200，看着正常\n4. 但浏览器加载的是旧 HTML（因为旧进程还在端口上服务，新进程 EADDRINUSE 启动失败）\n5. 表象：用户刷新页面看到「加载中...」永远不消失（其实是新代码里的 JS 语法错误，但因为浏览器加载的还是旧 HTML 所以没报）\n\n**正确重启序列**：\n```bash\nkill -9 $(lsof -ti:5050) 2>/dev/null    # 必须先力杀所有端口占用者\npkill -9 -f \"tsx src/dashboard\" 2>/dev/null\nsleep 2\nlsof -ti:5050  # 确认空了\nnohup npx tsx src/dashboard/server.ts > /tmp/dashboard.log 2>&1 &\nsleep 4\nlsof -ti:5050  # 看新 PID\n```\n\n触发场景：每次改完 dashboard 代码重启时。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-117",
+      "category": "process",
+      "platform": "all",
+      "pattern": "locator key 命名用 UI 显示名（如 defi/perps/browser），primary 字段才用 source testid 真值（如 earn/perp/discovery）。两者不一致是 OneKey 命名历史遗留",
+      "details": "OneKey 部分 UI 中文/英文名跟 source testid 不一致，命名规则：\n\n| UI 显示名（用户视角） | source testid（代码视角） |\n|---|---|\n| DeFi | earn |\n| 合约 / Perps | perp |\n| 浏览器 | discovery |\n| 返佣 / 推荐 | referfriends |\n| 钱包 / Home | home（一致） |\n| 市场 / Market | market（一致） |\n| 交易 / Swap | swap（一致） |\n\n**规则**：\n- locator key 用 UI 显示名（稳定、跟产品对齐）：`global.sidebar.defi`\n- primary 字段用 source testid 真值：`[data-testid=\"earn\"]`\n- 另加 `ui_display_name` 字段记录 UI 名做交叉参考\n\n这样脚本读起来 `safeClickTestid('earn')` 时一眼看不出对应 UI，但 locator key 「defi.sidebar-entry」 一眼能懂。\n\n详见 `.claude/CLAUDE.md` Locator 维护流程章节。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-118",
+      "category": "process",
+      "platform": "all",
+      "pattern": "跨 AI 工具共享的真源是 `.claude/CLAUDE.md`，`.cursorrules` 和 `AGENTS.md` 是 symlink 指向它。改 CLAUDE.md = Claude Code / Cursor / Codex / Gemini 同步遵守",
+      "details": "本项目的 AI 规则文件结构：\n```\n.claude/CLAUDE.md       ← 真源，唯一编辑入口\n.cursorrules            → symlink → .claude/CLAUDE.md   (Cursor 读)\nAGENTS.md               → symlink → .claude/CLAUDE.md   (Codex / Gemini 读)\n```\n\n所以写经验/规则到 `.claude/CLAUDE.md` 一处，所有 AI 工具都会读到。**严禁** `rm .cursorrules && echo ... > .cursorrules`（会断 symlink）。\n\n例外：`.cursor/rules/*.mdc` 是 Cursor 特有的 MDC 格式 skill 镜像，跟 `.claude/skills/*/SKILL.md` 需要手动双写（格式不同没法 symlink）。\n\n验证方式：\n```bash\nreadlink .cursorrules   # 应输出 .claude/CLAUDE.md\nreadlink AGENTS.md      # 应输出 .claude/CLAUDE.md\n```\n\n触发场景：写任何项目规则前确认会落到正确文件；用户问「这条经验其他 AI 知道吗」时回答「.claude/CLAUDE.md 是真源，所有 AI 通过 symlink 共享」。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-119",
+      "category": "process",
+      "platform": "all",
+      "pattern": "Recorder listen.mjs 的 saveSteps 应该每次写之前重新 mkdir RECORDING_DIR，防御启动后目录被外部清掉的情况（如用户 rm / dashboard reset）",
+      "details": "原 saveSteps 只依赖启动时一次性 mkdir，运行中如果目录被外部删除，会抛 ENOENT crash recorder。\n\n已在 src/recorder/listen.mjs 加防御：\n```js\nfunction saveSteps() {\n  try { mkdirSync(RECORDING_DIR, { recursive: true }); } catch {}\n  writeFileSync(`${RECORDING_DIR}/steps.json`, ...);\n}\n```\n\n触发场景：保护 recorder 不被外部 rm 误杀；同理写其他长期运行的 writeFileSync 都建议加 mkdir 防御。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-120",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "DeFi「所有资产」列表里的代币行（USDC/USDT/USDe 等）**根本没有 data-testid**。USDT 文本 span 没 testid，但祖先 depth=3 是一个 1062×48 的 DIV 带 onClick handler（React Native Pressable）。必须用「文本匹配 + 找最近 onClick/cursor:pointer/role:button/row 宽度的祖先」的策略点击",
+      "details": "之前 K-111 误以为是 `home-token-item-evm--<chainId>-<SYMBOL>`，那是 Wallet 页（不是 DeFi）的 testid。CDP 实探 DeFi `/defi?tab=assets` 页面，确认：\n\n- USDT 文本 span 自身无 testid\n- depth=3 祖先：DIV 1062×48 cursor=auto **onClick=true** ← 真正的点击对象（React Native Pressable）\n- 这个 DIV 没 testid，没法用 testid 定位\n\n**正确定位方式**：\n```js\n// 1. 找视口里文本完全 === 'USDT' 的 span/div（叶子节点）\n// 2. 向上找祖先：onClick=true OR cursor:pointer OR role=button OR width>=800，且 height 在 [30, 80] 范围内\n// 3. 点击祖先的中心点（page.mouse.click）\n```\n\n**height 过滤至关重要**：DeFi 页面顶部有「热门」section 也含 USDT 文本（卡片高度 130~），不加 height 上限会点错。列表 row 高度 48~60，所以默认 maxRowHeight=80。\n\n封装为 helper `scrollAndClickRowByText({ text, rowMinHeight, rowMaxHeight, parentMinWidth })`。\n\n触发场景：所有 OneKey 资产列表/代币列表行点击（DeFi 资产、Wallet 资产、Market token 列表等）。",
+      "confidence": 1.0
+    },
+    {
+      "id": "K-121",
+      "category": "process",
+      "platform": "all",
+      "pattern": "Phase 5 CDP 实探常见陷阱：同一文本可能在多处出现（顶部「热门」卡片 + 下方列表行），必须用 height/width/y 范围过滤，否则会点错相邻区块",
+      "details": "做 scroll-and-click-by-text 时，第一轮实探发现可以找到目标元素，但点击位置错了——因为同一关键词文本在页面上多处出现：\n- y=112 「热门」section USDT 卡片（251×136）\n- y=505 「所有资产」列表 USDT 行（1062×48）\n\n第一轮误点 y=112 卡片（虽然也能进 USDT 详情，但语义不同——「热门」是营销卡片可能没有 Lista 渠道）。\n\n**Phase 5 实探规则**：\n1. 单次匹配后立即对比页面截图/用户描述的位置是否对齐\n2. 给文本匹配函数加 height/width 范围过滤（不同 UI 组件 row 高度有差异：卡片 100~150 / list-row 30~80 / button 20~40）\n3. 优先用「显式 testid」而不是文本匹配；只在确认 testid 不存在时退化\n\n触发场景：写文本匹配 helper 时；任何「Phase 5 实探发现能找到但点错位置」时。",
       "confidence": 1.0
     }
   ]

@@ -422,10 +422,247 @@
 
 ---
 
+## 12. Pro2 指纹（Fingerprint）测试规则
+
+> 适用范围：仅 Pro2 及后续支持指纹解锁的型号；Mini / Classic / Classic 1S / Touch / Pure 不支持。
+
+### 12.1 录入入口规则
+
+| 入口 | 触发条件 | PIN 前置 |
+|------|---------|---------|
+| Onboarding 引导页 | 设置 PIN 完成后弹出「Fingerprint Unlock」引导页 | 不需要（PIN 刚设置完） |
+| Settings → 指纹 | 设备已初始化后从安全设置进入 | 需要输入正确设备 PIN |
+
+**Onboarding 引导页文案与按钮**：
+- 标题：`Fingerprint Unlock`
+- 描述：`Use your fingerprint to unlock OneKey Pro 2 faster. You can still use your PIN anytime.`
+- 按钮：`Add Fingerprint` / `Not Now`
+
+### 12.2 录入分步流程规则
+
+完整录入按顺序完成下列子步骤（任一步骤失败/中断需重做）：
+
+| 序号 | 步骤 | 提示文案 |
+|------|------|---------|
+| 1 | 中心录入 | `Place your finger on the power button and hold still` |
+| 2 | 尖端录入 | `Place the tip of your finger on the power button` |
+| 3 | 左边缘录入 | `Place the Left edge of your finger on the power button` |
+| 4 | 右边缘录入 | `Place the Right edge of your finger on the power button` |
+| 5 | 完成 | `Fingerprint Added` + `Fingerprint actions protected by security chips` + Done 按钮 |
+
+> 步骤 1~4 期间显示 `Adding fingerprint...` loading；中心录入与边缘录入合称为「内圈」与「外圈」步骤。
+
+### 12.3 录入异常文案规则
+
+| 触发条件 | 文案 / 行为 |
+|---------|-----------|
+| 录入中按下电源键 | 弹出提示，需要重新对准并继续录入 |
+| 手指移动太快 | `Lift your finger adjust its position, then try again` |
+| 手指边缘碰触 / 湿润导致覆盖不足 | `Cover more of the sensor` |
+| 重复区域录制（同位置反复采样） | 提示已录制此区域，需移动手指至未录入位置 |
+| 传感器脏污 | `Clean the power button, then try again` |
+| 手指未保持静止 | `Hold your finger still` / `Place your finger on the power button and hold still` |
+| 按压过重 | `Touch the power button lightly. Do not press` |
+| 长时间未检测到手指 | 弹窗 `Fingerprint Timeout` + 描述 `We couldn't detect your finger. Adjust your finger position and try again.` + `Try Again` |
+| 累计采样失败达上限 | 弹窗 `Failed to Add Fingerprint` + 描述 `Adjust your finger position and try again.` + `Try Again` |
+
+### 12.4 指纹数量与列表规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 最大数量 | **2 个** |
+| 满上限行为 | 指纹列表不显示 `Add Fingerprint` 入口；列表显示已录入的 2 个指纹条目 |
+| 删除可恢复 | 删除任一指纹后 `Add Fingerprint` 入口恢复，可再次录入 |
+| 已退出录入的中间态 | 内/外圈步骤回退退出，未完成录入的指纹**不记入列表**且不能解锁；之前已完成录入的指纹不受影响 |
+
+### 12.5 unlock device 开关规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 入口 | Settings → 指纹页面 |
+| 默认状态 | **开启** |
+| 关闭行为 | 关闭后指纹不能用于解锁设备（锁屏后必须 PIN）；已录入指纹不被删除，重新打开开关即恢复指纹解锁能力 |
+
+### 12.6 指纹识别与失败计数规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 识别响应时间 | < 2s |
+| 无效指纹提示 | `指纹无效，请重试` |
+| 连续失败上限 | **5 次** |
+| 失败上限文案 | `累计错误次数已达上限，请输入 PIN 码` |
+| 失败上限后 | 指纹解锁标识不显示，指纹不再响应；必须 PIN 解锁 |
+| 计数重置时机 | PIN 成功解锁后失败计数重置为 0 |
+| PIN 错误次数互通 | 解锁时输错 4 次 PIN 后用指纹解锁成功，PIN 错误次数同步重置 |
+| 锁屏页路径独立计数 | 主屏幕 / PIN 输入页两个路径下 5 次失败均触发同一上限提示，且计数互通 |
+
+### 12.7 重启 loading 时间规则
+
+| 已录入指纹数 | 重启后 loading 时间上限 |
+|------------|---------------------|
+| 1 个 | ≤ 2s |
+| 2 个 | ≤ 4s |
+
+### 12.8 必须 PIN 的安全场景（指纹无感应）
+
+下列场景指纹解锁不响应，必须使用 PIN：
+
+| 场景 |
+|------|
+| 设备重启后首次解锁 |
+| 更改 PIN 码 |
+| 进入指纹录入 / 管理页面 |
+| 关机弹窗点击「取消」后再次锁屏唤醒 |
+| SeedCard（Lite 卡）备份流程 |
+| Keytag 备份流程 |
+| 核对助记词流程 |
+| 锁屏后使用 PIN 解锁，再进入其他解锁页（如签名授权）时尝试指纹 |
+
+### 12.9 双击解锁键规则
+
+- 连续按下 2 次「解锁键 / 电源键」时屏幕提示均为：`轻触屏幕或指纹解锁`
+
+### 12.10 USB 锁与指纹兼容规则
+
+- 已开启 USB 锁的设备，插拔 USB 数据线不影响指纹解锁能力
+
+### 12.11 录入 / 删除中断断电规则
+
+| 操作 | 中断时机 | 期望结果 |
+|------|---------|---------|
+| 录入第 1 个指纹 | 录入 loading 期间断电 | 重启后指纹要么未录入，要么录入成功可解锁；不出现损坏中间态 |
+| 录入第 2 个指纹 | 录入 loading 期间断电 | 重启后第 2 个指纹要么未录入，要么录入成功可解锁；**不影响第 1 个指纹**正常解锁 |
+| 删除单指纹（设备仅有 1 个） | 删除 loading 期间断电 | 重启后该指纹要么删除成功，要么未删除可继续解锁 |
+| 删除第 2 个指纹（设备有 2 个） | 删除 loading 期间断电 | 重启后第 2 个指纹要么删除成功，要么未删除可解锁；**不影响第 1 个指纹** |
+
+---
+
+## 13. Pro2 我的地址（My Address）测试规则
+
+> 适用范围：Pro2 及后续支持 My Address 功能的型号。
+
+### 13.1 入口与「选择网络」页布局规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 入口路径 | 应用菜单 → 我的地址 |
+| 顶部账户选择器 | 显示当前选中账户（默认 `Account #1`），可点击进入「选择账户」页 |
+| 网络列表 | 横向滚动展示所有支持网络 |
+| Title 开关 | 列表底部存在 Title 开关，控制账户标题展示 |
+
+### 13.2 网络列表清单（一期支持，共 27 个）
+
+| 序号 | 网络名 | 序号 | 网络名 | 序号 | 网络名 |
+|------|--------|------|--------|------|--------|
+| 1 | Bitcoin | 10 | Ripple | 19 | NEAR |
+| 2 | Ethereum | 11 | Aptos | 20 | Nervos |
+| 3 | Solana | 12 | Alephium | 21 | Neo N3 |
+| 4 | Tron | 13 | Algorand | 22 | Neurai |
+| 5 | TON | 14 | Benfen | 23 | Nexa |
+| 6 | Kaspa | 15 | Bitcoin Cash | 24 | Nostr |
+| 7 | Sui | 16 | Conflux | 25 | Polkadot |
+| 8 | Dogecoin | 17 | Cosmos | 26 | SCDO |
+| 9 | Cardano | 18 | Filecoin | 27 | Litecoin |
+
+> 一期暂不支持 Cosmos / Polkadot 的子链。
+
+### 13.3 账户选择器规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 默认选中 | 首次进入 / 重新进入 / 退出回归默认值均为 `Account #1` |
+| 每页展示数 | 5 个 Account |
+| 翻页按钮 | 「上一页」/「下一页」；首页「上一页」置灰；尾页「下一页」置灰 |
+| 选中后返回 | 选中 Account → 点击「返回」回到「选择网络」页，账户选择器显示选中值 |
+| 选中持久性 | 同一会话内切换网络 / QR 等不丢失选中；**退出「我的地址」或锁屏后清空，回归 `Account #1`** |
+
+### 13.4 数字键盘输入规则（Go To Account）
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 入口 | 「选择账户」页右上角「前往账户」按钮 |
+| 键盘布局 | 数字 0-9 + `X`（退出）+ `✓`（提交） |
+| 退出行为 | 点击 `X` 关闭键盘并返回「选择账户」页，不修改选中状态 |
+| 有效输入范围 | `1 ~ 1,000,000,000`（闭区间） |
+| 非法输入 | `0` 或 `> 1,000,000,000` 提交后清空输入并提示「输入格式错误」，停留在数字键盘页 |
+| 边界翻页置灰 | 提交 `1` 后跳转 Account #1，「上一页」置灰；提交 `1,000,000,000` 后跳转 Account #1000000000，「下一页」置灰 |
+
+### 13.5 地址详情页布局规则
+
+| 字段 | 显示规则 |
+|------|---------|
+| 顶部标题 | `<Network> Address`（如 `Bitcoin Address`） |
+| 派生路径选项 | 仅 BTC / ETH / SOL / LTC 显示，点击进入「Select Derivation Path」全屏页 |
+| Account 标识 | 显示当前选中 Account（如 `Account #1`） |
+| 地址展示 | 分段显示（按链格式约定） |
+| EVM 多链提示卡 | 仅 Ethereum（及其他 EVM 兼容链）显示：`Your address is an EVM network address. You can use it to manage your assets across other EVM-compatible networks (such as Ethereum, BNB Chain).` |
+| QR Code 按钮 | 底部固定按钮，点击弹出二维码 |
+
+### 13.6 派生路径规则
+
+| 链 | 可选派生路径 |
+|----|-------------|
+| BTC | Nested Segwit / Taproot / Native Segwit / Legacy |
+| ETH | BIP44 Standard（默认）及该链支持的其他路径 |
+| SOL | Ledger Live（默认）及该链支持的其他路径 |
+| LTC | OneKey Extended（默认）及该链支持的其他路径 |
+| 其他链 | 不显示派生路径切换入口 |
+
+> 「Select Derivation Path」页每个路径下方有 description 简短说明；切换后地址详情页同步更新派生路径标签。
+
+### 13.7 二维码规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 入口 | 地址详情页底部 QR Code 按钮 |
+| 内容 | 二维码本体 + 中央网络 icon |
+| 关闭按钮 | 右上角 `X`，关闭后返回地址详情页 |
+| 扫码一致性 | 扫描解析的地址与设备屏幕显示的地址逐字符一致 |
+
+### 13.8 BTC 新鲜地址规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 入口 | Bitcoin 地址详情页选择任意账户后显示新鲜地址切换按钮 |
+| 输入编号 | 输入指定编号跳转到对应新鲜地址 |
+| 派生路径覆盖 | 四种 BTC 路径（Nested Segwit / Taproot / Native Segwit / Legacy）均支持新鲜地址 |
+| 跨工具核对 | 与 `https://bip39.onekey.so/index.html` 输入相同助记词 + 编号 + 路径生成的地址一致；Taproot 额外用 App 端导入助记词后核对 |
+
+### 13.9 Passphrase 规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 启用后入口 | 进入「我的地址」点击网络前弹出 Passphrase 输入框 |
+| 会话保持 | 同一会话内切换网络不再弹出输入框 |
+| 锁屏重置 | 锁屏后再次解锁进入会话状态重置，需重新输入 Passphrase |
+| 切换 Passphrase | 启用状态下「选择网络」页右上角显示「切换 Passphrase」按钮，可输入新 Passphrase 重置当前钱包 |
+| 关闭后入口 | 关闭开关后「我的地址」直接进入「选择网络」页（无弹窗），右上角「切换 Passphrase」按钮不显示 |
+| 空值等价 | Passphrase 输入为空时等价标准钱包，地址与关闭 Passphrase 时同 Account 标准钱包一致 |
+
+### 13.10 助记词位数支持规则
+
+| 位数 | 支持来源 |
+|------|---------|
+| 12 | 设备创建 / 助记词导入 |
+| 18 | 设备创建 / 助记词导入 |
+| 24 | 设备创建 / 助记词导入 |
+
+> 每种位数下标准钱包 + Passphrase 钱包地址均需与 App 端核对一致。
+
+### 13.11 多语言一致性规则
+
+- 设备语言切换（English / 简体中文 / 繁體中文 / 日本語 / 한국어 / Español / Português (Brasil)）只影响 UI 文案
+- 同一 Account 同一网络同一派生路径下，各语言显示的地址字符内容完全一致
+- 二维码扫描解析地址不随语言变化
+
+---
+
 ## 变更记录
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-05-14 | 新增「Pro2 我的地址（My Address）」章节：入口与「选择网络」页布局、网络清单（27 个）、账户选择器（每页 5 个 / 翻页置灰 / 退出回归默认）、Go To Account 数字键盘（有效范围 1 ~ 1,000,000,000）、地址详情页字段（派生路径 / EVM 多链提示 / QR Code）、派生路径矩阵、二维码规则、BTC 新鲜地址、Passphrase 会话保持 / 锁屏重置 / 空值等价 / 切换入口、助记词 12/18/24 位、多语言地址一致性 |
+| 2026-05-14 | 新增「Pro2 指纹（Fingerprint）」章节：录入入口（Onboarding / Settings）、分步流程（中心 / 尖端 / 左 / 右）、异常文案（Timeout / Failed / 移动太快 / 覆盖不足 / 重复区域 / 按压过重等）、列表上限 2 个、unlock device 开关、连续 5 次失败计数与 PIN 计数互通、重启 loading 时间（1指纹≤2s/2指纹≤4s）、必须 PIN 安全场景、双击解锁键、USB 锁兼容、录入/删除中断断电恢复 |
 | 2026-05-11 | 新增「Keytag（金属抄写卡）备份测试规则」章节：入口与 SeedCard 并列、Recovery Phrase 始终必走、Invalid / Phrase Doesn't Match 文案、12/18/24 位点阵图分页规则、App 端核对一致性 |
 | 2026-05-11 | 新增「SeedCard（原 Lite 卡）备份与恢复测试规则」章节：备份/恢复/管理/Backup Settings/Protection Mode/Recovery Phrase 验证/PIN 自毁机制/AirGap 拦截，覆盖 Pro2 SeedCard 改版新增功能 |
 | 2026-05-11 | 新增「安全密钥（FIDO/U2F/FIDO2）」章节：解锁前置、Counter 机制、Binance vs Google 差异、列表上限 60、开关重启生效、测试站点参考 |
