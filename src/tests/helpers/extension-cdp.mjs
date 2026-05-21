@@ -96,9 +96,60 @@ function ensureTempProfile() {
   console.log('  Chrome data dir copied to ' + TMP_PROFILE);
 }
 
+// ── Auto-Detect Chrome CDP Port ──────────────────────────────
+
+/**
+ * 扫描运行中的 Chrome 主进程，提取 `--remote-debugging-port=<port>`。
+ *
+ * 用途：用户启动 Chrome 时端口可能不是 9224（每人本地配置不同）。
+ * 通过 `ps` 查命令行参数得到真实端口，避免硬编码默认值导致连不上。
+ *
+ * 排除规则：
+ *   1. 进程命令行不含 "Google Chrome" 的（OneKey/Chromium 等非 Chrome）
+ *   2. `--type=` 子进程（Chrome 的 renderer/GPU/utility 等子进程也会带 port 参数）
+ *   3. 已知的其他端 CDP 端口（9222 桌面 OneKey, 9223 Web 端 Chrome）
+ *
+ * @param {number[]} excludePorts 要排除的端口（默认排除桌面 9222 + Web 9223）
+ * @returns {number|null} 检测到的端口号，没找到返回 null
+ */
+export function detectChromeCdpPort(excludePorts = [9222, 9223]) {
+  try {
+    const out = execSync('ps -axo command', {
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    for (const line of out.split('\n')) {
+      if (!line.includes('Google Chrome')) continue;
+      if (line.includes('--type=')) continue; // skip renderer/GPU/utility subprocesses
+      const m = line.match(/--remote-debugging-port=(\d+)/);
+      if (!m) continue;
+      const port = parseInt(m[1], 10);
+      if (excludePorts.includes(port)) continue;
+      return port;
+    }
+  } catch {
+    // ps not available / permission denied → fall through to null
+  }
+  return null;
+}
+
 // ── Ensure Chrome Running ────────────────────────────────────
 
-const getCdpUrl = () => process.env.EXT_CDP_URL || DEFAULT_CDP_URL;
+/**
+ * 解析插件端 CDP URL，优先级：
+ *   1. `EXT_CDP_URL` 环境变量（用户显式指定）
+ *   2. 扫描运行中 Chrome 进程的 `--remote-debugging-port`（自动）
+ *   3. 默认 9224（首次启动时由本脚本拉起 Chrome 用的端口）
+ */
+const getCdpUrl = () => {
+  if (process.env.EXT_CDP_URL) return process.env.EXT_CDP_URL;
+  const detected = detectChromeCdpPort();
+  if (detected) {
+    console.log(`  [extension-cdp] auto-detected Chrome CDP port: ${detected}`);
+    return `http://127.0.0.1:${detected}`;
+  }
+  return DEFAULT_CDP_URL;
+};
 
 export async function ensureExtensionRunning() {
   const cdpUrl = getCdpUrl();

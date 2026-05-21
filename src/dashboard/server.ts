@@ -39,6 +39,8 @@ function readBody(req: import('node:http').IncomingMessage): Promise<string> {
 type Account = { walletName: string; accountName: string };
 type RuntimeConfig = {
   walletAccounts: { primary: Account; secondary: Account };
+  /** 钱包密码（签名 modal 弹「输入密码」时脚本自动填入）。可在 Dashboard ⚙️ Settings 修改。 */
+  walletPassword?: string;
   updatedAt?: string;
 };
 
@@ -51,13 +53,18 @@ function normalizeAccount(input: any): Account {
 
 function normalizeRuntimeConfig(input: any): RuntimeConfig {
   const wa = input?.walletAccounts ?? {};
-  return {
+  const out: RuntimeConfig = {
     walletAccounts: {
       primary: normalizeAccount(wa.primary),
       secondary: normalizeAccount(wa.secondary),
     },
     updatedAt: new Date().toISOString(),
   };
+  // 密码：保留原值（不 trim，密码可能含尾部空格）；空字符串不保存（脚本会用默认值）
+  if (typeof input?.walletPassword === 'string' && input.walletPassword.length > 0) {
+    out.walletPassword = input.walletPassword;
+  }
+  return out;
 }
 
 // ── Checklists validation ──
@@ -174,20 +181,28 @@ const server = createServer(async (req, res) => {
   // ── Test Execution APIs ──
 
   if (url.pathname === '/api/cdp-status') {
-    const cdpPorts = { desktop: 9222, web: 9223, extension: 9224 };
-    const results: Record<string, { ok: boolean; browser?: string }> = {};
+    // 桌面 / Web 端口固定（我们自己启动）；插件端用户自己启 Chrome，端口不定 → 扫进程取真实端口
+    let extPort = 9224;
+    try {
+      const { detectChromeCdpPort } = await import('../tests/helpers/extension-cdp.mjs');
+      extPort = detectChromeCdpPort() ?? 9224;
+    } catch {
+      // fallback 9224
+    }
+    const cdpPorts: Record<string, number> = { desktop: 9222, web: 9223, extension: extPort };
+    const results: Record<string, { ok: boolean; browser?: string; port: number }> = {};
     await Promise.all(
       Object.entries(cdpPorts).map(async ([name, port]) => {
         try {
           const resp = await fetch(`http://127.0.0.1:${port}/json/version`, { signal: AbortSignal.timeout(2000) });
           if (resp.ok) {
             const info = await resp.json() as { Browser?: string };
-            results[name] = { ok: true, browser: info.Browser };
+            results[name] = { ok: true, browser: info.Browser, port };
           } else {
-            results[name] = { ok: false };
+            results[name] = { ok: false, port };
           }
         } catch {
-          results[name] = { ok: false };
+          results[name] = { ok: false, port };
         }
       }),
     );

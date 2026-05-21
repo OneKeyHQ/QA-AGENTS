@@ -444,6 +444,16 @@
           <input id="secondaryAccountName" placeholder="如 Account #2">
         </div>
       </div>
+      <div class="settings-section">
+        <h4>钱包密码 <span class="role-tag">签名 / 解锁用</span></h4>
+        <div class="settings-hint" style="margin-top:0">
+          签名 modal 弹出「输入密码」时脚本会自动填入。不是所有交易都会触发（首次解锁后短期不再弹）。默认 <code>1234567890-=</code>。
+        </div>
+        <div class="settings-row">
+          <label>密码</label>
+          <input id="walletPassword" type="password" placeholder="留空则用默认 1234567890-=">
+        </div>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="modal-btn" onclick="closeSettingsModal()">取消</button>
@@ -655,7 +665,7 @@ function renderCdpStatus() {
     label.title = info.browser || '';
   } else {
     label.textContent = 'CDP 未连接';
-    label.title = key + ' (port ' + ({desktop:9222, web:9223, extension:9224}[key]) + ') 无响应';
+    label.title = key + ' (port ' + (info.port ?? '?') + ') 无响应';
   }
 }
 
@@ -1355,6 +1365,7 @@ function openSettingsModal() {
   document.getElementById('primaryAccountName').value = wa.primary?.accountName || '';
   document.getElementById('secondaryWalletName').value = wa.secondary?.walletName || '';
   document.getElementById('secondaryAccountName').value = wa.secondary?.accountName || '';
+  document.getElementById('walletPassword').value = runtimeConfig.walletPassword || '';
   document.getElementById('settingsModalOverlay').classList.add('visible');
 }
 
@@ -1367,6 +1378,7 @@ function closeSettingsModalIfBackdrop(e) {
 }
 
 async function saveSettings() {
+  const pwdVal = document.getElementById('walletPassword').value;
   const payload = {
     walletAccounts: {
       primary: {
@@ -1378,6 +1390,8 @@ async function saveSettings() {
         accountName: document.getElementById('secondaryAccountName').value.trim(),
       },
     },
+    // 密码不 trim（密码可能含尾部空格）；为空则不存（脚本会用默认值 1234567890-=）
+    ...(pwdVal.length > 0 ? { walletPassword: pwdVal } : {}),
   };
   try {
     const res = await fetch('/api/runtime-config', {
