@@ -181,6 +181,7 @@
 - 兼容性：多设备型号、多连接方式（USB/蓝牙/QR）
 - **输出规则**：禁止输出自动化相关内容
 - **详细规则**：`docs/qa/rules/hardware-rules.md`
+- **第三方硬件规则**：`docs/qa/rules/hardware-third-party-rules.md`（Ledger 已沉淀，Trezor 待补充）
 
 ### Referral（返佣）
 - 状态机：绑定→生效→累计→结算→发放
@@ -833,6 +834,7 @@ UI 元素（banner / 入口按钮）的"显示 / 不显示"规则集中在第一
 | DeFi | `docs/qa/rules/defi-rules.md` | DeFi 规则（借贷、质押、收益） |
 | Perps | `docs/qa/rules/perps-rules.md` | Perps 规则（开平仓、BBO、收藏功能） |
 | Hardware | `docs/qa/rules/hardware-rules.md` | Hardware 规则（设备管理、连接、设置） |
+| Hardware | `docs/qa/rules/hardware-third-party-rules.md` | Hardware 第三方硬件规则（Ledger 连接/匹配，Trezor 占位） |
 | Referral | `docs/qa/rules/referral-rules.md` | Referral 规则（绑定、结算、发放） |
 | Browser | `docs/qa/rules/browser-rules.md` | Browser 规则（DApp 连接、签名、安全） |
 | Utility | `docs/qa/rules/utility-rules.md` | Utility 规则（设置、通知、风控、通用功能） |
