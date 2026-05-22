@@ -22,6 +22,13 @@ let recorderState = 'connecting';
 let cdpConnected = false;
 let reconnecting = false; // Lock to prevent concurrent reconnects
 
+async function resolveCdpEndpoint(baseUrl) {
+  const resp = await fetch(`${baseUrl}/json/version`);
+  if (!resp.ok) throw new Error(`CDP not responding: HTTP ${resp.status}`);
+  const meta = await resp.json();
+  return meta.webSocketDebuggerUrl || baseUrl;
+}
+
 function broadcastStep(step) {
   const data = `data: ${JSON.stringify(step)}\n\n`;
   for (const res of sseClients) res.write(data);
@@ -53,10 +60,11 @@ async function connectCDP() {
   cdpConnected = false;
   broadcastStatus();
 
+  let cdpEndpoint = CDP_URL;
+
   try {
     // Check CDP is responding
-    const resp = await fetch(`${CDP_URL}/json/version`);
-    if (!resp.ok) throw new Error('CDP not responding');
+    cdpEndpoint = await resolveCdpEndpoint(CDP_URL);
   } catch {
     // CDP not responding — try to restart OneKey automatically
     console.log('  [CDP] Not responding, attempting to restart OneKey...');
@@ -75,13 +83,13 @@ async function connectCDP() {
         for (let i = 0; i < 15; i++) {
           await new Promise(r => setTimeout(r, 1000));
           try {
-            const r2 = await fetch(`${CDP_URL}/json/version`);
-            if (r2.ok) { console.log(`  [CDP] OneKey ready after ${i + 1}s`); break; }
+            cdpEndpoint = await resolveCdpEndpoint(CDP_URL);
+            if (cdpEndpoint) { console.log(`  [CDP] OneKey ready after ${i + 1}s`); break; }
           } catch {}
         }
         // Re-check
-        const check = await fetch(`${CDP_URL}/json/version`).catch(() => null);
-        if (!check?.ok) {
+        const check = await resolveCdpEndpoint(CDP_URL).catch(() => null);
+        if (!check) {
           recorderState = 'disconnected';
           cdpConnected = false;
           broadcastStatus();
@@ -89,6 +97,7 @@ async function connectCDP() {
           reconnecting = false;
           return false;
         }
+        cdpEndpoint = check;
       } else {
         recorderState = 'disconnected';
         cdpConnected = false;
@@ -120,7 +129,7 @@ async function connectCDP() {
       browser = null;
     }
 
-    browser = await chromium.connectOverCDP(CDP_URL);
+    browser = await chromium.connectOverCDP(cdpEndpoint);
     page = browser.contexts()[0]?.pages()[0];
     if (!page) throw new Error('No page found');
 
@@ -174,25 +183,76 @@ async function injectListeners() {
     window.__recorderVersion = (window.__recorderVersion || 0) + 1;
     const V = window.__recorderVersion;
     window.__recordedSteps = [];
+    const GENERIC_CONTAINER_TESTIDS = new Set([
+      'market-page',
+      'home-page',
+      'swap-content-container',
+    ]);
 
     let _clickTimer = null;
     let _pendingClick = null;
+    let _pointerDownCandidate = null;
+
+    function getComposedElements(target, event) {
+      const path = typeof event.composedPath === 'function' ? event.composedPath() : [];
+      const elements = path.filter((el) => el && typeof el.getAttribute === 'function');
+      if (!elements.includes(target)) elements.unshift(target);
+      return elements;
+    }
+
+    function pickRecordedClickElement(target, event) {
+      if (_pointerDownCandidate && _pointerDownCandidate.el?.isConnected) {
+        const dx = Math.abs((_pointerDownCandidate.x || 0) - event.clientX);
+        const dy = Math.abs((_pointerDownCandidate.y || 0) - event.clientY);
+        if (dx <= 12 && dy <= 12) return _pointerDownCandidate.el;
+      }
+
+      const pointEl = document.elementFromPoint?.(event.clientX, event.clientY);
+      const pointElements = pointEl ? getComposedElements(pointEl, event) : [];
+      const targetElements = getComposedElements(target, event);
+      const elements = [...pointElements, ...targetElements].filter((el, idx, arr) => arr.indexOf(el) === idx);
+
+      for (const el of elements) {
+        const tid = el.getAttribute('data-testid');
+        if (tid && !GENERIC_CONTAINER_TESTIDS.has(tid)) return el;
+      }
+
+      for (const el of elements) {
+        const role = el.getAttribute('role');
+        if (el.tagName === 'BUTTON' || role === 'button' || el.getAttribute('aria-haspopup')) return el;
+      }
+
+      return target.closest?.('[data-testid], button, [role="button"], [aria-haspopup]') || target;
+    }
+
+    document.addEventListener('pointerdown', (e) => {
+      if (window.__recorderVersion !== V) return;
+      const target = e.target;
+      const candidate = pickRecordedClickElement(target, e);
+      _pointerDownCandidate = {
+        el: candidate,
+        x: e.clientX,
+        y: e.clientY,
+        at: Date.now(),
+      };
+    }, true);
 
     document.addEventListener('click', (e) => {
       if (window.__recorderVersion !== V) return;
       const target = e.target;
-      const tag = target.tagName;
+      const recordedEl = pickRecordedClickElement(target, e);
+      const tag = recordedEl.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
-      const closest = target.closest('[data-testid]');
-      const r = target.getBoundingClientRect();
+      const closest = recordedEl.closest?.('[data-testid]');
+      const r = recordedEl.getBoundingClientRect();
       _pendingClick = {
         time: new Date().toISOString(),
         type: 'click',
         tag,
-        testid: target.getAttribute('data-testid') || (closest ? closest.getAttribute('data-testid') : ''),
-        text: (target.textContent || '').substring(0, 80).trim(),
-        placeholder: target.getAttribute('placeholder') || '',
+        testid: recordedEl.getAttribute('data-testid') || (closest ? closest.getAttribute('data-testid') : ''),
+        text: ((recordedEl.textContent || target.textContent || '')).substring(0, 80).trim(),
+        placeholder: recordedEl.getAttribute('placeholder') || target.getAttribute('placeholder') || '',
         x: Math.round(e.clientX),
         y: Math.round(e.clientY),
         rect: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }
@@ -204,6 +264,7 @@ async function injectListeners() {
           console.log('STEP:' + JSON.stringify(_pendingClick));
           _pendingClick = null;
         }
+        _pointerDownCandidate = null;
       }, 300);
     }, true);
 

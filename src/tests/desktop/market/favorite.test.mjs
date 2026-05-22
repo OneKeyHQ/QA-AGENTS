@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
-  dismissOverlays, unlockWalletIfNeeded,
+  dismissOverlays, unlockWalletIfNeeded, goToWalletHome,
 } from '../../helpers/index.mjs';
 import { MarketPage } from '../../helpers/pages/index.mjs';
 import { openSearchModal } from '../../helpers/components.mjs';
@@ -31,25 +31,28 @@ async function goToMarket(page) {
 }
 
 async function goToWallet(page) {
+  try {
+    await goToWalletHome(page);
+    await sleep(1000);
+    return;
+  } catch {}
+
   const ok = await page.evaluate(() => {
-    const walletBtn = document.querySelector('[data-testid="tab-modal-no-active-item-Wallet4Outline"]');
-    if (walletBtn) {
-      const r = walletBtn.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) { walletBtn.click(); return true; }
-    }
     const sidebar = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
     if (!sidebar) return false;
-    const labels = ['Wallet', '钱包', 'ウォレット'];
+    const labels = ['Home', '首页', 'Wallet', '钱包', 'ウォレット'];
     for (const sp of sidebar.querySelectorAll('span')) {
       const txt = sp.textContent?.trim();
-      if (labels.includes(txt)) {
-        const r = sp.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) { sp.click(); return true; }
+      if (!labels.includes(txt || '')) continue;
+      const r = sp.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        sp.click();
+        return true;
       }
     }
     return false;
   });
-  if (!ok) throw new Error('Cannot navigate to Wallet via sidebar');
+  if (!ok) throw new Error('Cannot navigate to Wallet/Home via sidebar');
   await sleep(2500);
 }
 
@@ -100,14 +103,16 @@ async function clickSubTab(page, name) {
 /** Click a network filter chip. Desktop: chips at any y, supports horizontal scroll. */
 async function clickNetworkFilter(page, network) {
   const clicked = await page.evaluate((net) => {
-    for (const el of document.querySelectorAll('span')) {
+    const mp = document.querySelector('[data-testid="market-page"]');
+    const scope = mp && mp.getBoundingClientRect().width > 40 ? mp : document;
+    for (const el of scope.querySelectorAll('span')) {
       if (el.children.length > 0) continue;
       if (el.textContent?.trim() !== net) continue;
       el.scrollIntoView({ inline: 'center', block: 'nearest' });
       el.click();
       return true;
     }
-    for (const el of document.querySelectorAll('button, div, [role="option"]')) {
+    for (const el of scope.querySelectorAll('button, div, [role="option"]')) {
       if (el.textContent?.trim() !== net || el.children.length > 2) continue;
       el.scrollIntoView({ inline: 'center', block: 'nearest' });
       el.click();

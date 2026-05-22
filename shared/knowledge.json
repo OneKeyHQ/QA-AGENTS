@@ -1,13 +1,14 @@
 {
   "version": "2.3.7",
-  "lastUpdated": "2026-05-19",
+  "lastUpdated": "2026-05-22",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074 — DOM定位/选择器/testid陷阱",
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115 — DOM定位/选择器/testid陷阱",
     "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095 — 断言策略/校验方法",
-    "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103 — 录制器相关"
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097,K-119 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095,K-120 — 断言策略/校验方法",
+    "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109 — 录制器相关",
+    "timing": "K-107,K-110,K-112,K-114 — 时序/异步/页面状态切换"
   },
   "patterns": [
     {
@@ -852,756 +853,107 @@
     },
     {
       "id": "K-108",
-      "category": "locator",
-      "platform": "all",
-      "pattern": "OneKey 主页一级 tab vs 子 tab：`tab-modal-no-active-item-{TradeOutline|CoinsOutline}` 是 mobile 一级 tab；进 DeFi 必须用 `home-tab-defi` 子 tab",
-      "details": "⚠️ 此条内容部分错误，已被 K-109 替代。home-tab-defi 是钱包页面的子 tab，不是 DeFi 主入口；侧栏 DeFi 入口的正确 testid 是 `earn`。\n\n录制器抓到的 `tab-modal-no-active-item-TradeOutline` / `CoinsOutline` 是 OneKey 顶部一级 tab（资产 / 交易），点 TradeOutline 会跳到合约/Swap，跟 DeFi 是完全不同区域。\n\n正确进入 DeFi 的方法：\n1. 先确保在 Wallet/Home 主页（不在 → 点侧栏 `Desktop-AppSideBar-Content-Container` 里的「钱包」）\n2. 点 `[data-testid=\"home-tab-defi\"]`（DeFi 子 tab，在主页面 tabs 里）\n3. 此时显示 DeFi 模块（容器 `[data-testid=\"earn-page\"]`）\n\nDeFi 子 tabs：\n- 简单赚币 / 可用资产：`earn-tab-available-assets`\n- 协议：`earn-tab-protocols`\n- 持仓：`earn-tab-portfolio`\n\n触发场景：写任何 DeFi 用例的脚本时；如果脚本跑到「合约」页面去找 DeFi 资产，就是这个 tab 用错了。",
-      "confidence": 1.0,
-      "superseded_by": "K-109"
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "Monitor UI 打开报 ERR_CONNECTION_REFUSED 时，优先检查 listen.mjs 进程是否已退出，而不是怀疑 localhost 地址",
+      "details": "本次重录 Market favorite 时，浏览器访问 http://localhost:3210 直接报 ERR_CONNECTION_REFUSED。排查结果：3210 端口无 LISTEN，recorder 进程已退出；不是浏览器缓存，也不是 localhost 填错。/tmp/recorder.log 仍可能只保留旧的启动 banner，容易误判为 recorder 还活着。标准诊断顺序：1) `lsof -iTCP:3210 -sTCP:LISTEN -n -P` 确认端口是否在监听；2) 若无监听，再 `pkill -f \"src/recorder/listen.mjs\"` 后重启 `nohup node src/recorder/listen.mjs >/tmp/recorder.log 2>&1 &`；3) 用 `curl http://127.0.0.1:3210` 验证返回 HTML。触发场景：桌面端录制 Monitor UI 打不开时。",
+      "confidence": 0.97
     },
     {
       "id": "K-109",
-      "category": "locator",
+      "category": "recording",
       "platform": "desktop",
-      "pattern": "OneKey 侧栏每个 tab item 有两层 testid：语义层（home/market/swap/perp/earn/referfriends/discovery）+ 图标层（tab-modal-{active|no-active}-item-{IconName}Solid|Outline）。脚本里**只用语义层**。图标层名字会误导（perp 的图标叫 TradeOutline，earn 的图标叫 CoinsOutline）",
-      "details": "通过 CDP 实时探测 [data-testid=\"Desktop-AppSideBar-Content-Container\"] 内的所有元素，发现侧栏每个 item 由两个套娃 testid 标记同一坐标：\n\n| 位置 | 语义层（稳定）| 图标层（按图标命名）|\n|------|---|---|\n| 钱包/首页 | home | tab-modal-active-item-Wallet4Solid |\n| 市场 | market | tab-modal-no-active-item-TradingViewCandlesOutline |\n| 交易/Swap | swap | tab-modal-no-active-item-SwitchHorOutline |\n| **合约/Perps** | **perp** | tab-modal-no-active-item-**TradeOutline** ⚠️ 名字误导 |\n| **DeFi/Earn** | **earn** | tab-modal-no-active-item-**CoinsOutline** ⚠️ 名字误导 |\n| 推荐/邀请 | referfriends | tab-modal-no-active-item-GiftOutline |\n| 浏览器 | discovery | tab-modal-no-active-item-CompassOutline |\n\n**规则**：脚本里只用语义层（短名），图标层 testid 不可靠（图标可能改名 Solid/Outline 切换）。\n\n另注：`home-tab-defi` testid 是钱包页面内的子 tab（截图里现货/DeFi/NFT/历史记录那行），跟侧栏 `earn` 是两个不同位置。写 DeFi 脚本要进的是侧栏 `earn` 整页，不是 home-tab-defi。\n\n触发场景：导航到任何主模块时；纠正之前 K-108 提到的 home-tab-defi（那条已过时）。",
-      "confidence": 1.0
+      "pattern": "重录 Market favorite 时，开头连续取消星标可能是在清空已有收藏直到进入自选空状态，不应误判为推荐代币勾选",
+      "details": "在 `src/tests/desktop/market/favorite.test.mjs` 的重录里，步骤 2/3/4 分别点击 `market-token-star-AAVE`、`market-token-star-UNI`、`market-token-star-WLFI`。用户确认这三步的真实意图不是在空状态推荐区勾选代币，而是“如果已有收藏，就继续取消收藏，直到看到自选空状态”的前置清理动作。分析 Market favorite 录制步骤时，凡是脚本一开始就连续点击多个已收藏星标，且随后出现推荐卡片与 `添加 X 个代币` 按钮，应优先按“清空已有收藏 -> 进入空状态”解读，而不是直接归类为推荐代币选择。",
+      "confidence": 0.98
     },
     {
       "id": "K-110",
       "category": "timing",
-      "platform": "all",
-      "pattern": "DeFi/Earn 所有资产列表里的代币卡片是虚拟列表 lazy render，要点击下方代币（如 USDT）必须先滚动让其进入视口，否则即使 textContent 匹配，getBoundingClientRect 也是 0×0",
-      "details": "OneKey DeFi 页面「所有资产 → 简单赚币」列表里，USDT 是排在 USDC / USDe 之后的第 3 行，初始视口下不可见。如果直接 `querySelectorAll('[data-testid=\"staking-protocol-list-item\"]')` 然后过滤 textContent='USDT'，可能匹配到但 rect 为 0（虚拟列表未渲染）或在视口外。\n\n稳定做法：写一个 scrollAndClickTestidByText helper：\n1. 每次轮询查找匹配元素\n2. 如果元素在 DOM 但在视口外 → 调 `el.scrollIntoView({ block: 'center' })`\n3. 如果元素根本不在 DOM → `window.scrollBy(0, 350)`\n4. 重试 15 次后还找不到才报错\n\n判断「在视口」用 `r.y > 80 && r.y < window.innerHeight - 50`（避开顶部 header 和底部 footer）。\n\n触发场景：DeFi 资产列表、协议列表、持仓列表；任何长列表里点指定行。",
-      "confidence": 1.0
+      "platform": "desktop",
+      "pattern": "Market 自选里的 `现货` 子 tab 不是每次都稳定出现，取决于当前自选数据与页面状态，脚本要允许 best-effort",
+      "details": "在 `market/favorite.test.mjs` 回放中，`自选 -> 现货` 子 tab 有时可点击，有时不存在或瞬时不可见。直接把 `clickSubTab('现货')` 作为强制前置会导致 `MARKET-FAV-002/003` 随环境波动失败。更稳的做法是：先尝试点击，成功则继续按该分支验证；失败则记录 skip/detail，继续走不依赖该子 tab 的后续步骤。触发场景：Market 收藏联动、自选分类验证。",
+      "confidence": 0.95
     },
     {
       "id": "K-111",
       "category": "locator",
       "platform": "desktop",
-      "pattern": "DeFi 资产列表里代币卡片复用 Home 组件，testid 是 `home-token-item-evm--<chainId>-<SYMBOL>`，不是 `staking-protocol-list-item`",
-      "details": "⚠️ 此条信息错误（当时探测的页面是 Wallet 不是 DeFi），由 K-120 替代。\n\nOneKey 的 DeFi 「所有资产」tab 下的代币卡片，DOM testid 是：`home-token-item-evm--<chainId>-<SYMBOL>`（比如 Arbitrum USDT = `home-token-item-evm--42161-USDT`）。这是因为 DeFi tab 复用了 Home/Wallet 的 TokenListView 组件。\n\n稳定匹配方式（不依赖具体 chainId）：用 querySelector `[data-testid^=\"home-token-item-\"]` 然后 endsWith('-USDT' / '-USDC' 等)。脚本里封装为 `scrollAndClickByTestidPrefix({ testidPrefix, testidSuffix })`。\n\n常见 chainId：1=ETH 主网，42161=Arbitrum，56=BSC，137=Polygon，10=Optimism，8453=Base，43114=Avalanche。\n\n触发场景：写 DeFi 「所有资产」tab 下选币的脚本。",
-      "confidence": 1.0,
-      "superseded_by": "K-120"
+      "pattern": "Market 搜索入口不总是弹 `APP-Modal-Screen`，有时直接走 header inline search；不要把 `nav-header-search` 限死在 modal 下",
+      "details": "本次修 `MARKET-FAV-004/007` 时，失败日志显示 `input[data-testid=\"nav-header-search\"]` 存在，但 Playwright 试图点 modal 里的隐藏 input 导致 30s 超时。实际页面上搜索可能是两种形态：①传统 `APP-Modal-Screen` 搜索弹层；②顶部 header inline search，输入框可见但不在 modal 内。稳定做法：定位所有可见 `input[data-testid=\"nav-header-search\"]`，取最后一个可见节点，用原生 value setter + input/change 事件注入内容，而不是依赖 locator.click() 的 actionability。触发场景：Market 搜索相关脚本、收藏/搜索用例。",
+      "confidence": 0.98
     },
     {
       "id": "K-112",
-      "category": "quirk",
+      "category": "timing",
       "platform": "desktop",
-      "pattern": "DeFi 页面顶部三个 tab（所有资产/持仓/常见问题）是横向 SwipeView 三个 panel，非 active panel 的内容会被偏移到 x<0 屏外，看似在 DOM 但不可点",
-      "details": "OneKey DeFi 页面三个顶部 tab 不是常规的 tab-switch（隐藏/显示），而是 React Native SwipeView 横向并排三个 panel。当前 active tab 的 panel 在 x=0 视口里，其他两个 panel 被 transform 推到 x≈-3000 或 x≈+3000 屏外。\n\n症状：直接查询 `[data-testid=\"home-token-item-evm--42161-USDT\"]` 返回 elementCount=1，但 getBoundingClientRect.x = -3153（USDT 在「所有资产」panel，但当前可能停在「持仓」）。即使 scrollIntoView 也救不了（它只调整 y）。\n\n解决：进入 DeFi 后**必须先显式点击「所有资产」tab**让对应 panel 横向归位到 x=0，然后再查找/滚动 USDT 等元素。\n\n判断元素是否可点：除 y 在视口外，还要 `r.x >= 0`。\n\n触发场景：所有 DeFi 主页/详情页里的 tab 切换逻辑；类似 swipe-view 实现的页面（可能还有别的模块用同款组件）。",
-      "confidence": 1.0
+      "pattern": "Market 收藏空状态清理应以“视觉空状态出现”优先停止，不要继续等待列表节点彻底归零，否则列表会持续跳动",
+      "details": "修 `MARKET-FAV-001` 时观察到：脚本一开始为了进入自选空状态，会循环点击星标清理已有收藏。若停止条件写成“`list-column-name` 可见项必须为 0”，页面即使已经出现“您的自选列表为空 / 将您喜欢的代币添加到列表中 / 添加 X 个代币”这些空状态信号，脚本仍会继续点星标，导致列表反复重排、视觉上一直跳动。更稳的口径是：只要空状态标题、副标题或“添加 X 个代币”按钮任一出现，就立刻停止清理。验证结果：同一环境下 `MARKET-FAV-001` 从 `cleared=161 / 56s+` 缩短到 `cleared=7 / 14.3s`。触发场景：Market 自选空状态相关回放与脚本维护。",
+      "confidence": 0.99
     },
     {
       "id": "K-113",
       "category": "locator",
-      "platform": "all",
-      "pattern": "OneKey (RN Web) 的页面主滚动容器是嵌套 div（如 class='contract-trigger' 等），不是 window。`window.scrollBy` 完全无效。必须找祖先链上 overflow-y:auto/scroll 且 scrollHeight>clientHeight 的 div 才能滚动",
-      "details": "React Native Web 把 ScrollView 渲染为带 overflow:auto 的 div，不是 window 整页滚动。所以 page.evaluate(() => window.scrollBy(0, 350)) 在 OneKey 里完全没效果。\n\n通用 helper：\n```js\nfunction findScrollContainer(anchor) {\n  let el = anchor;\n  while (el && el !== document.body) {\n    const cs = getComputedStyle(el);\n    if ((cs.overflowY === 'auto' || cs.overflowY === 'scroll' || cs.overflowY === 'overlay')\n        && el.scrollHeight > el.clientHeight + 5) return el;\n    el = el.parentElement;\n  }\n  // 兜底：全页找最大可滚 div\n  let best = null, bestArea = 0;\n  for (const cand of document.querySelectorAll('div')) {\n    const cs = getComputedStyle(cand);\n    if ((cs.overflowY === 'auto' || cs.overflowY === 'scroll') && cand.scrollHeight > cand.clientHeight + 5) {\n      const r = cand.getBoundingClientRect();\n      if (r.width * r.height > bestArea) { bestArea = r.width * r.height; best = cand; }\n    }\n  }\n  return best;\n}\nfindScrollContainer(anchor).scrollBy(0, 350);\n```\n\n触发场景：所有 OneKey 桌面端长列表滚动；Extension/Web 端同理。",
-      "confidence": 1.0
+      "platform": "desktop",
+      "pattern": "钱包首页不要用通用 `home-columns-icon-btn` 做 Market 收藏联动；它只是首页市场榜单的行内按钮，容易把非 Market 弹窗链路带进来",
+      "details": "排查 `MARKET-FAV-005` 误触时发现：钱包首页可见的 `home-columns-icon-btn` 位于首页 Market 榜单行内（如 ASTER / PEPE / AAVE 行），并不是唯一、稳定的“收藏入口”。脚本若直接点第一个可见 `home-columns-icon-btn`，就会把 Wallet Home 上其他交互状态一起卷进来，表现为偶发拉起通知抽屉、左下角更多菜单或中心选择代币弹窗。更稳的做法是：1) 先明确回到 `Home` 页，而不是宽泛的 Wallet sidebar；2) 在 `home-page` 容器内只点击可见的 `[data-testid^=\"market-token-star-\"]` 星标；3) 风险点击后立刻检查并清理 `账户活动/系统`、`复制地址/签名与验证消息`、`选择代币` 这三类非 Market 弹窗。触发场景：钱包首页 Market 收藏联动、Market favorite case 005 维护。",
+      "confidence": 0.98
     },
     {
       "id": "K-114",
-      "category": "process",
-      "platform": "all",
-      "pattern": "脚本生成后必须做 Phase 5 CDP 实探（验证每个 testid 真实存在、可见、可点），发现错就当场修正再交付，不能丢给用户去跑发现错",
-      "details": "新工作流写进 CLAUDE.md「Phase 5: CDP 实探验证」章节。流程：\n\n1. 录制 → 用户确认操作清单\n2. 生成 `.test.mjs` 脚本\n3. **Phase 5 实探**：通过 CDP 连接 OneKey，对脚本里每个 `safeClickTestid('<X>')` / `[data-testid=\"<X>\"]` 查询，验证：\n   - testid 是否真实存在（querySelector 不为空）\n   - 元素是否在视口（r.x>=0 && r.y>80 && r.y<window.innerHeight-50）\n   - 不在视口的话是 SwipeView 屏外（r.x<0）还是需要滚动\n4. 发现问题 → 当场修脚本（用真实 testid / 加滚动 / 切 tab）+ 补 knowledge\n5. 重跑 probe 直到全绿才交付\n\n实例：本次给 Lista 脚本生成后，第一轮 probe 发现 `earn-page` testid 不存在（脚本里用它做 fallback anchor），第二轮改成 `earn-portfolio-overview || earn-faq-section`。\n\n触发场景：所有 .test.mjs 生成完毕、交付用户前。**违反此流程会回到「生成→报错→改→再报错」死循环**。",
-      "confidence": 1.0
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "Market 搜索关闭不要只依赖 Playwright 点 `navClose`；优先 JS 直点可见关闭按钮，再轮询确认搜索 UI 真正消失",
+      "details": "排查 `MARKET-FAV-004` 耗时异常时发现，慢点不是搜索结果渲染，而是 `closeSearch()` 偶发被拖在关闭动作上，单次可吞掉约 30 秒。根因是搜索层的关闭按钮存在动画/遮罩/可操作性波动，locator.click() 有时会一直等 actionability。更稳更快的做法是：1) 优先在 DOM 里直接点击 `APP-Modal-Screen` 顶部可见的关闭按钮；2) 失败时再 fallback 到 registry `navClose` 或 `Escape`；3) 点击后轮询确认 modal 已不可见，且可见 `nav-header-search` 输入数量回落。这样 `MARKET-FAV-004` 在同环境下从约 126s 降到 40.5s。触发场景：Market 搜索相关脚本、收藏/搜索用例关闭搜索层时。",
+      "confidence": 0.98
     },
     {
       "id": "K-115",
-      "category": "quirk",
+      "category": "locator",
       "platform": "desktop",
-      "pattern": "SVG 元素没有 HTMLElement.click() 方法。`svg.click()` 会抛 `TypeError: svg.click is not a function`。必须用 `page.mouse.click(rect.x + w/2, rect.y + h/2)` 坐标点击，或 `el.dispatchEvent(new MouseEvent('click', { bubbles: true }))`",
-      "details": "JS DOM 规范里 SVGElement 不继承 HTMLElement.click()。在 OneKey 桌面端常遇到：APY icon 旁的小 svg、nav-header-back 等图标按钮、tab 图标。\n\n现象：脚本 `await page.evaluate(() => { const svg = ...; svg.click(); })` 抛 `svg.click is not a function`。\n\n通用 helper：\n```js\nasync function safeClickElement(page, queryFn) {\n  const pos = await page.evaluate(queryFn); // returns {x, y, width, height}\n  if (!pos) throw new Error('not found');\n  await page.mouse.click(pos.x + pos.width/2, pos.y + pos.height/2);\n}\n```\n\n触发场景：所有「图标按钮」点击——尤其 nav-header-* / 关闭按钮 / icon-btn 类。",
-      "confidence": 1.0
+      "pattern": "钱包首页当前版本可能没有前台可达的 Market 收藏星标；后台残留的 market/swap 页面会把 `market-token-star-*` 假装成可见",
+      "details": "排查 `MARKET-FAV-005` 时发现，OneKey Desktop 当前版本会把 `home-page`、`market-page`、`swap-content-container` 同时挂在 DOM 中。`home-page` 本身不可滚动（`scrollHeight == clientHeight`），但后台残留的 `market-watch-list` 仍会暴露 `[data-testid^=\"market-token-star-\"]`。如果脚本只看 `querySelectorAll + getBoundingClientRect()`，就会把后台页面的星标误判为钱包首页 Market 入口，继而误触网络选择器、通知抽屉或左下角更多菜单。稳妥做法：1) 钱包首页联动场景只认前台可点击星标；2) 若当前版本前台没有可达的 Market 星标，就将该步骤标记为 skip，而不是继续误点后台残留 DOM；3) 风险点击后额外检查 `最近使用 + 在这些网络上发现资产` 组合，以识别网络选择器误触。触发场景：钱包首页 Market 收藏联动、Market favorite case 005 维护。",
+      "confidence": 0.99
     },
     {
       "id": "K-116",
-      "category": "process",
-      "platform": "all",
-      "pattern": "重启 Dashboard 必须先 `lsof -ti:5050 | xargs kill -9`，单纯 `pkill -f tsx src/dashboard` 会漏掉某些子进程，导致新进程 EADDRINUSE 启动失败但旧进程接管请求 → API 看着正常但用的是旧代码（最难发现的 bug）",
-      "details": "本会话踩过的真实 bug：\n1. 改了 dashboard/index.html\n2. `pkill -f \"tsx src/dashboard\"` + 启动新进程\n3. API 返回 200，看着正常\n4. 但浏览器加载的是旧 HTML（因为旧进程还在端口上服务，新进程 EADDRINUSE 启动失败）\n5. 表象：用户刷新页面看到「加载中...」永远不消失（其实是新代码里的 JS 语法错误，但因为浏览器加载的还是旧 HTML 所以没报）\n\n**正确重启序列**：\n```bash\nkill -9 $(lsof -ti:5050) 2>/dev/null    # 必须先力杀所有端口占用者\npkill -9 -f \"tsx src/dashboard\" 2>/dev/null\nsleep 2\nlsof -ti:5050  # 确认空了\nnohup npx tsx src/dashboard/server.ts > /tmp/dashboard.log 2>&1 &\nsleep 4\nlsof -ti:5050  # 看新 PID\n```\n\n触发场景：每次改完 dashboard 代码重启时。",
-      "confidence": 1.0
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "Market 右上角网络选择器点击容易被录成 IMG/market-page，需沿 composedPath 提升到按钮级节点",
+      "details": "用户实际点击了 Market 页面右上角的网络选择器，但旧版 recorder 只读取 event.target 或最近的 data-testid 父节点，结果把链图标点击记录成 `IMG market-page`，丢失真实语义。修复策略：点击录制优先沿 `event.composedPath()` 查找非泛容器 testid，再回退到 button / role=button / aria-haspopup 等可点击祖先，避免被 `market-page` 这类页面容器吞掉。已知关联稳定 testid：`market-render-trigger-btn`。",
+      "confidence": 0.98
     },
     {
       "id": "K-117",
-      "category": "process",
-      "platform": "all",
-      "pattern": "locator key 命名用 UI 显示名（如 defi/perps/browser），primary 字段才用 source testid 真值（如 earn/perp/discovery）。两者不一致是 OneKey 命名历史遗留",
-      "details": "OneKey 部分 UI 中文/英文名跟 source testid 不一致，命名规则：\n\n| UI 显示名（用户视角） | source testid（代码视角） |\n|---|---|\n| DeFi | earn |\n| 合约 / Perps | perp |\n| 浏览器 | discovery |\n| 返佣 / 推荐 | referfriends |\n| 钱包 / Home | home（一致） |\n| 市场 / Market | market（一致） |\n| 交易 / Swap | swap（一致） |\n\n**规则**：\n- locator key 用 UI 显示名（稳定、跟产品对齐）：`global.sidebar.defi`\n- primary 字段用 source testid 真值：`[data-testid=\"earn\"]`\n- 另加 `ui_display_name` 字段记录 UI 名做交叉参考\n\n这样脚本读起来 `safeClickTestid('earn')` 时一眼看不出对应 UI，但 locator key 「defi.sidebar-entry」 一眼能懂。\n\n详见 `.claude/CLAUDE.md` Locator 维护流程章节。",
-      "confidence": 1.0
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "某些 Market 区域点击事件的 target 会直接落在整页容器，需要用 elementFromPoint(x,y) 反查真实落点",
+      "details": "继续排查 Market 首页右上角网络选择器录制时发现，即使 recorder 已沿 composedPath 提升祖先，事件对象里的 `target` 仍可能直接是 `market-page` 整页容器，导致所有点击都塌缩成同一个大 DIV。更稳的策略是：在 click 事件里先用 `document.elementFromPoint(event.clientX, event.clientY)` 反查点击坐标下的真实 DOM，再结合 composedPath / button / aria-haspopup 祖先提升，最后再回退到事件 target。触发场景：Market 页右上角时间周期、网络选择器、图标按钮等代理点击区域。",
+      "confidence": 0.98
     },
     {
       "id": "K-118",
-      "category": "process",
-      "platform": "all",
-      "pattern": "跨 AI 工具共享的真源是 `.claude/CLAUDE.md`，`.cursorrules` 和 `AGENTS.md` 是 symlink 指向它。改 CLAUDE.md = Claude Code / Cursor / Codex / Gemini 同步遵守",
-      "details": "本项目的 AI 规则文件结构：\n```\n.claude/CLAUDE.md       ← 真源，唯一编辑入口\n.cursorrules            → symlink → .claude/CLAUDE.md   (Cursor 读)\nAGENTS.md               → symlink → .claude/CLAUDE.md   (Codex / Gemini 读)\n```\n\n所以写经验/规则到 `.claude/CLAUDE.md` 一处，所有 AI 工具都会读到。**严禁** `rm .cursorrules && echo ... > .cursorrules`（会断 symlink）。\n\n例外：`.cursor/rules/*.mdc` 是 Cursor 特有的 MDC 格式 skill 镜像，跟 `.claude/skills/*/SKILL.md` 需要手动双写（格式不同没法 symlink）。\n\n验证方式：\n```bash\nreadlink .cursorrules   # 应输出 .claude/CLAUDE.md\nreadlink AGENTS.md      # 应输出 .claude/CLAUDE.md\n```\n\n触发场景：写任何项目规则前确认会落到正确文件；用户问「这条经验其他 AI 知道吗」时回答「.claude/CLAUDE.md 是真源，所有 AI 通过 symlink 共享」。",
-      "confidence": 1.0
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "如果 click 事件触发时页面已重绘，需在 pointerdown 阶段预采样真实点击元素",
+      "details": "继续验证 Market 首页右上角网络选择器时，发现即使 click 阶段增加了 `elementFromPoint(x,y)`，最终仍可能只拿到 `market-page` 容器。说明页面在 click 触发前就已重绘或把真实元素替换掉。更稳的 recorder 策略是：在 `pointerdown` 捕获阶段先用同一套提升逻辑保存候选元素与坐标，随后 click 事件若坐标偏差很小，优先复用 pointerdown 捕获到的元素。触发场景：点击后立即弹层/重绘的图标按钮、网络选择器、时间周期切换器。",
+      "confidence": 0.98
     },
     {
       "id": "K-119",
       "category": "process",
-      "platform": "all",
-      "pattern": "Recorder listen.mjs 的 saveSteps 应该每次写之前重新 mkdir RECORDING_DIR，防御启动后目录被外部清掉的情况（如用户 rm / dashboard reset）",
-      "details": "原 saveSteps 只依赖启动时一次性 mkdir，运行中如果目录被外部删除，会抛 ENOENT crash recorder。\n\n已在 src/recorder/listen.mjs 加防御：\n```js\nfunction saveSteps() {\n  try { mkdirSync(RECORDING_DIR, { recursive: true }); } catch {}\n  writeFileSync(`${RECORDING_DIR}/steps.json`, ...);\n}\n```\n\n触发场景：保护 recorder 不被外部 rm 误杀；同理写其他长期运行的 writeFileSync 都建议加 mkdir 防御。",
-      "confidence": 1.0
+      "platform": "desktop",
+      "pattern": "当用户明确纠正渠道 build 依赖关系时，必须先回写规则真源，再交付生成产物",
+      "details": "本次 Jupiter Apifox 产物已按“`build-tx` 依赖 `quoteResultCtx`”生成，但 `docs/qa/rules/swap-rules.md` 仍保留旧口径“Jupiter 不需要 `quoteResultCtx`”，导致规则与产物冲突并触发 `/onekey-qa-review` block。处理顺序应固定为：1) 用户纠正渠道依赖关系；2) 先同步 `swap-rules.md` 的 quoteResultCtx 规则表与对应渠道小节；3) 再生成或更新 Apifox/TestCases/导入说明等派生产物。这样后续生成器、人工维护和 review 都会以同一口径为准。触发场景：Jupiter、RocketX、Exodus、CowSwap、1inch Fusion 等依赖 quote 上下文的渠道。",
+      "confidence": 0.99
     },
     {
       "id": "K-120",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "DeFi「所有资产」列表里的代币行（USDC/USDT/USDe 等）**根本没有 data-testid**。USDT 文本 span 没 testid，但祖先 depth=3 是一个 1062×48 的 DIV 带 onClick handler（React Native Pressable）。必须用「文本匹配 + 找最近 onClick/cursor:pointer/role:button/row 宽度的祖先」的策略点击",
-      "details": "之前 K-111 误以为是 `home-token-item-evm--<chainId>-<SYMBOL>`，那是 Wallet 页（不是 DeFi）的 testid。CDP 实探 DeFi `/defi?tab=assets` 页面，确认：\n\n- USDT 文本 span 自身无 testid\n- depth=3 祖先：DIV 1062×48 cursor=auto **onClick=true** ← 真正的点击对象（React Native Pressable）\n- 这个 DIV 没 testid，没法用 testid 定位\n\n**正确定位方式**：\n```js\n// 1. 找视口里文本完全 === 'USDT' 的 span/div（叶子节点）\n// 2. 向上找祖先：onClick=true OR cursor:pointer OR role=button OR width>=800，且 height 在 [30, 80] 范围内\n// 3. 点击祖先的中心点（page.mouse.click）\n```\n\n**height 过滤至关重要**：DeFi 页面顶部有「热门」section 也含 USDT 文本（卡片高度 130~），不加 height 上限会点错。列表 row 高度 48~60，所以默认 maxRowHeight=80。\n\n封装为 helper `scrollAndClickRowByText({ text, rowMinHeight, rowMaxHeight, parentMinWidth })`。\n\n触发场景：所有 OneKey 资产列表/代币列表行点击（DeFi 资产、Wallet 资产、Market token 列表等）。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-121",
-      "category": "process",
-      "platform": "all",
-      "pattern": "Phase 5 CDP 实探常见陷阱：同一文本可能在多处出现（顶部「热门」卡片 + 下方列表行），必须用 height/width/y 范围过滤，否则会点错相邻区块",
-      "details": "做 scroll-and-click-by-text 时，第一轮实探发现可以找到目标元素，但点击位置错了——因为同一关键词文本在页面上多处出现：\n- y=112 「热门」section USDT 卡片（251×136）\n- y=505 「所有资产」列表 USDT 行（1062×48）\n\n第一轮误点 y=112 卡片（虽然也能进 USDT 详情，但语义不同——「热门」是营销卡片可能没有 Lista 渠道）。\n\n**Phase 5 实探规则**：\n1. 单次匹配后立即对比页面截图/用户描述的位置是否对齐\n2. 给文本匹配函数加 height/width 范围过滤（不同 UI 组件 row 高度有差异：卡片 100~150 / list-row 30~80 / button 20~40）\n3. 优先用「显式 testid」而不是文本匹配；只在确认 testid 不存在时退化\n\n触发场景：写文本匹配 helper 时；任何「Phase 5 实探发现能找到但点错位置」时。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-122",
-      "category": "process",
-      "platform": "all",
-      "pattern": "测试脚本里 hardcode 的金额必须跟当前钱包余额对齐。用户钱包 USDT 余额 0.967，常用 0.001 做最小测试。每次改这个常量前要问清楚，别凭印象改",
-      "details": "本会话踩过两次同样错：\n1. 录制时用户输入 0.001（实际余额 0.967）\n2. 用户某次说「输入 100 试试」（其实是让看 100 的预估收益效果，不是改测试常量）\n3. 我误改 `STAKE_AMOUNT = '100'` → 跑测试时余额不足报错\n4. 又改回 '0.001'\n\n**规则**：\n- DeFi 质押/Swap/转账类测试金额优先用最小可执行值（0.001 USDT / 0.0001 ETH 等）\n- 不要因为「截图里显示 100」就改成 100，截图可能是用户单独验证 UI 的临时输入\n- 改金额常量前问用户「当前钱包实际余额是多少」\n\n触发场景：编写涉及金额的测试脚本时。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-123",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "OneKey 多处都有「历史记录」入口（Wallet 主页 / DeFi Lista 详情页右上角 / 各种交易历史等），`clickText('历史记录')` 太宽泛会点错。必须用 testid 或精确位置限定",
-      "details": "本会话踩过：脚本里 `await clickText(page, '历史记录')` 点到了 Wallet 主页的历史记录入口，不是 Lista 详情页右上角的（如截图红箭头标识）。\n\n**正确做法**：\n1. 优先用 testid：`redemption-history-btn` / `staking-render-history-right-button-btn` / `staking-history-list` 等具体业务 testid\n2. 如果没 testid，按位置过滤：Lista 详情页右上「历史记录」在 y < 350 且 x > window.innerWidth / 2 区域\n3. 不要直接用 `clickText('历史记录')` 全局查找\n\n触发场景：任何「历史记录」/「设置」/「返回」/「确认」等通用词点击——OneKey 多处复用这些文案。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-124",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "OneKey 签名弹窗的「确认」按钮在 APP-Modal-Screen 内部，跟主页面 page-footer-confirm 同 testid 撞名。必须先等 modal 出现 → 在 modal 内 querySelector 找 confirm 按钮（取最靠底部那个）",
-      "details": "DeFi 质押/赎回流程中，每一步操作弹出签名弹窗：\n1. 主页面点「授权/认购/赎回」(page-footer-confirm) → 弹出 APP-Modal-Screen 弹窗\n2. 弹窗内底部也有 page-footer-confirm 按钮（文本是「确认」）\n3. 如果脚本继续点 document.querySelector('[data-testid=\"page-footer-confirm\"]')，可能点到的是**主页面**的 button（被弹窗遮挡但 DOM 里在），结果**关闭弹窗**而不是确认交易\n\n现象：用户报「当时没有点击确认就把弹窗给关了」。\n\n**修复**：\n```js\nasync function clickModalConfirm(page) {\n  const modal = document.querySelector('[data-testid=\"APP-Modal-Screen\"]');\n  if (!modal) return false;\n  // 只在 modal 子树内找 confirm，取最靠底部的（弹窗 footer）\n  const candidates = [...modal.querySelectorAll('[data-testid=\"page-footer-confirm\"]')];\n  candidates.sort((a, b) => b.getBoundingClientRect().y - a.getBoundingClientRect().y);\n  ...\n}\n```\n\n配套：用 `waitForModalClose` 等弹窗消失确认交易已提交。\n\n触发场景：所有「主页面点按钮 → 弹出签名弹窗 → 弹窗里点确认」流程。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-125",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "DeFi 渠道详情页（如 Lista USDT）右上角有「持仓 >」按钮，点击跳转到 DeFi「我的持仓」页面。这是详情页内的导航按钮，**不是**关闭详情回 Wallet 首页",
-      "details": "用户截图标识：Lista USDT 详情页右上角，「1.83% APY」附近有「持仓 >」按钮（带箭头）。\n\n**功能**：点击 → 跳到 DeFi 我的持仓列表页（earn-tab-portfolio）\n\n之前脚本错误做法：\n```js\n// ❌ 错的\nawait clickByTestid(page, 'nav-header-close'); // 关闭整个详情，回到 Wallet 首页\n```\n\n**正确做法**：\n```js\n// ✅ 在 USDT 详情页右上角找文本「持仓」（y < 400, x > viewport.width/2, width < 100）\n```\n\n触发场景：从 USDT/渠道详情页进入「我的持仓」页面时；任何「在某详情页内有持仓入口」的场景。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-126",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "DeFi 渠道详情页（Lista USDT 等）右上角的「历史记录」按钮真实 testid 是 `staking-has-content-btn`（不是 K-106 之前猜的 redemption-history-btn）。页面上有多个同名 testid 实例，必须按 textContent='历史记录' + x 在右半屏过滤",
-      "details": "CDP 实探（K-126 起替代之前 K-106 的猜测）：\n\nLista USDT 详情页 (file:///defi/EarnProtocolDetails?...) 上的「历史记录」按钮：\n- testid: `staking-has-content-btn`\n- 位置: 视口宽度 1363 时 x=1177-1212 y=127-133 大小 100×32\n- textContent: '历史记录'（带 clock icon）\n\n**坑**：同一 testid 在页面上有 2 个实例：\n- 实例 A: x=1177-1212 (右上角，要点的) ⭐\n- 实例 B: x=891 (另一处，不点)\n\n**正确定位**：\n```js\nfor (const el of document.querySelectorAll('[data-testid=\"staking-has-content-btn\"]')) {\n  if (el.textContent?.trim() !== '历史记录') continue;\n  const r = el.getBoundingClientRect();\n  if (r.x > window.innerWidth / 2) {\n    // 这才是右上角那个\n    return r;\n  }\n}\n```\n\n**注意**：之前 K-106 推测的 `redemption-history-btn` 和 `staking-render-history-right-button-btn` 都不存在。K-106 已被本条修正。\n\n触发场景：DeFi 渠道详情页跳转到历史记录页。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-127",
-      "category": "process",
-      "platform": "desktop",
-      "pattern": "**DeFi 渠道质押 → 我的持仓 → 管理 → 赎回 完整流程模板**（适用 Lista/Pendle/Morpho/Lido/Ethena 等所有 Earn 渠道）",
-      "details": "完整流程（CDP 实探 2026-05-15 全量验证通过）：\n\n【入口部分】\n1. 侧栏点 [data-testid=\"earn\"] → file:///defi (DeFi 主页)\n2. 等就绪：[data-testid=\"earn-portfolio-overview\"] 出现（500ms 内）\n3. 默认进入「持仓」tab，需切「所有资产」：找 span/div text='所有资产' y=150~350 width<200\n4. 在「所有资产」列表中找代币行（USDT 等）：\n   - **没有 data-testid**，要用文本匹配 + 祖先 onClick + height 30-80 row 过滤\n   - 跳过 y=112 的「热门」section 卡片（height ~136）\n5. 点击代币行 → /defi/Detail?symbol=USDT（USDT 详情，多渠道列表）\n6. 同样 row-by-text 点 Lista → /defi/EarnProtocolDetails?provider=lista&vault=...\n\n【认购流程（实证通过）】\n7. 输入金额（testid='amount-input-input-element-input' OR placeholder='0' 可见 input）\n8. 点底部「授权」(page-footer-confirm) → 弹 APP-Modal-Screen\n9. **modal 内点「确认」**（取 modal 子树内 page-footer-confirm，最靠底部那个 — 不能用 document 层找会撞名！）\n10. 等 modal 关闭 + footer 按钮文本变「认购」\n11. 点底部「认购」 → 又弹 modal → modal 内点「确认」\n12. 等 modal 关闭 → 质押成功\n\n【历史记录入口（详情页右上）】\n13. testid='staking-has-content-btn' text='历史记录' x>viewport.width/2\n   - **注意**：此 testid 有 2 个实例，必须按 x>右半屏 过滤\n14. 点击 → 弹出历史记录 modal，含「全部 / 认购 / 赎回」筛选\n\n【持仓导航（详情页右上「持仓 >」按钮）】\n15. 详情页右上「持仓 >」按钮：text='持仓' x>viewport.width/2 width<100 y<400\n16. 点击 → /defi?mode=earn&tab=portfolio (DeFi 我的持仓页)\n\n【我的持仓页 → 管理 → 赎回（实证通过）】\n17. 每行 testid: earn-portfolio-item-<Protocol>（Lista/Pendle/Morpho/Lido/Ethena/Stakefish/Everstake）\n18. 滚 row 进视口（scrollIntoView block:center）\n19. 找该 row 同 y 范围的「管理」按钮（text='管理' x>1000，与 row 中心 dy 在 ±200 内取最近）\n20. 点「管理」 → /ManagePosition?provider=<protocol>&vault=... + 弹 modal\n21. modal 内顶部有「认购 / 赎回」tab（y<200 width<100）\n22. 切到「赎回」(span text='赎回')\n23. 输入金额到 amount-input-input-element-input\n24. 点 modal 底部 page-footer-confirm（文本 = '赎回'）\n25. 弹签名 modal → 点 modal 内 confirm（最底部 page-footer-confirm）\n26. 等所有 modal 关闭 → URL 跳回 /defi?mode=earn&tab=portfolio = 赎回成功\n\n【适用范围】\n此模板适用 OneKey 桌面端所有 Earn 渠道：Lista / Pendle / Morpho / Lido / Ethena / Stakefish / Everstake 等。\n不同渠道 vault 地址、APY 公式、奖励代币组成不同，但 UI 流程一致。\n\n触发场景：写任何 DeFi 渠道质押/赎回脚本时。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-128",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "DeFi「我的持仓」页面结构：URL `?mode=earn&tab=portfolio`，每个 `earn-portfolio-item-<Protocol>` row + 右侧 SPAN「管理」(x≈1229，28×20)。管理按钮 y 不严格对齐 row 中心，要用 ±200 容差找最近",
-      "details": "DeFi 持仓页（点 Lista 详情页右上「持仓 >」跳到这里）：\n\n**URL**: `file:///defi?mode=earn&tab=portfolio`\n\n**每行 testid**: `earn-portfolio-item-<ProtocolName>`\n- earn-portfolio-item-Morpho\n- earn-portfolio-item-Pendle\n- earn-portfolio-item-Everstake\n- earn-portfolio-item-Stakefish\n- earn-portfolio-item-Lista\n- earn-portfolio-item-Ethena\n- earn-portfolio-item-Lido\n\n**每行右侧的「管理」按钮**：\n- 标签：`SPAN` text='管理'\n- 位置 (viewport 1363)：x=1229, y 跟 row 不严格对齐\n- 大小：28×20\n- **没有 data-testid** ❗\n\n**定位策略**：\n```js\nasync function clickManageForProtocol(page, protocol) {\n  // 1. 滚 portfolio-item 进视口\n  await page.evaluate((p) => {\n    document.querySelector(`[data-testid=\"earn-portfolio-item-${p}\"]`)?.scrollIntoView({block: 'center'});\n  }, protocol);\n  await sleep(800);\n  // 2. 取 protocol row 中心 y\n  const target = await page.evaluate((p) => {\n    const lr = document.querySelector(`[data-testid=\"earn-portfolio-item-${p}\"]`).getBoundingClientRect();\n    const cy = lr.y + lr.height/2;\n    const items = [];\n    for (const el of document.querySelectorAll('*')) {\n      if ((el.textContent||'').trim() !== '管理' || el.children.length !== 0) continue;\n      const r = el.getBoundingClientRect();\n      if (r.x > 1000 && r.width > 0) items.push({r, dy: r.y + r.height/2 - cy});\n    }\n    items.sort((a,b) => Math.abs(a.dy) - Math.abs(b.dy));\n    const r = items[0].r;\n    return { x: r.x + r.width/2, y: r.y + r.height/2 };\n  }, protocol);\n  await page.mouse.click(target.x, target.y);\n}\n```\n\n**点击后**：跳到 `file:///ManagePosition?networkId=...&provider=<protocol>&vault=...`，弹出 modal 含「认购/赎回」tab。\n\n触发场景：写任何 DeFi 渠道（Lista/Pendle/Morpho/Lido 等）的赎回/管理脚本时复用此 helper。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-129",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "DeFi ManagePosition modal（持仓「管理」按钮点击后）的结构：URL=/ManagePosition?provider=...&vault=...，顶部有「认购/赎回」tab，输入框 testid='amount-input-input-element-input'，底部赎回按钮 testid='page-footer-confirm' (text 随 tab 变)",
-      "details": "点击我的持仓页里 Lista（或其他协议）行的「管理」按钮后，会跳到 ManagePosition 弹出 modal。\n\n**URL**: `file:///ManagePosition?networkId=evm--<chainId>&symbol=<TOKEN>&provider=<protocol>&vault=<address>`\n\n**modal 结构**：\n- 顶部 tab: 「认购」(x≈390, y≈140, width<100) | 「赎回」(x≈441, y≈140)\n- 切到「赎回」后：\n  - 金额输入框：`<input data-testid=\"amount-input-input-element-input\" placeholder=\"0\">` x=382 y=216 width=486\n  - 「最大」快捷按钮：text='最大' x≈940 y≈268\n  - 预估收益区/手续费/其他信息（具体根据协议）\n  - 底部按钮：`[data-testid=\"page-footer-confirm\"]` text='赎回' x≈920 y≈664\n- 点底部「赎回」→ 弹签名 modal（层级在原 modal 之上）→ modal 内点「确认」\n- 签名 modal 关闭后 → 跳到 `/defi?mode=earn&tab=portfolio`（持仓列表）\n\n**通用 helper 思路**：\n```js\nasync function executeRedeem(page, amount) {\n  // 切到赎回 tab\n  await clickInModalByText(page, '赎回', { yMax: 200 });\n  // 输入金额\n  await page.locator('[data-testid=\"amount-input-input-element-input\"]').first().pressSequentially(amount);\n  // 底部赎回按钮\n  await clickModalFooterConfirm(page);\n  // 签名 modal 内确认\n  await clickModalFooterConfirm(page);  // 第二次 = 签名 modal 的 confirm\n  // 等所有 modal 关闭\n  await waitForAllModalsClose(page);\n}\n```\n\n触发场景：所有 DeFi 渠道赎回/认购脚本（Lista/Pendle/Morpho/Lido 等共用）。"
-    },
-    {
-      "id": "K-130",
       "category": "assertion",
-      "platform": "all",
-      "pattern": "**DeFi 渠道预估年收益简化版验证公式**：`sum(预估年收益所有代币的 USD 部分) ≈ 综合 APY% × 认购价值(USD)`。比拆分公式（K-105）更易实测，推荐为 P0 主断言",
-      "details": "DeFi 渠道（Lista/Pendle/Morpho 等多代币奖励）认购页的「预估年收益」会显示 N 行（每行一个奖励代币 + 美元价值）。\n\n**简化公式**（**推荐主断言**）：\n```\nsum(每行 USD) ≈ 综合 APY% × 认购价值(USD)\n```\n\n**实测示例**（Lista USDT，2026-05-15）：\n- APY: 1.83%\n- 输入: 100 USDT\n- 认购价值: $99.99\n- 预估年收益: `0.4703 USDT ($0.47)` + `15.7526 LISTA ($1.36)`\n- 验证: $0.47 + $1.36 = $1.83 ≈ 1.83% × $99.99 = $1.83 ✓\n\n**为什么简化版有效**：\n拆分公式（K-105）：\n- USDT 部分 USD = (native APY − performance fee) × USD value\n- LISTA 部分 USD = LISTA APY × USD value\n- 综合 APY = native + LISTA − fee\n- → sum = (native − fee) × USD + LISTA × USD = (native + LISTA − fee) × USD = APY% × USD\n\n**测试金额选择**：\n- 公式验证：100（方便计算，会触发\"余额不足\"但不影响断言；不会真正上链）\n- 实际认购：0.001（用户钱包余额范围内）\n- 流程：输入 100 验证 → 清空 → 输入 0.001 提交\n\n**容差**：±$0.05 绝对 或 ±5% 相对（处理 APY 实时波动 + 显示四舍五入）\n\n**触发场景**：所有 DeFi 多代币奖励渠道（Lista USDT+LISTA、Pendle 部分池、Lido stETH+stETH 等）的年收益验证。"
-    },
-    {
-      "id": "K-131",
-      "category": "timing",
-      "platform": "all",
-      "pattern": "DeFi 测试 case 之间的「页面过渡时序」陷阱：modal 关闭/打开、tab 切换、URL 路由都不是瞬时的，相邻 case 之间的元素查找必须加 retry（建议 10×500ms = 5s 容错），单次 query 失败不能直接 throw",
-      "details": "本会话踩过多次：脚本静态 probe 时能找到按钮（如 Lista 详情页右上「历史记录」/「持仓」），但 dashboard 跑到那一步时报「找不到」。\n\n根因：前一个 case 完成后（如 DEFI-LISTA-004 modal 关闭，DEFI-LISTA-005 历史 modal 关闭），页面正在过渡（modal 淡出 + 主页面重新挂载 + React 重渲染），按钮可能：\n- 暂时在 DOM 但 width/height = 0\n- 还没挂上 onClick handler\n- 位置临时偏移\n\n**修复模板**：\n```js\nlet pos = null;\nlet lastDiag = null;\nfor (let attempt = 0; attempt < 10; attempt++) {\n  const result = await page.evaluate(() => { /* 查找逻辑 + 诊断信息 */ });\n  lastDiag = result.diag;\n  if (result.pos) { pos = result; break; }\n  await sleep(500);\n}\nif (!pos) throw new Error(`找不到 X（10 retries × 500ms，诊断：${JSON.stringify(lastDiag)}）`);\n```\n\n**关键**：retry 内部要带**诊断信息**（candidates count / testid 实例数 / 文本节点数），帮助下次失败时快速定位真实原因（是元素不存在 vs 在 DOM 但不可点 vs 时机问题）。\n\n**触发场景**：所有相邻 step / case 之间的页面元素查找，特别是涉及 modal 开关、URL 路由跳转、tab 切换的场景。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-132",
-      "category": "locator",
-      "platform": "all",
-      "pattern": "页面上同时存在多个 `$XX.XX` 文本元素时（资产价格 / TVL / 收益 / 其他卡片金额），用 textContent 模糊匹配会撞名。必须按**目标 anchor（如输入框）的相对位置**过滤",
-      "details": "本会话踩过：`readSubscriptionValueUsd` 用 querySelectorAll + 文本 `^\\$([\\d.]+)$` 模糊找页面所有 $XX.XX，结果撞到了别处的 $36.74（资产列表里另一个代币的价格），不是输入框下方的 $99.96。\n\nOneKey DeFi 详情页有几十个 $XX.XX 文本元素：\n- 「热门」section USDT/USDC/ETH 卡片价格\n- 「所有资产」列表里每行的 24h 涨幅金额\n- TVL $1.92M\n- 输入框下方的认购价值 $99.96 ⭐ 真正想要的\n\n**修复模板**：\n```js\n// ❌ 错的：全页查找\nfor (const el of document.querySelectorAll('span, div')) {\n  if (el.textContent?.trim().match(/^\\$([\\d.]+)$/)) return el;\n}\n\n// ✅ 对的：用 anchor（输入框）+ 相对位置过滤\nconst input = document.querySelector('[data-testid=\"amount-input-input-element-input\"]');\nconst ir = input.getBoundingClientRect();\nconst candidates = [];\nfor (const el of document.querySelectorAll('span, div, p')) {\n  const m = el.textContent?.trim().match(/^\\$([\\d.,]+)$/);\n  if (!m || el.children.length !== 0) continue;\n  const r = el.getBoundingClientRect();\n  const dx = r.x - ir.x;\n  const dy = r.y - ir.y;\n  // 在 input 下方紧邻区域：dy 10-80, |dx| <= input.width + 200\n  if (dy >= 10 && dy <= 80 && Math.abs(dx) <= ir.width + 200) {\n    candidates.push({ value: parseFloat(m[1].replace(/,/g, '')), dy });\n  }\n}\ncandidates.sort((a, b) => a.dy - b.dy);  // 取最贴近的\nreturn candidates[0]?.value;\n```\n\n**通用原则**：任何「读取某 anchor 旁边的某文本」类操作，必须基于 anchor 的 BoundingClientRect 做相对位置过滤。不要全页 querySelector 文本匹配。\n\n**触发场景**：读输入框下的法币价值；读按钮旁的余额；读 row 内某列的值；任何位置敏感的文本读取。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-133",
-      "category": "process",
-      "platform": "all",
-      "pattern": "测试 case 之间的 modal 关闭操作不能用 `el.click()`（SVG button 不可靠，K-115），必须 `page.mouse.click(x, y)` + retry 直到 `document.querySelectorAll('[data-testid=\"APP-Modal-Screen\"]').length === 0`。下一个 case 的 Step 0 还要加「兜底清 modal」防御",
-      "details": "本会话踩过：DEFI-LISTA-005 末尾用 `el.click()` 关历史 modal，但 nav-header-back/close 是 SVG（K-115：SVG 没有 HTMLElement.click()），所以 click 没生效。modal 没关 → DEFI-LISTA-006 找「持仓 >」按钮被 modal 遮挡 → 全测试失败。\n\n**双保险关 modal 策略**：\n\n```js\n// (1) 在结束 modal 的 case 末尾，retry 关闭直到 modal 真的消失\nasync function closeTopModalUntilGone(page, maxRetries = 6) {\n  for (let i = 0; i < maxRetries; i++) {\n    const cnt = await page.evaluate(() => document.querySelectorAll('[data-testid=\"APP-Modal-Screen\"]').length);\n    if (cnt === 0) return true;\n    const pos = await page.evaluate(() => {\n      const modals = [...document.querySelectorAll('[data-testid=\"APP-Modal-Screen\"]')];\n      const top = modals[modals.length - 1];\n      for (const sel of ['nav-header-back', 'nav-header-close', 'page-close-trigger']) {\n        const el = top.querySelector(`[data-testid=\"${sel}\"]`) || document.querySelector(`[data-testid=\"${sel}\"]`);\n        if (el) {\n          const r = el.getBoundingClientRect();\n          if (r.width > 0) return { x: r.x + r.width / 2, y: r.y + r.height / 2 };\n        }\n      }\n      return null;\n    });\n    if (pos) await page.mouse.click(pos.x, pos.y);\n    else await page.keyboard.press('Escape').catch(() => {});\n    await sleep(800);\n  }\n  return false;\n}\n\n// (2) 在下一个 case 的 Step 0 加「兜底清 modal」防御（即使上一个 case 关不掉也能自救）\nawait sStep(page, t, 'Step 0: 前置清理遗留 modal', async () => {\n  await closeTopModalUntilGone(page, 6);\n});\n```\n\n**触发场景**：所有 modal 相关 case 衔接处（DeFi/Swap/Send/Sign Confirm 等）。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-134",
-      "category": "process",
-      "platform": "all",
-      "pattern": "**每个测试 case 必须能独立跑（Dashboard 单选/部分选都可），不能假设前一个 case 留下了正确页面状态**。每个 case 开头必须有「Step 0 前置」确保 UI 状态符合假设",
-      "details": "本会话踩过：用户在 Dashboard 只勾选了 DEFI-LISTA-005 + 006，跑的时候页面在 Wallet 主页，结果 005 找不到 Lista 详情页右上的「历史记录」按钮 → 全失败。\n\n**根因**：脚本设计成顺序依赖（001 → 002 → ... → 006），每个 case 假设上一个留下了正确状态。但 Dashboard 允许用户**任意勾选子集**，比如只跑 005+006、只跑 003、单跑某个 case 等。\n\n**强制规则**（写进任何 .test.mjs 都要遵守）：\n\n1. **每个 case 开头必须有 `Step 0: 前置` 步骤**，调用幂等的 `goTo<目标页>(page)` helper\n2. **导航 helper 必须幂等**：检查 URL/已有元素，已经在目标页面就直接返回，避免重复点击\n3. **状态依赖**：如果 case 需要某种 UI 中间状态（如输入框已填值、已展开某个 section），必须检查 → 没有就构造它\n\n**模板**：\n```js\nasync function goToTargetPage(page) {\n  // 0. 幂等检查\n  const alreadyThere = await page.evaluate(() => {\n    return location.href.includes('TargetPath') && document.querySelectorAll('[data-testid=\"APP-Modal-Screen\"]').length === 0;\n  });\n  if (alreadyThere) return;\n  // 1. 关闭遗留 modal（page.mouse.click 不要用 el.click() — K-115）\n  // 2. 点导航入口 → 验证页面加载完成\n}\n\nasync function testFooXxx001(page) {\n  // ⭐ 每个 case 都有 Step 0\n  await sStep(page, t, 'Step 0: 前置 — 确保在目标页', async () => {\n    await goToTargetPage(page);\n  });\n  // ... 正常步骤\n}\n```\n\n**触发场景**：所有 Dashboard 可单跑的 case；新生成测试脚本时一定要 review 是否每个 case 都有 Step 0 前置；review 时如果发现 case 不能独立跑（依赖前一个 case 的状态），必须补 Step 0。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-135",
-      "category": "locator",
-      "platform": "all",
-      "pattern": "**多 row 列表中的同名按钮（如「管理」「赎回」「详情」）必须按 row 锚点的 y 位置过滤选择**，不能 clickText 全局点击。否则点错的 row（如本应点 Lista，结果点了 Morpho/Pendle）",
-      "details": "OneKey DeFi 我的持仓页有多行（Lista / Pendle / Morpho / Lido 等），**每行都有独立的「管理」按钮**。但**「管理」按钮不在 row 的 boundingRect 内**（DOM 上是独立列），所以 contains 检测无效，只能靠位置匹配。\n\n关键发现（CDP 实证）：\n- portfolio 卡片实际 = 协议名 row（y=405, h=48） + 下方信息行（含「管理」按钮 y=518）\n- 「管理」按钮**在 row 下方**（dy 通常 +60~+130）\n- 协议之间的「管理」按钮垂直间距约 60~100px\n\n**之前踩坑**：用 `|dy| 最近` 选最近按钮 → 撞到了上方相邻协议的「管理」（dy=-76 比 dy=+113 绝对值小）。\n\n**正确模板**：\n```js\n// dy 必须在 [-20, 150] 范围内（≥ -20 避免抓到上方相邻协议；≤ 150 卡片高度上限）\n// 取 dy 最小的（最贴近 row 下方）\nfor (const el of document.querySelectorAll('span, div, button')) {\n  if (el.textContent?.trim() !== '管理' || el.children.length !== 0) continue;\n  const r = el.getBoundingClientRect();\n  if (r.width === 0 || r.x < 1000) continue;  // x>1000 限定右侧操作列\n  const dy = r.y + r.height / 2 - listaCY;\n  if (dy >= -20 && dy <= 150) items.push({ x, y, dy });\n}\nitems.sort((a, b) => a.dy - b.dy);  // 取最小 dy（按钮在 row 下方紧贴）\n```\n\n**通用原则**：当目标按钮**在 row 下方**而非内部时：\n1. dy 必须 ≥ -20（防上方撞名）\n2. dy ≤ 150（卡片高度上限，避免抓到下方协议）\n3. 排序按 **dy 升序**（取最小正值），不是按 |dy|\n\n**点击后必须 URL/状态验证**（确保选对了 row 对应的协议）。\n\n**触发场景**：所有「在多 row 列表里点 row 下方/下行按钮」的场景 — DeFi 持仓页、产品卡片底部 CTA、表格行下方操作按钮等。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-136",
-      "category": "process",
-      "platform": "all",
-      "pattern": "**确认按钮 vs row 的 DOM 关系**：写脚本前必须 CDP 实探，确认按钮是 **row 内部**还是 **row 外部独立列**。不同关系决定 dy 容差方向和数值",
-      "details": "两种常见 row + 按钮的 DOM 关系：\n\n**类型 A：按钮在 row 内部（同一 boundingRect）**\n- DOM: `<row testid=...> <text>Lista</text> <button>管理</button> </row>`\n- row.querySelectorAll 能找到按钮 ✓\n- dy 通常 ≈ 0（同 y 中心）\n- 容差 ±30 足够\n\n**类型 B：按钮在 row 外部独立列（不同 boundingRect）**\n- DOM: `<grid> <row testid=...>Lista</row> <col2>...信息...</col2> <col3><button>管理</button></col3> </grid>`\n- row.querySelectorAll 找不到按钮 ❌\n- 必须 page 级 querySelector + 按 x/y 范围匹配\n- dy 范围根据布局：**纯横向对齐** → dy ≈ 0；**卡片式（按钮在下方）** → dy > 0\n- 必须严格区分 dy 正负，否则撞上方/下方相邻 row\n\n**写脚本前的实探模板**：\n```js\nconst probe = await page.evaluate(() => {\n  const row = document.querySelector('[data-testid=\"target-row\"]');\n  const innerBtns = [...row.querySelectorAll('span, div, button')].filter(el =>\n    el.textContent?.trim() === '管理' && el.children.length === 0);\n  return {\n    innerCount: innerBtns.length,\n    rowRect: row.getBoundingClientRect(),\n    // 全页所有「管理」按钮 + 它们距 row 的 dy\n  };\n});\n```\n\n如果 `innerCount > 0` 就是类型 A，否则类型 B。\n\n**触发场景**：写任何「在列表行附近找按钮」的脚本前；定位失败先实探 DOM 关系再调容差。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-137",
-      "category": "process",
-      "platform": "all",
-      "pattern": "**modal 内点击「确认」必须验证点击产生了真实效果**（modal count 变化 OR 顶层 modal 内容变化），不能点完立刻 return true。否则会出现「点了空气却报 success」假阳性",
-      "details": "本会话踩过：DEFI-LISTA-006 跑完所有 step ✓（包括 \"等签名弹窗 → 点确认\"），但实际签名 modal 还在屏幕上没关。\n\n**根因**：旧版 clickModalConfirm 点完按钮立刻 return true，没验证：\n1. 是否真的点到 modal 内的「确认」按钮（可能 querySelector 取的是底层 modal）\n2. 点击后 modal 状态是否变化（关闭/切换）\n\n**正确模板**：\n```js\nasync function clickModalConfirm(page, timeoutMs = 10000) {\n  const start = Date.now();\n  while (Date.now() - start < timeoutMs) {\n    // 1. 取**顶层** modal（最后一个，不是 querySelector 的第一个）\n    const before = await page.evaluate(() => {\n      const modals = [...document.querySelectorAll('[data-testid=\"APP-Modal-Screen\"]')];\n      const top = modals[modals.length - 1];\n      // ... 找 top modal 内的 page-footer-confirm 或 text='确认'\n      return { modalCount, topSig, pickPos };\n    });\n    if (!before.pickPos) { await sleep(400); continue; }\n    \n    // 2. 点击\n    await page.mouse.click(before.pickPos.x, before.pickPos.y);\n    await sleep(600);\n    \n    // 3. 验证 modal count 或顶层 signature 变化\n    const after = await page.evaluate(() => {\n      const modals = [...document.querySelectorAll('[data-testid=\"APP-Modal-Screen\"]')];\n      return { modalCount: modals.length, topSig: modals.at(-1)?.textContent.slice(0, 80) };\n    });\n    const stateChanged = after.modalCount !== before.modalCount || after.topSig !== before.topSig;\n    if (stateChanged) return { clicked: true, ...delta };\n    \n    // 4. 没变化 → 下一轮 retry\n    await sleep(500);\n  }\n  throw new Error('clickModalConfirm 超时');\n}\n```\n\n**关键**：点击 + 验证 + retry 三件套缺一不可。\n\n**通用原则**：所有「触发后会改变 UI 状态」的操作（modal 关闭、tab 切换、URL 跳转、文本变化）都要**点击后立即验证状态变化**，不能点完就走。\n\n**触发场景**：所有 modal 内确认按钮 / 签名弹窗 / 任何需要广播效果的点击。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-138",
-      "category": "locator",
       "platform": "desktop",
-      "pattern": "OneKey 签名 modal 的 footer 按钮被 `app-modal-stacks-backdrop` 全屏 backdrop 遮挡，`page.mouse.click(x, y)` 和 Playwright `locator.click()` 都会失败。必须用 `BUTTON.click()` JS 调用绕过 hit-test",
-      "details": "症状：签名 modal 内的「确认」按钮（BUTTON testid=page-footer-confirm）visible，但 page.mouse.click 没生效（modal 状态不变），Playwright locator.click 超时（actionability check 失败）。\n\n根因：OneKey 用 `[data-testid=\"app-modal-stacks-backdrop\"]` 全屏 1436×778 backdrop 在 modal 之上。坐标击中 backdrop → 不触发 BUTTON 的 click 事件。\n\n**唯一可靠方式**：直接调用 `BUTTON.click()`（DOM API，绕过 hit-test）。BUTTON 是 HTMLButtonElement，有 click() 方法（跟 K-115 提到的 SVG 不同）。\n\n```js\nawait page.evaluate(() => {\n  const modals = [...document.querySelectorAll('[data-testid=\"APP-Modal-Screen\"]')];\n  const top = modals[modals.length - 1];\n  const btns = [...top.querySelectorAll('[data-testid=\"page-footer-confirm\"]')];\n  btns.sort((a, b) => b.getBoundingClientRect().y - a.getBoundingClientRect().y);\n  btns[0].click();  // 直接 BUTTON.click()，绕过 backdrop\n});\n```\n\n**注意**：\n- HTMLButtonElement.click() 有效，但 SVGElement.click() 无效（K-115）— 必须先判 tag\n- 如果元素 onclick 是空、依赖 React 合成事件 — 需要 dispatchEvent('click', {bubbles:true})\n- BUTTON.click() 后再走 Playwright 路径（hit-test）作为 fallback\n\n**触发场景**：所有 OneKey 签名/授权 modal 内的 footer 按钮点击；其他被 backdrop 遮挡的场景。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-139",
-      "category": "process",
-      "platform": "all",
-      "pattern": "**OneKey 签名后短期不再要求密码，但首次或超时后会弹「输入密码」modal**。脚本里 clickModalConfirm 后必须自动检测并填入密码（runtime-config.json `walletPassword` 字段，可在 Dashboard ⚙️ Settings 配置）",
-      "details": "OneKey 的安全机制：钱包解锁后短期（几分钟内）签名不再要求密码，但**首次签名 / 超时 / 重启 OneKey 后**会弹「输入密码」modal 二次验证。\n\n**密码 modal 结构**：\n- 标题：「输入密码」\n- 输入框：`<input data-testid=\"password-input\" type=\"password\" placeholder=\"输入密码\">`\n- 提交按钮：`<button data-testid=\"verifying-password\">` (44x44 右箭头)\n\n**密码配置**：\n1. 真源：`shared/runtime-config.json` 的 `walletPassword` 字段\n2. Dashboard 设置入口：⚙️ Settings → 钱包密码（type=password）\n3. 优先级：runtime-config.json > 环境变量 `WALLET_PASSWORD` > 默认 `'1234567890-='`\n4. 读取方式：`getWalletPassword()` from `src/tests/helpers/runtime-config.mjs`\n\n**集成方式**：在 clickModalConfirm 等签名相关操作后**立即调用** `handlePasswordPromptIfPresent(page)`（来自 navigation.mjs）。helper 内部用 WALLET_PASSWORD 常量（已从 runtime-config 读取）填入，自动按提交。\n\n**注意**：\n- 密码 modal 不是每次都弹（不能依赖必然出现），用 detect-and-handle 模式\n- 检测后 sleep 2s 等密码验证完 + 真实广播\n- runtime-config.json 已 gitignored，密码不入库\n\n**触发场景**：所有签名相关测试（DeFi 质押/赎回、Swap、Transfer、ERC20 授权）。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-140",
-      "category": "timing",
-      "platform": "all",
-      "pattern": "OneKey 签名 modal 的「确认」按钮**初始是 disabled 状态**（等链上预检/数据加载完成），视觉上深色但实际 opacity=0.4。点击 disabled button 不会有任何反应。必须先等 `btn.disabled === false && opacity > 0.5` 才能点",
-      "details": "症状：签名 modal 弹出后，「确认」按钮（BUTTON testid=page-footer-confirm）看起来已经显示（黑色），但所有点击方法（page.mouse.click / BUTTON.click() / dispatchEvent / Playwright force click）都不触发。\n\n根因：modal 内的「确认」初始是 disabled 状态：\n- `btn.disabled === true`\n- `btn.getAttribute('aria-disabled') === 'true'`\n- `window.getComputedStyle(btn).opacity === '0.4'`\n\nOneKey 在等链上预检完成（gas 估算 / nonce 获取 / contract simulate）才会 enable 按钮。\n\n**修复模板**（在点击前必须先等 enable）：\n```js\nlet info;\nwhile (Date.now() - start < timeoutMs) {\n  info = await page.evaluate(() => {\n    const btn = ...;\n    const cs = window.getComputedStyle(btn);\n    return {\n      disabled: btn.disabled || btn.getAttribute('aria-disabled') === 'true',\n      opacity: parseFloat(cs.opacity),\n    };\n  });\n  if (!info.disabled && info.opacity > 0.5) break;\n  await sleep(500);\n}\nif (info.disabled) throw new Error('按钮一直 disabled');\n// 然后才点击\n```\n\n**typical timeout**: 设 30s（链上预检可能慢）。\n\n**触发场景**：所有签名 modal 的确认按钮、Swap 报价加载后的「兑换」按钮、转账「下一步」按钮等。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-141",
-      "category": "assertion",
-      "platform": "all",
-      "pattern": "**严禁用「文本变化」(`textContent !== before`) 判定 modal/UI 状态变化** — React 重渲染会让 textContent 微变（loading 状态、数字刷新、时间戳更新等），导致假阳性。必须用**结构性指标**（modal count、URL、特定元素的 visible 状态）",
-      "details": "本会话踩过：clickModalConfirm 的 stateChanged 判定包括「topModalSignature 变化」（取 modal.textContent.slice(0,80)），结果脚本误判成功 — 实际 modal 还在屏幕上没关，只是 React 重渲染让 textContent 临时变化（loading spinner / 网络费用刷新 / \"正在确认...\" 字样切换等）。\n\n**禁用的指标**：\n- ❌ `el.textContent !== before` — 太敏感，React 重渲染就变\n- ❌ `el.getBoundingClientRect() !== before` — 同样太敏感\n\n**正确指标**：\n- ✅ `modalCount === before - 1` — modal 真的关闭了\n- ✅ `location.href !== before` — URL 路由变了\n- ✅ `document.querySelector(specificSelector) === null` — 特定元素消失\n- ✅ 成功 toast 文本出现（如 \"交易已提交\" / \"Success\"）\n- ✅ 顶层 modal 的 testid 变了（不是 textContent）\n\n**修复模板**：\n```js\n// ❌ 不可靠\nif (after.topSig !== before.topSig) return success;\n\n// ✅ 严格\nif (after.modalCount < before.modalCount) return success;\n// 或：等特定 toast / 特定 testid 出现\n```\n\n**通用原则**：「断言成功」的指标越**离散**越好（计数变化、URL 跳转、布尔出现/消失），越**连续**越不靠谱（文本/像素/时间戳）。\n\n**触发场景**：所有「点击后等结果」的断言，特别是涉及 modal/弹窗/异步加载的场景。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-142",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "OneKey 密码 input (`[data-testid=\"password-input\"]`) **是裸 input**，祖先链上没有 APP-Modal-Screen / form[fixed] 容器。所以 `handlePasswordPrompt` 的容器判定（`input.closest(...)`）会**漏识别**导致跳过密码处理",
-      "details": "症状：签名「确认」按钮点击后弹出「输入密码」modal，但 `handlePasswordPromptIfPresent` 返回 `{ handled: false, type: null }` — 没识别为 password_dialog。\n\n根因：`handlePasswordPrompt` (components.mjs) 的密码弹窗判定要求：\n```js\nconst inModal = input.closest('[data-testid=\"APP-Modal-Screen\"], [role=\"dialog\"]');\nconst inFixedForm = input.closest('form[style*=\"fixed\"], form[style*=\"z-index\"]');\nif (inModal || inFixedForm) return { type: 'password_dialog' };\n```\n\n但 OneKey 密码 input 的祖先链上**没有这些容器**（CDP 实证：从 input 一直往上到 body 没有任何 testid）。\n\n**修复模板（推荐）**：直接用 password-input visibility 判定，不依赖容器：\n```js\nconst pwdVisible = await page.evaluate(() => {\n  const inp = document.querySelector('[data-testid=\"password-input\"]');\n  if (!inp) return false;\n  const r = inp.getBoundingClientRect();\n  return r.width > 0 && r.height > 0;\n});\nif (pwdVisible) {\n  await page.locator('[data-testid=\"password-input\"]').first().fill(walletPassword);\n  await page.evaluate(() => {\n    document.querySelector('[data-testid=\"verifying-password\"]')?.click();\n  });\n}\n```\n\n**应该修复 handlePasswordPrompt** (TODO)：把容器判定改成更宽松（只要 `r.width > 0 && r.height > 0` + type=password 或 testid=password-input 即可），让所有调用方都受益。\n\n**触发场景**：所有签名相关测试，特别是 DeFi 质押/赎回、Swap、Transfer 触发的密码二次验证。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-143",
-      "category": "quirk",
-      "platform": "desktop",
-      "pattern": "RN Web 的 BUTTON.click() **第一次常不生效**（React event 还没 attach 完）。必须 retry 直到检测到「真实响应信号」：modal count 变化 / button 变 disabled / 密码弹窗出现。**仅看「点击成功返回」无法判定**",
-      "details": "CDP 实测发现：\n- Iter 0 调用 `BUTTON.click()` + dispatchEvent — 完全没生效（button 状态不变）\n- Iter 1 再次调用 — button 立刻变 disabled（React 处理了点击 → 进入等待状态）\n\n根因：React Native Web 的 Pressable 有 onResponderRelease 等响应链，第一次 click 可能 React event listener 还在 mount 阶段，调用了但没处理。第二次调用就正常了。\n\n**修复模板**：\n```js\n// 连续点 N 次直到检测到「真实响应」\nfor (let i = 0; i < 5; i++) {\n  await tryClick();\n  await sleep(1500);\n  const cur = await page.evaluate(() => ({\n    modalCount: ...,\n    btnDisabled: ...,\n    pwdVisible: ...,\n  }));\n  // 任何状态变化 = click 已触发响应\n  if (cur.modalCount !== before.modalCount || cur.btnDisabled === true || cur.pwdVisible) break;\n}\n```\n\n**响应信号优先级**（按可靠性）：\n1. ✅ modal count 减少（modal 真关）\n2. ✅ button.disabled 从 false → true（点击触发了 React 处理）\n3. ✅ 密码 modal 出现（触发了二次验证）\n4. ❌ textContent 变化（不可靠，K-141）\n\n**触发场景**：所有 RN Web 的 Pressable / Button 点击；OneKey 签名/Swap/Transfer 等所有需要可靠点击的场景。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-144",
-      "category": "process",
-      "platform": "desktop",
-      "pattern": "**硬件钱包签名 vs 软件钱包签名的诊断区分（避免误诊断）**：button disabled 不等于硬件钱包等待，先排查 RN Web Pressable 点击是否真触发",
-      "details": "**易误诊断的现象**：clickModalConfirm 点了多次，modal count 没变 → 报错时不要直接说「硬件钱包等待」，必须先验证点击是否真触发。\n\n**正确诊断顺序**（从最可能到最不可能）：\n1. **RN Web Pressable 点击未触发**（K-145）：BUTTON.click() / dispatchEvent / page.mouse.click 全无反应 → 用 reactProps.onPress 直调\n2. **交易损耗/警告 modal 拦截**（K-146）：顶层 modal 不是签名 modal，先 dismiss\n3. **硬件钱包等待**：仅在账户类型确认是硬件（钱包名带 hw/ran/piggy 等硬件标识）才适用\n\n**硬件钱包真实场景**：\n- button 短暂 disabled（约 1s）后**保持 enable**，等用户在设备上按确认\n- modal 顶部一般有「请在设备上确认」文案\n- 软件钱包没有这个文案\n\n**触发场景**：clickModalConfirm 卡住 → 先检查 dashboard 日志里 [diag] reactHandlers 是否有 onPress；再检查顶层 modal 是不是 sig-confirm-tx-page；最后才考虑硬件钱包。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-145",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "**RN Web Pressable 按钮点击：必须直调 __reactProps.onPress / onClick / onResponderRelease**。BUTTON.click() / dispatchEvent / page.mouse.click 在 RN Web 里常被静默忽略",
-      "details": "**症状**：OneKey 签名 modal 的「确认」按钮 (data-testid=page-footer-confirm) 在 CDP 里 disabled=false, opacity=1, pointer-events=auto, stack 顶层就是 SPAN→BUTTON 自身（无 backdrop），但是：\n- BUTTON.click() 无反应\n- dispatchEvent(MouseEvent('click')) 无反应  \n- dispatchEvent(pointerdown/mousedown/pointerup/mouseup/click) 无反应\n- page.mouse.click(cx, cy) 无反应（含 hover 预热 mouse.move 也不行）\n- Playwright locator.click({force: true}) 无反应\n- focus + Enter 无反应\n- modalCount / btnDisabled / pwdVisible 状态完全不变\n\n**根因**：React Native Web 的 Pressable 组件用 PressResponder 而非原生 onClick。DOM 上的 click 事件不会触发其 onPress 回调；事件处理函数挂在外层 DIV 的 __reactProps 上（不是 BUTTON 上）。\n\n**唯一可靠解法**：从 BUTTON 向上遍历 ancestors，找到第一个 `__reactProps$<hash>` 上有 `onClick / onPress / onResponderRelease` 的元素，直接调用：\n```js\nlet cur = btn;\nwhile (cur && cur.tagName !== 'BODY') {\n  const propsKey = Object.keys(cur).find(k => k.startsWith('__reactProps'));\n  if (propsKey) {\n    const props = cur[propsKey];\n    const fakeEv = { type: 'click', target: btn, currentTarget: cur,\n                     clientX: cx, clientY: cy,\n                     preventDefault(){}, stopPropagation(){},\n                     nativeEvent: { type: 'click', target: btn } };\n    for (const h of ['onClick', 'onPress', 'onResponderRelease']) {\n      if (typeof props?.[h] === 'function') { props[h](fakeEv); return; }\n    }\n  }\n  cur = cur.parentElement;\n}\n```\n\n**预防**：所有 RN Web 应用（OneKey 桌面端 / web 端）的关键按钮点击，先尝试原生事件 → 失败后必须有 reactProps 兜底，不能只靠 page.mouse.click。\n\n**实现位置**：src/tests/desktop/defi/lista-usdt.test.mjs clickModalConfirm tryClick 函数。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-148",
-      "category": "process",
-      "platform": "extension",
-      "pattern": "**插件端 CDP 端口自动检测**：扫 `ps -axo command` 找运行中 Chrome 主进程的 `--remote-debugging-port=` 真实值。不要硬编码 9224 — 每人本地 Chrome 启动参数不同",
-      "details": "**问题**：插件端测试需要 Chrome 跑 CDP 模式，但每个 QA 本地启 Chrome 时端口可能不一样（有人 9224、有人 9229、有人 9301...）。如果脚本硬编码 `EXT_CDP_URL = http://127.0.0.1:9224`，换人就连不上。\n\n**解决方案**：扫 Chrome 进程命令行参数取真实端口。\n\n**关键过滤规则**（必须同时满足）：\n1. `line.includes('Google Chrome')` — 排除 OneKey/Chromium/Edge 等其他基于 Chromium 的应用\n2. `!line.includes('--type=')` — 排除 renderer/GPU/utility 等子进程（它们也带 port 参数）\n3. excludePorts 排除已知 desktop(9222) / web(9223) 端口，避免误把 Web 端 Chrome 当成插件端\n\n**实现**（`src/tests/helpers/extension-cdp.mjs`）：\n```js\nexport function detectChromeCdpPort(excludePorts = [9222, 9223]) {\n  try {\n    const out = execSync('ps -axo command', { encoding: 'utf-8' });\n    for (const line of out.split('\\n')) {\n      if (!line.includes('Google Chrome')) continue;\n      if (line.includes('--type=')) continue;\n      const m = line.match(/--remote-debugging-port=(\\d+)/);\n      if (!m) continue;\n      const port = parseInt(m[1], 10);\n      if (excludePorts.includes(port)) continue;\n      return port;\n    }\n  } catch {}\n  return null;\n}\n```\n\n**优先级**（getCdpUrl）：\n1. `EXT_CDP_URL` env（用户显式指定）\n2. `detectChromeCdpPort()` 扫描结果\n3. 默认 9224（首次启动 Chrome 用的端口）\n\n**Dashboard 也要用**：`/api/cdp-status` 动态 import 这个 helper，把真实 port 随状态返回前端，前端不再硬编码端口映射。\n\n**触发场景**：跨人协作的插件端用例 / Dashboard CDP 状态展示。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-147",
-      "category": "process",
-      "platform": "desktop",
-      "pattern": "**HD 软件钱包签名时不一定弹独立 modal**：授权/认购点完后 modal 直接关闭，clickModalConfirm 必须把「进入时已无 modal」视为 success 而非 fail",
-      "details": "**症状**：跑认购/赎回类用例时 clickModalConfirm 报「进入时已无 modal」失败，但下一步 waitForFooterText（footer 变「认购」）/ waitForModalClose 都 OK，说明交易实际成功了。\n\n**根因**：HD 软件钱包（助记词导入的私钥）的签名是 OneKey 内部静默完成的——点完「授权/认购/赎回」底部按钮后：\n- **HD 软件钱包**：可能根本不弹独立签名 modal（无需密码二次验证场景），直接走链上广播 → modal count = 0\n- **硬件钱包**：弹 modal 并保留等用户在设备上物理按确认 → modal count >= 1\n- **设了交易密码的软件钱包**：弹密码 modal → modal count >= 1\n\n**正确处理**：clickModalConfirm 第一次检查 modal 不存在时不能直接 throw，应当 return success：\n```js\nif (info.phase === 'no-modal') {\n  console.log('  [clickModalConfirm] 进入时已无 modal（HD 钱包直接广播，跳过签名 modal）');\n  return { clicked: true, beforeCount: 0, afterCount: 0, autoSubmitted: true };\n}\n```\n\n**断言衔接**：调用方仍然依赖 waitForModalClose / waitForFooterText 验证交易真的提交，不会因为这里跳过签名 modal 而漏掉失败场景。\n\n**实现位置**：src/tests/desktop/defi/lista-usdt.test.mjs clickModalConfirm 阶段 1。\n\n**关联**：K-144 (硬件钱包 vs 软件钱包诊断), K-145 (RN Web Pressable 直调)。",
-      "confidence": 1.0
-    },
-    {
-      "id": "K-146",
-      "category": "quirk",
-      "platform": "desktop",
-      "pattern": "**OneKey 小额认购弹「交易损耗」二次确认 modal**：必须先 dismiss（点确认）才能进入签名 modal；该 modal 没有 page-footer-confirm/nav-header-close，按钮是 modal 内的 inline span/button「确认」",
-      "details": "**触发场景**：DeFi 认购金额过小（如 0.001 USDT）时，OneKey 在认购 → 签名链路之间插入一个「交易损耗」warning modal：「按当前预估收益率计算，大约需要 N 年，收益才能弥补损失。预估网络费用: $X」+ 两个按钮「取消 / 确认」。\n\n**症状**：\n- 点完「认购」按钮后，clickModalConfirm 找不到 page-footer-confirm（该 modal 用 inline button）→ 卡死\n- 或者 navigation 流程（goToListaUsdtDetail / goToDefiPortfolioTab）幂等检查 `modalCount === 0` 失败 → 走完整 nav，但 modal 又挡住后续 tab 点击 → 「所有资产 tab 未找到」类错误\n\n**正确处理**：\n```js\nasync function dismissTradeLossModal(page) {\n  for (let attempt = 0; attempt < 3; attempt++) {\n    const result = await page.evaluate(() => {\n      const modals = [...document.querySelectorAll('[data-testid=\"APP-Modal-Screen\"]')];\n      const lossModal = modals.find(m => /交易损耗|弥补损失/.test(m.textContent || ''));\n      if (!lossModal) return { found: false };\n      for (const el of lossModal.querySelectorAll('span, div, button')) {\n        if ((el.textContent || '').trim() !== '确认' || el.children.length !== 0) continue;\n        const r = el.getBoundingClientRect();\n        if (r.width === 0 || r.height === 0) continue;\n        return { found: true, x: r.x + r.width/2, y: r.y + r.height/2 };\n      }\n      return { found: true, x: null };\n    });\n    if (!result.found) break;\n    if (result.x != null) await page.mouse.click(result.x, result.y);\n    await sleep(1000);\n  }\n}\n```\n\n**调用位置**（必须在以下场景前调用）：\n1. `goToListaUsdtDetail` / `goToDefiPortfolioTab` 等 nav helper 开头 — 防止挡住幂等检查\n2. `clickModalConfirm` 阶段 0 — 防止顶层 modal 不是签名 modal\n3. 任何用例 Step 0（独立运行场景下，上一轮可能留下这个 modal）\n\n**注意**：该 modal **没有** nav-header-close 按钮，常规 dismiss 流程（K-115 esc / nav-header-close）抓不到。\n\n**关联**：K-115 (mouse.click)、K-133 (modal 关闭机制)。\n\n**实现位置**：src/tests/desktop/defi/lista-usdt.test.mjs dismissTradeLossModal 函数。",
-      "confidence": 1.0
+      "pattern": "StepTracker 中不能用 `passed + skip detail` 吞掉异常；可选分支要记 `skipped`，核心动作失败要记 `failed`",
+      "details": "修 `src/tests/shared/market/favorite.mjs` 时发现，多处 `catch` 分支把异常写成 `t.add(..., 'passed', `skip: ...`)`，会让 Dashboard 把真实失败展示成 PASS，直接违反仓库“无软断言、每个步骤必须明确 passed/failed/skipped”的要求。正确口径是：1) 仅当步骤确属环境差异或 best-effort 分支，才记录 `skipped` 并附带原因；2) 若该步骤是当前用例的核心成功条件（如点击添加代币、详情页取消收藏），异常必须记录为 `failed`。触发场景：Market 收藏脚本、其他使用 `createStepTracker`/`safeStep` 的 UI 自动化用例维护。",
+      "confidence": 0.99
     }
-  ],
-  "scenarios": {
-    "defi-channel-flow": {
-      "description": "DeFi 渠道完整流程（侧栏入口 → 资产列表 → 渠道详情 → 认购/赎回 → 历史）",
-      "applicable_to": [
-        "DeFi Lista",
-        "DeFi Pendle",
-        "DeFi Morpho",
-        "DeFi Lido",
-        "DeFi Ethena",
-        "其他 Earn 渠道"
-      ],
-      "required_knowledge": [
-        "K-127",
-        "K-128",
-        "K-129"
-      ],
-      "common_pitfalls": [
-        "K-108",
-        "K-109",
-        "K-110",
-        "K-112",
-        "K-113",
-        "K-120",
-        "K-121",
-        "K-130",
-        "K-146"
-      ],
-      "composes": [
-        "submit-transaction",
-        "modal-flow",
-        "long-list-scroll",
-        "tab-swiper",
-        "anchor-relative-text"
-      ]
-    },
-    "defi-portfolio-manage": {
-      "description": "DeFi 我的持仓页 + 管理按钮（多 row 列表 + 同名按钮选择）",
-      "applicable_to": [
-        "DeFi 赎回流程",
-        "DeFi 加仓流程",
-        "任何持仓管理操作"
-      ],
-      "required_knowledge": [
-        "K-128",
-        "K-135",
-        "K-136"
-      ],
-      "common_pitfalls": [
-        "K-131",
-        "K-134"
-      ],
-      "composes": [
-        "submit-transaction",
-        "modal-flow",
-        "row-with-button"
-      ]
-    },
-    "defi-apy-validation": {
-      "description": "DeFi 预估年收益公式验证（sum(USD) ≈ APY × 认购价值）",
-      "applicable_to": [
-        "所有多代币奖励 DeFi 渠道"
-      ],
-      "required_knowledge": [
-        "K-130"
-      ],
-      "common_pitfalls": [
-        "K-105",
-        "K-122"
-      ]
-    },
-    "modal-flow": {
-      "description": "modal 弹窗操作（打开 / 确认 / 关闭 + 嵌套 modal 处理）",
-      "applicable_to": [
-        "签名弹窗",
-        "授权确认",
-        "管理面板",
-        "历史记录弹窗"
-      ],
-      "required_knowledge": [
-        "K-115",
-        "K-124",
-        "K-133",
-        "K-137",
-        "K-138",
-        "K-140",
-        "K-141",
-        "K-145",
-        "K-146",
-        "K-147"
-      ],
-      "common_pitfalls": []
-    },
-    "long-list-scroll": {
-      "description": "长列表滚动 + 点击列表项（虚拟列表 lazy render）",
-      "applicable_to": [
-        "DeFi 资产列表",
-        "钱包代币列表",
-        "市场列表",
-        "任何虚拟滚动场景"
-      ],
-      "required_knowledge": [
-        "K-110",
-        "K-113"
-      ],
-      "common_pitfalls": [
-        "K-120"
-      ]
-    },
-    "row-with-button": {
-      "description": "多 row 列表里点同名按钮（管理/编辑/详情/删除）",
-      "applicable_to": [
-        "DeFi 持仓页",
-        "地址簿列表",
-        "账户列表",
-        "Swap 历史",
-        "任何带操作列的表格"
-      ],
-      "required_knowledge": [
-        "K-135",
-        "K-136"
-      ],
-      "common_pitfalls": [
-        "K-128"
-      ]
-    },
-    "anchor-relative-text": {
-      "description": "查找 anchor 附近的文本（输入框旁的余额/价格/USD 估值）",
-      "applicable_to": [
-        "认购页 USD 估值读取",
-        "Swap 数量旁的余额",
-        "任何位置敏感的文本读取"
-      ],
-      "required_knowledge": [
-        "K-132"
-      ],
-      "common_pitfalls": []
-    },
-    "tab-swiper": {
-      "description": "横向 SwipeView panel 切换（非 active panel 在 x<0 屏外）",
-      "applicable_to": [
-        "DeFi 顶部 tab（所有资产/持仓/常见问题）",
-        "其他横向滑动 tab"
-      ],
-      "required_knowledge": [
-        "K-112"
-      ],
-      "common_pitfalls": []
-    },
-    "testid-management": {
-      "description": "Locator 真源 + 命名规则（key 用 UI 名，primary 用 source testid）",
-      "applicable_to": [
-        "编辑 shared/locators/*.json",
-        "添加新 testid 映射"
-      ],
-      "required_knowledge": [
-        "K-117"
-      ],
-      "common_pitfalls": []
-    },
-    "onekey-sidebar-nav": {
-      "description": "OneKey 侧栏导航（语义 testid 优先，图标 testid 名称误导）",
-      "applicable_to": [
-        "任何 OneKey 桌面端模块入口（钱包/市场/合约/DeFi/Swap）"
-      ],
-      "required_knowledge": [
-        "K-109"
-      ],
-      "common_pitfalls": [
-        "K-108"
-      ]
-    },
-    "svg-click": {
-      "description": "SVG 元素没有 HTMLElement.click()，必须用 page.mouse.click",
-      "applicable_to": [
-        "所有 icon 按钮点击（nav-header-back/close 等）"
-      ],
-      "required_knowledge": [
-        "K-115"
-      ],
-      "common_pitfalls": []
-    },
-    "rn-web-scroll-container": {
-      "description": "React Native Web 主滚动容器是嵌套 div 不是 window",
-      "applicable_to": [
-        "任何 OneKey 长列表滚动"
-      ],
-      "required_knowledge": [
-        "K-113"
-      ],
-      "common_pitfalls": []
-    },
-    "case-prerequisites": {
-      "description": "每个 case 必须能独立跑（Dashboard 子集勾选场景）",
-      "applicable_to": [
-        "所有 .test.mjs 设计"
-      ],
-      "required_knowledge": [
-        "K-134"
-      ],
-      "common_pitfalls": [
-        "K-131"
-      ]
-    },
-    "tx-async-history": {
-      "description": "链上交易提交立即成功，但历史列表更新延迟（≤60s）",
-      "applicable_to": [
-        "DeFi 历史记录验证",
-        "Swap 历史",
-        "转账历史"
-      ],
-      "required_knowledge": [
-        "K-107"
-      ],
-      "common_pitfalls": []
-    },
-    "page-transition-timing": {
-      "description": "case 之间的页面过渡时序（modal 关闭 / 路由跳转都不是瞬时）",
-      "applicable_to": [
-        "相邻 case 衔接"
-      ],
-      "required_knowledge": [
-        "K-131"
-      ],
-      "common_pitfalls": [
-        "K-133",
-        "K-134"
-      ]
-    },
-    "phase5-cdp-probe": {
-      "description": "Phase 5 CDP 实探验证流程（生成脚本后必须实探）",
-      "applicable_to": [
-        "所有 .test.mjs 生成后"
-      ],
-      "required_knowledge": [
-        "K-114"
-      ],
-      "common_pitfalls": [
-        "K-121"
-      ]
-    },
-    "test-amount-strategy": {
-      "description": "测试金额选择策略（真实金额 vs 验证公式金额）",
-      "applicable_to": [
-        "DeFi 质押 / Swap / 转账等带金额的用例"
-      ],
-      "required_knowledge": [
-        "K-122"
-      ],
-      "common_pitfalls": []
-    },
-    "cross-ai-sharing": {
-      "description": "跨 AI 工具规则共享（CLAUDE.md 是真源，cursorrules/AGENTS.md symlink）",
-      "applicable_to": [
-        "编辑项目规则"
-      ],
-      "required_knowledge": [
-        "K-118"
-      ],
-      "common_pitfalls": []
-    },
-    "dashboard-restart": {
-      "description": "Dashboard 重启必须 lsof -ti:5050 力杀（pkill 会漏）",
-      "applicable_to": [
-        "改完 dashboard 代码后重启"
-      ],
-      "required_knowledge": [
-        "K-116"
-      ],
-      "common_pitfalls": []
-    },
-    "recorder-resilience": {
-      "description": "Recorder 防御（目录被清空导致 ENOENT 崩溃）",
-      "applicable_to": [
-        "调试录制器",
-        "新会话首次录制"
-      ],
-      "required_knowledge": [
-        "K-119"
-      ],
-      "common_pitfalls": [
-        "K-104"
-      ]
-    },
-    "submit-transaction": {
-      "description": "提交链上交易通用流程（点底部 confirm → 弹签名 modal → modal 内点确认 → 等 modal 关闭 → 验证）",
-      "applicable_to": [
-        "DeFi 认购 / 赎回 / 加仓",
-        "Swap 兑换",
-        "Transfer 转账",
-        "授权 ERC20 allowance",
-        "任何需要硬件/软件钱包签名广播的操作"
-      ],
-      "required_knowledge": [
-        "K-115",
-        "K-124",
-        "K-133",
-        "K-137",
-        "K-138",
-        "K-139",
-        "K-140",
-        "K-141",
-        "K-142",
-        "K-143",
-        "K-144"
-      ],
-      "common_pitfalls": [
-        "K-107",
-        "K-131"
-      ]
-    },
-    "hw-software-signing": {
-      "description": "硬件钱包 vs 软件钱包签名差异（硬件需 USB 确认，软件直接广播）",
-      "applicable_to": [
-        "签名提示框处理",
-        "二次确认流程"
-      ],
-      "required_knowledge": [
-        "K-115",
-        "K-137",
-        "K-143",
-        "K-144"
-      ],
-      "common_pitfalls": []
-    },
-    "amount-input-validation": {
-      "description": "金额输入框校验（最大值、余额不足、负数/非法字符、精度溢出）",
-      "applicable_to": [
-        "DeFi 认购金额",
-        "Swap 数量",
-        "Transfer 金额",
-        "任何带 amount-input 的页面"
-      ],
-      "required_knowledge": [
-        "K-132"
-      ],
-      "common_pitfalls": []
-    },
-    "address-input-validation": {
-      "description": "地址输入框校验（格式、Checksum、Memo、地址簿联动）",
-      "applicable_to": [
-        "Transfer 收款地址",
-        "Swap 收款地址",
-        "地址簿添加"
-      ],
-      "required_knowledge": [],
-      "common_pitfalls": []
-    },
-    "account-switching": {
-      "description": "账户切换（钱包/账户选择器 + 观察账户/HD 账户）",
-      "applicable_to": [
-        "多账户场景测试",
-        "观察账户场景",
-        "硬件钱包账户切换"
-      ],
-      "required_knowledge": [],
-      "common_pitfalls": []
-    },
-    "network-switching": {
-      "description": "网络切换（链选择器 + 多链资产）",
-      "applicable_to": [
-        "EVM 多链场景",
-        "BTC / Solana / Cosmos 切换"
-      ],
-      "required_knowledge": [],
-      "common_pitfalls": []
-    },
-    "success-failure-toast": {
-      "description": "操作后的 toast 提示验证（成功/失败/警告）",
-      "applicable_to": [
-        "所有用户交互后的反馈验证"
-      ],
-      "required_knowledge": [],
-      "common_pitfalls": []
-    },
-    "balance-change-verification": {
-      "description": "操作前后余额变动验证（钱包余额 / 持仓数量）",
-      "applicable_to": [
-        "DeFi 质押/赎回前后",
-        "Swap 前后",
-        "Transfer 前后"
-      ],
-      "required_knowledge": [
-        "K-122"
-      ],
-      "common_pitfalls": [
-        "K-107"
-      ]
-    },
-    "polling-with-timeout": {
-      "description": "轮询 + 超时模式（等元素出现/状态变化/历史更新）",
-      "applicable_to": [
-        "历史记录验证",
-        "modal 状态变化",
-        "条件等待"
-      ],
-      "required_knowledge": [
-        "K-107",
-        "K-131"
-      ],
-      "common_pitfalls": []
-    },
-    "password-prompt": {
-      "description": "签名时的「输入密码」modal 自动处理（Dashboard 可配置密码）",
-      "applicable_to": [
-        "所有签名/广播交易场景"
-      ],
-      "required_knowledge": [
-        "K-139",
-        "K-142"
-      ],
-      "common_pitfalls": []
-    },
-    "wait-for-enable": {
-      "description": "按钮 disabled 等待（链上预检/数据加载完成才 enable）",
-      "applicable_to": [
-        "签名确认按钮",
-        "Swap 兑换按钮",
-        "转账下一步按钮"
-      ],
-      "required_knowledge": [
-        "K-140"
-      ],
-      "common_pitfalls": []
-    }
-  }
+  ]
 }
