@@ -12,72 +12,7 @@ user-invocable: true
 
 ## 工作目录
 
-`/Users/chole/workspace/QA-AGENTS/`
-
-## Phase 0: 加载相关 knowledge + rules（**强制 ⚠️ 必须做完才能继续**）
-
-写任何用例 / `.test.mjs` 前必须先并行加载**两类**已沉淀知识，避免重复犯错 + 凭印象编规则：
-
-- ① **执行坑知识** — `shared/knowledge.json`（避免踩重复 bug）
-- ② **产品规则索引** — `docs/qa/rules/` + `docs/qa/requirements/` + `docs/qa/testcases/cases/`（按 module 检索已有规则与历史用例）
-
-### 步骤
-
-1. **从用户描述提取场景关键词** + **识别涉及模块**（wallet / swap / account / market / perps / defi / hardware / prime / referral / browser / utility）
-
-2. **并行调用两个 lookup 脚本**：
-
-```bash
-# ① 执行坑（按 scenario）
-node scripts/lookup-knowledge.mjs --scenario <scenario1>,<scenario2>
-
-# ② 产品规则（按 module + 主题）— 强制
-node scripts/lookup-rules.mjs --module <module> --topic <关键词>
-# 或先看章节树定位
-node scripts/lookup-rules.mjs --module <module> --headings
-```
-
-**示例**（用户说「写 BTC 新鲜地址相关用例」）：
-
-```bash
-node scripts/lookup-knowledge.mjs --scenario modal-flow,row-with-button
-node scripts/lookup-rules.mjs --module wallet --topic "多地址,新鲜地址,UTXO"
-```
-
-3. **更多 knowledge 查询用法**：
-
-```bash
-# 列出所有 scenarios（不熟时先看）
-node scripts/lookup-knowledge.mjs --list
-
-# 按 scenario 查（最常用，可多个）
-node scripts/lookup-knowledge.mjs --scenario defi-channel-flow
-node scripts/lookup-knowledge.mjs --scenario modal-flow,row-with-button
-
-# 按 ID / category / 关键词 / 全文搜
-node scripts/lookup-knowledge.mjs --id K-127
-node scripts/lookup-knowledge.mjs --category locator --platform desktop
-node scripts/lookup-knowledge.mjs --keyword "modal,confirm"
-node scripts/lookup-knowledge.mjs --search "DeFi 持仓"
-```
-
-3. **常用场景速查表**（用户描述→必查 scenarios）：
-
-| 用户提到的关键词 | 必查 scenarios |
-|----------------|----------------|
-| DeFi / 质押 / 赎回 / 认购 / Earn / Lista / Pendle / Morpho / Lido | `defi-channel-flow`, `defi-portfolio-manage`, `defi-apy-validation` |
-| 签名 / 确认 / 授权 / modal / 弹窗 | `modal-flow`, `case-prerequisites` |
-| 持仓 / 我的持仓 / 管理按钮 / 编辑 / 删除 | `row-with-button`, `defi-portfolio-manage` |
-| 滚动 / 长列表 / 找列表项 | `long-list-scroll`, `rn-web-scroll-container` |
-| 余额 / 价格 / USD 估值 / 旁边 | `anchor-relative-text` |
-| 侧栏 / sidebar / 模块导航 | `onekey-sidebar-nav` |
-| Tab 切换 / SwipeView | `tab-swiper` |
-| 历史记录 / 链上确认 | `tx-async-history` |
-| 金额 / amount / stake | `test-amount-strategy` |
-
-4. **把查到的条目 pattern 写到 `.test.mjs` 头部注释**（self-checklist），生成脚本时严格按 `details` 执行
-5. **把 `lookup-rules` 返回的规则章节路径写到用例文件头部** `> 规则文档：` 引用块里（不要凭印象编规则路径）
-6. 跳过此 Phase 0 = 复刻已经踩过的坑 + 凭印象写规则（违反规则）
+`/Users/chole/onekey-agent-test/`
 
 ## Phase 1: 需求分析
 

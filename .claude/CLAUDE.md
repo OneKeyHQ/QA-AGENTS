@@ -332,14 +332,91 @@ node scripts/build-locator-map.mjs --check
 - **提交前 QA 审查**：commit / PR 前自动执行 `/qa-review`（别名 `/onekey-qa-review`，触发词：`审查提交`/`审查用例`/`review 用例`/`检查提交`），检查用例、规则、脚本、Skill 的规范性、一致性和安全性。安全问题硬拦截（不可跳过），其他 block 问题软拦截（可确认跳过）。审查报告保存到 `shared/reports/review-*.md`。Claude Code 加载 `.claude/skills/onekey-qa-review/SKILL.md`；Cursor 加载 `.cursor/rules/onekey-qa-review.mdc`（两份内容保持双写一致）
 
 ## Default Workflow（写新用例时必须遵循，不要再问）
-0. **录制/生成前必读 `shared/knowledge.json`**，并优先查看 `shared/ui-semantic-map.json` 与 `shared/generated/app-monorepo-testid-index.json` — 避免重复犯错，也避免重复探索已有定位
+
+### Phase 0 — 写脚本/用例前必读 knowledge + rules（强制 ⚠️ 不能跳过）
+
+写脚本（自动化）和写用例（手动 QA）都必须先用 CLI 加载两类知识：
+
+**① 执行坑知识（`shared/knowledge.json`，按 scenario）**：
+
+```bash
+# 列出所有 scenarios 看自己要查啥
+node scripts/lookup-knowledge.mjs --list
+
+# 按单/多场景查（最常用）
+node scripts/lookup-knowledge.mjs --scenario defi-channel-flow
+node scripts/lookup-knowledge.mjs --scenario modal-flow,row-with-button
+
+# 其他用法
+node scripts/lookup-knowledge.mjs --id K-127
+node scripts/lookup-knowledge.mjs --category locator --platform desktop
+node scripts/lookup-knowledge.mjs --keyword "modal,confirm,signing"
+node scripts/lookup-knowledge.mjs --search "DeFi 持仓"
+```
+
+**② 产品规则索引（`docs/qa/rules/` + `docs/qa/requirements/` + `docs/qa/testcases/cases/`，按 module/topic）**：
+
+```bash
+# 列出所有模块（含 rules / requirements / testcases 计数）
+node scripts/lookup-rules.mjs --list
+
+# 写用例前最常用 — 按模块 + 主题查
+node scripts/lookup-rules.mjs --module wallet --topic 多地址
+node scripts/lookup-rules.mjs --module swap --topic 自定义接收地址 --excerpt 400
+
+# 只看章节树（不展开内容，先扫一遍知道在哪）
+node scripts/lookup-rules.mjs --module wallet --headings
+
+# 只看某一类
+node scripts/lookup-rules.mjs --module account --kind rules
+node scripts/lookup-rules.mjs --module account --kind requirements
+node scripts/lookup-rules.mjs --module account --kind testcases
+
+# 跨模块全文关键词搜（不知道在哪个模块时用）
+node scripts/lookup-rules.mjs --keyword "Keyless Wallet,无私钥"
+```
+
+**触发条件（必跑 lookup-rules）**：
+- 写新用例 / 修改用例 / review 用例前
+- 修改 `docs/qa/rules/<module>-rules.md` 前（先看现有章节结构和措辞）
+- 用户提到模块名（wallet / swap / account / market / perps / defi / hardware / prime / referral / browser / utility）时
+- 不确定某个产品行为是否已有规则定义时（优先查项目文档，不凭印象编）
+
+**常用 scenarios 速查表**：
+
+| 写什么 | 必查 scenarios |
+|--------|--------------|
+| DeFi 新渠道完整脚本（Pendle/Morpho/Lido/...） | `defi-channel-flow`, `defi-portfolio-manage`, `defi-apy-validation` |
+| 任何含 modal 操作（签名/授权/赎回确认） | `modal-flow`, `case-prerequisites` |
+| 多 row 列表里点同名按钮（管理/编辑/详情） | `row-with-button` |
+| 长列表滚动 + 找列表项 | `long-list-scroll`, `rn-web-scroll-container` |
+| 读输入框旁的余额/价格/USD 估值 | `anchor-relative-text` |
+| OneKey 模块入口导航 | `onekey-sidebar-nav` |
+| Swipe view / 横向 panel tab | `tab-swiper` |
+| 链上交易历史延迟轮询 | `tx-async-history` |
+| 涉及金额的用例 | `test-amount-strategy` |
+| 编辑 testid 映射 | `testid-management` |
+| 改 dashboard 代码 | `dashboard-restart` |
+
+**查到的条目** = 必读 K + 常见坑 K。**条目里的「触发场景」字段**决定是否真的适用——匹配的话脚本必须按 `pattern + details` 实现，不能凭印象。
+
+**写用例/规则前的源码对齐（强制）**：除 knowledge.json 外，**必须查 OneKey app-monorepo 源码**确认产品实际逻辑：
+
+- 仓库：`https://github.com/OneKeyHQ/app-monorepo/tree/x`（默认 `x` 分支为开发主干）
+- 用 `gh api repos/OneKeyHQ/app-monorepo/contents/<path>?ref=x` 取文件，或 `gh pr diff <N> -R OneKeyHQ/app-monorepo --patch` 看 PR 改动
+- 重点查看：**条件渲染**（feature gate / 可见性开关）、**平台差异**（`.ios.tsx` / `.android.tsx` / `.tsx`）、**状态持久化**（atom / `useSettingsPersistAtom` 是否跨端同步）、**枚举值**（`E*` 类型定义）
+- **同时查 git fix 历史**：`gh search prs --repo OneKeyHQ/app-monorepo --match title "fix" | head -20`，每个 OK-XXXXX 修复都对应一个曾经出问题的边界场景，需转化为用例覆盖
+- 用例 / 规则与代码实现冲突时，**优先以产品需求为准**（可主动跟用户确认），不盲目相信代码 ≡ 需求
+
+### 常规录制流程
+0. （上面 Phase 0 已做）也读 `shared/ui-semantic-map.json` + `shared/generated/app-monorepo-testid-index.json` 找已知定位
 1. 启动 OneKey 桌面端（CDP）
 2. 启动录制器 `node src/recorder/listen.mjs`（有 Web 监控 UI http://localhost:3210）
 3. 用户在 app 上操作，录制器自动捕获
 4. 用户说"录制完了" → 停止录制，列出操作清单让用户确认
 5. 确认后 → 生成测试用例 + 必要时更新 ui-semantic-map / ui-map + 写测试脚本
-6. **录制/测试过程中遇到新问题，自动追加到 `shared/knowledge.json`**（无需用户指令）
-- 正确流程：**Read knowledge → Record → Update test cases → Update scripts → Write knowledge**
+6. **录制/测试过程中遇到新问题，自动追加到 `shared/knowledge.json`**（无需用户指令）+ 顺便更新 `scenarios` 索引把新 K-ID 挂到对应场景下
+- 正确流程：**Lookup knowledge by scenario → Record → Update test cases → Update scripts → Append knowledge + scenarios**
 
 ### 连续录制多个用例的注意事项
 - 录完一个用例后，在 Monitor UI (http://localhost:3210) 点 **"New Session"** 清空步骤再录下一个
@@ -673,9 +750,11 @@ NODE
 - **脚本必须连贯执行**：一个用例对应录制中的一段连贯操作流程，不得把连续动作拆成多个孤立用例
 - **fn(page) 签名兼容**：所有 testCases 的 fn 只接收 `page` 一个参数（dashboard executor 兼容），前置条件用模块级缓存 `_preReport`
 - **setup() 包含前置条件检查**：前置条件在 `setup(page)` 中运行并缓存，不在每个 fn 中重复运行
+- **每个 case 必须能独立跑（强制 ⚠️）**：Dashboard 允许用户任意勾选子集（如只勾 005 + 006，跳过 001~004）。**每个 case 开头必须有 `Step 0: 前置` 步骤**调用幂等导航 helper 确保 UI 状态符合假设；不能假设上一个 case 留下了正确页面状态。导航 helper 必须幂等：检查 URL/元素，已经在目标页就直接返回，避免重复点击。状态依赖（如输入框已填值）也必须检查 → 没有就构造。详见 K-134。
 - **截图只在失败时**：正常通过的步骤不截图，截图会严重拖慢执行速度
 - **Token 正则需兼容数字**：代币名可能包含数字（如 XYZ100），正则用 `/^[A-Z][A-Z0-9]{1,9}$/`
 - **DOM 选择器要限定区域**：顶部行情栏的选择器必须加 `r.y < 100` 位置过滤
+- **modal 关闭必须 page.mouse.click + retry**：`el.click()` 在 SVG button 上不可靠（K-115）；关 modal 后必须等 `[data-testid="APP-Modal-Screen"]` 数量为 0 才算真关闭；下一个 case 的 Step 0 还要加兜底清 modal 防御。详见 K-133。
 
 ### Dashboard 实时日志规则（强制执行）
 > 所有用例必须在 Dashboard 执行面板中显示实时步骤日志。QA 能及时看到每步的执行状态和报错，不用等整个用例跑完。

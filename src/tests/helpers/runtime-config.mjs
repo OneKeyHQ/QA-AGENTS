@@ -30,6 +30,21 @@ function readConfig() {
 }
 
 /**
+ * 读取 wallet 密码。
+ * 优先级：runtime-config.json `walletPassword` > 环境变量 WALLET_PASSWORD > 默认 '1234567890-='
+ *
+ * 用途：签名 modal 弹出「输入密码」时自动填入。密码可在 Dashboard ⚙️ Settings 配置。
+ * 注意：runtime-config.json 已 gitignored，不会入库。
+ */
+export function getWalletPassword() {
+  const cfg = readConfig();
+  if (cfg?.walletPassword && typeof cfg.walletPassword === 'string' && cfg.walletPassword.length > 0) {
+    return cfg.walletPassword;
+  }
+  return process.env.WALLET_PASSWORD || '1234567890-=';
+}
+
+/**
  * Load wallet accounts from shared/runtime-config.json.
  * Returns { primary, secondary } where each is { walletName, accountName }.
  * Empty strings if config missing or unset — caller must validate before use.
