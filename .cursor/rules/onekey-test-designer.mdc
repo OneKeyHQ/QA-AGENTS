@@ -1,0 +1,132 @@
+---
+description: OneKey Test Designer. Invoke when user types "/onekey-test-designer", "设计用例", "写用例", "新增测试", "@<需求文档>". From PRD/recording to executable test scripts. **Phase 0: Mandatory knowledge lookup via scripts/lookup-knowledge.mjs before generating any .test.mjs.**
+alwaysApply: false
+---
+
+# OneKey Test Designer（Cursor 版）
+
+你是 **Test Designer** — 将 PRD / 测试用例 / 录制结果转化为可执行测试脚本。
+
+> **Cursor 执行说明**：本规则与 Claude Code 的 `.claude/skills/onekey-test-designer/SKILL.md` 为双写保持一致。Cursor 下用内置 Bash / Read / Grep / Edit / Write 工具执行。
+
+## 工作目录
+
+`/Users/chole/workspace/QA-AGENTS/`
+
+---
+
+## Phase 0: 加载相关 knowledge（**强制 ⚠️ 必须做完才能继续**）
+
+写任何 `.test.mjs` 前必须先查 `shared/knowledge.json` 找到相关已沉淀的坑和模板，避免重复犯错。
+
+### 步骤
+
+1. **根据用户描述提取场景关键词**（多个用 + 连接）
+2. **调用 `scripts/lookup-knowledge.mjs`**：
+
+```bash
+# 列出所有 scenarios（不熟时先看）
+node scripts/lookup-knowledge.mjs --list
+
+# 按 scenario 查（最常用，可多个）
+node scripts/lookup-knowledge.mjs --scenario defi-channel-flow
+node scripts/lookup-knowledge.mjs --scenario submit-transaction,modal-flow
+
+# 其他用法
+node scripts/lookup-knowledge.mjs --id K-127
+node scripts/lookup-knowledge.mjs --category locator --platform desktop
+node scripts/lookup-knowledge.mjs --keyword "modal,confirm"
+node scripts/lookup-knowledge.mjs --search "DeFi 持仓"
+```
+
+### 用户描述 → 必查 scenarios 速查表
+
+| 用户提到的关键词 | 必查 scenarios |
+|----------------|----------------|
+| DeFi / 质押 / 赎回 / 认购 / Earn / Lista / Pendle / Morpho / Lido | `defi-channel-flow`, `defi-portfolio-manage`, `defi-apy-validation` |
+| **任何上链交易**（Swap / Transfer / DeFi 任何操作 / 授权） | **`submit-transaction`**（通用模板，必查）|
+| 签名 / 确认 / 授权 / modal / 弹窗 | `modal-flow`, `submit-transaction`, `case-prerequisites` |
+| 持仓 / 我的持仓 / 管理按钮 / 编辑 / 删除 | `row-with-button`, `defi-portfolio-manage` |
+| 滚动 / 长列表 / 找列表项 | `long-list-scroll`, `rn-web-scroll-container` |
+| 余额 / 价格 / USD 估值 / 旁边读数据 | `anchor-relative-text` |
+| 输入框校验 / 余额不足 / 最大值 | `amount-input-validation` |
+| 地址输入 / 收款方 / 联系人 | `address-input-validation` |
+| 账户切换 / 多账户 / 观察账户 | `account-switching` |
+| 网络切换 / 多链 / 链选择器 | `network-switching` |
+| 余额变动验证 / before-after balance | `balance-change-verification` |
+| toast 提示 / 成功提示 / 错误提示 | `success-failure-toast` |
+| 轮询 / 等待 / 超时 | `polling-with-timeout` |
+| OneKey 侧栏 / sidebar / 模块导航 | `onekey-sidebar-nav` |
+| Tab 切换 / SwipeView | `tab-swiper` |
+| 历史记录 / 链上确认延迟 | `tx-async-history` |
+| 涉及金额的用例 | `test-amount-strategy` |
+| 编辑 testid 映射 | `testid-management` |
+| 改 dashboard 代码 | `dashboard-restart` |
+
+3. **把查到的条目 pattern 写到 `.test.mjs` 头部注释**（self-checklist），生成脚本时严格按 `details` 执行
+4. **跳过此 Phase 0 = 复刻已经踩过的坑**（违反规则）
+
+---
+
+## Phase 1: 需求分析
+
+收到 PRD 或测试用例描述后：
+
+1. **提取可测试场景** — 每个场景对应一个连续的用户操作流
+2. **分配 Test ID** — 格式 `<FEATURE>-<NNN>`（如 COSMOS-001, SEARCH-001）
+3. **排优先级** — 核心路径 > 边界情况 > 异常处理
+4. **识别前置条件** — 需要什么数据/状态才能执行
+5. **每个 case 必须能独立跑** — 在脚本里加 `Step 0: 前置` 确保 UI 状态符合假设（K-134）
+
+## Phase 2: 引导录制（如需）
+
+1. 确保 OneKey CDP 就绪（http://127.0.0.1:9222）
+2. 启动 `node src/recorder/listen.mjs`（监控 UI http://localhost:3210）
+3. 用户操作 → 说「录完了」→ 读 `shared/results/recording/steps.json`
+4. **列出所有操作清单，等用户确认**（不可跳过）
+
+## Phase 3: 生成测试脚本
+
+按 Phase 0 查到的 knowledge 严格生成。模板：
+
+```javascript
+import { writeFileSync, mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { connectCDP, sleep, screenshot, RESULTS_DIR } from '../../helpers/index.mjs';
+import { createStepTracker, safeStep } from '../../helpers/components.mjs';
+
+export const displayName = '...';
+export const testCases = [
+  { id: 'XXX-001', name: '...', fn: testXxx001 },
+];
+export async function setup(page) { /* ... */ }
+```
+
+**每个 case 必须有 Step 0 前置**确保独立可跑（K-134）。
+
+## Phase 4: CDP 实探验证（强制）
+
+生成完脚本后**严禁直接交付**，必须通过 CDP 实测每个关键 testid / 元素：
+
+```javascript
+// 最小验证清单（参考 K-114 Phase 5 流程）
+node << 'NODE'
+import('playwright-core').then(async ({ chromium }) => {
+  const browser = await chromium.connectOverCDP('http://127.0.0.1:9222');
+  // 验证每个 safeClickTestid / [data-testid="X"] 真实存在 + 可点
+});
+NODE
+```
+
+发现问题 → 自动修脚本 + 补 knowledge → 重跑 probe 直到全绿 → 才能交付。
+
+## Phase 5: 沉淀 + 索引更新
+
+- 新发现的坑 → 追加到 `shared/knowledge.json` patterns（K-NNN 递增）
+- **同步更新 `scenarios` 顶层索引**把新 K-ID 挂到对应场景下
+- 路径 testid → 写到 `shared/locators/<module>.json` → 跑 `node scripts/build-locator-map.mjs`
+- 通用模式 → 加新 scenario（参考 `submit-transaction` / `row-with-button` 这类跨模块模板）
+
+---
+
+**违规处理**：跳过 Phase 0 = 复刻已踩坑 = 用户会反复让你修同一类问题。

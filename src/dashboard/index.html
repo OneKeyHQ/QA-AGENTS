@@ -444,6 +444,16 @@
           <input id="secondaryAccountName" placeholder="如 Account #2">
         </div>
       </div>
+      <div class="settings-section">
+        <h4>钱包密码 <span class="role-tag">签名 / 解锁用</span></h4>
+        <div class="settings-hint" style="margin-top:0">
+          签名 modal 弹出「输入密码」时脚本会自动填入。不是所有交易都会触发（首次解锁后短期不再弹）。默认 <code>1234567890-=</code>。
+        </div>
+        <div class="settings-row">
+          <label>密码</label>
+          <input id="walletPassword" type="password" placeholder="留空则用默认 1234567890-=">
+        </div>
+      </div>
     </div>
     <div class="modal-actions">
       <button class="modal-btn" onclick="closeSettingsModal()">取消</button>
@@ -487,7 +497,7 @@
 
 <script>
 // ---- State ----
-let state = 'idle'; // idle | running | paused | finished
+let state = 'idle'; // idle | running | paused | stopped | finished
 let registryAll = [];  // full registry from /api/tests
 let registry = [];     // filtered by platform
 let selected = new Set();
@@ -655,7 +665,7 @@ function renderCdpStatus() {
     label.title = info.browser || '';
   } else {
     label.textContent = 'CDP 未连接';
-    label.title = key + ' (port ' + ({desktop:9222, web:9223, extension:9224}[key]) + ') 无响应';
+    label.title = key + ' (port ' + (info.port ?? '?') + ') 无响应';
   }
 }
 
@@ -899,15 +909,21 @@ function renderControls() {
   const badge = document.getElementById('statusBadge');
 
   updateSelectedCount();
-  badge.textContent = { idle: 'idle', running: 'running', paused: 'paused', finished: 'finished' }[state] || state;
+  badge.textContent = { idle: 'idle', running: 'running', paused: 'paused', finished: 'finished', stopped: 'stopped' }[state] || state;
 
   let btns = '';
   indicator.style.display = 'none';
   progressContainer.style.display = 'none';
 
+  // 「清空记录」按钮：当有运行结果（队列非空）且不在运行中时显示，用于清除上一轮失败/已完成的展示
+  const clearBtn = (queueItems.length > 0 && state !== 'running')
+    ? `<button class="ctrl-btn" id="clearBtn" title="清空当前展示的执行结果">&#9851; 清空记录</button>`
+    : '';
+
   switch (state) {
     case 'idle':
-      btns = `<button class="ctrl-btn start" id="startBtn" ${selected.size === 0 ? 'disabled' : ''}>&#9654; 开始执行</button>`;
+      btns = `<button class="ctrl-btn start" id="startBtn" ${selected.size === 0 ? 'disabled' : ''}>&#9654; 开始执行</button>${clearBtn}`;
+      if (queueItems.length > 0) progressContainer.style.display = 'flex';
       break;
     case 'running':
       btns = `<button class="ctrl-btn stop" id="stopBtn">&#9632; 停止</button>`;
@@ -916,12 +932,18 @@ function renderControls() {
       break;
     case 'paused':
       btns = `<button class="ctrl-btn resume" id="resumeBtn">&#9654; 继续</button>
-              <button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>`;
+              <button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>${clearBtn}`;
+      progressContainer.style.display = 'flex';
+      break;
+    case 'stopped':
+      // 用户主动停止 / 上一轮被中断：允许继续、重新开始或清空
+      btns = `<button class="ctrl-btn resume" id="resumeBtn">&#9654; 继续</button>
+              <button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>${clearBtn}`;
       progressContainer.style.display = 'flex';
       break;
     case 'finished':
       btns = `<button class="ctrl-btn restart" id="restartBtn">&#8635; 重新开始</button>
-              <button class="ctrl-btn start" id="resetBtn">&#9654; 新一轮</button>`;
+              <button class="ctrl-btn start" id="resetBtn">&#9654; 新一轮</button>${clearBtn}`;
       progressContainer.style.display = 'flex';
       break;
   }
@@ -938,6 +960,8 @@ function renderControls() {
   if (restartBtn) restartBtn.onclick = () => restartRun();
   const resetBtn = document.getElementById('resetBtn');
   if (resetBtn) resetBtn.onclick = () => resetAndNewRun();
+  const clearBtnEl = document.getElementById('clearBtn');
+  if (clearBtnEl) clearBtnEl.onclick = () => resetAndNewRun();
 
   updateProgressBar();
 }
@@ -1341,6 +1365,7 @@ function openSettingsModal() {
   document.getElementById('primaryAccountName').value = wa.primary?.accountName || '';
   document.getElementById('secondaryWalletName').value = wa.secondary?.walletName || '';
   document.getElementById('secondaryAccountName').value = wa.secondary?.accountName || '';
+  document.getElementById('walletPassword').value = runtimeConfig.walletPassword || '';
   document.getElementById('settingsModalOverlay').classList.add('visible');
 }
 
@@ -1353,6 +1378,7 @@ function closeSettingsModalIfBackdrop(e) {
 }
 
 async function saveSettings() {
+  const pwdVal = document.getElementById('walletPassword').value;
   const payload = {
     walletAccounts: {
       primary: {
@@ -1364,6 +1390,8 @@ async function saveSettings() {
         accountName: document.getElementById('secondaryAccountName').value.trim(),
       },
     },
+    // 密码不 trim（密码可能含尾部空格）；为空则不存（脚本会用默认值 1234567890-=）
+    ...(pwdVal.length > 0 ? { walletPassword: pwdVal } : {}),
   };
   try {
     const res = await fetch('/api/runtime-config', {

@@ -832,7 +832,7 @@
       "category": "assertion",
       "platform": "all",
       "pattern": "Lista DeFi 预估年收益公式：USDT(USD) = (原生APY − 业绩费) × 认购价值；LISTA(USD) = LISTA奖励 APY × 认购价值（不扣业绩费）",
-      "details": "Lista 简单赚币产品的预估年收益拆分：\n\n①USDT 部分(USD) = (原生 APY − 业绩费率) × 认购价值(USD)\n②LISTA 奖励(USD) = LISTA APY × 认购价值(USD)，**LISTA 奖励不扣业绩费**\n③综合 APY = 原生 APY + LISTA APY − 业绩费 ≈ 1.79% 之类\n④页面同时显示代币数量 = USD 收益 / 该代币当前价格（带四舍五入）\n⑤业绩费规则：利润的 10%（OneKey 5% + 金库管理者 5%），仅对利润收，不收本金（小金额测试时业绩费 ≈ 0）\n\n断言写法：从 APY 弹窗读 native/lista/perfFee 三个百分比值，从输入框附近读 USD 价值，套公式计算预期，允许误差 ±$0.01 或 5% 相对误差。\n\n触发场景：编写 / 维护 DeFi Lista 用例时使用；其他渠道的公式不同（Kamino / Pendle 等需各自验证）。",
+      "details": "💡 推荐用简化版 K-130：sum(USD) ≈ APY × USD。本条拆分公式仍正确，作为 P1 深入验证。\n\nLista 简单赚币产品的预估年收益拆分：\n\n①USDT 部分(USD) = (原生 APY − 业绩费率) × 认购价值(USD)\n②LISTA 奖励(USD) = LISTA APY × 认购价值(USD)，**LISTA 奖励不扣业绩费**\n③综合 APY = 原生 APY + LISTA APY − 业绩费 ≈ 1.79% 之类\n④页面同时显示代币数量 = USD 收益 / 该代币当前价格（带四舍五入）\n⑤业绩费规则：利润的 10%（OneKey 5% + 金库管理者 5%），仅对利润收，不收本金（小金额测试时业绩费 ≈ 0）\n\n断言写法：从 APY 弹窗读 native/lista/perfFee 三个百分比值，从输入框附近读 USD 价值，套公式计算预期，允许误差 ±$0.01 或 5% 相对误差。\n\n触发场景：编写 / 维护 DeFi Lista 用例时使用；其他渠道的公式不同（Kamino / Pendle 等需各自验证）。",
       "confidence": 1.0
     },
     {
@@ -840,7 +840,7 @@
       "category": "locator",
       "platform": "desktop",
       "pattern": "DeFi 渠道详情页关键 testid：APY icon 是 svg 兄弟；`testid=page-footer-confirm` 在「授权 → 确认 → 确认」中复用三次；`testid=ovelay-popover` 关闭收益组成弹窗",
-      "details": "DeFi 渠道详情页（如 Lista USDT）的稳定 testid：\n\n- `data-testid=\"page-footer-confirm\"`: 底部主操作按钮。同一容器在不同阶段文本不同（授权 / 确认 / 赎回），但 testid 不变 — 因此「授权 → 签名确认 → 认购交易确认」三次点击都用同一 selector，要靠轮询等待按钮文本/状态变化来区分。\n- `data-testid=\"ovelay-popover\"`: 收益组成弹窗、说明类弹窗的遮罩层，点击关闭。\n- `data-testid=\"nav-header-back\"` / `nav-header-close`: 返回 / 关闭子页面。\n- `data-testid=\"select-item-subtitle-...\"`: 列表项（历史记录里 Lista 条目用这个）。\n- `data-testid=\"APP-Modal-Screen\"`: 持仓「管理」面板（认购/赎回 tab 容器）。\n- 顶部综合 APY 旁的 icon 没有 testid，需通过「找包含 'XX% APY' 的元素 → 同 parent 下首个 svg」定位。\n- 认购输入框：`input[placeholder=\"0\"]` 是稳定的选择器（注意页面可能有多个隐藏的此类 input，需取可见的）。\n\n触发场景：编写 DeFi 渠道流程脚本时。",
+      "details": "⚠️ 历史记录入口的猜测（`redemption-history-btn`）是错的，正确 testid 见 K-126。\n\nDeFi 渠道详情页（如 Lista USDT）的稳定 testid：\n\n- `data-testid=\"page-footer-confirm\"`: 底部主操作按钮。同一容器在不同阶段文本不同（授权 / 确认 / 赎回），但 testid 不变 — 因此「授权 → 签名确认 → 认购交易确认」三次点击都用同一 selector，要靠轮询等待按钮文本/状态变化来区分。\n- `data-testid=\"ovelay-popover\"`: 收益组成弹窗、说明类弹窗的遮罩层，点击关闭。\n- `data-testid=\"nav-header-back\"` / `nav-header-close`: 返回 / 关闭子页面。\n- `data-testid=\"select-item-subtitle-...\"`: 列表项（历史记录里 Lista 条目用这个）。\n- `data-testid=\"APP-Modal-Screen\"`: 持仓「管理」面板（认购/赎回 tab 容器）。\n- 顶部综合 APY 旁的 icon 没有 testid，需通过「找包含 'XX% APY' 的元素 → 同 parent 下首个 svg」定位。\n- 认购输入框：`input[placeholder=\"0\"]` 是稳定的选择器（注意页面可能有多个隐藏的此类 input，需取可见的）。\n\n触发场景：编写 DeFi 渠道流程脚本时。",
       "confidence": 0.9
     },
     {

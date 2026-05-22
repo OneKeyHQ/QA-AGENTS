@@ -219,6 +219,73 @@ if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 - **永远不要关闭 browser** — 那是用户的 OneKey 实例
 - 脚本必须连贯执行：一个用例 = 一段连续操作流，不拆成多个孤立用例
 
+## Locator 维护流程（严格执行 ⚠️）
+
+testid 三层结构：
+
+| 层级 | 文件 | 是否手编辑 |
+|------|------|----------|
+| 外部源头 | `OneKeyHQ/app-monorepo` 仓库的 `views/<Module>/testIDs.ts` 等 | ❌（外部）|
+| 同步索引 | `shared/generated/app-monorepo-testid-index.json` | ❌（generated，1478 个原始 testid）|
+| **真源** ⭐ | `shared/locators/<module>.json`（17 个模块文件）| ✅ 编辑这里 |
+| **构建产物** | `shared/ui-semantic-map.json` | ❌ **严禁直接改** |
+| 运行时映射 | `shared/ui-map.json` | ✅ 运行时自动更新 |
+
+模块拆分（已有 17 个）：`address-book / browser / defi / discover / discovery / global / hardware / market / network-selector / onboarding / perps / prime / referral / security / settings / swap / wallet`
+
+每个 element 必填字段：
+```json
+{
+  "<module>.<short-name>": {
+    "primary": "[data-testid=\"<testid>\"]",
+    "source_testid": "<testid>",
+    "ui_display_name": "DeFi",     // 可选但强烈推荐：UI 上用户看到的中文/英文名
+    "description": "中文描述",
+    "page": "<page-key>",          // 如 earn-home / earn-protocol-detail / global-sidebar
+    "platform": ["desktop", "web", "ext", "android", "ios"],
+    "feature": ["<feature-tag>"],
+    "last_verified": "YYYY-MM-DD"
+  }
+}
+```
+
+### Locator 命名规则（key 用 UI 显示名，primary 用 source testid）
+
+**问题背景**：OneKey 部分 UI 名字和 source testid 不一致，例如：
+
+| UI 显示名（用户视角）| source testid（代码视角）|
+|------------------|----------------------|
+| DeFi | earn |
+| 合约 / Perps | perp |
+| 浏览器 | discovery |
+| 返佣 / 推荐 | referfriends |
+
+**命名规则**：
+- locator **key** 用 **UI 显示名**（稳定，跟用户/产品对齐）：`global.sidebar.defi` ✓
+- **primary** 字段用 **source testid 真值**（OneKey 代码里实际值）：`[data-testid="earn"]`
+- 另加 `ui_display_name` 字段记录 UI 中文/英文名
+
+**禁止行为**：
+- ❌ 直接拿 source testid 当 key（如 `global.sidebar.earn`）→ 写脚本时容易混淆「DeFi 入口 = earn」这种不直观映射
+- ❌ 把 UI 名硬写到 `primary` 里（UI 名会改、本地化、A/B 测试，testid 才稳定）
+
+**正确流程**：
+
+```bash
+# 1. 编辑对应 module 文件
+vim shared/locators/defi.json
+
+# 2. 重建（合并所有 module 到 ui-semantic-map.json）
+node scripts/build-locator-map.mjs
+
+# 3. （可选）CI 检漂移
+node scripts/build-locator-map.mjs --check
+```
+
+**严禁行为**：
+- ❌ 直接编辑 `shared/ui-semantic-map.json`（是构建产物，下次重建会被覆盖）
+- ❌ 在脚本里 hardcode 没登记的 testid（要先入 `shared/locators/<module>.json`）
+
 ## Conventions
 - **新建 `.test.mjs` 必须导出 `displayName`**（中文名）。Dashboard 侧栏和 Checklist 编辑器会优先用它显示分组名；不写则回退到 `ZH_LABELS` 中央映射，再回退到英文 titleized 并打 console 警告。新增用例时直接在文件顶部写 `export const displayName = '中文名';`，不要回去改中央映射表。
 - Test case IDs: `<FEATURE>-<NNN>` (e.g., COSMOS-001)
@@ -265,14 +332,91 @@ if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 - **提交前 QA 审查**：commit / PR 前自动执行 `/qa-review`（别名 `/onekey-qa-review`，触发词：`审查提交`/`审查用例`/`review 用例`/`检查提交`），检查用例、规则、脚本、Skill 的规范性、一致性和安全性。安全问题硬拦截（不可跳过），其他 block 问题软拦截（可确认跳过）。审查报告保存到 `shared/reports/review-*.md`。Claude Code 加载 `.claude/skills/onekey-qa-review/SKILL.md`；Cursor 加载 `.cursor/rules/onekey-qa-review.mdc`（两份内容保持双写一致）
 
 ## Default Workflow（写新用例时必须遵循，不要再问）
-0. **录制/生成前必读 `shared/knowledge.json`**，并优先查看 `shared/ui-semantic-map.json` 与 `shared/generated/app-monorepo-testid-index.json` — 避免重复犯错，也避免重复探索已有定位
+
+### Phase 0 — 写脚本/用例前必读 knowledge + rules（强制 ⚠️ 不能跳过）
+
+写脚本（自动化）和写用例（手动 QA）都必须先用 CLI 加载两类知识：
+
+**① 执行坑知识（`shared/knowledge.json`，按 scenario）**：
+
+```bash
+# 列出所有 scenarios 看自己要查啥
+node scripts/lookup-knowledge.mjs --list
+
+# 按单/多场景查（最常用）
+node scripts/lookup-knowledge.mjs --scenario defi-channel-flow
+node scripts/lookup-knowledge.mjs --scenario modal-flow,row-with-button
+
+# 其他用法
+node scripts/lookup-knowledge.mjs --id K-127
+node scripts/lookup-knowledge.mjs --category locator --platform desktop
+node scripts/lookup-knowledge.mjs --keyword "modal,confirm,signing"
+node scripts/lookup-knowledge.mjs --search "DeFi 持仓"
+```
+
+**② 产品规则索引（`docs/qa/rules/` + `docs/qa/requirements/` + `docs/qa/testcases/cases/`，按 module/topic）**：
+
+```bash
+# 列出所有模块（含 rules / requirements / testcases 计数）
+node scripts/lookup-rules.mjs --list
+
+# 写用例前最常用 — 按模块 + 主题查
+node scripts/lookup-rules.mjs --module wallet --topic 多地址
+node scripts/lookup-rules.mjs --module swap --topic 自定义接收地址 --excerpt 400
+
+# 只看章节树（不展开内容，先扫一遍知道在哪）
+node scripts/lookup-rules.mjs --module wallet --headings
+
+# 只看某一类
+node scripts/lookup-rules.mjs --module account --kind rules
+node scripts/lookup-rules.mjs --module account --kind requirements
+node scripts/lookup-rules.mjs --module account --kind testcases
+
+# 跨模块全文关键词搜（不知道在哪个模块时用）
+node scripts/lookup-rules.mjs --keyword "Keyless Wallet,无私钥"
+```
+
+**触发条件（必跑 lookup-rules）**：
+- 写新用例 / 修改用例 / review 用例前
+- 修改 `docs/qa/rules/<module>-rules.md` 前（先看现有章节结构和措辞）
+- 用户提到模块名（wallet / swap / account / market / perps / defi / hardware / prime / referral / browser / utility）时
+- 不确定某个产品行为是否已有规则定义时（优先查项目文档，不凭印象编）
+
+**常用 scenarios 速查表**：
+
+| 写什么 | 必查 scenarios |
+|--------|--------------|
+| DeFi 新渠道完整脚本（Pendle/Morpho/Lido/...） | `defi-channel-flow`, `defi-portfolio-manage`, `defi-apy-validation` |
+| 任何含 modal 操作（签名/授权/赎回确认） | `modal-flow`, `case-prerequisites` |
+| 多 row 列表里点同名按钮（管理/编辑/详情） | `row-with-button` |
+| 长列表滚动 + 找列表项 | `long-list-scroll`, `rn-web-scroll-container` |
+| 读输入框旁的余额/价格/USD 估值 | `anchor-relative-text` |
+| OneKey 模块入口导航 | `onekey-sidebar-nav` |
+| Swipe view / 横向 panel tab | `tab-swiper` |
+| 链上交易历史延迟轮询 | `tx-async-history` |
+| 涉及金额的用例 | `test-amount-strategy` |
+| 编辑 testid 映射 | `testid-management` |
+| 改 dashboard 代码 | `dashboard-restart` |
+
+**查到的条目** = 必读 K + 常见坑 K。**条目里的「触发场景」字段**决定是否真的适用——匹配的话脚本必须按 `pattern + details` 实现，不能凭印象。
+
+**写用例/规则前的源码对齐（强制）**：除 knowledge.json 外，**必须查 OneKey app-monorepo 源码**确认产品实际逻辑：
+
+- 仓库：`https://github.com/OneKeyHQ/app-monorepo/tree/x`（默认 `x` 分支为开发主干）
+- 用 `gh api repos/OneKeyHQ/app-monorepo/contents/<path>?ref=x` 取文件，或 `gh pr diff <N> -R OneKeyHQ/app-monorepo --patch` 看 PR 改动
+- 重点查看：**条件渲染**（feature gate / 可见性开关）、**平台差异**（`.ios.tsx` / `.android.tsx` / `.tsx`）、**状态持久化**（atom / `useSettingsPersistAtom` 是否跨端同步）、**枚举值**（`E*` 类型定义）
+- **同时查 git fix 历史**：`gh search prs --repo OneKeyHQ/app-monorepo --match title "fix" | head -20`，每个 OK-XXXXX 修复都对应一个曾经出问题的边界场景，需转化为用例覆盖
+- 用例 / 规则与代码实现冲突时，**优先以产品需求为准**（可主动跟用户确认），不盲目相信代码 ≡ 需求
+
+### 常规录制流程
+0. （上面 Phase 0 已做）也读 `shared/ui-semantic-map.json` + `shared/generated/app-monorepo-testid-index.json` 找已知定位
 1. 启动 OneKey 桌面端（CDP）
 2. 启动录制器 `node src/recorder/listen.mjs`（有 Web 监控 UI http://localhost:3210）
 3. 用户在 app 上操作，录制器自动捕获
 4. 用户说"录制完了" → 停止录制，列出操作清单让用户确认
 5. 确认后 → 生成测试用例 + 必要时更新 ui-semantic-map / ui-map + 写测试脚本
-6. **录制/测试过程中遇到新问题，自动追加到 `shared/knowledge.json`**（无需用户指令）
-- 正确流程：**Read knowledge → Record → Update test cases → Update scripts → Write knowledge**
+6. **录制/测试过程中遇到新问题，自动追加到 `shared/knowledge.json`**（无需用户指令）+ 顺便更新 `scenarios` 索引把新 K-ID 挂到对应场景下
+- 正确流程：**Lookup knowledge by scenario → Record → Update test cases → Update scripts → Append knowledge + scenarios**
 
 ### 连续录制多个用例的注意事项
 - 录完一个用例后，在 Monitor UI (http://localhost:3210) 点 **"New Session"** 清空步骤再录下一个
@@ -357,14 +501,57 @@ CDP 自动化 + 录制器启动（监控 UI `http://localhost:3210`）
 反馈处理：确认 → 下一场景 / 脚本生成；删步骤/改顺序/补充 → 更新清单重新展示。
 
 #### 录制结束自动更新（强制 ⚠️）
-1. 更新 `shared/ui-semantic-map.json`：新发现的 testid
+1. 更新 `shared/locators/<module>.json` 真源（**严禁直接改 `ui-semantic-map.json` 构建产物**，详见「locator 维护流程」一节），跑 `node scripts/build-locator-map.mjs` 重建
 2. 更新 `shared/knowledge.json`：新经验/坑（K-NNN 递增）
 3. 生成脚本：读对应用例文档 → 逐条对照「预期结果」断言 → 脚本头部含覆盖映射表 → `createStepTracker` + `safeStep` 模式 → 参数化数据在脚本顶部定义
 
-#### 录制结束门禁（三项全满足才算完成）
+#### Phase 5: **CDP 实探验证**（强制 ⚠️，不能跳过）
+
+> 生成脚本后**严禁直接交付让用户去跑发现问题**。必须在交付前通过 CDP 实时探测验证关键定位/导航。这是为了避免"生成 → 用户跑 → 报错 → 改 → 再跑"的低效循环。
+
+**最小验证清单（每条都必须执行）**：
+
+1. **导航定位**：脚本里每个 `safeClickTestid(page, '<X>')` 都必须通过 CDP 真实查询确认 `[data-testid="<X>"]` 存在且 `getBoundingClientRect()` 的 `x>=0 && y>=0 && width>0 && height>0`。如果不在视口，记录是否需要 scrollIntoView / 切 tab / 切 panel。
+
+2. **可点性验证**：对每个动作目标元素，确认它不在 SwipeView 屏外 panel（`r.x < 0` 是典型信号），不被 overlay 遮罩。
+
+3. **滚动容器验证**：所有「scroll then click」操作，要真实测试 `window.scrollBy` 是否生效（一般无效）→ 找正确的 overflow-y 祖先容器（参考 K-113 的 `findScrollContainer` helper）。
+
+4. **testid 真假对照**：用 `document.querySelectorAll('[data-testid^="<prefix>"]')` 列出页面真实存在的 testid 模式，对比脚本里写的，发现错的（比如以为是 `staking-protocol-list-item` 但实际是 `home-token-item-evm--*`）立刻改。
+
+5. **断言可读性**：每个 DOM 读取断言（getTopBarValues / readApyBreakdown 等）要真实跑一次确认返回非 null/undefined/[]，否则脚本会卡在「未读到 X」类错误上。
+
+**实操方式**（在脚本生成完后做）：
+
+```bash
+node << 'NODE'
+import('playwright-core').then(async ({ chromium }) => {
+  const browser = await chromium.connectOverCDP('http://127.0.0.1:9222');
+  const page = browser.contexts()[0].pages()[0];
+  const probe = await page.evaluate(() => {
+    // 验证脚本依赖的每个 testid 是否真实存在、可见、可点
+    const targets = ['earn', 'staking-stake-amount-input', /* ... */];
+    return targets.map(tid => {
+      const el = document.querySelector(`[data-testid="${tid}"]`);
+      if (!el) return { tid, status: 'not-found' };
+      const r = el.getBoundingClientRect();
+      return { tid, x: r.x, y: r.y, w: r.width, h: r.height,
+               clickable: r.x >= 0 && r.y > 80 && r.y < window.innerHeight - 50 && r.width > 0 };
+    });
+  });
+  console.log(JSON.stringify(probe, null, 2));
+  await browser.close();
+}).catch(e => console.error(e));
+NODE
+```
+
+**发现问题后必须**：①脚本自动修正（用真实 testid / 加滚动 / 切 tab）→ ②补 knowledge.json 条目 → ③重新跑 probe 直到全绿 → ④才能交付。
+
+#### 录制结束门禁（**四项全满足才算完成**）
 1. **Strict Replay**：脚本按确认清单顺序执行
 2. **定位收敛**：每个关键动作都落到稳定定位（data-testid 优先）
-3. **可重复执行**：至少本地跑通一次
+3. **CDP 实探通过**：Phase 5 的 5 条最小验证清单全部通过
+4. **可重复执行**：本地实跑一次（或至少跑通入口几个动作）
 
 ### 4. `录制完了` / `停止录制` / `录完了` / `recording done`
 
@@ -563,9 +750,11 @@ CDP 自动化 + 录制器启动（监控 UI `http://localhost:3210`）
 - **脚本必须连贯执行**：一个用例对应录制中的一段连贯操作流程，不得把连续动作拆成多个孤立用例
 - **fn(page) 签名兼容**：所有 testCases 的 fn 只接收 `page` 一个参数（dashboard executor 兼容），前置条件用模块级缓存 `_preReport`
 - **setup() 包含前置条件检查**：前置条件在 `setup(page)` 中运行并缓存，不在每个 fn 中重复运行
+- **每个 case 必须能独立跑（强制 ⚠️）**：Dashboard 允许用户任意勾选子集（如只勾 005 + 006，跳过 001~004）。**每个 case 开头必须有 `Step 0: 前置` 步骤**调用幂等导航 helper 确保 UI 状态符合假设；不能假设上一个 case 留下了正确页面状态。导航 helper 必须幂等：检查 URL/元素，已经在目标页就直接返回，避免重复点击。状态依赖（如输入框已填值）也必须检查 → 没有就构造。详见 K-134。
 - **截图只在失败时**：正常通过的步骤不截图，截图会严重拖慢执行速度
 - **Token 正则需兼容数字**：代币名可能包含数字（如 XYZ100），正则用 `/^[A-Z][A-Z0-9]{1,9}$/`
 - **DOM 选择器要限定区域**：顶部行情栏的选择器必须加 `r.y < 100` 位置过滤
+- **modal 关闭必须 page.mouse.click + retry**：`el.click()` 在 SVG button 上不可靠（K-115）；关 modal 后必须等 `[data-testid="APP-Modal-Screen"]` 数量为 0 才算真关闭；下一个 case 的 Step 0 还要加兜底清 modal 防御。详见 K-133。
 
 ### Dashboard 实时日志规则（强制执行）
 > 所有用例必须在 Dashboard 执行面板中显示实时步骤日志。QA 能及时看到每步的执行状态和报错，不用等整个用例跑完。

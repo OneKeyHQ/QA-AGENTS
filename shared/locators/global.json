@@ -1648,6 +1648,111 @@
       "feature": [
         "global"
       ]
+    },
+    "global.sidebar.home": {
+      "primary": "[data-testid=\"home\"]",
+      "source_testid": "home",
+      "description": "钱包/首页 入口",
+      "source": "cdp-probe",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "home"
+      ],
+      "last_verified": "2026-05-14",
+      "ui_display_name": "钱包/首页"
+    },
+    "global.sidebar.market": {
+      "primary": "[data-testid=\"market\"]",
+      "source_testid": "market",
+      "description": "市场 入口",
+      "source": "cdp-probe",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "market"
+      ],
+      "last_verified": "2026-05-14",
+      "ui_display_name": "市场"
+    },
+    "global.sidebar.swap": {
+      "primary": "[data-testid=\"swap\"]",
+      "source_testid": "swap",
+      "description": "交易/Swap 入口",
+      "source": "cdp-probe",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "swap"
+      ],
+      "last_verified": "2026-05-14",
+      "ui_display_name": "交易/Swap"
+    },
+    "global.sidebar.defi": {
+      "primary": "[data-testid=\"earn\"]",
+      "source_testid": "earn",
+      "description": "DeFi/Earn 入口（图标层 testid 是 CoinsOutline，名字误导）",
+      "source": "cdp-probe",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "defi"
+      ],
+      "last_verified": "2026-05-14",
+      "ui_display_name": "DeFi"
+    },
+    "global.sidebar.perps": {
+      "primary": "[data-testid=\"perp\"]",
+      "source_testid": "perp",
+      "description": "合约/Perps 入口（图标层 testid 是 TradeOutline，名字误导）",
+      "source": "cdp-probe",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-05-14",
+      "ui_display_name": "合约"
+    },
+    "global.sidebar.referral": {
+      "primary": "[data-testid=\"referfriends\"]",
+      "source_testid": "referfriends",
+      "description": "推荐/邀请 入口",
+      "source": "cdp-probe",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "referral"
+      ],
+      "last_verified": "2026-05-14",
+      "ui_display_name": "返佣 / 推荐"
+    },
+    "global.sidebar.browser": {
+      "primary": "[data-testid=\"discovery\"]",
+      "source_testid": "discovery",
+      "description": "浏览器/Discovery 入口",
+      "source": "cdp-probe",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "browser"
+      ],
+      "last_verified": "2026-05-14",
+      "ui_display_name": "浏览器"
     }
   }
 }
