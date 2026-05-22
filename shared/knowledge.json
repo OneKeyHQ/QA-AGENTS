@@ -1,13 +1,14 @@
 {
   "version": "2.3.7",
-  "lastUpdated": "2026-05-13",
+  "lastUpdated": "2026-05-22",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074 — DOM定位/选择器/testid陷阱",
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115 — DOM定位/选择器/testid陷阱",
     "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095 — 断言策略/校验方法",
-    "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103 — 录制器相关"
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097,K-119 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095,K-120 — 断言策略/校验方法",
+    "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109 — 录制器相关",
+    "timing": "K-107,K-110,K-112,K-114 — 时序/异步/页面状态切换"
   },
   "patterns": [
     {
@@ -849,6 +850,110 @@
       "pattern": "DeFi 质押/赎回交易：提交立即返回成功，但历史记录列表更新延迟最长 60 秒，必须轮询",
       "details": "用户实测：质押/赎回的两步签名（授权 + 认购，或单步赎回）按钮点击后立即返回成功状态。但要在「历史记录」入口的列表中看到对应条目，最长需要约 60 秒（链上确认 + 后端索引 + 前端轮询周期）。\n\n断言写法：进入历史记录后，用轮询循环（每 2 秒查一次，超时 60 秒），匹配条件「列表项文本同时包含 'Lista' 和质押金额字符串（如 '0.001'）」。\n\n触发场景：所有 DeFi 渠道质押/赎回后验证历史记录条目时；其他链上交易（Swap、Transfer）也建议用类似轮询模式。",
       "confidence": 1.0
+    },
+    {
+      "id": "K-108",
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "Monitor UI 打开报 ERR_CONNECTION_REFUSED 时，优先检查 listen.mjs 进程是否已退出，而不是怀疑 localhost 地址",
+      "details": "本次重录 Market favorite 时，浏览器访问 http://localhost:3210 直接报 ERR_CONNECTION_REFUSED。排查结果：3210 端口无 LISTEN，recorder 进程已退出；不是浏览器缓存，也不是 localhost 填错。/tmp/recorder.log 仍可能只保留旧的启动 banner，容易误判为 recorder 还活着。标准诊断顺序：1) `lsof -iTCP:3210 -sTCP:LISTEN -n -P` 确认端口是否在监听；2) 若无监听，再 `pkill -f \"src/recorder/listen.mjs\"` 后重启 `nohup node src/recorder/listen.mjs >/tmp/recorder.log 2>&1 &`；3) 用 `curl http://127.0.0.1:3210` 验证返回 HTML。触发场景：桌面端录制 Monitor UI 打不开时。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-109",
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "重录 Market favorite 时，开头连续取消星标可能是在清空已有收藏直到进入自选空状态，不应误判为推荐代币勾选",
+      "details": "在 `src/tests/desktop/market/favorite.test.mjs` 的重录里，步骤 2/3/4 分别点击 `market-token-star-AAVE`、`market-token-star-UNI`、`market-token-star-WLFI`。用户确认这三步的真实意图不是在空状态推荐区勾选代币，而是“如果已有收藏，就继续取消收藏，直到看到自选空状态”的前置清理动作。分析 Market favorite 录制步骤时，凡是脚本一开始就连续点击多个已收藏星标，且随后出现推荐卡片与 `添加 X 个代币` 按钮，应优先按“清空已有收藏 -> 进入空状态”解读，而不是直接归类为推荐代币选择。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-110",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "Market 自选里的 `现货` 子 tab 不是每次都稳定出现，取决于当前自选数据与页面状态，脚本要允许 best-effort",
+      "details": "在 `market/favorite.test.mjs` 回放中，`自选 -> 现货` 子 tab 有时可点击，有时不存在或瞬时不可见。直接把 `clickSubTab('现货')` 作为强制前置会导致 `MARKET-FAV-002/003` 随环境波动失败。更稳的做法是：先尝试点击，成功则继续按该分支验证；失败则记录 skip/detail，继续走不依赖该子 tab 的后续步骤。触发场景：Market 收藏联动、自选分类验证。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-111",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "Market 搜索入口不总是弹 `APP-Modal-Screen`，有时直接走 header inline search；不要把 `nav-header-search` 限死在 modal 下",
+      "details": "本次修 `MARKET-FAV-004/007` 时，失败日志显示 `input[data-testid=\"nav-header-search\"]` 存在，但 Playwright 试图点 modal 里的隐藏 input 导致 30s 超时。实际页面上搜索可能是两种形态：①传统 `APP-Modal-Screen` 搜索弹层；②顶部 header inline search，输入框可见但不在 modal 内。稳定做法：定位所有可见 `input[data-testid=\"nav-header-search\"]`，取最后一个可见节点，用原生 value setter + input/change 事件注入内容，而不是依赖 locator.click() 的 actionability。触发场景：Market 搜索相关脚本、收藏/搜索用例。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-112",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "Market 收藏空状态清理应以“视觉空状态出现”优先停止，不要继续等待列表节点彻底归零，否则列表会持续跳动",
+      "details": "修 `MARKET-FAV-001` 时观察到：脚本一开始为了进入自选空状态，会循环点击星标清理已有收藏。若停止条件写成“`list-column-name` 可见项必须为 0”，页面即使已经出现“您的自选列表为空 / 将您喜欢的代币添加到列表中 / 添加 X 个代币”这些空状态信号，脚本仍会继续点星标，导致列表反复重排、视觉上一直跳动。更稳的口径是：只要空状态标题、副标题或“添加 X 个代币”按钮任一出现，就立刻停止清理。验证结果：同一环境下 `MARKET-FAV-001` 从 `cleared=161 / 56s+` 缩短到 `cleared=7 / 14.3s`。触发场景：Market 自选空状态相关回放与脚本维护。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-113",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "钱包首页不要用通用 `home-columns-icon-btn` 做 Market 收藏联动；它只是首页市场榜单的行内按钮，容易把非 Market 弹窗链路带进来",
+      "details": "排查 `MARKET-FAV-005` 误触时发现：钱包首页可见的 `home-columns-icon-btn` 位于首页 Market 榜单行内（如 ASTER / PEPE / AAVE 行），并不是唯一、稳定的“收藏入口”。脚本若直接点第一个可见 `home-columns-icon-btn`，就会把 Wallet Home 上其他交互状态一起卷进来，表现为偶发拉起通知抽屉、左下角更多菜单或中心选择代币弹窗。更稳的做法是：1) 先明确回到 `Home` 页，而不是宽泛的 Wallet sidebar；2) 在 `home-page` 容器内只点击可见的 `[data-testid^=\"market-token-star-\"]` 星标；3) 风险点击后立刻检查并清理 `账户活动/系统`、`复制地址/签名与验证消息`、`选择代币` 这三类非 Market 弹窗。触发场景：钱包首页 Market 收藏联动、Market favorite case 005 维护。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-114",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "Market 搜索关闭不要只依赖 Playwright 点 `navClose`；优先 JS 直点可见关闭按钮，再轮询确认搜索 UI 真正消失",
+      "details": "排查 `MARKET-FAV-004` 耗时异常时发现，慢点不是搜索结果渲染，而是 `closeSearch()` 偶发被拖在关闭动作上，单次可吞掉约 30 秒。根因是搜索层的关闭按钮存在动画/遮罩/可操作性波动，locator.click() 有时会一直等 actionability。更稳更快的做法是：1) 优先在 DOM 里直接点击 `APP-Modal-Screen` 顶部可见的关闭按钮；2) 失败时再 fallback 到 registry `navClose` 或 `Escape`；3) 点击后轮询确认 modal 已不可见，且可见 `nav-header-search` 输入数量回落。这样 `MARKET-FAV-004` 在同环境下从约 126s 降到 40.5s。触发场景：Market 搜索相关脚本、收藏/搜索用例关闭搜索层时。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-115",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "钱包首页当前版本可能没有前台可达的 Market 收藏星标；后台残留的 market/swap 页面会把 `market-token-star-*` 假装成可见",
+      "details": "排查 `MARKET-FAV-005` 时发现，OneKey Desktop 当前版本会把 `home-page`、`market-page`、`swap-content-container` 同时挂在 DOM 中。`home-page` 本身不可滚动（`scrollHeight == clientHeight`），但后台残留的 `market-watch-list` 仍会暴露 `[data-testid^=\"market-token-star-\"]`。如果脚本只看 `querySelectorAll + getBoundingClientRect()`，就会把后台页面的星标误判为钱包首页 Market 入口，继而误触网络选择器、通知抽屉或左下角更多菜单。稳妥做法：1) 钱包首页联动场景只认前台可点击星标；2) 若当前版本前台没有可达的 Market 星标，就将该步骤标记为 skip，而不是继续误点后台残留 DOM；3) 风险点击后额外检查 `最近使用 + 在这些网络上发现资产` 组合，以识别网络选择器误触。触发场景：钱包首页 Market 收藏联动、Market favorite case 005 维护。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-116",
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "Market 右上角网络选择器点击容易被录成 IMG/market-page，需沿 composedPath 提升到按钮级节点",
+      "details": "用户实际点击了 Market 页面右上角的网络选择器，但旧版 recorder 只读取 event.target 或最近的 data-testid 父节点，结果把链图标点击记录成 `IMG market-page`，丢失真实语义。修复策略：点击录制优先沿 `event.composedPath()` 查找非泛容器 testid，再回退到 button / role=button / aria-haspopup 等可点击祖先，避免被 `market-page` 这类页面容器吞掉。已知关联稳定 testid：`market-render-trigger-btn`。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-117",
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "某些 Market 区域点击事件的 target 会直接落在整页容器，需要用 elementFromPoint(x,y) 反查真实落点",
+      "details": "继续排查 Market 首页右上角网络选择器录制时发现，即使 recorder 已沿 composedPath 提升祖先，事件对象里的 `target` 仍可能直接是 `market-page` 整页容器，导致所有点击都塌缩成同一个大 DIV。更稳的策略是：在 click 事件里先用 `document.elementFromPoint(event.clientX, event.clientY)` 反查点击坐标下的真实 DOM，再结合 composedPath / button / aria-haspopup 祖先提升，最后再回退到事件 target。触发场景：Market 页右上角时间周期、网络选择器、图标按钮等代理点击区域。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-118",
+      "category": "recording",
+      "platform": "desktop",
+      "pattern": "如果 click 事件触发时页面已重绘，需在 pointerdown 阶段预采样真实点击元素",
+      "details": "继续验证 Market 首页右上角网络选择器时，发现即使 click 阶段增加了 `elementFromPoint(x,y)`，最终仍可能只拿到 `market-page` 容器。说明页面在 click 触发前就已重绘或把真实元素替换掉。更稳的 recorder 策略是：在 `pointerdown` 捕获阶段先用同一套提升逻辑保存候选元素与坐标，随后 click 事件若坐标偏差很小，优先复用 pointerdown 捕获到的元素。触发场景：点击后立即弹层/重绘的图标按钮、网络选择器、时间周期切换器。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-119",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "当用户明确纠正渠道 build 依赖关系时，必须先回写规则真源，再交付生成产物",
+      "details": "本次 Jupiter Apifox 产物已按“`build-tx` 依赖 `quoteResultCtx`”生成，但 `docs/qa/rules/swap-rules.md` 仍保留旧口径“Jupiter 不需要 `quoteResultCtx`”，导致规则与产物冲突并触发 `/onekey-qa-review` block。处理顺序应固定为：1) 用户纠正渠道依赖关系；2) 先同步 `swap-rules.md` 的 quoteResultCtx 规则表与对应渠道小节；3) 再生成或更新 Apifox/TestCases/导入说明等派生产物。这样后续生成器、人工维护和 review 都会以同一口径为准。触发场景：Jupiter、RocketX、Exodus、CowSwap、1inch Fusion 等依赖 quote 上下文的渠道。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-120",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "StepTracker 中不能用 `passed + skip detail` 吞掉异常；可选分支要记 `skipped`，核心动作失败要记 `failed`",
+      "details": "修 `src/tests/shared/market/favorite.mjs` 时发现，多处 `catch` 分支把异常写成 `t.add(..., 'passed', `skip: ...`)`，会让 Dashboard 把真实失败展示成 PASS，直接违反仓库“无软断言、每个步骤必须明确 passed/failed/skipped”的要求。正确口径是：1) 仅当步骤确属环境差异或 best-effort 分支，才记录 `skipped` 并附带原因；2) 若该步骤是当前用例的核心成功条件（如点击添加代币、详情页取消收藏），异常必须记录为 `failed`。触发场景：Market 收藏脚本、其他使用 `createStepTracker`/`safeStep` 的 UI 自动化用例维护。",
+      "confidence": 0.99
     }
   ]
 }

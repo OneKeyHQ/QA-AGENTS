@@ -22,7 +22,26 @@ export async function isSearchModalOpen(page) {
 }
 
 export function getModalSearchInput(page) {
-  return page.locator('[data-testid="APP-Modal-Screen"] input[data-testid="nav-header-search"]').first();
+  const modalScoped = page.locator('[data-testid="APP-Modal-Screen"] input[data-testid="nav-header-search"]').first();
+  const anyVisible = page.locator('input[data-testid="nav-header-search"]').first();
+  return {
+    async click() {
+      const modalVisible = await modalScoped.isVisible({ timeout: 300 }).catch(() => false);
+      return modalVisible ? modalScoped.click() : anyVisible.click();
+    },
+    async pressSequentially(value, opts) {
+      const modalVisible = await modalScoped.isVisible({ timeout: 300 }).catch(() => false);
+      return modalVisible ? modalScoped.pressSequentially(value, opts) : anyVisible.pressSequentially(value, opts);
+    },
+    async type(value, opts) {
+      const modalVisible = await modalScoped.isVisible({ timeout: 300 }).catch(() => false);
+      return modalVisible ? modalScoped.type(value, opts) : anyVisible.type(value, opts);
+    },
+    async waitFor(opts) {
+      const modalVisible = await modalScoped.isVisible({ timeout: 300 }).catch(() => false);
+      return modalVisible ? modalScoped.waitFor(opts) : anyVisible.waitFor(opts);
+    },
+  };
 }
 
 /**
@@ -50,27 +69,23 @@ export async function openSearchModal(page, triggerFn) {
 
 export async function setSearchValueStrict(page, value, triggerFn) {
   await openSearchModal(page, triggerFn);
-
-  const modalInput = getModalSearchInput(page);
-  await modalInput.click();
-  await sleep(200);
-
-  // Clear existing content via select() + Backspace
-  await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    const input = modal?.querySelector('input');
-    if (input) { input.focus(); input.select(); }
-  });
-  await page.keyboard.press('Backspace');
-  await sleep(300);
-
-  if (value) {
-    try {
-      await modalInput.pressSequentially(value, { delay: 40 });
-    } catch {
-      await modalInput.type(value, { delay: 40 });
-    }
-  }
+  await page.evaluate((nextValue) => {
+    const inputs = [...document.querySelectorAll('input[data-testid="nav-header-search"]')]
+      .filter(input => {
+        const r = input.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+      });
+    const input = inputs[inputs.length - 1];
+    if (!input) throw new Error('Visible search input not found');
+    input.focus();
+    input.select?.();
+    const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+    nativeSet?.call(input, nextValue);
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
+  }, value || '');
   await sleep(1500);
 }
 

@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Swap Jupiter - Solana 单网络全类型",
-    "description": "Jupiter 渠道（Solana）API 测试用例：\n- 01-Jupiter-询价：同链主币<>代币、代币<>主币、代币<>代币（单网络，不使用多网络循环）\n- 02-Jupiter-构建：同链主币<>代币、代币<>主币、代币<>代币（严格校验 data.tx 存在）\n\n基线（来自 docs/qa/rules/swap-network-features.md）：\n- 网络 networkId: sol--101\n- userAddress / receivingAddress: 5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\n- SOL 主币标识: 空字符串\n- USDC: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\n- USDT: Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\n\nJupiter 渠道特性（来自 docs/qa/rules/swap-rules.md）：\n- Jupiter 按静态参数构建，不依赖 quoteResultCtx\n- /swap/v1/build-tx 必须返回 data.tx（Solana 序列化交易）",
+    "description": "Jupiter 渠道（Solana）API 测试用例：\n- 01-Jupiter-构建（含 Quote）：主币<>代币、代币<>主币、代币<>代币\n- 每条用例按 quote -> 提取 Jupiter quoteResultCtx -> build-tx 执行\n\n基线（来自 docs/qa/rules/swap-network-features.md）：\n- 网络 networkId: sol--101\n- userAddress / receivingAddress: 5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\n- SOL 主币标识: 空字符串\n- USDC: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\n- USDT: Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\n\n当前口径：\n- Jupiter 仅覆盖 Solana 同链\n- Jupiter 构建依赖 quoteResultCtx\n- /swap/v1/build-tx 必须返回 data.tx（Solana 序列化交易）",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -23,10 +23,10 @@
   ],
   "item": [
     {
-      "name": "01-Jupiter-询价",
+      "name": "01-Jupiter-构建（含 Quote）",
       "item": [
         {
-          "name": "Quote - Jupiter - 主币<>代币 (SOL → USDC)",
+          "name": "Build+Quote - Jupiter - 主币<>代币 (SOL → USDC)",
           "event": [
             {
               "listen": "prerequest",
@@ -42,314 +42,137 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Jupiter 主币<>代币 - HTTP 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "var json = pm.response.json();",
-                  "pm.test('Jupiter 主币<>代币 - 业务码 0', function () {",
-                  "  pm.expect(json.code).to.eql(0);",
-                  "});",
-                  "",
-                  "pm.test('Jupiter 主币<>代币 - 返回包含 Jupiter 有效报价', function () {",
-                  "  var data = json.data || [];",
-                  "  var jupiterItem = data.find(function (x) {",
-                  "    var p = x && x.info && x.info.provider;",
-                  "    return p && String(p).toLowerCase().indexOf('jupiter') >= 0;",
+                  "/**",
+                  " * Jupiter 主币<>代币：quote -> quoteResultCtx -> build-tx",
+                  " */",
+                  "const testCases = [{",
+                  "  name: 'Solana.SOL → USDC',",
+                  "  quoteParams: {",
+                  "    fromTokenAddress: '',",
+                  "    toTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',",
+                  "    fromTokenAmount: '0.01',",
+                  "    fromNetworkId: 'sol--101',",
+                  "    toNetworkId: 'sol--101',",
+                  "    protocol: 'Swap',",
+                  "    userAddress: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52',",
+                  "    slippagePercentage: '0.5',",
+                  "    autoSlippage: 'true',",
+                  "    receivingAddress: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52',",
+                  "    kind: 'sell',",
+                  "    toTokenAmount: '',",
+                  "    denySingleSwapProvider: ''",
+                  "  },",
+                  "  buildBase: {",
+                  "    fromTokenAddress: '',",
+                  "    toTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',",
+                  "    fromNetworkId: 'sol--101',",
+                  "    toNetworkId: 'sol--101'",
+                  "  },",
+                  "  userAddr: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52',",
+                  "  recvAddr: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52'",
+                  "}];",
+                  "const QUOTE_URL = 'https://swap.onekeytest.com/swap/v1/quote';",
+                  "const BUILD_URL = 'https://swap.onekeytest.com/swap/v1/build-tx';",
+                  "const quoteHeaders = {",
+                  "  'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'),",
+                  "  'X-Onekey-Request-Currency': 'usd',",
+                  "  'X-Onekey-Request-Locale': 'en',",
+                  "  'X-Onekey-Request-Theme': 'light',",
+                  "  'X-Onekey-Request-Platform': 'android-apk',",
+                  "  'X-Onekey-Request-Version': '6.1.0',",
+                  "  'X-Onekey-Request-Build-Number': '2026022727'",
+                  "};",
+                  "const buildHeaders = {",
+                  "  accept: 'application/json, text/plain, */*',",
+                  "  'content-type': 'application/json',",
+                  "  'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'),",
+                  "  'X-Onekey-Request-Currency': 'usd',",
+                  "  'X-Onekey-Request-Locale': 'en',",
+                  "  'X-Onekey-Request-Theme': 'light',",
+                  "  'X-Onekey-Request-Platform': 'android-apk',",
+                  "  'X-Onekey-Request-Version': '6.1.0',",
+                  "  'X-Onekey-Request-Build-Number': '2026022727',",
+                  "  'X-Onekey-Wallet-Type': 'hd'",
+                  "};",
+                  "function buildQuery(params){ return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function toJsonSafe(res, label){",
+                  "  var contentType = (res.headers.get && res.headers.get('Content-Type')) || '';",
+                  "  pm.test('[' + label + '] 响应为 JSON', function(){ pm.expect(String(contentType).toLowerCase()).to.include('application/json'); });",
+                  "  if (String(contentType).toLowerCase().indexOf('application/json') < 0) {",
+                  "    console.log('[' + label + '] 非 JSON 响应:', res.text());",
+                  "    return null;",
+                  "  }",
+                  "  return res.json();",
+                  "}",
+                  "function runCase(i){",
+                  "  if(i>=testCases.length){ console.log('done'); return; }",
+                  "  var c=testCases[i];",
+                  "  var n=c.name;",
+                  "  pm.sendRequest({",
+                  "    url: QUOTE_URL + '?' + buildQuery(c.quoteParams),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(quoteHeaders).map(function(e){ return { key:e[0], value:String(e[1]) }; })",
+                  "  }, function(err,res){",
+                  "    if(err){ pm.test('['+n+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; }",
+                  "    var code=res.code||res.status;",
+                  "    pm.test('['+n+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    if(code!==200){ console.log(res.text()); runCase(i+1); return; }",
+                  "    var j=toJsonSafe(res, n + ' quote');",
+                  "    if(!j){ runCase(i+1); return; }",
+                  "    pm.test('['+n+'] quote 业务码 0', function(){ pm.expect(j.code).to.eql(0); });",
+                  "    var d=Array.isArray(j.data)?j.data:[];",
+                  "    var providers=d.map(function(x){ return (x&&x.info&&x.info.provider) || (x&&x.provider) || ''; }).filter(Boolean);",
+                  "    var ju=d.find(function(x){",
+                  "      var p1=x&&x.info&&String(x.info.provider||'');",
+                  "      var p2=x&&String(x.provider||'');",
+                  "      return p1==='SwapJupiter' || p2==='SwapJupiter' || p1.toLowerCase().includes('jupiter') || p2.toLowerCase().includes('jupiter');",
+                  "    });",
+                  "    pm.test('['+n+'] Jupiter 有效报价', function(){",
+                  "      if(!ju){ pm.expect.fail('data 中无 Jupiter 条目，providers=' + JSON.stringify(providers)); }",
+                  "      pm.expect(ju).to.be.ok;",
+                  "      pm.expect(ju.errorMessage, 'Jupiter 条目携带 errorMessage: ' + ju.errorMessage).to.be.oneOf([undefined, null, '']);",
+                  "      var hasQuote=ju.toAmount||ju.fromAmount||(ju.info&&ju.info.toAmount);",
+                  "      pm.expect(hasQuote, 'Jupiter 条目无有效报价金额').to.be.ok;",
+                  "    });",
+                  "    if(!ju){ runCase(i+1); return; }",
+                  "    var ctx=(ju&&ju.quoteResultCtx) || (ju&&ju.info&&ju.info.quoteResultCtx) || null;",
+                  "    pm.test('['+n+'] quoteResultCtx 存在', function(){",
+                  "      if(!ctx){ pm.expect.fail('jupiterQuote=' + JSON.stringify(ju)); }",
+                  "      pm.expect(ctx).to.be.ok;",
+                  "    });",
+                  "    if(!ctx){ runCase(i+1); return; }",
+                  "    var toAmt=ju.toAmount || (ju.info&&ju.info.toAmount) || '0';",
+                  "    var body=Object.assign({}, c.buildBase, {",
+                  "      fromTokenAmount: c.quoteParams.fromTokenAmount,",
+                  "      toTokenAmount: String(toAmt),",
+                  "      protocol: 'Swap',",
+                  "      provider: 'SwapJupiter',",
+                  "      userAddress: c.userAddr,",
+                  "      receivingAddress: c.recvAddr,",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd',",
+                  "      quoteResultCtx: ctx",
+                  "    });",
+                  "    pm.sendRequest({",
+                  "      url: BUILD_URL,",
+                  "      method: 'POST',",
+                  "      header: Object.entries(buildHeaders).map(function(e){ return { key:e[0], value:String(e[1]) }; }),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(body) }",
+                  "    }, function(err2,res2){",
+                  "      if(err2){ pm.test('['+n+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); }); runCase(i+1); return; }",
+                  "      var code2=res2.code||res2.status;",
+                  "      pm.test('['+n+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); });",
+                  "      if(code2!==200){ console.log(res2.text()); runCase(i+1); return; }",
+                  "      var j2=toJsonSafe(res2, n + ' build');",
+                  "      if(!j2){ runCase(i+1); return; }",
+                  "      pm.test('['+n+'] build 业务码 0', function(){ pm.expect(j2.code).to.eql(0); });",
+                  "      pm.test('['+n+'] build data.tx 存在', function(){ pm.expect(j2.data).to.have.property('tx'); pm.expect(j2.data.tx).to.be.ok; });",
+                  "      runCase(i+1);",
+                  "    });",
                   "  });",
-                  "  pm.expect(jupiterItem, 'data 中不存在 Jupiter 条目').to.not.be.undefined;",
-                  "  pm.expect(jupiterItem.errorMessage, 'Jupiter 条目携带 errorMessage: ' + jupiterItem.errorMessage).to.be.oneOf([undefined, null, '']);",
-                  "  var hasQuote = jupiterItem.toAmount || jupiterItem.fromAmount || (jupiterItem.info && jupiterItem.info.toAmount);",
-                  "  pm.expect(hasQuote, 'Jupiter 条目无有效报价金额').to.be.ok;",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "X-Onekey-Request-ID",
-                "value": "{{requestId}}",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Currency",
-                "value": "usd",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Version",
-                "value": "6.1.0",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Build-Number",
-                "value": "2026022727",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=&toTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&fromTokenAmount=0.01&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&slippagePercentage=0.5&autoSlippage=true&receivingAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&kind=sell&toTokenAmount=&denySingleSwapProvider=",
-              "host": [
-                "swap",
-                "onekeytest",
-                "com"
-              ],
-              "path": [
-                "swap",
-                "v1",
-                "quote"
-              ],
-              "query": [
-                { "key": "fromTokenAddress", "value": "" },
-                { "key": "toTokenAddress", "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" },
-                { "key": "fromTokenAmount", "value": "0.01" },
-                { "key": "fromNetworkId", "value": "sol--101" },
-                { "key": "toNetworkId", "value": "sol--101" },
-                { "key": "protocol", "value": "Swap" },
-                { "key": "userAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
-                { "key": "slippagePercentage", "value": "0.5" },
-                { "key": "autoSlippage", "value": "true" },
-                { "key": "receivingAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
-                { "key": "kind", "value": "sell" },
-                { "key": "toTokenAmount", "value": "" },
-                { "key": "denySingleSwapProvider", "value": "" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Quote - Jupiter - 代币<>主币 (USDC → SOL)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Jupiter 代币<>主币 - HTTP 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "var json = pm.response.json();",
-                  "pm.test('Jupiter 代币<>主币 - 业务码 0', function () {",
-                  "  pm.expect(json.code).to.eql(0);",
-                  "});",
-                  "",
-                  "pm.test('Jupiter 代币<>主币 - 返回包含 Jupiter 有效报价', function () {",
-                  "  var data = json.data || [];",
-                  "  var jupiterItem = data.find(function (x) {",
-                  "    var p = x && x.info && x.info.provider;",
-                  "    return p && String(p).toLowerCase().indexOf('jupiter') >= 0;",
-                  "  });",
-                  "  pm.expect(jupiterItem, 'data 中不存在 Jupiter 条目').to.not.be.undefined;",
-                  "  pm.expect(jupiterItem.errorMessage, 'Jupiter 条目携带 errorMessage: ' + jupiterItem.errorMessage).to.be.oneOf([undefined, null, '']);",
-                  "  var hasQuote = jupiterItem.toAmount || jupiterItem.fromAmount || (jupiterItem.info && jupiterItem.info.toAmount);",
-                  "  pm.expect(hasQuote, 'Jupiter 条目无有效报价金额').to.be.ok;",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "X-Onekey-Request-ID",
-                "value": "{{requestId}}",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Currency",
-                "value": "usd",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Version",
-                "value": "6.1.0",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Build-Number",
-                "value": "2026022727",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&toTokenAddress=&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&slippagePercentage=0.5&autoSlippage=true&receivingAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&kind=sell&toTokenAmount=&denySingleSwapProvider=",
-              "host": [
-                "swap",
-                "onekeytest",
-                "com"
-              ],
-              "path": [
-                "swap",
-                "v1",
-                "quote"
-              ],
-              "query": [
-                { "key": "fromTokenAddress", "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" },
-                { "key": "toTokenAddress", "value": "" },
-                { "key": "fromTokenAmount", "value": "1" },
-                { "key": "fromNetworkId", "value": "sol--101" },
-                { "key": "toNetworkId", "value": "sol--101" },
-                { "key": "protocol", "value": "Swap" },
-                { "key": "userAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
-                { "key": "slippagePercentage", "value": "0.5" },
-                { "key": "autoSlippage", "value": "true" },
-                { "key": "receivingAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
-                { "key": "kind", "value": "sell" },
-                { "key": "toTokenAmount", "value": "" },
-                { "key": "denySingleSwapProvider", "value": "" }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Quote - Jupiter - 代币<>代币 (USDC → USDT)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Jupiter 代币<>代币 - HTTP 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "var json = pm.response.json();",
-                  "pm.test('Jupiter 代币<>代币 - 业务码 0', function () {",
-                  "  pm.expect(json.code).to.eql(0);",
-                  "});",
-                  "",
-                  "pm.test('Jupiter 代币<>代币 - 返回包含 Jupiter 有效报价', function () {",
-                  "  var data = json.data || [];",
-                  "  var jupiterItem = data.find(function (x) {",
-                  "    var p = x && x.info && x.info.provider;",
-                  "    return p && String(p).toLowerCase().indexOf('jupiter') >= 0;",
-                  "  });",
-                  "  pm.expect(jupiterItem, 'data 中不存在 Jupiter 条目').to.not.be.undefined;",
-                  "  pm.expect(jupiterItem.errorMessage, 'Jupiter 条目携带 errorMessage: ' + jupiterItem.errorMessage).to.be.oneOf([undefined, null, '']);",
-                  "  var hasQuote = jupiterItem.toAmount || jupiterItem.fromAmount || (jupiterItem.info && jupiterItem.info.toAmount);",
-                  "  pm.expect(hasQuote, 'Jupiter 条目无有效报价金额').to.be.ok;",
-                  "});",
-                  "",
-                  "pm.test('Jupiter 代币<>代币 - fromToken 与 toToken 地址不同', function () {",
-                  "  var url = pm.request.url.toString();",
-                  "  pm.expect(url).to.include('fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v');",
-                  "  pm.expect(url).to.include('toTokenAddress=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "X-Onekey-Request-ID",
-                "value": "{{requestId}}",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Currency",
-                "value": "usd",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Version",
-                "value": "6.1.0",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Build-Number",
-                "value": "2026022727",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&toTokenAddress=Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB&fromTokenAmount=1&fromNetworkId=sol--101&toNetworkId=sol--101&protocol=Swap&userAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&slippagePercentage=0.5&autoSlippage=true&receivingAddress=5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52&kind=sell&toTokenAmount=&denySingleSwapProvider=",
-              "host": [
-                "swap",
-                "onekeytest",
-                "com"
-              ],
-              "path": [
-                "swap",
-                "v1",
-                "quote"
-              ],
-              "query": [
-                { "key": "fromTokenAddress", "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" },
-                { "key": "toTokenAddress", "value": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB" },
-                { "key": "fromTokenAmount", "value": "1" },
-                { "key": "fromNetworkId", "value": "sol--101" },
-                { "key": "toNetworkId", "value": "sol--101" },
-                { "key": "protocol", "value": "Swap" },
-                { "key": "userAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
-                { "key": "slippagePercentage", "value": "0.5" },
-                { "key": "autoSlippage", "value": "true" },
-                { "key": "receivingAddress", "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52" },
-                { "key": "kind", "value": "sell" },
-                { "key": "toTokenAmount", "value": "" },
-                { "key": "denySingleSwapProvider", "value": "" }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "02-Jupiter-构建",
-      "item": [
-        {
-          "name": "Build - Jupiter - 主币<>代币 (SOL → USDC)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Jupiter Build 主币<>代币 - HTTP 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "var json = pm.response.json();",
-                  "pm.test('Jupiter Build 主币<>代币 - 业务码 0', function () {",
-                  "  pm.expect(json.code).to.eql(0);",
-                  "});",
-                  "pm.test('Jupiter Build 主币<>代币 - data.tx 存在', function () {",
-                  "  pm.expect(json.data).to.have.property('tx');",
-                  "  pm.expect(json.data.tx).to.be.ok;",
-                  "});"
+                  "}",
+                  "runCase(0);"
                 ]
               }
             }
@@ -368,6 +191,26 @@
                 "type": "text"
               },
               {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
                 "key": "X-Onekey-Request-Version",
                 "value": "6.1.0",
                 "type": "text"
@@ -380,7 +223,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"fromTokenAmount\": \"0.01\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"receivingAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"fromTokenAmount\": \"0.01\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"receivingAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\",\n  \"quoteResultCtx\": {}\n}"
             },
             "url": {
               "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
@@ -398,7 +241,7 @@
           }
         },
         {
-          "name": "Build - Jupiter - 代币<>主币 (USDC → SOL)",
+          "name": "Build+Quote - Jupiter - 代币<>主币 (USDC → SOL)",
           "event": [
             {
               "listen": "prerequest",
@@ -414,18 +257,137 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Jupiter Build 代币<>主币 - HTTP 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "var json = pm.response.json();",
-                  "pm.test('Jupiter Build 代币<>主币 - 业务码 0', function () {",
-                  "  pm.expect(json.code).to.eql(0);",
-                  "});",
-                  "pm.test('Jupiter Build 代币<>主币 - data.tx 存在', function () {",
-                  "  pm.expect(json.data).to.have.property('tx');",
-                  "  pm.expect(json.data.tx).to.be.ok;",
-                  "});"
+                  "/**",
+                  " * Jupiter 代币<>主币：quote -> quoteResultCtx -> build-tx",
+                  " */",
+                  "const testCases = [{",
+                  "  name: 'Solana.USDC → SOL',",
+                  "  quoteParams: {",
+                  "    fromTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',",
+                  "    toTokenAddress: '',",
+                  "    fromTokenAmount: '1',",
+                  "    fromNetworkId: 'sol--101',",
+                  "    toNetworkId: 'sol--101',",
+                  "    protocol: 'Swap',",
+                  "    userAddress: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52',",
+                  "    slippagePercentage: '0.5',",
+                  "    autoSlippage: 'true',",
+                  "    receivingAddress: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52',",
+                  "    kind: 'sell',",
+                  "    toTokenAmount: '',",
+                  "    denySingleSwapProvider: ''",
+                  "  },",
+                  "  buildBase: {",
+                  "    fromTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',",
+                  "    toTokenAddress: '',",
+                  "    fromNetworkId: 'sol--101',",
+                  "    toNetworkId: 'sol--101'",
+                  "  },",
+                  "  userAddr: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52',",
+                  "  recvAddr: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52'",
+                  "}];",
+                  "const QUOTE_URL = 'https://swap.onekeytest.com/swap/v1/quote';",
+                  "const BUILD_URL = 'https://swap.onekeytest.com/swap/v1/build-tx';",
+                  "const quoteHeaders = {",
+                  "  'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'),",
+                  "  'X-Onekey-Request-Currency': 'usd',",
+                  "  'X-Onekey-Request-Locale': 'en',",
+                  "  'X-Onekey-Request-Theme': 'light',",
+                  "  'X-Onekey-Request-Platform': 'android-apk',",
+                  "  'X-Onekey-Request-Version': '6.1.0',",
+                  "  'X-Onekey-Request-Build-Number': '2026022727'",
+                  "};",
+                  "const buildHeaders = {",
+                  "  accept: 'application/json, text/plain, */*',",
+                  "  'content-type': 'application/json',",
+                  "  'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'),",
+                  "  'X-Onekey-Request-Currency': 'usd',",
+                  "  'X-Onekey-Request-Locale': 'en',",
+                  "  'X-Onekey-Request-Theme': 'light',",
+                  "  'X-Onekey-Request-Platform': 'android-apk',",
+                  "  'X-Onekey-Request-Version': '6.1.0',",
+                  "  'X-Onekey-Request-Build-Number': '2026022727',",
+                  "  'X-Onekey-Wallet-Type': 'hd'",
+                  "};",
+                  "function buildQuery(params){ return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function toJsonSafe(res, label){",
+                  "  var contentType = (res.headers.get && res.headers.get('Content-Type')) || '';",
+                  "  pm.test('[' + label + '] 响应为 JSON', function(){ pm.expect(String(contentType).toLowerCase()).to.include('application/json'); });",
+                  "  if (String(contentType).toLowerCase().indexOf('application/json') < 0) {",
+                  "    console.log('[' + label + '] 非 JSON 响应:', res.text());",
+                  "    return null;",
+                  "  }",
+                  "  return res.json();",
+                  "}",
+                  "function runCase(i){",
+                  "  if(i>=testCases.length){ console.log('done'); return; }",
+                  "  var c=testCases[i];",
+                  "  var n=c.name;",
+                  "  pm.sendRequest({",
+                  "    url: QUOTE_URL + '?' + buildQuery(c.quoteParams),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(quoteHeaders).map(function(e){ return { key:e[0], value:String(e[1]) }; })",
+                  "  }, function(err,res){",
+                  "    if(err){ pm.test('['+n+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; }",
+                  "    var code=res.code||res.status;",
+                  "    pm.test('['+n+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    if(code!==200){ console.log(res.text()); runCase(i+1); return; }",
+                  "    var j=toJsonSafe(res, n + ' quote');",
+                  "    if(!j){ runCase(i+1); return; }",
+                  "    pm.test('['+n+'] quote 业务码 0', function(){ pm.expect(j.code).to.eql(0); });",
+                  "    var d=Array.isArray(j.data)?j.data:[];",
+                  "    var providers=d.map(function(x){ return (x&&x.info&&x.info.provider) || (x&&x.provider) || ''; }).filter(Boolean);",
+                  "    var ju=d.find(function(x){",
+                  "      var p1=x&&x.info&&String(x.info.provider||'');",
+                  "      var p2=x&&String(x.provider||'');",
+                  "      return p1==='SwapJupiter' || p2==='SwapJupiter' || p1.toLowerCase().includes('jupiter') || p2.toLowerCase().includes('jupiter');",
+                  "    });",
+                  "    pm.test('['+n+'] Jupiter 有效报价', function(){",
+                  "      if(!ju){ pm.expect.fail('data 中无 Jupiter 条目，providers=' + JSON.stringify(providers)); }",
+                  "      pm.expect(ju).to.be.ok;",
+                  "      pm.expect(ju.errorMessage, 'Jupiter 条目携带 errorMessage: ' + ju.errorMessage).to.be.oneOf([undefined, null, '']);",
+                  "      var hasQuote=ju.toAmount||ju.fromAmount||(ju.info&&ju.info.toAmount);",
+                  "      pm.expect(hasQuote, 'Jupiter 条目无有效报价金额').to.be.ok;",
+                  "    });",
+                  "    if(!ju){ runCase(i+1); return; }",
+                  "    var ctx=(ju&&ju.quoteResultCtx) || (ju&&ju.info&&ju.info.quoteResultCtx) || null;",
+                  "    pm.test('['+n+'] quoteResultCtx 存在', function(){",
+                  "      if(!ctx){ pm.expect.fail('jupiterQuote=' + JSON.stringify(ju)); }",
+                  "      pm.expect(ctx).to.be.ok;",
+                  "    });",
+                  "    if(!ctx){ runCase(i+1); return; }",
+                  "    var toAmt=ju.toAmount || (ju.info&&ju.info.toAmount) || '0';",
+                  "    var body=Object.assign({}, c.buildBase, {",
+                  "      fromTokenAmount: c.quoteParams.fromTokenAmount,",
+                  "      toTokenAmount: String(toAmt),",
+                  "      protocol: 'Swap',",
+                  "      provider: 'SwapJupiter',",
+                  "      userAddress: c.userAddr,",
+                  "      receivingAddress: c.recvAddr,",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd',",
+                  "      quoteResultCtx: ctx",
+                  "    });",
+                  "    pm.sendRequest({",
+                  "      url: BUILD_URL,",
+                  "      method: 'POST',",
+                  "      header: Object.entries(buildHeaders).map(function(e){ return { key:e[0], value:String(e[1]) }; }),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(body) }",
+                  "    }, function(err2,res2){",
+                  "      if(err2){ pm.test('['+n+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); }); runCase(i+1); return; }",
+                  "      var code2=res2.code||res2.status;",
+                  "      pm.test('['+n+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); });",
+                  "      if(code2!==200){ console.log(res2.text()); runCase(i+1); return; }",
+                  "      var j2=toJsonSafe(res2, n + ' build');",
+                  "      if(!j2){ runCase(i+1); return; }",
+                  "      pm.test('['+n+'] build 业务码 0', function(){ pm.expect(j2.code).to.eql(0); });",
+                  "      pm.test('['+n+'] build data.tx 存在', function(){ pm.expect(j2.data).to.have.property('tx'); pm.expect(j2.data.tx).to.be.ok; });",
+                  "      runCase(i+1);",
+                  "    });",
+                  "  });",
+                  "}",
+                  "runCase(0);"
                 ]
               }
             }
@@ -444,6 +406,26 @@
                 "type": "text"
               },
               {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
                 "key": "X-Onekey-Request-Version",
                 "value": "6.1.0",
                 "type": "text"
@@ -456,7 +438,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"0.005\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"receivingAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"0.005\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"receivingAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\",\n  \"quoteResultCtx\": {}\n}"
             },
             "url": {
               "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
@@ -474,7 +456,7 @@
           }
         },
         {
-          "name": "Build - Jupiter - 代币<>代币 (USDC → USDT)",
+          "name": "Build+Quote - Jupiter - 代币<>代币 (USDC → USDT)",
           "event": [
             {
               "listen": "prerequest",
@@ -490,18 +472,137 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Jupiter Build 代币<>代币 - HTTP 200', function () {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "var json = pm.response.json();",
-                  "pm.test('Jupiter Build 代币<>代币 - 业务码 0', function () {",
-                  "  pm.expect(json.code).to.eql(0);",
-                  "});",
-                  "pm.test('Jupiter Build 代币<>代币 - data.tx 存在', function () {",
-                  "  pm.expect(json.data).to.have.property('tx');",
-                  "  pm.expect(json.data.tx).to.be.ok;",
-                  "});"
+                  "/**",
+                  " * Jupiter 代币<>代币：quote -> quoteResultCtx -> build-tx",
+                  " */",
+                  "const testCases = [{",
+                  "  name: 'Solana.USDC → USDT',",
+                  "  quoteParams: {",
+                  "    fromTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',",
+                  "    toTokenAddress: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',",
+                  "    fromTokenAmount: '1',",
+                  "    fromNetworkId: 'sol--101',",
+                  "    toNetworkId: 'sol--101',",
+                  "    protocol: 'Swap',",
+                  "    userAddress: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52',",
+                  "    slippagePercentage: '0.5',",
+                  "    autoSlippage: 'true',",
+                  "    receivingAddress: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52',",
+                  "    kind: 'sell',",
+                  "    toTokenAmount: '',",
+                  "    denySingleSwapProvider: ''",
+                  "  },",
+                  "  buildBase: {",
+                  "    fromTokenAddress: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',",
+                  "    toTokenAddress: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB',",
+                  "    fromNetworkId: 'sol--101',",
+                  "    toNetworkId: 'sol--101'",
+                  "  },",
+                  "  userAddr: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52',",
+                  "  recvAddr: '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52'",
+                  "}];",
+                  "const QUOTE_URL = 'https://swap.onekeytest.com/swap/v1/quote';",
+                  "const BUILD_URL = 'https://swap.onekeytest.com/swap/v1/build-tx';",
+                  "const quoteHeaders = {",
+                  "  'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'),",
+                  "  'X-Onekey-Request-Currency': 'usd',",
+                  "  'X-Onekey-Request-Locale': 'en',",
+                  "  'X-Onekey-Request-Theme': 'light',",
+                  "  'X-Onekey-Request-Platform': 'android-apk',",
+                  "  'X-Onekey-Request-Version': '6.1.0',",
+                  "  'X-Onekey-Request-Build-Number': '2026022727'",
+                  "};",
+                  "const buildHeaders = {",
+                  "  accept: 'application/json, text/plain, */*',",
+                  "  'content-type': 'application/json',",
+                  "  'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'),",
+                  "  'X-Onekey-Request-Currency': 'usd',",
+                  "  'X-Onekey-Request-Locale': 'en',",
+                  "  'X-Onekey-Request-Theme': 'light',",
+                  "  'X-Onekey-Request-Platform': 'android-apk',",
+                  "  'X-Onekey-Request-Version': '6.1.0',",
+                  "  'X-Onekey-Request-Build-Number': '2026022727',",
+                  "  'X-Onekey-Wallet-Type': 'hd'",
+                  "};",
+                  "function buildQuery(params){ return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function toJsonSafe(res, label){",
+                  "  var contentType = (res.headers.get && res.headers.get('Content-Type')) || '';",
+                  "  pm.test('[' + label + '] 响应为 JSON', function(){ pm.expect(String(contentType).toLowerCase()).to.include('application/json'); });",
+                  "  if (String(contentType).toLowerCase().indexOf('application/json') < 0) {",
+                  "    console.log('[' + label + '] 非 JSON 响应:', res.text());",
+                  "    return null;",
+                  "  }",
+                  "  return res.json();",
+                  "}",
+                  "function runCase(i){",
+                  "  if(i>=testCases.length){ console.log('done'); return; }",
+                  "  var c=testCases[i];",
+                  "  var n=c.name;",
+                  "  pm.sendRequest({",
+                  "    url: QUOTE_URL + '?' + buildQuery(c.quoteParams),",
+                  "    method: 'GET',",
+                  "    header: Object.entries(quoteHeaders).map(function(e){ return { key:e[0], value:String(e[1]) }; })",
+                  "  }, function(err,res){",
+                  "    if(err){ pm.test('['+n+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; }",
+                  "    var code=res.code||res.status;",
+                  "    pm.test('['+n+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); });",
+                  "    if(code!==200){ console.log(res.text()); runCase(i+1); return; }",
+                  "    var j=toJsonSafe(res, n + ' quote');",
+                  "    if(!j){ runCase(i+1); return; }",
+                  "    pm.test('['+n+'] quote 业务码 0', function(){ pm.expect(j.code).to.eql(0); });",
+                  "    var d=Array.isArray(j.data)?j.data:[];",
+                  "    var providers=d.map(function(x){ return (x&&x.info&&x.info.provider) || (x&&x.provider) || ''; }).filter(Boolean);",
+                  "    var ju=d.find(function(x){",
+                  "      var p1=x&&x.info&&String(x.info.provider||'');",
+                  "      var p2=x&&String(x.provider||'');",
+                  "      return p1==='SwapJupiter' || p2==='SwapJupiter' || p1.toLowerCase().includes('jupiter') || p2.toLowerCase().includes('jupiter');",
+                  "    });",
+                  "    pm.test('['+n+'] Jupiter 有效报价', function(){",
+                  "      if(!ju){ pm.expect.fail('data 中无 Jupiter 条目，providers=' + JSON.stringify(providers)); }",
+                  "      pm.expect(ju).to.be.ok;",
+                  "      pm.expect(ju.errorMessage, 'Jupiter 条目携带 errorMessage: ' + ju.errorMessage).to.be.oneOf([undefined, null, '']);",
+                  "      var hasQuote=ju.toAmount||ju.fromAmount||(ju.info&&ju.info.toAmount);",
+                  "      pm.expect(hasQuote, 'Jupiter 条目无有效报价金额').to.be.ok;",
+                  "    });",
+                  "    if(!ju){ runCase(i+1); return; }",
+                  "    var ctx=(ju&&ju.quoteResultCtx) || (ju&&ju.info&&ju.info.quoteResultCtx) || null;",
+                  "    pm.test('['+n+'] quoteResultCtx 存在', function(){",
+                  "      if(!ctx){ pm.expect.fail('jupiterQuote=' + JSON.stringify(ju)); }",
+                  "      pm.expect(ctx).to.be.ok;",
+                  "    });",
+                  "    if(!ctx){ runCase(i+1); return; }",
+                  "    var toAmt=ju.toAmount || (ju.info&&ju.info.toAmount) || '0';",
+                  "    var body=Object.assign({}, c.buildBase, {",
+                  "      fromTokenAmount: c.quoteParams.fromTokenAmount,",
+                  "      toTokenAmount: String(toAmt),",
+                  "      protocol: 'Swap',",
+                  "      provider: 'SwapJupiter',",
+                  "      userAddress: c.userAddr,",
+                  "      receivingAddress: c.recvAddr,",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd',",
+                  "      quoteResultCtx: ctx",
+                  "    });",
+                  "    pm.sendRequest({",
+                  "      url: BUILD_URL,",
+                  "      method: 'POST',",
+                  "      header: Object.entries(buildHeaders).map(function(e){ return { key:e[0], value:String(e[1]) }; }),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(body) }",
+                  "    }, function(err2,res2){",
+                  "      if(err2){ pm.test('['+n+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); }); runCase(i+1); return; }",
+                  "      var code2=res2.code||res2.status;",
+                  "      pm.test('['+n+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); });",
+                  "      if(code2!==200){ console.log(res2.text()); runCase(i+1); return; }",
+                  "      var j2=toJsonSafe(res2, n + ' build');",
+                  "      if(!j2){ runCase(i+1); return; }",
+                  "      pm.test('['+n+'] build 业务码 0', function(){ pm.expect(j2.code).to.eql(0); });",
+                  "      pm.test('['+n+'] build data.tx 存在', function(){ pm.expect(j2.data).to.have.property('tx'); pm.expect(j2.data.tx).to.be.ok; });",
+                  "      runCase(i+1);",
+                  "    });",
+                  "  });",
+                  "}",
+                  "runCase(0);"
                 ]
               }
             }
@@ -520,6 +621,26 @@
                 "type": "text"
               },
               {
+                "key": "X-Onekey-Request-Currency",
+                "value": "usd",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Locale",
+                "value": "en",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Theme",
+                "value": "light",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Platform",
+                "value": "android-apk",
+                "type": "text"
+              },
+              {
                 "key": "X-Onekey-Request-Version",
                 "value": "6.1.0",
                 "type": "text"
@@ -532,7 +653,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"receivingAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+              "raw": "{\n  \"fromTokenAddress\": \"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v\",\n  \"toTokenAddress\": \"Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB\",\n  \"fromTokenAmount\": \"1\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"sol--101\",\n  \"toNetworkId\": \"sol--101\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapJupiter\",\n  \"userAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"receivingAddress\": \"5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\",\n  \"quoteResultCtx\": {}\n}"
             },
             "url": {
               "raw": "https://swap.onekeytest.com/swap/v1/build-tx",

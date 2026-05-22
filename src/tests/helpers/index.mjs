@@ -7,6 +7,13 @@ import { spawn } from 'node:child_process';
 import { CDP_URL, WALLET_PASSWORD, ONEKEY_BIN, RESULTS_DIR, sleep } from './constants.mjs';
 export { CDP_URL, WALLET_PASSWORD, ONEKEY_BIN, RESULTS_DIR, sleep };
 
+async function resolveCdpEndpoint(baseUrl) {
+  const resp = await fetch(`${baseUrl}/json/version`);
+  if (!resp.ok) throw new Error(`CDP not responding: HTTP ${resp.status}`);
+  const meta = await resp.json();
+  return meta.webSocketDebuggerUrl || baseUrl;
+}
+
 /**
  * Ensure OneKey is running with CDP enabled.
  * Checks existing connection first, launches app if needed.
@@ -47,7 +54,8 @@ export async function ensureOneKeyRunning() {
  */
 export async function connectCDP() {
   await ensureOneKeyRunning();
-  const browser = await chromium.connectOverCDP(CDP_URL);
+  const cdpEndpoint = await resolveCdpEndpoint(CDP_URL);
+  const browser = await chromium.connectOverCDP(cdpEndpoint);
   const page = browser.contexts()[0]?.pages()[0];
   if (!page) throw new Error('No page found via CDP');
   return { browser, page };

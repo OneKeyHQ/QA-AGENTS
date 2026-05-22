@@ -172,6 +172,40 @@ export async function dismissOverlays(page) {
   }
   await page.keyboard.press('Escape');
   await sleep(200);
+
+  // Notification drawer on the right can stay open across tests and intercept clicks.
+  await page.evaluate(() => {
+    const bodyText = document.body.textContent || '';
+    const hasNotificationDrawer =
+      bodyText.includes('通知') && bodyText.includes('账户活动') && bodyText.includes('系统');
+    if (!hasNotificationDrawer) return;
+    const bell = document.querySelector('[data-testid="header-right-notification"]');
+    const r = bell?.getBoundingClientRect();
+    if (bell && r && r.width > 0 && r.height > 0) bell.click();
+  }).catch(() => {});
+  await sleep(200);
+
+  // Wallet "more" menu on the bottom-left can also remain open and pollute subsequent steps.
+  await page.evaluate(() => {
+    const bodyText = document.body.textContent || '';
+    const hasWalletMoreMenu =
+      bodyText.includes('在浏览器中查看') ||
+      bodyText.includes('复制地址') ||
+      bodyText.includes('批量转账') ||
+      bodyText.includes('签名与验证消息');
+    if (!hasWalletMoreMenu) return;
+    const moreBtn = document.querySelector('[data-testid="home-more-button"]');
+    const r = moreBtn?.getBoundingClientRect();
+    if (moreBtn && r && r.width > 0 && r.height > 0) {
+      moreBtn.click();
+      return;
+    }
+    document.body.click();
+  }).catch(() => {});
+  await sleep(200);
+
+  await page.keyboard.press('Escape').catch(() => {});
+  await sleep(150);
 }
 
 export async function dismissBackdrop(page) {
@@ -270,12 +304,59 @@ export async function clearSearch(page) {
 }
 
 export async function closeSearch(page) {
-  const closeBtn = await registry.resolveOrNull(page, 'navClose', { context: 'modal', timeout: 1200 });
-  if (closeBtn) {
-    try { await closeBtn.click(); await sleep(800); return; } catch {}
+  const closedByDom = await page.evaluate(() => {
+    const candidates = [
+      '[data-testid="APP-Modal-Screen"] [data-testid="nav-header-close"]',
+      '[data-testid="APP-Modal-Screen"] [data-testid="navClose"]',
+      '[data-testid="APP-Modal-Screen"] button',
+    ];
+    for (const selector of candidates) {
+      for (const node of document.querySelectorAll(selector)) {
+        const r = node.getBoundingClientRect();
+        if (r.width <= 0 || r.height <= 0) continue;
+        if (r.y > 140) continue;
+        if (selector.endsWith('button') && !node.querySelector('svg')) continue;
+        node.click();
+        return true;
+      }
+    }
+    return false;
+  }).catch(() => false);
+
+  if (!closedByDom) {
+    const closeBtn = await registry.resolveOrNull(page, 'navClose', { context: 'modal', timeout: 400 });
+    if (closeBtn) {
+      try {
+        await closeBtn.click({ force: true });
+      } catch {}
+    } else {
+      await page.keyboard.press('Escape').catch(() => {});
+    }
   }
-  await page.keyboard.press('Escape');
-  await sleep(800);
+
+  for (let i = 0; i < 10; i++) {
+    const closed = await page.evaluate(() => {
+      const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+      if (modal) {
+        const r = modal.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) return false;
+      }
+      const visibleSearchInputs = [...document.querySelectorAll('input[data-testid="nav-header-search"]')]
+        .filter((input) => {
+          const r = input.getBoundingClientRect();
+          return r.width > 0 && r.height > 0;
+        });
+      return visibleSearchInputs.length <= 1;
+    }).catch(() => true);
+    if (closed) {
+      await sleep(200);
+      return;
+    }
+    await page.keyboard.press('Escape').catch(() => {});
+    await sleep(200);
+  }
+
+  await sleep(400);
 }
 
 // ── List / Dropdown Visual Assertion ────────────────────────

@@ -159,14 +159,16 @@ async function clickSubTab(page, name) {
 
 async function clickNetworkFilter(page, network) {
   const clicked = await page.evaluate((net) => {
-    for (const el of document.querySelectorAll('span')) {
+    const mp = document.querySelector('[data-testid="market-page"]');
+    const scope = mp && mp.getBoundingClientRect().width > 40 ? mp : document;
+    for (const el of scope.querySelectorAll('span')) {
       if (el.children.length > 0) continue;
       if (el.textContent?.trim() !== net) continue;
       el.scrollIntoView({ inline: 'center', block: 'nearest' });
       el.click();
       return true;
     }
-    for (const el of document.querySelectorAll('button, div, [role="option"]')) {
+    for (const el of scope.querySelectorAll('button, div, [role="option"]')) {
       if (el.textContent?.trim() !== net || el.children.length > 2) continue;
       el.scrollIntoView({ inline: 'center', block: 'nearest' });
       el.click();
