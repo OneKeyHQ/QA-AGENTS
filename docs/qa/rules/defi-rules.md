@@ -13,6 +13,8 @@
 |------|------|--------|------|
 | Kamino | 借贷 | Solana | ✅ 已记录 |
 | Pendle | 固定收益 | Ethereum 等 | ✅ 已记录 |
+| Native | 自管 Vault 收益 | Ethereum（ETH / WETH / USDT） | ✅ 已记录 |
+| Lista | 简单赚币 | BSC / Ethereum 等 | ✅ 已记录 |
 | Aave | 借贷 | 待补充 | ⏳ 待添加 |
 
 ---
@@ -656,6 +658,123 @@ Health Factor = (Total Collateral Value * Collateral Factor) / Total Borrow Valu
 
 ---
 
+## 3.5 Native（自管 Vault 收益协议）
+
+> Native 是 OneKey 集成的自管 Vault 收益协议（PR #11717，目标版本 `release/v6.3.0`）。当前支持 `ETH`、`WETH`、`USDT`，Vault 网络为 Ethereum。生成 Native 相关测试用例时须遵守以下规则。
+
+### 3.5.1 Vault 与 Stake-token 对应
+
+| Vault | Stake-token 可选 | 备注 |
+|---|---|---|
+| `Native USDT` | USDT | 单一 stake-token |
+| `Native managed WETH` | WETH / ETH | WETH 直接存入；ETH 走 `stakeType=wrap` 前置 wrap |
+
+**测试要点**：验证 `/earn/v1/asset-list` 返回的 stake-token 列表与上表一致；Token 选择器列表按法币价值（余额 × 单价）由高到低排序。
+
+### 3.5.2 Stake 流程与接口字段
+
+| Stake Type | 触发条件 | Stepper | 主按钮文案 | 接口约束 |
+|---|---|---|---|---|
+| `normal` | USDT / WETH 直接存入 | 2 步：Approve → Deposit | `Approve and Deposit` | `/earn/v2/stake` 携带 `stakeType=normal` |
+| `wrap` | WETH Vault 选择 ETH | 3 步：Wrap → Approve → Deposit | `Wrap and Deposit` | `/earn/v2/stake` 携带 `stakeType=wrap` |
+
+**关键约束**：
+- `/earn/v1/transaction-confirmation` **不携带** `stakeType`；该字段仅出现在 check-amount / fee / build stake 路径。
+- ETH 输入 Max 时自动预留 Gas，不可填满全部余额。
+
+**交易损耗确认弹窗**（金额过小时触发）：
+- **触发条件**：存入金额过小，按当前 APY 与 Gas 估算预估收益短期难以覆盖网络费用
+- **触发时机**：点击底部主按钮（认购 / 继续等）时
+- **弹窗内容**：
+  - 标题：`交易损耗`
+  - 主文案：`按当前预估收益率计算，大约需要 X 年，收益才能弥补损失。`（年数橙色高亮，随金额与 APY 动态计算）
+  - 附加：`预估网络费用: $X.XX`
+  - 底部「取消」/「确认」按钮
+- **wrap 路径敏感性**：ETH wrap 路径含额外 wrap 交易 gas，触发阈值比直存（USDT / WETH）更敏感
+
+**测试要点**：验证不同 Stake Type 下 Stepper 步数与按钮文案；验证接口字段在不同路径上的存在/缺失；验证主币 Max 预留 Gas；验证小金额触发交易损耗确认弹窗并可取消/确认。
+
+### 3.5.3 Withdraw 流程与接口字段
+
+| Withdraw Type | 到账时间 | 手续费 | 接口字段 |
+|---|---|---|---|
+| `instant` | 立即 | 收取 withdrawal fee（动态比例，如 0.03%） | `withdrawType=instant` |
+| `queued` | 约 9 天（ETH 标注 7-9 天） | 无 fee | `withdrawType=queued`，需额外授权 receipt token |
+| `cancel` | 立即（取消后 Active 回补） | 无 fee | `withdrawType=cancel` |
+
+**赎回方式弹窗**（产品实际中文 UI）：
+- 立即提现：`立即到账`、`X% 提现手续费`
+- 排队提现：`待入账`、`无提现手续费`
+- 底部「取消」/「确认」按钮
+
+**关键约束**：
+- 立即 ↔ 排队切换时，前端展示的到账金额、手续费数据按当前选项更新。
+- 当用户已有 pending 的排队请求时，排队选项灰显，黄色提示：`由于您已有待处理的请求，无法使用排队提现。请取消后再发起新的请求。`，右侧附「取消」入口。
+- `withdrawPath.data.tip` 字段决定面板内的提示文案。
+
+**测试要点**：验证三种 Withdraw Type 的流程与字段；验证路径切换刷新接口；验证不可用选项的禁用状态。
+
+### 3.5.4 Cancel Withdrawal
+
+| 项 | 说明 |
+|---|---|
+| 入口 | Positions 列表中「Withdrawal requested」行尾的 Cancel 链接；或 DeFi Portfolio Cancel 动作 |
+| 跳转 | Withdraw 页面（Cancel withdrawal 子项） |
+| 数据回退 | `CancelWithdrawal.data.token` 缺失时，使用 `symbol/provider` fallback 打开页面 |
+| 取消后状态 | Active 金额回补；Withdrawal requested 行从 Positions 中移除 |
+
+**测试要点**：验证 Positions 中 Cancel 链接可点；验证 `data.token` 缺失场景下不报错；验证取消后跨入口（Positions / 详情页 / Manage 面板）状态一致。
+
+### 3.5.5 Claim 流程与接口字段
+
+| Claim Type | 来源 | 接口字段 |
+|---|---|---|
+| `normal` | 普通收益 / Queued 到期本金 | `/earn/v2/claim` 携带 `claimType=normal` 或不传 |
+| `airdrop` | Portfolio 的 `airdropAssets[]` | `/earn/v2/claim` 携带 `claimType=airdrop` |
+
+**关键约束**：airdrop claim 与 normal claim 互不污染；Claimable = 0 时入口隐藏或禁用。
+
+**测试要点**：验证两类 claim 接口字段；验证空投与普通收益可独立 Claim；验证 Claim 后 Claimable 数量归零、钱包余额增加。
+
+### 3.5.6 Positions 多状态展示
+
+每个 Native 代币持仓行可同时承载：
+
+| 状态 | 显示 |
+|---|---|
+| Active | `X USDT Active` |
+| Withdrawal requested | `Y USDT Withdrawal requested` + 信息图标 ⓘ + Cancel 链接 |
+| Claimable | `Z USDT ($Z.ZZ) Claim` |
+
+**Withdrawal requested 详情弹窗**（点击 ⓘ）：
+- 排队金额（如 20 USDT）
+- 剩余倒计时（如 `1 days left`）
+- 提示文案：`After the above time period, then your staked assets will be available to claim.`
+
+**测试要点**：验证三类状态在同一行共存时排版正确；验证倒计时随时间递减并在归零后变为可 Claim；验证 Manage 入口能切换到对应 Deposit / Withdraw / Claim 流程。
+
+### 3.5.7 APY 与详情页
+
+| 元素 | 说明 |
+|---|---|
+| 顶部 APY | 当前 APY 数值 + 走势图 + 时间范围（1H / 1D / 1W / Max） |
+| Yield 弹窗 | Base APY 或 Native APY、Performance fee（负值）、Last day / Last week / Last month |
+| APY 弹窗内容 | 原生 APY（正值）、币种加成（如 `USDT +X.XX%`）、业绩费（负值，文案 `利润的 10%（OneKey 10% + 金库管理者 0%）`、`仅对利润收费，不收取本金`）、最近一天 / 最近一周 / 最近一月 三档收益 |
+| Intro | Reward Token、Network、Vault（`Native USDT` / `Native managed WETH`）、Vault manager（Native） |
+| Performance | Last day / Last week / Last month |
+| Native 介绍 | 协议简介 + Show more 展开，含 TVL、FDV、Established |
+| 团队与外链 | Team members、Website、X、Discord |
+| FAQs | 多个条目，独立展开 / 收起 |
+
+### 3.5.8 后端契约速查
+
+- `StakeParamsDTO.stakeType?: 'wrap' | 'normal'`
+- `UnstakeParamsDTO.withdrawType?: 'instant' | 'queued' | 'cancel'`
+- `ClaimParamDTO.claimType?: 'normal' | 'airdrop'`
+- `TransactionConfirmationParamsDTO` 支持 `withdrawType`，**不支持** `stakeType`
+
+---
+
 ## 4. Lista（简单赚币 - Pangolins 金库管理）
 
 ### 4.1 渠道说明
@@ -786,6 +905,12 @@ LISTA 部分代币数量 = LISTA 部分(USD) / LISTA 当前价格
 ---
 
 ## 📅 变更记录
+
+### 2026-05-22
+- **新增** 3.5 Native（自管 Vault 收益协议）章节：Vault 与 stake-token 对应、Stake (`normal` / `wrap`)、Withdraw (`instant` / `queued` / `cancel`)、Cancel Withdrawal、Claim (`normal` / `airdrop`)、Positions 多状态展示、APY 与详情页、后端契约速查
+- **新增** 用例文档 `2026-05-22_DeFi-Native-stake.md`
+- **新增** 需求文档 `docs/qa/requirements/DeFi-Native协议.md`
+- **依据**：PR [#11717](https://github.com/OneKeyHQ/app-monorepo/pull/11717)（OK-54973，`release/v6.3.0`）
 
 ### 2026-05-13
 - **新增** 第 4 章 Lista（简单赚币 - Pangolins 金库管理）规则：APY 三段构成、预估年收益双代币公式、业绩费仅收利润、历史记录 60 秒轮询、详情页常见问题 5 条
