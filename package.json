@@ -41,7 +41,7 @@
   },
   "pnpm": {
     "overrides": {
-      "basic-ftp": ">=5.2.0"
+      "basic-ftp": ">=5.3.1"
     }
   }
 }
