@@ -712,6 +712,45 @@
    - 任一路径均需覆盖 `Failed` 终态展示与历史详情一致性。
 7. Private Send 属于 Send 语义，不按 Swap 语义验收：历史详情中不把目标币种数量当作主展示资产，不新增「收到币种」主卡片。
 
+### HiFi 用例生成加速规则（避免重复调试）
+
+1. HiFi 为新渠道，**同链 + 跨链均覆盖**，分别维护在 `2026-05-15_Swap-HiFi渠道同链测试.md` 与 `2026-05-15_Swap-HiFi渠道跨链测试.md`。
+2. 网络清单：
+   - 同链：Ethereum、BSC、Polygon、Arbitrum、Base、Solana、Tron
+   - 跨链：BTC、Ethereum、BSC、Polygon、Arbitrum、Base、Solana、Tron
+3. provider 常量在当前仓库未检索到；生成 API / UI 自动化脚本前必须先从接入实现确认真实枚举，再补入「渠道与 provider 映射表」。手动用例先以渠道展示名 **HiFi** 作为路由、确认页与历史记录断言口径。
+4. 支持 BTC 网络的 HiFi 跨链场景必须额外覆盖：
+   - BTC 作为目标链：接收地址使用当前钱包派生的新鲜地址，不复用历史已收款地址。
+   - BTC 作为源链：构建交易包含找零输出，找零地址属于当前钱包，且不等于渠道收款地址 / 跨链目标地址。
+5. HiFiSwap 按中心化换汇服务渠道处理：EVM / Tron 网络不写授权流程，需验证不展示授权入口并直接进入渠道订单确认 / 换汇确认流程。
+6. 代币<>代币禁止同地址对敲；Solana 不写授权流程。
+7. 金额基线：按 `## 🔄 Swap 模块通用规则 / 金额覆盖测试规则` 的最小/中间/Max 三档覆盖；BTC 场景需额外核对 UTXO 输入、渠道收款输出、找零输出与矿工费。
+
+### Private Send 用例生成规则（避免重复调试）
+
+1. Private Send 归属 **Swap 模块**，但入口位于 **Send 流程**；用例文档单独维护为 `docs/qa/testcases/cases/swap/2026-05-22_Swap-Private-Send测试.md`，不要混入渠道同链/跨链文档。
+2. 模式切换规则：
+   - 进入 Send 页面默认选中 **Public**；
+   - 仅当「OneKey 白名单 ∩ RocketX 当前支持范围」命中**当前网络 + 当前代币**，且全局总开关开启时，显示 `Public / Private` 二选一切换控件；
+   - 当前已在 Private 模式时，若切换网络或代币后组合不再支持，必须自动切回 Public，并隐藏切换控件。
+3. Private 金额输入页固定校验三个信息字段：
+   - `Estimated received`：显示渠道商报价返回的目标币种数量与法币值；
+   - `Arrival in`：显示 ETA 结果；
+   - `Provider`：当前口径固定为 **RocketX**。
+4. `How it works?` 为必测入口：
+   - Desktop / Extension / Web 位于金额输入页左下；
+   - Mobile 位于 `Preview` 下方；
+   - 点击后跳转帮助中心占位 URL，不能停留当前页无反馈。
+5. History Details 断言口径：
+   - 交易类型为 **Private Send**；
+   - Token 区域仅展示 `Send Amount`，不展示目标币种接收数量；
+   - `From` 显示当前钱包地址；`To` 显示用户在 Send 流程填写的目标接收地址，而非链上实际收款地址；`Transaction ID` 显示用户付款链上 TxHash；`Provider` 显示 RocketX。
+6. 状态机断言口径：
+   - 快链：`Submitted -> Pending -> Done`；
+   - 慢链：`Submitted -> Submitting -> Pending -> Done`；
+   - 任一路径均需覆盖 `Failed` 终态展示与历史详情一致性。
+7. Private Send 属于 Send 语义，不按 Swap 语义验收：历史详情中不把目标币种数量当作主展示资产，不新增「收到币种」主卡片。
+
 ### 1inch Fusion 用例生成加速规则（避免重复调试）
 
 1. 1inch Fusion 仅支持 **ERC20<>ERC20**；不生成主币<>代币、代币<>主币场景。
