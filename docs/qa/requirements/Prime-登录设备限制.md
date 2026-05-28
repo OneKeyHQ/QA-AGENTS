@@ -75,7 +75,7 @@ Prime 会员资格与 OneKey ID 绑定。为控制会员权益在多设备间的
 
 - 规则文档：`docs/qa/rules/prime-rules.md` 第 4.5 节
 - 相关需求：`docs/qa/requirements/Prime-会员权益与订阅管理.md`
-- 相关需求：`docs/qa/requirements/Prime-OneKeyID个人资料.md`
+- 相关需求：`docs/qa/requirements/Prime-OneKeyID信息.md`
 
 ---
 
