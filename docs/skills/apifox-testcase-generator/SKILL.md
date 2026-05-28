@@ -110,6 +110,8 @@ docs/testcases/api/
 
 > **DeFi · Pendle 专用**：生成或维护 **`provider=pendle`** 的 Earn 用例（如 `stake-protocol/detail`、`asset-list`、`transaction-confirmation`、`/earn/v2/stake` 等）时，**实际请求中的** `vault` 须为 **全小写** hex。Apifox 易将 Params 里裸填的 `0x…` 自动改为 EIP-55 混写，建议在 Collection **根级变量**（如 `pendle_vault_usde`）存小写值，用例里写 **`{{pendle_vault_usde}}`**，使 `url.raw`、`query`、`body.raw` 一致且发送时仍为小写。参考：`docs/qa/rules/defi-rules.md` §2.15、`Pendle-Swap-Quote-BuildTx-Apifox-TestCases.json`。其他 DeFi 协议用例不要求本条。
 
+> **Swap 渠道最低金额前置确认**：生成或维护 Swap Apifox 用例前，必须先询问用户该渠道是否存在最低金额限制；已确认的最低金额必须写入 `docs/qa/rules/swap-rules.md` 并同步到 collection，不允许直接继承旧渠道金额表。
+
 **测试用例结构**：
 ```json
 {

@@ -1,0 +1,456 @@
+{
+  "info": {
+    "name": "Swap HiFi - 按兑换类型（Quote+Build）",
+    "description": "HiFi 同链/跨链测试（询价+构建一体）。每条用例先 quote 再 build，并携带 quoteResultCtx。\n\n同链支持网络：Ethereum、BSC、Polygon、Arbitrum、Base、Solana、Tron\n跨链支持网络：BTC、Ethereum、BSC、Polygon、Arbitrum、Base、Solana、Tron\nprovider：SwapHifiSwap\n\n账户地址与代币合约请在集合变量维护（userAddress_* / token_USDC_* / token_USDT_*），以 docs/qa/rules/swap-network-features.md 为准。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "requestId",
+      "value": "{{$guid}}",
+      "type": "string"
+    },
+    {
+      "key": "baseUrl",
+      "value": "https://swap.onekeytest.com",
+      "type": "string"
+    },
+    {
+      "key": "userAddressEvm",
+      "value": "0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0",
+      "type": "string"
+    },
+    {
+      "key": "userAddressSol",
+      "value": "5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52",
+      "type": "string"
+    },
+    {
+      "key": "userAddressTron",
+      "value": "TPJkcqRHFfuE2xfgVzs6AA6tbJowz9pmH1",
+      "type": "string"
+    },
+    {
+      "key": "userAddressBtc",
+      "value": "bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_1",
+      "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_1",
+      "value": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_56",
+      "value": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_56",
+      "value": "0x55d398326f99059ff775485246999027b3197955",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_137",
+      "value": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_137",
+      "value": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_42161",
+      "value": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_42161",
+      "value": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_8453",
+      "value": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_8453",
+      "value": "0xfde4c96c8593536e31f229ea8f37b2ada2699bb2",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_sol_101",
+      "value": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_sol_101",
+      "value": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_tron_0",
+      "value": "TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_tron_0",
+      "value": "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01-HiFi-构建（含 Quote）",
+      "item": [
+        {
+          "name": "Build+Quote - HiFi - 主币<>主币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "/**",
+                  " * HiFi 主币<>主币: quote -> quoteResultCtx -> build-tx",
+                  " */",
+                  "var PROVIDER = 'SwapHifiSwap';",
+                  "var PROVIDER_KEY = 'hifi';",
+                  "var BASE_URL = pm.collectionVariables.get('baseUrl') || 'https://swap.onekeytest.com';",
+                  "function cv(key, fallback){ return pm.collectionVariables.get(key) || fallback; }",
+                  "var NET = {\n  ethereum: { label: 'Ethereum', id: 'evm--1', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_1', '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'), usdt: cv('token_USDT_evm_1', '0xdac17f958d2ee523a2206206994597c13d831ec7') },\n  bsc: { label: 'BSC', id: 'evm--56', native: 'BNB', amount: '1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_56', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'), usdt: cv('token_USDT_evm_56', '0x55d398326f99059ff775485246999027b3197955') },\n  polygon: { label: 'Polygon', id: 'evm--137', native: 'MATIC', amount: '2000', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_137', '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359'), usdt: cv('token_USDT_evm_137', '0xc2132d05d31c914a87c6611c10748aeb04b58e8f') },\n  arbitrum: { label: 'Arbitrum', id: 'evm--42161', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_42161', '0xaf88d065e77c8cc2239327c5edb3a432268e5831'), usdt: cv('token_USDT_evm_42161', '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9') },\n  base: { label: 'Base', id: 'evm--8453', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_8453', '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'), usdt: cv('token_USDT_evm_8453', '0xfde4c96c8593536e31f229ea8f37b2ada2699bb2') },\n  solana: { label: 'Solana', id: 'sol--101', native: 'SOL', amount: '10', addr: cv('userAddressSol', '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52'), usdc: cv('token_USDC_sol_101', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'), usdt: cv('token_USDT_sol_101', 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB') },\n  tron: { label: 'Tron', id: 'tron--0x2b6653dc', native: 'TRX', amount: '1000', addr: cv('userAddressTron', 'TPJkcqRHFfuE2xfgVzs6AA6tbJowz9pmH1'), usdc: cv('token_USDC_tron_0', 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8'), usdt: cv('token_USDT_tron_0', 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t') },\n  btc: { label: 'BTC', id: 'btc--0', native: 'BTC', amount: '0.1', addr: cv('userAddressBtc', 'bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc'), usdc: '', usdt: '' }\n};",
+                  "function tokenOf(network, asset){ return asset === 'native' ? '' : network[asset]; }",
+                  "function makeCase(name, fromKey, toKey, fromAsset, toAsset, amount){ var from=NET[fromKey]; var to=NET[toKey]; return { name:name, quoteParams:{ fromTokenAddress:tokenOf(from, fromAsset), toTokenAddress:tokenOf(to, toAsset), fromTokenAmount:String(amount), fromNetworkId:from.id, toNetworkId:to.id, protocol:'Swap', userAddress:from.addr, slippagePercentage:'0.5', autoSlippage:'true', receivingAddress:to.addr, kind:'sell', toTokenAmount:'', denySingleSwapProvider:'' }, buildBase:{ fromTokenAddress:tokenOf(from, fromAsset), toTokenAddress:tokenOf(to, toAsset), fromNetworkId:from.id, toNetworkId:to.id }, userAddr:from.addr, recvAddr:to.addr }; }",
+                  "var testCases = [",
+                  "  makeCase('Ethereum → BSC (ETH → BNB)', 'ethereum', 'bsc', 'native', 'native', '0.1'),\n  makeCase('Polygon → Arbitrum (MATIC → ETH)', 'polygon', 'arbitrum', 'native', 'native', '2000'),\n  makeCase('Base → Solana (ETH → SOL)', 'base', 'solana', 'native', 'native', '0.1'),\n  makeCase('Solana → Ethereum (SOL → ETH)', 'solana', 'ethereum', 'native', 'native', '10'),\n  makeCase('Tron → BTC (TRX → BTC)', 'tron', 'btc', 'native', 'native', '1000'),\n  makeCase('BTC → Ethereum (BTC → ETH)', 'btc', 'ethereum', 'native', 'native', '0.1')",
+                  "];",
+                  "var QUOTE_URL = BASE_URL + '/swap/v1/quote';",
+                  "var BUILD_URL = BASE_URL + '/swap/v1/build-tx';",
+                  "var quoteHeaders = {'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'), 'X-Onekey-Request-Currency': 'usd', 'X-Onekey-Request-Locale': 'zh-cn', 'X-Onekey-Request-Theme': 'dark', 'X-Onekey-Request-Platform': 'desktop-macosStore', 'X-Onekey-Request-Version': '6.2.0', 'X-Onekey-Request-Build-Number': '2026032546'};",
+                  "var buildHeaders = {'accept': 'application/json, text/plain, */*', 'content-type': 'application/json', 'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'), 'X-Onekey-Request-Currency': 'usd', 'X-Onekey-Request-Locale': 'zh-cn', 'X-Onekey-Request-Theme': 'dark', 'X-Onekey-Request-Platform': 'desktop-macosStore', 'X-Onekey-Request-Version': '6.2.0', 'X-Onekey-Request-Build-Number': '2026032546', 'X-Onekey-Wallet-Type': 'hd'};",
+                  "function headers(obj){ return Object.entries(obj).map(function(e){ return { key:e[0], value:String(e[1]) }; }); }",
+                  "function buildQuery(params){ return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var n=c.name; pm.sendRequest({ url:QUOTE_URL+'?'+buildQuery(c.quoteParams), method:'GET', header:headers(quoteHeaders) }, function(err,res){ if(err){ pm.test('['+n+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+n+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); }); var j=res.json(); pm.test('['+n+'] quote 业务码 0', function(){ pm.expect(j.code).to.eql(0); }); var d=Array.isArray(j.data)?j.data:[]; var providers=d.map(function(x){ return (x&&x.info&&x.info.provider) || (x&&x.provider) || ''; }).filter(Boolean); var target=d.find(function(x){ var p1=x&&x.info&&String(x.info.provider||''); var p2=x&&String(x.provider||''); return p1===PROVIDER||p2===PROVIDER||p1.toLowerCase().includes(PROVIDER_KEY)||p2.toLowerCase().includes(PROVIDER_KEY); }); pm.test('['+n+'] '+PROVIDER+' 有效报价', function(){ if(!target){ pm.expect.fail('data 中无 '+PROVIDER+' 条目，providers='+JSON.stringify(providers)); } pm.expect(target).to.be.ok; pm.expect(target.errorMessage, PROVIDER+' 条目携带 errorMessage: '+target.errorMessage).to.be.oneOf([undefined, null, '']); var hasQuote=target.toAmount||target.fromAmount||(target.info&&target.info.toAmount); pm.expect(hasQuote, PROVIDER+' 条目无有效报价金额').to.be.ok; }); if(!target){ runCase(i+1); return; } var ctx=(target&&target.quoteResultCtx) || (target&&target.info&&target.info.quoteResultCtx) || null; pm.test('['+n+'] quoteResultCtx 存在', function(){ if(!ctx){ pm.expect.fail(PROVIDER_KEY+'Quote='+JSON.stringify(target)); } pm.expect(ctx).to.be.ok; }); if(!ctx){ runCase(i+1); return; } var toAmt=target.toAmount||c.buildBase.toTokenAmount||'0'; var body=Object.assign({}, c.buildBase, { fromTokenAmount:c.quoteParams.fromTokenAmount, toTokenAmount:String(toAmt), protocol:'Swap', provider:PROVIDER, userAddress:c.userAddr, receivingAddress:c.recvAddr, slippagePercentage:0.5, kind:'sell', walletType:'hd', quoteResultCtx:ctx }); pm.sendRequest({ url:BUILD_URL, method:'POST', header:headers(buildHeaders), body:{ mode:'raw', raw:JSON.stringify(body) } }, function(err2,res2){ if(err2){ pm.test('['+n+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); }); runCase(i+1); return; } var code2=res2.code||res2.status; pm.test('['+n+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); }); if(code2===200){ var j2=res2.json(); pm.test('['+n+'] build 业务码 0', function(){ pm.expect(j2.code).to.eql(0); }); pm.test('['+n+'] build data 存在', function(){ pm.expect(j2.data).to.be.ok; }); } runCase(i+1); }); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.2.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026032546",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"0.1\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--56\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapHifiSwap\",\n  \"userAddress\": \"0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0\",\n  \"receivingAddress\": \"0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build+Quote - HiFi - 主币<>代币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "/**",
+                  " * HiFi 主币<>代币: quote -> quoteResultCtx -> build-tx",
+                  " */",
+                  "var PROVIDER = 'SwapHifiSwap';",
+                  "var PROVIDER_KEY = 'hifi';",
+                  "var BASE_URL = pm.collectionVariables.get('baseUrl') || 'https://swap.onekeytest.com';",
+                  "function cv(key, fallback){ return pm.collectionVariables.get(key) || fallback; }",
+                  "var NET = {\n  ethereum: { label: 'Ethereum', id: 'evm--1', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_1', '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'), usdt: cv('token_USDT_evm_1', '0xdac17f958d2ee523a2206206994597c13d831ec7') },\n  bsc: { label: 'BSC', id: 'evm--56', native: 'BNB', amount: '1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_56', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'), usdt: cv('token_USDT_evm_56', '0x55d398326f99059ff775485246999027b3197955') },\n  polygon: { label: 'Polygon', id: 'evm--137', native: 'MATIC', amount: '2000', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_137', '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359'), usdt: cv('token_USDT_evm_137', '0xc2132d05d31c914a87c6611c10748aeb04b58e8f') },\n  arbitrum: { label: 'Arbitrum', id: 'evm--42161', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_42161', '0xaf88d065e77c8cc2239327c5edb3a432268e5831'), usdt: cv('token_USDT_evm_42161', '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9') },\n  base: { label: 'Base', id: 'evm--8453', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_8453', '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'), usdt: cv('token_USDT_evm_8453', '0xfde4c96c8593536e31f229ea8f37b2ada2699bb2') },\n  solana: { label: 'Solana', id: 'sol--101', native: 'SOL', amount: '10', addr: cv('userAddressSol', '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52'), usdc: cv('token_USDC_sol_101', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'), usdt: cv('token_USDT_sol_101', 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB') },\n  tron: { label: 'Tron', id: 'tron--0x2b6653dc', native: 'TRX', amount: '1000', addr: cv('userAddressTron', 'TPJkcqRHFfuE2xfgVzs6AA6tbJowz9pmH1'), usdc: cv('token_USDC_tron_0', 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8'), usdt: cv('token_USDT_tron_0', 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t') },\n  btc: { label: 'BTC', id: 'btc--0', native: 'BTC', amount: '0.1', addr: cv('userAddressBtc', 'bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc'), usdc: '', usdt: '' }\n};",
+                  "function tokenOf(network, asset){ return asset === 'native' ? '' : network[asset]; }",
+                  "function makeCase(name, fromKey, toKey, fromAsset, toAsset, amount){ var from=NET[fromKey]; var to=NET[toKey]; return { name:name, quoteParams:{ fromTokenAddress:tokenOf(from, fromAsset), toTokenAddress:tokenOf(to, toAsset), fromTokenAmount:String(amount), fromNetworkId:from.id, toNetworkId:to.id, protocol:'Swap', userAddress:from.addr, slippagePercentage:'0.5', autoSlippage:'true', receivingAddress:to.addr, kind:'sell', toTokenAmount:'', denySingleSwapProvider:'' }, buildBase:{ fromTokenAddress:tokenOf(from, fromAsset), toTokenAddress:tokenOf(to, toAsset), fromNetworkId:from.id, toNetworkId:to.id }, userAddr:from.addr, recvAddr:to.addr }; }",
+                  "var testCases = [",
+                  "  makeCase('Ethereum.ETH → Ethereum.USDC', 'ethereum', 'ethereum', 'native', 'usdc', '0.1'),\n  makeCase('BSC.BNB → Polygon.USDC', 'bsc', 'polygon', 'native', 'usdc', '1'),\n  makeCase('Arbitrum.ETH → Base.USDC', 'arbitrum', 'base', 'native', 'usdc', '0.1'),\n  makeCase('Solana.SOL → Ethereum.USDC', 'solana', 'ethereum', 'native', 'usdc', '10'),\n  makeCase('Tron.TRX → Tron.USDT', 'tron', 'tron', 'native', 'usdt', '1000'),\n  makeCase('BTC.BTC → Ethereum.USDC', 'btc', 'ethereum', 'native', 'usdc', '0.1')",
+                  "];",
+                  "var QUOTE_URL = BASE_URL + '/swap/v1/quote';",
+                  "var BUILD_URL = BASE_URL + '/swap/v1/build-tx';",
+                  "var quoteHeaders = {'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'), 'X-Onekey-Request-Currency': 'usd', 'X-Onekey-Request-Locale': 'zh-cn', 'X-Onekey-Request-Theme': 'dark', 'X-Onekey-Request-Platform': 'desktop-macosStore', 'X-Onekey-Request-Version': '6.2.0', 'X-Onekey-Request-Build-Number': '2026032546'};",
+                  "var buildHeaders = {'accept': 'application/json, text/plain, */*', 'content-type': 'application/json', 'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'), 'X-Onekey-Request-Currency': 'usd', 'X-Onekey-Request-Locale': 'zh-cn', 'X-Onekey-Request-Theme': 'dark', 'X-Onekey-Request-Platform': 'desktop-macosStore', 'X-Onekey-Request-Version': '6.2.0', 'X-Onekey-Request-Build-Number': '2026032546', 'X-Onekey-Wallet-Type': 'hd'};",
+                  "function headers(obj){ return Object.entries(obj).map(function(e){ return { key:e[0], value:String(e[1]) }; }); }",
+                  "function buildQuery(params){ return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var n=c.name; pm.sendRequest({ url:QUOTE_URL+'?'+buildQuery(c.quoteParams), method:'GET', header:headers(quoteHeaders) }, function(err,res){ if(err){ pm.test('['+n+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+n+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); }); var j=res.json(); pm.test('['+n+'] quote 业务码 0', function(){ pm.expect(j.code).to.eql(0); }); var d=Array.isArray(j.data)?j.data:[]; var providers=d.map(function(x){ return (x&&x.info&&x.info.provider) || (x&&x.provider) || ''; }).filter(Boolean); var target=d.find(function(x){ var p1=x&&x.info&&String(x.info.provider||''); var p2=x&&String(x.provider||''); return p1===PROVIDER||p2===PROVIDER||p1.toLowerCase().includes(PROVIDER_KEY)||p2.toLowerCase().includes(PROVIDER_KEY); }); pm.test('['+n+'] '+PROVIDER+' 有效报价', function(){ if(!target){ pm.expect.fail('data 中无 '+PROVIDER+' 条目，providers='+JSON.stringify(providers)); } pm.expect(target).to.be.ok; pm.expect(target.errorMessage, PROVIDER+' 条目携带 errorMessage: '+target.errorMessage).to.be.oneOf([undefined, null, '']); var hasQuote=target.toAmount||target.fromAmount||(target.info&&target.info.toAmount); pm.expect(hasQuote, PROVIDER+' 条目无有效报价金额').to.be.ok; }); if(!target){ runCase(i+1); return; } var ctx=(target&&target.quoteResultCtx) || (target&&target.info&&target.info.quoteResultCtx) || null; pm.test('['+n+'] quoteResultCtx 存在', function(){ if(!ctx){ pm.expect.fail(PROVIDER_KEY+'Quote='+JSON.stringify(target)); } pm.expect(ctx).to.be.ok; }); if(!ctx){ runCase(i+1); return; } var toAmt=target.toAmount||c.buildBase.toTokenAmount||'0'; var body=Object.assign({}, c.buildBase, { fromTokenAmount:c.quoteParams.fromTokenAmount, toTokenAmount:String(toAmt), protocol:'Swap', provider:PROVIDER, userAddress:c.userAddr, receivingAddress:c.recvAddr, slippagePercentage:0.5, kind:'sell', walletType:'hd', quoteResultCtx:ctx }); pm.sendRequest({ url:BUILD_URL, method:'POST', header:headers(buildHeaders), body:{ mode:'raw', raw:JSON.stringify(body) } }, function(err2,res2){ if(err2){ pm.test('['+n+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); }); runCase(i+1); return; } var code2=res2.code||res2.status; pm.test('['+n+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); }); if(code2===200){ var j2=res2.json(); pm.test('['+n+'] build 业务码 0', function(){ pm.expect(j2.code).to.eql(0); }); pm.test('['+n+'] build data 存在', function(){ pm.expect(j2.data).to.be.ok; }); } runCase(i+1); }); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.2.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026032546",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"{{token_USDC_evm_1}}\",\n  \"fromTokenAmount\": \"0.1\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapHifiSwap\",\n  \"userAddress\": \"0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0\",\n  \"receivingAddress\": \"0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build+Quote - HiFi - 代币<>主币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "/**",
+                  " * HiFi 代币<>主币: quote -> quoteResultCtx -> build-tx",
+                  " */",
+                  "var PROVIDER = 'SwapHifiSwap';",
+                  "var PROVIDER_KEY = 'hifi';",
+                  "var BASE_URL = pm.collectionVariables.get('baseUrl') || 'https://swap.onekeytest.com';",
+                  "function cv(key, fallback){ return pm.collectionVariables.get(key) || fallback; }",
+                  "var NET = {\n  ethereum: { label: 'Ethereum', id: 'evm--1', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_1', '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'), usdt: cv('token_USDT_evm_1', '0xdac17f958d2ee523a2206206994597c13d831ec7') },\n  bsc: { label: 'BSC', id: 'evm--56', native: 'BNB', amount: '1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_56', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'), usdt: cv('token_USDT_evm_56', '0x55d398326f99059ff775485246999027b3197955') },\n  polygon: { label: 'Polygon', id: 'evm--137', native: 'MATIC', amount: '2000', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_137', '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359'), usdt: cv('token_USDT_evm_137', '0xc2132d05d31c914a87c6611c10748aeb04b58e8f') },\n  arbitrum: { label: 'Arbitrum', id: 'evm--42161', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_42161', '0xaf88d065e77c8cc2239327c5edb3a432268e5831'), usdt: cv('token_USDT_evm_42161', '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9') },\n  base: { label: 'Base', id: 'evm--8453', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_8453', '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'), usdt: cv('token_USDT_evm_8453', '0xfde4c96c8593536e31f229ea8f37b2ada2699bb2') },\n  solana: { label: 'Solana', id: 'sol--101', native: 'SOL', amount: '10', addr: cv('userAddressSol', '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52'), usdc: cv('token_USDC_sol_101', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'), usdt: cv('token_USDT_sol_101', 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB') },\n  tron: { label: 'Tron', id: 'tron--0x2b6653dc', native: 'TRX', amount: '1000', addr: cv('userAddressTron', 'TPJkcqRHFfuE2xfgVzs6AA6tbJowz9pmH1'), usdc: cv('token_USDC_tron_0', 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8'), usdt: cv('token_USDT_tron_0', 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t') },\n  btc: { label: 'BTC', id: 'btc--0', native: 'BTC', amount: '0.1', addr: cv('userAddressBtc', 'bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc'), usdc: '', usdt: '' }\n};",
+                  "function tokenOf(network, asset){ return asset === 'native' ? '' : network[asset]; }",
+                  "function makeCase(name, fromKey, toKey, fromAsset, toAsset, amount){ var from=NET[fromKey]; var to=NET[toKey]; return { name:name, quoteParams:{ fromTokenAddress:tokenOf(from, fromAsset), toTokenAddress:tokenOf(to, toAsset), fromTokenAmount:String(amount), fromNetworkId:from.id, toNetworkId:to.id, protocol:'Swap', userAddress:from.addr, slippagePercentage:'0.5', autoSlippage:'true', receivingAddress:to.addr, kind:'sell', toTokenAmount:'', denySingleSwapProvider:'' }, buildBase:{ fromTokenAddress:tokenOf(from, fromAsset), toTokenAddress:tokenOf(to, toAsset), fromNetworkId:from.id, toNetworkId:to.id }, userAddr:from.addr, recvAddr:to.addr }; }",
+                  "var testCases = [",
+                  "  makeCase('Ethereum.USDC → BSC.BNB', 'ethereum', 'bsc', 'usdc', 'native', '100'),\n  makeCase('Polygon.USDC → Arbitrum.ETH', 'polygon', 'arbitrum', 'usdc', 'native', '100'),\n  makeCase('Base.USDC → Solana.SOL', 'base', 'solana', 'usdc', 'native', '100'),\n  makeCase('Tron.USDT → BTC.BTC', 'tron', 'btc', 'usdt', 'native', '100')",
+                  "];",
+                  "var QUOTE_URL = BASE_URL + '/swap/v1/quote';",
+                  "var BUILD_URL = BASE_URL + '/swap/v1/build-tx';",
+                  "var quoteHeaders = {'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'), 'X-Onekey-Request-Currency': 'usd', 'X-Onekey-Request-Locale': 'zh-cn', 'X-Onekey-Request-Theme': 'dark', 'X-Onekey-Request-Platform': 'desktop-macosStore', 'X-Onekey-Request-Version': '6.2.0', 'X-Onekey-Request-Build-Number': '2026032546'};",
+                  "var buildHeaders = {'accept': 'application/json, text/plain, */*', 'content-type': 'application/json', 'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'), 'X-Onekey-Request-Currency': 'usd', 'X-Onekey-Request-Locale': 'zh-cn', 'X-Onekey-Request-Theme': 'dark', 'X-Onekey-Request-Platform': 'desktop-macosStore', 'X-Onekey-Request-Version': '6.2.0', 'X-Onekey-Request-Build-Number': '2026032546', 'X-Onekey-Wallet-Type': 'hd'};",
+                  "function headers(obj){ return Object.entries(obj).map(function(e){ return { key:e[0], value:String(e[1]) }; }); }",
+                  "function buildQuery(params){ return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var n=c.name; pm.sendRequest({ url:QUOTE_URL+'?'+buildQuery(c.quoteParams), method:'GET', header:headers(quoteHeaders) }, function(err,res){ if(err){ pm.test('['+n+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+n+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); }); var j=res.json(); pm.test('['+n+'] quote 业务码 0', function(){ pm.expect(j.code).to.eql(0); }); var d=Array.isArray(j.data)?j.data:[]; var providers=d.map(function(x){ return (x&&x.info&&x.info.provider) || (x&&x.provider) || ''; }).filter(Boolean); var target=d.find(function(x){ var p1=x&&x.info&&String(x.info.provider||''); var p2=x&&String(x.provider||''); return p1===PROVIDER||p2===PROVIDER||p1.toLowerCase().includes(PROVIDER_KEY)||p2.toLowerCase().includes(PROVIDER_KEY); }); pm.test('['+n+'] '+PROVIDER+' 有效报价', function(){ if(!target){ pm.expect.fail('data 中无 '+PROVIDER+' 条目，providers='+JSON.stringify(providers)); } pm.expect(target).to.be.ok; pm.expect(target.errorMessage, PROVIDER+' 条目携带 errorMessage: '+target.errorMessage).to.be.oneOf([undefined, null, '']); var hasQuote=target.toAmount||target.fromAmount||(target.info&&target.info.toAmount); pm.expect(hasQuote, PROVIDER+' 条目无有效报价金额').to.be.ok; }); if(!target){ runCase(i+1); return; } var ctx=(target&&target.quoteResultCtx) || (target&&target.info&&target.info.quoteResultCtx) || null; pm.test('['+n+'] quoteResultCtx 存在', function(){ if(!ctx){ pm.expect.fail(PROVIDER_KEY+'Quote='+JSON.stringify(target)); } pm.expect(ctx).to.be.ok; }); if(!ctx){ runCase(i+1); return; } var toAmt=target.toAmount||c.buildBase.toTokenAmount||'0'; var body=Object.assign({}, c.buildBase, { fromTokenAmount:c.quoteParams.fromTokenAmount, toTokenAmount:String(toAmt), protocol:'Swap', provider:PROVIDER, userAddress:c.userAddr, receivingAddress:c.recvAddr, slippagePercentage:0.5, kind:'sell', walletType:'hd', quoteResultCtx:ctx }); pm.sendRequest({ url:BUILD_URL, method:'POST', header:headers(buildHeaders), body:{ mode:'raw', raw:JSON.stringify(body) } }, function(err2,res2){ if(err2){ pm.test('['+n+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); }); runCase(i+1); return; } var code2=res2.code||res2.status; pm.test('['+n+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); }); if(code2===200){ var j2=res2.json(); pm.test('['+n+'] build 业务码 0', function(){ pm.expect(j2.code).to.eql(0); }); pm.test('['+n+'] build data 存在', function(){ pm.expect(j2.data).to.be.ok; }); } runCase(i+1); }); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.2.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026032546",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"{{token_USDC_evm_1}}\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"100\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--56\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapHifiSwap\",\n  \"userAddress\": \"0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0\",\n  \"receivingAddress\": \"0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Build+Quote - HiFi - 代币<>代币",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "/**",
+                  " * HiFi 代币<>代币: quote -> quoteResultCtx -> build-tx",
+                  " */",
+                  "var PROVIDER = 'SwapHifiSwap';",
+                  "var PROVIDER_KEY = 'hifi';",
+                  "var BASE_URL = pm.collectionVariables.get('baseUrl') || 'https://swap.onekeytest.com';",
+                  "function cv(key, fallback){ return pm.collectionVariables.get(key) || fallback; }",
+                  "var NET = {\n  ethereum: { label: 'Ethereum', id: 'evm--1', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_1', '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'), usdt: cv('token_USDT_evm_1', '0xdac17f958d2ee523a2206206994597c13d831ec7') },\n  bsc: { label: 'BSC', id: 'evm--56', native: 'BNB', amount: '1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_56', '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d'), usdt: cv('token_USDT_evm_56', '0x55d398326f99059ff775485246999027b3197955') },\n  polygon: { label: 'Polygon', id: 'evm--137', native: 'MATIC', amount: '2000', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_137', '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359'), usdt: cv('token_USDT_evm_137', '0xc2132d05d31c914a87c6611c10748aeb04b58e8f') },\n  arbitrum: { label: 'Arbitrum', id: 'evm--42161', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_42161', '0xaf88d065e77c8cc2239327c5edb3a432268e5831'), usdt: cv('token_USDT_evm_42161', '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9') },\n  base: { label: 'Base', id: 'evm--8453', native: 'ETH', amount: '0.1', addr: cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0'), usdc: cv('token_USDC_evm_8453', '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913'), usdt: cv('token_USDT_evm_8453', '0xfde4c96c8593536e31f229ea8f37b2ada2699bb2') },\n  solana: { label: 'Solana', id: 'sol--101', native: 'SOL', amount: '10', addr: cv('userAddressSol', '5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52'), usdc: cv('token_USDC_sol_101', 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'), usdt: cv('token_USDT_sol_101', 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB') },\n  tron: { label: 'Tron', id: 'tron--0x2b6653dc', native: 'TRX', amount: '1000', addr: cv('userAddressTron', 'TPJkcqRHFfuE2xfgVzs6AA6tbJowz9pmH1'), usdc: cv('token_USDC_tron_0', 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8'), usdt: cv('token_USDT_tron_0', 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t') },\n  btc: { label: 'BTC', id: 'btc--0', native: 'BTC', amount: '0.1', addr: cv('userAddressBtc', 'bc1ph7kashckclw7krcat6um7xlvvms4rsnpv2962av4pkdhw9sm08xqlm4nlc'), usdc: '', usdt: '' }\n};",
+                  "function tokenOf(network, asset){ return asset === 'native' ? '' : network[asset]; }",
+                  "function makeCase(name, fromKey, toKey, fromAsset, toAsset, amount){ var from=NET[fromKey]; var to=NET[toKey]; return { name:name, quoteParams:{ fromTokenAddress:tokenOf(from, fromAsset), toTokenAddress:tokenOf(to, toAsset), fromTokenAmount:String(amount), fromNetworkId:from.id, toNetworkId:to.id, protocol:'Swap', userAddress:from.addr, slippagePercentage:'0.5', autoSlippage:'true', receivingAddress:to.addr, kind:'sell', toTokenAmount:'', denySingleSwapProvider:'' }, buildBase:{ fromTokenAddress:tokenOf(from, fromAsset), toTokenAddress:tokenOf(to, toAsset), fromNetworkId:from.id, toNetworkId:to.id }, userAddr:from.addr, recvAddr:to.addr }; }",
+                  "var testCases = [",
+                  "  makeCase('Ethereum.USDC → BSC.USDC', 'ethereum', 'bsc', 'usdc', 'usdc', '100'),\n  makeCase('Polygon.USDC → Arbitrum.USDC', 'polygon', 'arbitrum', 'usdc', 'usdc', '100'),\n  makeCase('Base.USDC → Solana.USDC', 'base', 'solana', 'usdc', 'usdc', '100'),\n  makeCase('Tron.USDT → Ethereum.USDC', 'tron', 'ethereum', 'usdt', 'usdc', '100')",
+                  "];",
+                  "var QUOTE_URL = BASE_URL + '/swap/v1/quote';",
+                  "var BUILD_URL = BASE_URL + '/swap/v1/build-tx';",
+                  "var quoteHeaders = {'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'), 'X-Onekey-Request-Currency': 'usd', 'X-Onekey-Request-Locale': 'zh-cn', 'X-Onekey-Request-Theme': 'dark', 'X-Onekey-Request-Platform': 'desktop-macosStore', 'X-Onekey-Request-Version': '6.2.0', 'X-Onekey-Request-Build-Number': '2026032546'};",
+                  "var buildHeaders = {'accept': 'application/json, text/plain, */*', 'content-type': 'application/json', 'X-Onekey-Request-ID': pm.variables.replaceIn('{{$guid}}'), 'X-Onekey-Request-Currency': 'usd', 'X-Onekey-Request-Locale': 'zh-cn', 'X-Onekey-Request-Theme': 'dark', 'X-Onekey-Request-Platform': 'desktop-macosStore', 'X-Onekey-Request-Version': '6.2.0', 'X-Onekey-Request-Build-Number': '2026032546', 'X-Onekey-Wallet-Type': 'hd'};",
+                  "function headers(obj){ return Object.entries(obj).map(function(e){ return { key:e[0], value:String(e[1]) }; }); }",
+                  "function buildQuery(params){ return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
+                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var n=c.name; pm.sendRequest({ url:QUOTE_URL+'?'+buildQuery(c.quoteParams), method:'GET', header:headers(quoteHeaders) }, function(err,res){ if(err){ pm.test('['+n+'] quote 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+n+'] quote HTTP 200', function(){ pm.expect(code).to.equal(200); }); var j=res.json(); pm.test('['+n+'] quote 业务码 0', function(){ pm.expect(j.code).to.eql(0); }); var d=Array.isArray(j.data)?j.data:[]; var providers=d.map(function(x){ return (x&&x.info&&x.info.provider) || (x&&x.provider) || ''; }).filter(Boolean); var target=d.find(function(x){ var p1=x&&x.info&&String(x.info.provider||''); var p2=x&&String(x.provider||''); return p1===PROVIDER||p2===PROVIDER||p1.toLowerCase().includes(PROVIDER_KEY)||p2.toLowerCase().includes(PROVIDER_KEY); }); pm.test('['+n+'] '+PROVIDER+' 有效报价', function(){ if(!target){ pm.expect.fail('data 中无 '+PROVIDER+' 条目，providers='+JSON.stringify(providers)); } pm.expect(target).to.be.ok; pm.expect(target.errorMessage, PROVIDER+' 条目携带 errorMessage: '+target.errorMessage).to.be.oneOf([undefined, null, '']); var hasQuote=target.toAmount||target.fromAmount||(target.info&&target.info.toAmount); pm.expect(hasQuote, PROVIDER+' 条目无有效报价金额').to.be.ok; }); if(!target){ runCase(i+1); return; } var ctx=(target&&target.quoteResultCtx) || (target&&target.info&&target.info.quoteResultCtx) || null; pm.test('['+n+'] quoteResultCtx 存在', function(){ if(!ctx){ pm.expect.fail(PROVIDER_KEY+'Quote='+JSON.stringify(target)); } pm.expect(ctx).to.be.ok; }); if(!ctx){ runCase(i+1); return; } var toAmt=target.toAmount||c.buildBase.toTokenAmount||'0'; var body=Object.assign({}, c.buildBase, { fromTokenAmount:c.quoteParams.fromTokenAmount, toTokenAmount:String(toAmt), protocol:'Swap', provider:PROVIDER, userAddress:c.userAddr, receivingAddress:c.recvAddr, slippagePercentage:0.5, kind:'sell', walletType:'hd', quoteResultCtx:ctx }); pm.sendRequest({ url:BUILD_URL, method:'POST', header:headers(buildHeaders), body:{ mode:'raw', raw:JSON.stringify(body) } }, function(err2,res2){ if(err2){ pm.test('['+n+'] build 请求失败', function(){ pm.expect.fail(err2.toString()); }); runCase(i+1); return; } var code2=res2.code||res2.status; pm.test('['+n+'] build HTTP 200', function(){ pm.expect(code2).to.equal(200); }); if(code2===200){ var j2=res2.json(); pm.test('['+n+'] build 业务码 0', function(){ pm.expect(j2.code).to.eql(0); }); pm.test('['+n+'] build data 存在', function(){ pm.expect(j2.data).to.be.ok; }); } runCase(i+1); }); }); }",
+                  "runCase(0);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-ID",
+                "value": "{{requestId}}",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Version",
+                "value": "6.2.0",
+                "type": "text"
+              },
+              {
+                "key": "X-Onekey-Request-Build-Number",
+                "value": "2026032546",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fromTokenAddress\": \"{{token_USDC_evm_1}}\",\n  \"toTokenAddress\": \"{{token_USDC_evm_56}}\",\n  \"fromTokenAmount\": \"100\",\n  \"toTokenAmount\": \"1\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--56\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"SwapHifiSwap\",\n  \"userAddress\": \"0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0\",\n  \"receivingAddress\": \"0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
+            },
+            "url": {
+              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "host": [
+                "swap",
+                "onekeytest",
+                "com"
+              ],
+              "path": [
+                "swap",
+                "v1",
+                "build-tx"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -51,7 +51,7 @@ Swap 模块支持的网络按技术架构分为三类：
 | Arbitrum | `evm--42161` | `0xaf88d065e77c8cC2239327C5EDb3A432268e5831` | `0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9` |
 | Optimism | `evm--10` | `0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85` | `0x94b008aA00579c1307B0EF2c499aD98a8ce58e58` |
 | Solana | `sol--101` | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB` |
-| Tron | `tron--0` | `TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8` | `TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t` |
+| Tron | `tron--0x2b6653dc` | `TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8` | `TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t` |
 | SUI | `sui--0` | `0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC` | `0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT` |
 
 ---
