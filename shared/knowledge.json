@@ -954,6 +954,70 @@
       "pattern": "StepTracker 中不能用 `passed + skip detail` 吞掉异常；可选分支要记 `skipped`，核心动作失败要记 `failed`",
       "details": "修 `src/tests/shared/market/favorite.mjs` 时发现，多处 `catch` 分支把异常写成 `t.add(..., 'passed', `skip: ...`)`，会让 Dashboard 把真实失败展示成 PASS，直接违反仓库“无软断言、每个步骤必须明确 passed/failed/skipped”的要求。正确口径是：1) 仅当步骤确属环境差异或 best-effort 分支，才记录 `skipped` 并附带原因；2) 若该步骤是当前用例的核心成功条件（如点击添加代币、详情页取消收藏），异常必须记录为 `failed`。触发场景：Market 收藏脚本、其他使用 `createStepTracker`/`safeStep` 的 UI 自动化用例维护。",
       "confidence": 0.99
+    },
+    {
+      "id": "K-121",
+      "category": "process",
+      "platform": "api",
+      "pattern": "Houdini API 询价不能用普通 `/quote` 判断可用性；SUI 主币路径需用 quote/events + sui--mainnet + 0x2::sui::SUI",
+      "details": "维护 `Swap-Houdini-全网络全类型-Apifox-TestCases.json` 时，Solana -> SUI 和 Tron -> BTC 在普通 `/swap/v1/quote` 下 HTTP 200、业务码 0，但 `data=[]` / `providers=[]`，断言找不到 `SwapHoudi`。用户给出的桌面端成功请求显示 Houdini 实际走 `/swap/v1/quote/events`（SSE，accept=text/event-stream），并且 Solana -> SUI 使用 `toNetworkId=sui--mainnet`、`toTokenAddress=0x2::sui::SUI`、`incognito=true`。修复口径：Houdini Apifox quote 阶段改用 `/quote/events`，脚本解析 `data:` 事件行后提取 provider；SUI native 不能套用通用 `sui--0 + 空 native token`。触发场景：Houdini/RocketX/隐私渠道 API collection 生成与维护。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-122",
+      "category": "process",
+      "platform": "api",
+      "pattern": "Swap API 的 Tron 主网 networkId 使用 `tron--0x2b6653dc`，不要用旧值 `tron--0`",
+      "details": "继续分析 Houdini Tron 源链失败时，用户提供的桌面端成功 curl 为 TRX -> ETH：`fromNetworkId=tron--0x2b6653dc`、`toNetworkId=evm--1`、`fromTokenAmount=1000`、`accept=text/event-stream`。本地生成的 Houdini/RocketX/HiFi Apifox 集合仍使用旧的 `tron--0`，会导致 Tron 作为源链时无法命中有效 provider。修复口径：Swap API collection 与 `swap-network-features.md` 中 Tron networkId 统一改为 `tron--0x2b6653dc`；Houdini 的 Tron 主币覆盖优先使用已验证的 Tron -> Ethereum，不用固定 BTC 目标地址做主路径。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-123",
+      "category": "process",
+      "platform": "api",
+      "pattern": "生成 Swap Apifox 用例前必须确认渠道最低金额限制，不能默认沿用旧金额表",
+      "details": "用户纠正 RocketX / HiFi 与 Houdini 一样存在最低金额限制：源币为主币时 Polygon 使用 2000 MATIC、Solana 使用 10 SOL、Tron 使用 1000 TRX；源币为 USDC / USDT 时统一使用 100；HiFi 支持 BTC 渠道，BTC 源币金额单独使用 0.1 BTC。后续编写或批量生成 Swap Apifox 测试用例前，必须先询问用户该渠道是否存在最低金额限制，并将确认后的金额口径写入 `swap-rules.md` 与对应 collection。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-124",
+      "category": "process",
+      "platform": "api",
+      "pattern": "RocketX Solana -> SUI 询价需走 quote/events + SUI mainnet native token + 硬件钱包参数",
+      "details": "用户提供的成功 curl 显示 RocketX 的 Solana -> SUI 成功请求为 `/swap/v1/quote/events`（SSE，accept=text/event-stream），`fromNetworkId=sol--101`、`toNetworkId=sui--mainnet`、`toTokenAddress=0x2::sui::SUI`、`fromTokenAmount=10`、`walletDeviceType=pro`、`incognito=true`，且请求头 `X-Onekey-Wallet-Type=hw`。本地 RocketX Apifox 集合此前仍使用普通 `/swap/v1/quote`、`sui--0`、SUI native 空 token、旧 6.2/MAS header，因此返回 `providers=[]`。修复口径：RocketX quote 阶段改用 `/quote/events` 并解析 SSE `data:` 行，SUI native 按 `sui--mainnet + 0x2::sui::SUI`，硬件钱包 quote 参数带 `walletDeviceType=pro`。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-125",
+      "category": "process",
+      "platform": "api",
+      "pattern": "RocketX 的 SUI.USDC -> Tron.TRX 路由不能沿用默认 0.5 滑点，需按桌面端成功参数使用 1",
+      "details": "继续维护 `Swap-RocketX-全网络全类型-Apifox-TestCases.json` 时，`SUI.USDC → Tron.TRX` 仍沿用通用 `slippagePercentage=0.5`，而用户给出的桌面端成功 curl 为 `/swap/v1/quote/events` + `fromTokenAddress=0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC` + `fromNetworkId=sui--mainnet` + `toNetworkId=tron--0x2b6653dc` + `fromTokenAmount=100` + `slippagePercentage=1` + `walletDeviceType=pro` + `incognito=true`。修复口径：RocketX collection 对该路由单独覆盖 `slippagePercentage=1`，并让 build 阶段跟随对应 case 的滑点，不再把 `0.5` 硬编码到所有路由。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-126",
+      "category": "process",
+      "platform": "api",
+      "pattern": "RocketX 的跨链主币配对不能直接沿用 Houdini 模板；网络支持范围相同不代表具体路由也相同",
+      "details": "对比 `Swap-RocketX-全网络全类型-Apifox-TestCases.json` 与 `Swap-Houdini-全网络全类型-Apifox-TestCases.json` 的 `主币<>主币` 组后发现，RocketX 当前失败的 `Ethereum → BSC`、`BSC → Avalanche`、`Polygon → Arbitrum`、`Optimism → Base`、`Solana → SUI`、`BTC → Ethereum` 等配对，参数表与 Houdini 基本一致，说明问题不是网络 ID / 金额表本身，而是把 Houdini 的配对矩阵直接迁移到了 RocketX。用户截图中的 `BTC → Ethereum` 失败日志还显示 `quote HTTP 200 + code 0`，但 SSE 只有 `isStock / isMarketOpen / eventId / totalQuoteCount` 等中间态，没有最终 `SwapRocketX` 条目；这类现象要优先怀疑“路由未被 RocketX 当前支持或返回更慢”，而不是先改变量表。特别是 `Tron → BTC`：Houdini 主币组后来已经改成 `Tron → Ethereum`，继续把旧的 `Tron → BTC` 继承到 RocketX，命中失败的概率很高。修复口径：RocketX 的具体配对以该渠道自己的手工用例、成功 curl 或最新验证结果为准，不直接复用 Houdini 的主币跨链配对。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-127",
+      "category": "process",
+      "platform": "api",
+      "pattern": "RocketX Apifox 成功集当前先对齐 Houdini 当前矩阵，Tron 代币到主币用 Ethereum 目标链",
+      "details": "用户明确要求参考 `Swap-Houdini-全网络全类型-Apifox-TestCases.json` 修改 RocketX Apifox，因为当前 RocketX 用例跑不通。对照后发现 RocketX 的 `代币<>主币` 组仍保留旧配对 `Tron.USDT → BTC.BTC`，而 Houdini 当前矩阵已使用 `Tron.USDT → Ethereum.ETH`。修复口径：RocketX collection 当前先以 Houdini 当前矩阵作为成功集配对来源，同时保留 RocketX 自身必需 quote 参数（`walletDeviceType=pro`、`X-Onekey-Wallet-Type=hw`、`incognito=true`）和已验证的 `SUI.USDC → Tron.TRX` 滑点 `1` 特例。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-128",
+      "category": "process",
+      "platform": "api",
+      "pattern": "RocketX Apifox 当前必须从 Houdini 集合参数级克隆，只替换 provider 为 SwapRocketX",
+      "details": "用户进一步纠正：RocketX 仍会失败，要求对照 Houdini 用例修改，所有参数保持一模一样，只是断言 / provider 改成 `SwapRocketX`。这覆盖了先前 K-124/K-125/K-127 中关于 RocketX 单独使用 `walletDeviceType=pro`、`X-Onekey-Wallet-Type=hw`、`walletType=hw`、单路由 `slippagePercentage=1` 的口径。修复口径：`Swap-RocketX-全网络全类型-Apifox-TestCases.json` 从 `Swap-Houdini-全网络全类型-Apifox-TestCases.json` 派生，仅替换展示名 Houdini→RocketX、provider `SwapHoudi`→`SwapRocketX`，并将断言 fallback key 改为 `rocketx`；其余请求参数、header、金额、滑点、钱包类型、路由配对全部保持与 Houdini 一致。",
+      "confidence": 0.99
     }
   ]
 }
