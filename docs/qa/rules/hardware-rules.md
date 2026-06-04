@@ -271,18 +271,27 @@
 
 ---
 
-## 9. 硬件转账测试规则
+## 9. 第三方硬件 Ledger App 安装规则索引
+
+- Ledger 第三方硬件新增“安装 App”能力时，需求口径以 `docs/qa/requirements/Hardware-Ledger安装APP.md` 为准。
+- 生成手动测试用例时，第三方硬件专项规则以 `docs/qa/rules/hardware-third-party-rules.md` 为准。
+- 当前安装能力仅覆盖 `BTC / ETH / TRX / SOL`，并区分“Onboarding / 投资组合批量安装”与“单网络按需安装”两类场景。
+- 投资组合勾选网络创建地址时，按连续单网络交互处理；断网、设备空间不足、设备断线需分别给出对应提示。
+
+---
+
+## 10. 硬件转账测试规则
 
 详见 `docs/rules/transfer-chain-rules.md` 中的硬件钱包相关规则。
 
 ---
 
-## 10. SeedCard（原 Lite 卡）备份与恢复测试规则
+## 11. SeedCard（原 Lite 卡）备份与恢复测试规则
 
 > 适用范围：Pro2 及后续支持 SeedCard 协议的型号。原「OneKey Lite」品类升级后的统一称呼为 **OneKey SeedCard**，旧 Lite 卡兼容写入。
 > SeedCard ≠ Keytag；Keytag 为金属抄写卡，SeedCard 为 NFC 加密存储卡，两者在备份入口并列展示。
 
-### 10.1 备份入口与流程规则
+### 11.1 备份入口与流程规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -297,7 +306,7 @@
 | 末尾配置 | 完成后弹出 Backup Settings 选项：**PIN Only**（默认）/ **Recovery Phrase**；可点 Not Now 跳过 |
 | 助记词位数 | 支持 12 / 18 / 24 位助记词写入；超出 24 或非 12/18/24 拒绝 |
 
-### 10.2 错误状态文案规则
+### 11.2 错误状态文案规则
 
 | 错误状态 | 触发条件 | 文案 / 行为 |
 |---------|---------|-----------|
@@ -310,7 +319,7 @@
 | Unsupported Recovery Phrase | 卡内助记词位数非 12/18/24 | 显示「Device supports only 12, 18, 24-word recovery phrases. This SeedCard cannot be restored here」+ Got It |
 | SeedCard Unavailable | 卡处于永久禁用状态 | 显示「You can recover using another method or another SeedCard」+ Got It |
 
-### 10.3 PIN 防护与自毁机制规则
+### 11.3 PIN 防护与自毁机制规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -321,7 +330,7 @@
 | 切换 Protection Mode | 需要设备 PIN 验证 → 再识卡 → 显示「Protection Mode Changed」 |
 | Disable Permanently 切换二次确认 | 必须展示警示「PIN attempts: SeedCard will be permanently disabled. It cannot be restored, reset, or used again」 |
 
-### 10.4 Backup Settings（验证模式）规则
+### 11.4 Backup Settings（验证模式）规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -332,7 +341,7 @@
 | 切换 Recovery Phrase → PIN Only | 弹出「Verify Recovery Phrase」二次确认；文案「To switch to PIN only, verify your recovery phrase first」+ Cancel / Confirm；点 Confirm 进入助记词验证流程，成功后才落地切换 |
 | 持久化 | 配置存储在钱包/账户维度，不绑定单张 SeedCard |
 
-### 10.5 Recovery Phrase 验证流程规则
+### 11.5 Recovery Phrase 验证流程规则
 
 > 适用场景：①Backup Settings = Recovery Phrase 时的备份前置 ②切换 Recovery Phrase → PIN Only 时的解锁
 
@@ -344,7 +353,7 @@
 | Wrong Recovery Phrase | 助记词合法但与当前钱包不匹配 → 「This phrase is valid, but it belongs to a different wallet」+ Try Again |
 | Exit Backup 二次确认 | 输入过程中点取消触发「Exit Backup? Your progress will not be saved. You'll need to verify your recovery phrase again next time」+ Stay / Exit |
 
-### 10.6 卡片管理（Manage SeedCard）规则
+### 11.6 卡片管理（Manage SeedCard）规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -356,7 +365,7 @@
 | Change SeedCard PIN | 「Choose a new PIN between 4 and 9 digits」→ Enter New PIN → Enter PIN Again → 识卡写入 → 「PIN Changed」 |
 | Reset SeedCard | 二次确认文案：「All data on this SeedCard will be erased and cannot be recovered.」→ Reset → 识卡 → 「Reset complete. This card has been erased」 |
 
-### 10.7 恢复流程（Restore use SeedCard）规则
+### 11.7 恢复流程（Restore use SeedCard）规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -366,7 +375,7 @@
 | 成功结束 | 「Wallet Ready. Your wallet has been recovered」+ Continue；进入 App 钱包列表，新增对应钱包记录 |
 | 跨设备验证 | Pro2 备份的卡可导入到 App、其他 Pro2、Pro 等支持 SeedCard 的设备；导入后地址与原钱包一致 |
 
-### 10.8 AirGap 模式拦截规则
+### 11.8 AirGap 模式拦截规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -376,11 +385,11 @@
 
 ---
 
-## 11. Keytag（金属抄写卡）备份测试规则
+## 12. Keytag（金属抄写卡）备份测试规则
 
 > 适用范围：Pro2 及后续支持 Keytag 备份的型号。Keytag 是金属冷存储抄写卡，备份流程不依赖 NFC 读写；最终输出为 **点阵图**，用户按图打孔/雕刻金属卡完成物理备份。
 
-### 11.1 备份流程规则
+### 12.1 备份流程规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -391,7 +400,7 @@
 | 助记词录入 | 「Enter Recovery Phrase」说明页 → Continue 进入 Word N / 总数 键盘录入页；逐词输入，键盘联想 |
 | AirGap 兼容 | Keytag 备份不受 AirGap 拦截，开启 AirGap 时仍可用 |
 
-### 11.2 校验与异常文案规则
+### 12.2 校验与异常文案规则
 
 | 错误状态 | 触发条件 | 文案 / 行为 |
 |---------|---------|-----------|
@@ -401,7 +410,7 @@
 
 > 标题文案「PIN Doesn't Match」与文本描述不一致（描述是助记词不匹配），用例中需同时核对标题与描述文案。
 
-### 11.3 点阵图输出规则
+### 12.3 点阵图输出规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -412,7 +421,7 @@
 | 点阵图含义 | 每个单词对应 BIP39 索引（0~2047），在 Keytag 卡面对应位置打孔/雕刻 |
 | 退出与重看 | 退出点阵图页不保留状态，再次查看需重新输入设备 PIN + 助记词验证 |
 
-### 11.4 App 端核对一致性规则
+### 12.4 App 端核对一致性规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -422,11 +431,11 @@
 
 ---
 
-## 12. Pro2 指纹（Fingerprint）测试规则
+## 13. Pro2 指纹（Fingerprint）测试规则
 
 > 适用范围：仅 Pro2 及后续支持指纹解锁的型号；Mini / Classic / Classic 1S / Touch / Pure 不支持。
 
-### 12.1 录入入口规则
+### 13.1 录入入口规则
 
 | 入口 | 触发条件 | PIN 前置 |
 |------|---------|---------|
@@ -438,7 +447,7 @@
 - 描述：`Use your fingerprint to unlock OneKey Pro 2 faster. You can still use your PIN anytime.`
 - 按钮：`Add Fingerprint` / `Not Now`
 
-### 12.2 录入分步流程规则
+### 13.2 录入分步流程规则
 
 完整录入按顺序完成下列子步骤（任一步骤失败/中断需重做）：
 
@@ -452,7 +461,7 @@
 
 > 步骤 1~4 期间显示 `Adding fingerprint...` loading；中心录入与边缘录入合称为「内圈」与「外圈」步骤。
 
-### 12.3 录入异常文案规则
+### 13.3 录入异常文案规则
 
 | 触发条件 | 文案 / 行为 |
 |---------|-----------|
@@ -466,7 +475,7 @@
 | 长时间未检测到手指 | 弹窗 `Fingerprint Timeout` + 描述 `We couldn't detect your finger. Adjust your finger position and try again.` + `Try Again` |
 | 累计采样失败达上限 | 弹窗 `Failed to Add Fingerprint` + 描述 `Adjust your finger position and try again.` + `Try Again` |
 
-### 12.4 指纹数量与列表规则
+### 13.4 指纹数量与列表规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -475,7 +484,7 @@
 | 删除可恢复 | 删除任一指纹后 `Add Fingerprint` 入口恢复，可再次录入 |
 | 已退出录入的中间态 | 内/外圈步骤回退退出，未完成录入的指纹**不记入列表**且不能解锁；之前已完成录入的指纹不受影响 |
 
-### 12.5 unlock device 开关规则
+### 13.5 unlock device 开关规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -483,7 +492,7 @@
 | 默认状态 | **开启** |
 | 关闭行为 | 关闭后指纹不能用于解锁设备（锁屏后必须 PIN）；已录入指纹不被删除，重新打开开关即恢复指纹解锁能力 |
 
-### 12.6 指纹识别与失败计数规则
+### 13.6 指纹识别与失败计数规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -496,14 +505,14 @@
 | PIN 错误次数互通 | 解锁时输错 4 次 PIN 后用指纹解锁成功，PIN 错误次数同步重置 |
 | 锁屏页路径独立计数 | 主屏幕 / PIN 输入页两个路径下 5 次失败均触发同一上限提示，且计数互通 |
 
-### 12.7 重启 loading 时间规则
+### 13.7 重启 loading 时间规则
 
 | 已录入指纹数 | 重启后 loading 时间上限 |
 |------------|---------------------|
 | 1 个 | ≤ 2s |
 | 2 个 | ≤ 4s |
 
-### 12.8 必须 PIN 的安全场景（指纹无感应）
+### 13.8 必须 PIN 的安全场景（指纹无感应）
 
 下列场景指纹解锁不响应，必须使用 PIN：
 
@@ -518,15 +527,15 @@
 | 核对助记词流程 |
 | 锁屏后使用 PIN 解锁，再进入其他解锁页（如签名授权）时尝试指纹 |
 
-### 12.9 双击解锁键规则
+### 13.9 双击解锁键规则
 
 - 连续按下 2 次「解锁键 / 电源键」时屏幕提示均为：`轻触屏幕或指纹解锁`
 
-### 12.10 USB 锁与指纹兼容规则
+### 13.10 USB 锁与指纹兼容规则
 
 - 已开启 USB 锁的设备，插拔 USB 数据线不影响指纹解锁能力
 
-### 12.11 录入 / 删除中断断电规则
+### 13.11 录入 / 删除中断断电规则
 
 | 操作 | 中断时机 | 期望结果 |
 |------|---------|---------|
@@ -537,11 +546,11 @@
 
 ---
 
-## 13. Pro2 我的地址（My Address）测试规则
+## 14. Pro2 我的地址（My Address）测试规则
 
 > 适用范围：Pro2 及后续支持 My Address 功能的型号。
 
-### 13.1 入口与「选择网络」页布局规则
+### 14.1 入口与「选择网络」页布局规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -550,7 +559,7 @@
 | 网络列表 | 横向滚动展示所有支持网络 |
 | Title 开关 | 列表底部存在 Title 开关，控制账户标题展示 |
 
-### 13.2 网络列表清单（一期支持，共 27 个）
+### 14.2 网络列表清单（一期支持，共 27 个）
 
 | 序号 | 网络名 | 序号 | 网络名 | 序号 | 网络名 |
 |------|--------|------|--------|------|--------|
@@ -566,7 +575,7 @@
 
 > 一期暂不支持 Cosmos / Polkadot 的子链。
 
-### 13.3 账户选择器规则
+### 14.3 账户选择器规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -576,7 +585,7 @@
 | 选中后返回 | 选中 Account → 点击「返回」回到「选择网络」页，账户选择器显示选中值 |
 | 选中持久性 | 同一会话内切换网络 / QR 等不丢失选中；**退出「我的地址」或锁屏后清空，回归 `Account #1`** |
 
-### 13.4 数字键盘输入规则（Go To Account）
+### 14.4 数字键盘输入规则（Go To Account）
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -587,7 +596,7 @@
 | 非法输入 | `0` 或 `> 1,000,000,000` 提交后清空输入并提示「输入格式错误」，停留在数字键盘页 |
 | 边界翻页置灰 | 提交 `1` 后跳转 Account #1，「上一页」置灰；提交 `1,000,000,000` 后跳转 Account #1000000000，「下一页」置灰 |
 
-### 13.5 地址详情页布局规则
+### 14.5 地址详情页布局规则
 
 | 字段 | 显示规则 |
 |------|---------|
@@ -598,7 +607,7 @@
 | EVM 多链提示卡 | 仅 Ethereum（及其他 EVM 兼容链）显示：`Your address is an EVM network address. You can use it to manage your assets across other EVM-compatible networks (such as Ethereum, BNB Chain).` |
 | QR Code 按钮 | 底部固定按钮，点击弹出二维码 |
 
-### 13.6 派生路径规则
+### 14.6 派生路径规则
 
 | 链 | 可选派生路径 |
 |----|-------------|
@@ -610,7 +619,7 @@
 
 > 「Select Derivation Path」页每个路径下方有 description 简短说明；切换后地址详情页同步更新派生路径标签。
 
-### 13.7 二维码规则
+### 14.7 二维码规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -619,7 +628,7 @@
 | 关闭按钮 | 右上角 `X`，关闭后返回地址详情页 |
 | 扫码一致性 | 扫描解析的地址与设备屏幕显示的地址逐字符一致 |
 
-### 13.8 BTC 新鲜地址规则
+### 14.8 BTC 新鲜地址规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -628,7 +637,7 @@
 | 派生路径覆盖 | 四种 BTC 路径（Nested Segwit / Taproot / Native Segwit / Legacy）均支持新鲜地址 |
 | 跨工具核对 | 与 `https://bip39.onekey.so/index.html` 输入相同助记词 + 编号 + 路径生成的地址一致；Taproot 额外用 App 端导入助记词后核对 |
 
-### 13.9 Passphrase 规则
+### 14.9 Passphrase 规则
 
 | 规则项 | 规则描述 |
 |--------|---------|
@@ -639,7 +648,7 @@
 | 关闭后入口 | 关闭开关后「我的地址」直接进入「选择网络」页（无弹窗），右上角「切换 Passphrase」按钮不显示 |
 | 空值等价 | Passphrase 输入为空时等价标准钱包，地址与关闭 Passphrase 时同 Account 标准钱包一致 |
 
-### 13.10 助记词位数支持规则
+### 14.10 助记词位数支持规则
 
 | 位数 | 支持来源 |
 |------|---------|
@@ -649,7 +658,7 @@
 
 > 每种位数下标准钱包 + Passphrase 钱包地址均需与 App 端核对一致。
 
-### 13.11 多语言一致性规则
+### 14.11 多语言一致性规则
 
 - 设备语言切换（English / 简体中文 / 繁體中文 / 日本語 / 한국어 / Español / Português (Brasil)）只影响 UI 文案
 - 同一 Account 同一网络同一派生路径下，各语言显示的地址字符内容完全一致
