@@ -19,9 +19,13 @@ export async function switchNetwork(page, networkName) {
   await networkBtn.click({ timeout: 5000 });
   await sleep(1500);
 
-  const chainSearchSel = '[data-testid="nav-header-search-chain-selector"]';
-  await page.locator(chainSearchSel).waitFor({ state: 'visible', timeout: 5000 });
-  await page.locator(chainSearchSel).fill(networkName);
+  const chainSearchSel = '[data-testid="nav-header-search-chain-selector-search-bar"]';
+  const searchInput = page.locator(chainSearchSel).first();
+  await searchInput.waitFor({ state: 'visible', timeout: 5000 });
+  await searchInput.click();
+  await searchInput.evaluate((el) => el.select());
+  await searchInput.press('Backspace');
+  await searchInput.pressSequentially(networkName, { delay: 50 });
   await sleep(1500);
 
   const clicked = await page.evaluate((name) => {
@@ -49,10 +53,12 @@ export async function switchNetwork(page, networkName) {
     throw new Error(`Network "${networkName}" not found in dropdown`);
   }
   console.log(`    Selected network: ${clicked}`);
-  await sleep(3000);
 
-  const verifyText = await page.locator(networkTextSel).first().textContent({ timeout: 5000 });
-  if (!verifyText?.includes(networkName)) {
-    throw new Error(`Network switch failed: expected ${networkName}, got ${verifyText}`);
+  let verifyText = '';
+  for (let i = 0; i < 20; i++) {
+    verifyText = await page.locator(networkTextSel).first().textContent({ timeout: 1000 }).catch(() => '');
+    if (verifyText?.includes(networkName)) return;
+    await sleep(300);
   }
+  throw new Error(`Network switch failed: expected ${networkName}, got ${verifyText}`);
 }

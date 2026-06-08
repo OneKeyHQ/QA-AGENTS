@@ -1,14 +1,14 @@
 {
   "version": "2.3.7",
-  "lastUpdated": "2026-06-04",
+  "lastUpdated": "2026-06-08",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134 — DOM定位/选择器/testid陷阱",
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-136,K-137,K-141 — DOM定位/选择器/testid陷阱",
     "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079,K-129,K-131 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097,K-119 — 工作流/前置条件/状态恢复",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097,K-119,K-138,K-140 — 工作流/前置条件/状态恢复",
     "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095,K-120,K-132,K-133,K-135 — 断言策略/校验方法",
     "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109 — 录制器相关",
-    "timing": "K-107,K-110,K-112,K-114 — 时序/异步/页面状态切换"
+    "timing": "K-107,K-110,K-112,K-114,K-139 — 时序/异步/页面状态切换"
   },
   "patterns": [
     {
@@ -1074,6 +1074,54 @@
       "pattern": "All networks 复制地址弹窗不展示 BTC Nested/Native/Taproot 标签，不能作为该弹窗必需断言",
       "details": "2026-06-04 实跑 NIGHTLY-PORTFOLIO-001：网络选择器 `创建地址 & 应用` 成功后，复制地址弹窗全量滚动显示 `Bitcoin Legacy`、Ethereum/EVM、Tron、Solana、TON、XRP Ledger 等地址，且 XRP Ledger 底部地址已创建；但弹窗中没有 `Bitcoin Nested SegWit`、`Bitcoin Native SegWit`、`Bitcoin Taproot` 标签。修复口径：all-networks 复制地址弹窗按当前 UI 展示校验代表性网络地址和无 `创建地址` 残留；BTC 派生路径标签属于派生路径选择/单链地址上下文，不作为该弹窗必需项。",
       "confidence": 0.98
+    },
+    {
+      "id": "K-136",
+      "category": "locator",
+      "platform": "ext",
+      "pattern": "插件端网络选择弹窗的搜索输入框 testid 是 nav-header-search-chain-selector-search-bar，不是旧的 nav-header-search-chain-selector",
+      "details": "排查插件端执行网络切换时发现：点击 [data-testid=\"account-network-trigger-button\"] 后，APP-Modal-Screen 已可见，弹窗内真实可见输入框为 [data-testid=\"nav-header-search-chain-selector-search-bar\"]，位置约 x=147 y=223 w=598 h=36；旧 selector [data-testid=\"nav-header-search-chain-selector\"] 在当前 DOM 中数量为 0，会导致 locator.waitFor visible 超时。后续插件端 switchNetwork 不要保留旧 testid，直接使用 search-bar 版本。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-137",
+      "category": "locator",
+      "platform": "ext",
+      "pattern": "插件端 Kaspa 预览页网络费用档位是 SegmentControl 合成文本，应按四等分坐标点击慢/正常/快速/自定义",
+      "details": "排查 EXT-KASPA-002 时，网络费用弹窗肉眼可见“慢/正常/快速/自定义”，但 DOM 中“慢/正常/快速”并不稳定暴露为独立可点击节点；SegmentControlFrame 区域整体文本为“慢正常快速自定义”，宽约 360px。注意：预览页底部“预估网络费用•正常”会误导弹窗就绪判断；但 RN portal 重渲染时，四档文案/标题可能不在 dialog root 或短暂不可读，不能把“网络费用 + 慢/快速/自定义”作为唯一 open 条件。更可靠的 open 条件是可见 [data-testid=signature-confirm-btn] 且文本包含“保存”；标题/四档文本只作为 debug 辅助。费用入口点击前先检查费用编辑层是否已打开，已打开则复用，严禁在等待期间反复点击 sig-confirm-fee-selector-trigger，否则可能让费用弹窗停留在最终确认按钮上层；每个档位只允许“打开一次 → 坐标点击档位 → 点保存 → 等保存层关闭”。保存后必须轮询确认 signature-confirm-btn 消失，再进入下一档或最终 page-footer-confirm。触发场景：插件端 Kaspa 转账预览页切换费用档。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-138",
+      "category": "process",
+      "platform": "ext",
+      "pattern": "转账预览页最终确认后不能立刻结束，需要处理二次确认并等待发送完成",
+      "details": "排查 EXT-KASPA-002/003/004/005 时发现，脚本切换费用档并点击预览页 page-footer-confirm 后直接 return submitted，容易漏掉后续 signature-confirm-btn / 确认 / 发送 / 完成 等二次确认。同一流程 DOM 中会残留多个 page-footer-confirm（下一步/预览/确认 或隐藏历史页面按钮），Playwright locator.first().click() 可能命中隐藏按钮并卡在 element is not visible；即使元素 visible，RN 叠层下第一个“下一步”的中心点可能顶层实际是“预览”，单纯 containsTop/面积排序也会误选。正确做法：页脚提交按钮应按目标文案优先（预览/确认），遍历所有可见 page-footer-confirm，记录 btn.textContent 和 elementFromPoint 顶层文本，优先点击 btn 文案匹配目标的按钮，再兜底顶层文本匹配；如果没有目标文案，不能随便点候选按钮。点击“预览”后必须等待进入预览确认页（出现“确认”页脚 + 预估网络费用/sig-confirm-fee-selector-trigger），如果仍只有“预览/下一步”说明还在输入金额页，应重试点预览，不能马上进入最终确认。按当前用例口径：最终确认后不检查历史记录，不用旧历史/新增历史作为成功条件；应持续处理后续确认/发送/完成按钮，直到预览发送页/确认弹窗自动关闭，或页面出现明确发送/交易成功文案。若预览发送页未关闭则 fail。触发场景：插件端转账预览确认、费用弹窗保存后提交、签名页重渲染、最大值发送。",
+      "confidence": 0.94
+    },
+    {
+      "id": "K-139",
+      "category": "timing",
+      "platform": "ext",
+      "pattern": "钱包历史记录 tab 切换后交易行异步加载，不能固定 sleep 后立即断言",
+      "details": "排查 EXT-KASPA-006 时，进入钱包后 2 秒内点击“历史记录”并立刻查 tx-action-common-list-view，Dashboard 报“历史记录中未找到交易”。历史 tab 的交易行会异步渲染/刷新，尤其在插件端刚切网络或刚完成转账后。正确做法：优先点 [data-testid=home-tab-history]，再轮询最多约 20 秒等待可见 [data-testid=tx-action-common-list-view]；验证指定 token 时优先点击包含目标 token 的记录，否则再兜底首条；打开详情后也要轮询等待详情文本包含 token/hash/fee/status 之一。后续调整：不要把历史字段校验拆成独立用例，容易脱离刚完成的发送上下文；应参考 Cosmos，在每个发送用例完成后立即追加历史字段校验 step。Kaspa 中 EXT-KASPA-002/003 校验 SILVER，EXT-KASPA-004/005 校验 KAS，独立 EXT-KASPA-006 已移除。触发场景：转账后历史记录字段检查、钱包首页历史 tab。",
+      "confidence": 0.94
+    },
+    {
+      "id": "K-140",
+      "category": "process",
+      "platform": "ext",
+      "pattern": "插件端 Chrome 远程调试不能用空用户目录；默认用户目录被限制时应复制指定 Profile 副本再启用 9222",
+      "details": "QATest 插件端启动时，用户选择指定 Chrome Profile（如 Profile 10）后，不能为了绕过 Chrome 的 `DevTools remote debugging requires a non-default data directory` 限制而直接创建空的 `--user-data-dir`，否则会变成空用户、丢失 OneKey 插件登录态和配置。正确做法：1) 先尝试按指定用户启动：`Google Chrome --remote-debugging-port=9222 --profile-directory=\"Profile 10\"`；2) 若日志提示默认用户目录不允许远程调试，则征得用户确认后复制原 Chrome 用户数据目录到调试副本（例如 `$HOME/Chrome-OneKey-Profile10-Debug`），再用 `--user-data-dir=<副本根目录> --profile-directory=\"Profile 10\"` 启动；3) 启动后用 `/json/version` 和 `/json/list` 验证 9222，并确认列表里存在目标扩展 `chrome-extension://<extensionId>/...`。严禁未经确认改用空目录或空 Profile。触发场景：`/onekey-qatest`、插件端执行面板启动、Chrome 136+ 默认用户目录远程调试限制。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-141",
+      "category": "locator",
+      "platform": "ext",
+      "pattern": "插件端 Kaspa 发送弹窗会同时显示选币和收款地址输入，必须限定在 modal 内点击资产行并等待地址输入触发下一步",
+      "details": "排查 EXT-KASPA-001 时，脚本停在选择/输入转账地址前；CDP 实探显示 APP-Modal-Screen 文案同时包含“选择币种”和“选择地址”，其中可见 `asset-selector-token-item-kaspa--kaspa-SILVER`、`base-input-shared-styles-textarea`，但还没有 `page-footer-confirm`。页面后台同时残留钱包首页 `home-token-item-kaspa--kaspa-*`，如果选币或输入地址不限定在当前 modal 内，容易点到后台 token row 或输入未触发 React 校验。稳定做法：1) 点击发送后只在 `[data-testid=APP-Modal-Screen]` 内找可见 `asset-selector-token-item-kaspa--kaspa-<TOKEN>`，用坐标点击；2) 收款地址输入框用 modal 内最后一个 `base-input-shared-styles-textarea`；3) `pressSequentially` 输入地址后轮询确认 textarea.value 非空且可见 `page-footer-confirm` 文案包含“下一步”，再点击下一步。触发场景：插件端 Kaspa 转账、EXT-KASPA-001/002/003/004/005 的选币与收款地址输入阶段。",
+      "confidence": 0.99
     }
   ]
 }

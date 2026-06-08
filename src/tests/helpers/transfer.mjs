@@ -149,15 +149,29 @@ export async function verifyFiatToggle(page) {
 }
 
 /**
- * Open history record list, click latest transaction, verify fields, then close.
+ * Open history record list, click latest transaction, verify required fields, then close.
  * @param {string} token — expected token symbol (e.g., 'ATOM', 'CRO')
- * @returns {{ fields: string[] }} Matched verification fields
+ * @param {{ expectedFields?: string[], expectedAmount?: string, expectedNetwork?: string }} options
+ * @returns {{ fields: string[], detailText: string }} Matched verification fields
  */
-export async function verifyHistoryRecord(page, token) {
-  // Click "历史记录"
+export async function verifyHistoryRecord(page, token, options = {}) {
+  const expectedFields = options.expectedFields || ['token', 'type', 'status', 'hash', 'fee'];
+
+  // Click "历史记录". Prefer the dedicated tab testid, then fall back to visible text.
   const historyClicked = await page.evaluate(() => {
-    for (const sp of document.querySelectorAll('span')) {
-      if (sp.textContent?.trim() === '历史记录' && sp.getBoundingClientRect().width > 0) {
+    const isVisible = (el) => {
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return false;
+      const style = window.getComputedStyle(el);
+      return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+    };
+    const testidTab = document.querySelector('[data-testid="home-tab-history"]');
+    if (testidTab && isVisible(testidTab)) {
+      testidTab.click();
+      return true;
+    }
+    for (const sp of document.querySelectorAll('span, div')) {
+      if (sp.textContent?.trim() === '历史记录' && isVisible(sp)) {
         sp.click();
         return true;
       }
@@ -165,34 +179,88 @@ export async function verifyHistoryRecord(page, token) {
     return false;
   });
   if (!historyClicked) throw new Error('历史记录按钮未找到');
-  await sleep(2000);
 
-  // Verify latest record exists and click it
-  const latestTx = page.locator('[data-testid="tx-action-common-list-view"]').first();
-  const txVisible = await latestTx.isVisible({ timeout: 5000 }).catch(() => false);
-  if (!txVisible) throw new Error('历史记录中未找到交易');
-  await latestTx.click();
-  await sleep(2000);
+  // History rows are async; poll until a row for the requested token renders.
+  let targetTx = null;
+  let lastRows = [];
+  for (let i = 0; i < 40; i++) {
+    const rows = await page.evaluate((targetToken) => {
+      const normalize = (str) => (str || '').replace(/\s+/g, ' ').trim();
+      const isVisible = (el) => {
+        const r = el.getBoundingClientRect();
+        if (r.width <= 0 || r.height <= 0) return false;
+        const style = window.getComputedStyle(el);
+        return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+      };
+      return Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]'))
+        .filter(isVisible)
+        .map((el, index) => {
+          const r = el.getBoundingClientRect();
+          const text = normalize(el.textContent || '');
+          return {
+            index,
+            text,
+            hasToken: text.includes(targetToken),
+            x: r.left + r.width / 2,
+            y: r.top + r.height / 2,
+            rect: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) },
+          };
+        });
+    }, token);
+    lastRows = rows;
+    targetTx = rows.find((row) => row.hasToken) || null;
+    if (targetTx) break;
+    await sleep(500);
+  }
+  if (!targetTx) {
+    throw new Error(`历史记录中未找到 ${token} 交易 | rows=${JSON.stringify(lastRows.slice(0, 5))}`);
+  }
+  await page.mouse.click(targetTx.x, targetTx.y);
 
-  // Read detail content
-  const detailText = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    return (modal || document.body).textContent?.substring(0, 3000) || '';
-  });
+  // Wait until detail content renders after opening the transaction row.
+  let detailText = '';
+  for (let i = 0; i < 20; i++) {
+    detailText = await page.evaluate(() => {
+      const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+      return (modal || document.body).textContent?.substring(0, 3000) || '';
+    });
+    if (detailText.includes(token) || detailText.includes('哈希') || detailText.includes('Hash') || detailText.includes('费用') || detailText.includes('Fee')) break;
+    await sleep(500);
+  }
 
+  const normalized = detailText.replace(/\s+/g, ' ').trim();
   const fields = [];
-  if (detailText.includes(token)) fields.push('token');
-  if (detailText.includes('发送') || detailText.includes('Send')) fields.push('type');
-  if (detailText.includes('哈希') || detailText.includes('Hash') || detailText.includes('hash')) fields.push('hash');
-  if (detailText.includes('费用') || detailText.includes('Fee')) fields.push('fee');
-  if (detailText.includes('处理中') || detailText.includes('已确认') || detailText.includes('Pending') || detailText.includes('Confirmed')) fields.push('status');
+  const checks = {
+    token: () => normalized.includes(token),
+    type: () => normalized.includes('发送') || normalized.includes('Send'),
+    status: () => normalized.includes('处理中') || normalized.includes('已确认') || normalized.includes('失败')
+      || normalized.includes('Pending') || normalized.includes('Confirmed') || normalized.includes('Failed'),
+    hash: () => normalized.includes('哈希') || normalized.includes('Hash') || normalized.includes('hash'),
+    fee: () => normalized.includes('费用') || normalized.includes('Fee'),
+    amount: () => !options.expectedAmount || normalized.includes(options.expectedAmount),
+    network: () => !options.expectedNetwork || normalized.includes(options.expectedNetwork),
+    fromTo: () => normalized.includes('From') || normalized.includes('To') || normalized.includes('来自') || normalized.includes('至') || normalized.includes('发送方') || normalized.includes('接收方'),
+    time: () => /\d{1,2}:\d{2}|\d{4}[-/]\d{1,2}[-/]\d{1,2}|分钟前|秒前|小时前/.test(normalized),
+  };
 
-  // Close detail
+  for (const field of expectedFields) {
+    const check = checks[field];
+    if (!check) throw new Error(`未知历史记录校验字段: ${field}`);
+    if (check()) fields.push(field);
+  }
+
+  const missing = expectedFields.filter((field) => !fields.includes(field));
+
+  // Close detail before reporting so the next case starts cleanly.
   const closeBtn = page.locator('[data-testid="nav-header-close"]');
   await closeBtn.click({ timeout: 3000 }).catch(() => page.keyboard.press('Escape'));
   await sleep(1000);
 
-  return { fields };
+  if (missing.length > 0) {
+    throw new Error(`历史记录字段缺失: ${missing.join(',')} | detail=${normalized.slice(0, 800)}`);
+  }
+
+  return { fields, detailText: normalized };
 }
 
 /**
