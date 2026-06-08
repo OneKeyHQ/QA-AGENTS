@@ -1,12 +1,12 @@
 {
   "version": "2.3.7",
-  "lastUpdated": "2026-05-22",
+  "lastUpdated": "2026-06-04",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115 — DOM定位/选择器/testid陷阱",
-    "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079 — OneKey/Electron/React行为异常",
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134 — DOM定位/选择器/testid陷阱",
+    "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079,K-129,K-131 — OneKey/Electron/React行为异常",
     "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097,K-119 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095,K-120 — 断言策略/校验方法",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095,K-120,K-132,K-133,K-135 — 断言策略/校验方法",
     "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109 — 录制器相关",
     "timing": "K-107,K-110,K-112,K-114 — 时序/异步/页面状态切换"
   },
@@ -144,7 +144,7 @@
       "category": "quirk",
       "platform": "desktop",
       "pattern": "投资组合模式下网络选择器 UI 完全不同",
-      "details": "单网络模式有 data-testid='account-network-trigger-button' 和 'account-network-trigger-button-text'。投资组合模式下这两个 testid 都不存在，取而代之的是链图标群和 '+N' 文字。切换时需要找 '+N' 的 span 来点击。getCurrentNetworkMode 需要兼容两种模式。",
+      "details": "单网络模式有 data-testid='account-network-trigger-button' 和 'account-network-trigger-button-text'。投资组合模式下这两个 testid 都不存在，取而代之的是链图标群和 '+N' 文字。切换时需要找 '+N' 的 span 来点击。2026-06-04 实跑补充：从单网络触发器打开的网络弹窗默认停在“网络/最近使用”页，`chain-selector-all-networks-toggle-all-btn` 是隐藏副本；必须先点击顶部“投资组合”tab，才会显示全选/取消全选按钮和完成按钮。完成后的首页可能不展示“全部网络/投资组合”文案，断言应看结构：单网络 trigger 消失、顶部出现 `+N`、DeFi/NFT/History tab 可见。getCurrentNetworkMode 需要兼容两种模式。",
       "confidence": 0.95
     },
     {
@@ -1018,6 +1018,62 @@
       "pattern": "RocketX Apifox 当前必须从 Houdini 集合参数级克隆，只替换 provider 为 SwapRocketX",
       "details": "用户进一步纠正：RocketX 仍会失败，要求对照 Houdini 用例修改，所有参数保持一模一样，只是断言 / provider 改成 `SwapRocketX`。这覆盖了先前 K-124/K-125/K-127 中关于 RocketX 单独使用 `walletDeviceType=pro`、`X-Onekey-Wallet-Type=hw`、`walletType=hw`、单路由 `slippagePercentage=1` 的口径。修复口径：`Swap-RocketX-全网络全类型-Apifox-TestCases.json` 从 `Swap-Houdini-全网络全类型-Apifox-TestCases.json` 派生，仅替换展示名 Houdini→RocketX、provider `SwapHoudi`→`SwapRocketX`，并将断言 fallback key 改为 `rocketx`；其余请求参数、header、金额、滑点、钱包类型、路由配对全部保持与 Houdini 一致。",
       "confidence": 0.99
+    },
+    {
+      "id": "K-129",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Desktop 6.4.0 创建地址可能在密码校验后直接完成，不稳定出现“创建地址 & 应用”中间确认按钮",
+      "details": "编写 NIGHTLY-PORTFOLIO-001 时，录制流程显示：添加账户 -> 输入密码 -> 点击 `verifying-password` -> 出现 `page-footer-confirm` 文案“创建地址 & 应用” -> 完成。但 2026-06-04 在 Desktop TF 6.4.0 实跑时出现两种差异：①点击 `verifying-password` 后直接回到首页并选中 `Account #24`，DOM 中 `page-footer-confirm` 数量为 0；②近期已验证密码后，点击添加账户会直接创建并选中 `Account #25`，不出现 `password-input`。修复口径：创建地址脚本应等待三个分支中的任一个先发生：A. 新 `Account #N` 已被选中；B. 出现密码框则输入密码并继续；C. 出现“创建地址 & 应用”按钮再点击。不要把密码框或中间 footer 当作必经节点。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-130",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "钱包首页 Step 0 前置应先判断当前页已就绪，再尝试点击 sidebar home",
+      "details": "NIGHTLY-PORTFOLIO-001 第二次执行时已经在钱包首页，DOM 中 `home-page`、`AccountSelectorTriggerBase`、`home-tab-portfolio`、`home-tab-defi`、`home-tab-nft`、`home-tab-history` 均可见，但公共 `goToWalletHome()` 仍尝试通过 registry 点击 sidebarHome，报 `Cannot find sidebar tab: Home`。2026-06-04 后续实跑又发现单 Bitcoin 网络首页只展示 `home-tab-portfolio` / `home-tab-history`，不会展示 DeFi/NFT tab。修复口径：Desktop 钱包首页前置应先用 `home-page`、`AccountSelectorTriggerBase`、`home-tab-portfolio`、`account-selector-copy-address-btn` 判断基础首页是否就绪；DeFi/NFT tab 只能作为 all-networks 后的业务断言，不能作为 Step 0 首页前置。只有未就绪时才导航，导航兜底可直接点击 `[data-testid=\"home\"]`，不要把 registry key `Home` 当成唯一入口。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-131",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "`ovelay-popover` 残留会拦截账户选择器等首页元素点击",
+      "details": "NIGHTLY-PORTFOLIO-001 第三次执行时，`AccountSelectorTriggerBase` 已 visible/enabled/stable，但 Playwright 点击一直被 `<div data-testid=\"ovelay-popover\">` 拦截，导致记录创建前账户状态失败。修复口径：打开账户选择器前先按 Escape，并通过 DOM click + page.mouse.click 清理 `[data-testid=\"ovelay-popover\"]`；如果 Playwright click 仍报 `intercepts pointer events`，对目标 testid 使用 JS click 兜底。",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-132",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "All networks 创建账户后，复制地址弹窗中出现“创建地址”行应作为地址未创建证据保留",
+      "details": "2026-06-04 执行 NIGHTLY-PORTFOLIO-001：账户增量断言通过（Account #26 -> Account #27），但复制地址弹窗仅展示 `Bitcoin Legacy`、Ethereum、Tron、Solana 等部分地址；`Lightning Network`、TON、Akash、Astar、Aptos、Algorand、Bitcoin Cash 等多行仍显示“创建地址”，且缺 BTC Nested SegWit / Native SegWit / Taproot 标签。修复口径：nightly 地址完整性断言不能为了通过而忽略“创建地址”行；失败 detail 应列出缺失的默认地址和仍显示“创建地址”的网络，方便定位是批量创建漏建还是地址列表展示口径变化。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-133",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "复制地址列表补建必须从顶部扫到精确底部，XRP 等底部网络不能因当前滚动位置漏建",
+      "details": "用户纠正 NIGHTLY-PORTFOLIO-001：`XRP Ledger 创建地址` 没有创建成功不是产品不支持，而是自动化没有滚动到复制地址列表底部去点击；随后进一步纠正流程不连贯，正确主流程应先进入网络选择器的“投资组合”页，点击底部 `创建地址 & 应用` 批量创建缺失网络地址，然后再打开复制地址列表验证是否创建成功。修复口径：All networks 创建地址流程必须先全选所有网络并批量创建一次；新账户创建后先通过网络选择器 `创建地址 & 应用` 补齐缺失地址，再进入复制地址列表取证。复制地址列表只作为结果核验和兜底重查入口，不作为主补建路径。若最终证据仍有 `创建地址` 行，必须失败并列出网络名，不允许通过跳过底部行或弱化断言来通过用例。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-134",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "弹窗类 testid 可能同时存在隐藏副本，不能直接使用 locator(...).first()",
+      "details": "NIGHTLY-PORTFOLIO-001 切换全网络时，点击 Bitcoin 网络触发器后 `chain-selector-all-networks-toggle-all-btn` 已存在，但 Playwright `locator('[data-testid=\"chain-selector-all-networks-toggle-all-btn\"]').first()` 命中隐藏副本，导致 visible wait 超时。后续点击 `page-footer-confirm` 时还遇到 React 动画/重渲染导致 `Element is not attached to the DOM`；更多菜单也曾因读取 `[data-testid=\"TMPopover-ScrollView\"]` 的非当前副本误报缺少菜单项。修复口径：弹窗按钮、footer、modal screen、popover scroll view 等可能复用 testid 的元素，定位时应使用 `[data-testid=\"...\"]:visible`，或遍历 elementHandles 后按 `getBoundingClientRect()` 判断可见；footer 类按钮不要长期保存 ElementHandle，读取可见按钮中心坐标后用 `page.mouse.click(x,y)`。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-135",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "All networks 复制地址弹窗不展示 BTC Nested/Native/Taproot 标签，不能作为该弹窗必需断言",
+      "details": "2026-06-04 实跑 NIGHTLY-PORTFOLIO-001：网络选择器 `创建地址 & 应用` 成功后，复制地址弹窗全量滚动显示 `Bitcoin Legacy`、Ethereum/EVM、Tron、Solana、TON、XRP Ledger 等地址，且 XRP Ledger 底部地址已创建；但弹窗中没有 `Bitcoin Nested SegWit`、`Bitcoin Native SegWit`、`Bitcoin Taproot` 标签。修复口径：all-networks 复制地址弹窗按当前 UI 展示校验代表性网络地址和无 `创建地址` 残留；BTC 派生路径标签属于派生路径选择/单链地址上下文，不作为该弹窗必需项。",
+      "confidence": 0.98
     }
   ]
 }

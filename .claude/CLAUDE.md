@@ -288,7 +288,7 @@ node scripts/build-locator-map.mjs --check
 
 ## Conventions
 - **新建 `.test.mjs` 必须导出 `displayName`**（中文名）。Dashboard 侧栏和 Checklist 编辑器会优先用它显示分组名；不写则回退到 `ZH_LABELS` 中央映射，再回退到英文 titleized 并打 console 警告。新增用例时直接在文件顶部写 `export const displayName = '中文名';`，不要回去改中央映射表。
-- Test case IDs: `<FEATURE>-<NNN>` (e.g., COSMOS-001)
+- Test case IDs: `<FEATURE>-<NNN>` (e.g., COSMOS-001) — **仅适用于自动化脚本 `src/tests/**/*.test.mjs` 里的 `testCases[].id`**。手动用例文档（`docs/qa/testcases/cases/**/*.md`）**不使用 ID**，表头固定 4 列 `优先级 / 场景 / 操作步骤 / 预期结果`，详见 `docs/qa/qa-rules.md` §7.3
 - **移动端 ID 前缀规范**（强制）：
   | 前缀 | 含义 | 用例文件位置 |
   |------|------|----------|

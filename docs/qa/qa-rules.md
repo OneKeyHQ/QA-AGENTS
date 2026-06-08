@@ -299,8 +299,17 @@ docs/qa/testcases/cases/
 ### 7.3 每个场景输出表格（固定格式）
 使用 **Markdown 表格**，单元格内多行使用 `<br>` 标签换行。
 
-表头固定为：
+表头**严格固定为 4 列**：
 `| 优先级 | 场景 | 操作步骤 | 预期结果 |`
+
+> ⚠️ **严禁加 ID 列**。手动测试用例文档**不使用** test case ID（不要加 `PERPS-XXX-NNN` 之类的列或前缀）。
+> CLAUDE.md 中 `Test case IDs: <FEATURE>-<NNN>` 的规定**仅适用于自动化脚本** `src/tests/**/*.test.mjs` 里的 `testCases[].id`，**不适用于手动用例文档** `docs/qa/testcases/cases/**/*.md`。
+> 区分对照：
+>
+> | 场景 | 是否需要 ID | 格式 |
+> |------|----------|------|
+> | 手动测试用例文档（`docs/qa/testcases/cases/<模块>/*.md`） | ❌ 不需要 | 表头固定 4 列：`优先级 / 场景 / 操作步骤 / 预期结果` |
+> | 自动化测试脚本（`src/tests/**/*.test.mjs`） | ✅ 需要 | `testCases[].id = '<FEATURE>-<NNN>'`（如 `COSMOS-001`） |
 
 **列说明**：
 - **优先级**：❗️❗️P0❗️❗️ / P1 / P2（P0 用例必须在前后加 ❗️❗️ 标识）
