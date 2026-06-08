@@ -81,6 +81,17 @@
 | 系列网络 | Cosmos / DOT 自动创建对应系列所有地址 |
 | DOT 限制 | 15 / 18 / 21 位助记词软件钱包不支持创建 DOT 地址，仅 12 / 24 位支持 |
 
+#### All networks 添加账户验证口径
+
+| 验证项 | 规则 |
+|-------|------|
+| 账户增量 | 创建地址前后必须对比当前钱包账户列表；创建后账户数量增加 1，或出现新的下一个序号账户且该账户被选中 |
+| 默认地址集合 | All networks 复制地址列表按当前 UI 展示校验：必须包含非空、可复制的 Bitcoin Legacy、EVM/Ethereum、Solana、Tron、TON、XRP Ledger 等代表性地址；BTC Nested / Native / Taproot 属于派生路径选择页展示，不作为该 all-networks 复制地址弹窗的必需标签 |
+| 地址内容 | 每个默认地址行必须同时展示网络/路径名和地址文本；地址文本不能是空值、`--`、loading 占位、错误文案或仅有网络名 |
+| 补建要求 | 复制地址列表中如果仍有「创建地址」入口，自动化必须逐个点击补建；补建后仍显示「创建地址」或补建流程失败时，用例失败 |
+| 失败隔离 | 不支持网络只能展示明确的单网络失败提示，不得阻断 BTC / EVM / Solana / Tron 默认地址创建 |
+| 列表稳定性 | 地址列表滚动过程中不得出现白屏、空白断层或已创建地址丢失 |
+
 ### 2.5 当前网络派生路径选择
 
 | 网络 | 派生路径选项 |
@@ -634,6 +645,7 @@
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-06-04 | 补充 §2.4 All networks 添加账户验证口径：创建地址必须校验账户增量、新账户选中、默认地址集合完整；复制地址列表仍出现「创建地址」时必须补建，补建失败则用例失败；修正 all-networks 复制地址弹窗不要求 BTC Nested / Native / Taproot 标签 |
 | 2026-05-08 | 新增 §2.5 当前网络派生路径选择清单：EVM（BIP44 标准 / Ledger Live / Ledger Legacy）、Bitcoin（Taproot / Nested SegWit / Native SegWit / Legacy）、Litecoin（Nested SegWit / Native SegWit / Legacy）、Solana（BIP44 标准 / Ledger Live）、Kaspa（Onekey / Official）；并收敛 §2.4 不再单列 EVM-Ledger Legacy 规则 |
 | 2026-04-17 | §9.1 创建钱包表格修正：头像规则由「支持选择/自定义头像」改为「由系统在创建时生成；创建后不支持修改」，与 `wallet-rules.md` §5.05 头像一致性规则保持同口径 |
 | 2026-04-14 | 收敛当日 Account 规则更新：根据 OK-51595 补充硬件钱包 Onboarding 强制固件更新规则（系统固件或 BLE 固件 major 落后、同 major 下 minor 差值大于 2、或同 major + minor 下 patch 差值大于 2 时隐藏「跳过」按钮；未超阈值时允许跳过；异常场景保留「重试」和「跳过」） |

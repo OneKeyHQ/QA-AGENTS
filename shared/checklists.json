@@ -64,6 +64,12 @@
             "MARKET-SEARCH-005",
             "MARKET-SEARCH-003"
           ]
+        },
+        {
+          "label": "Nightly 投资组合全网络创建地址",
+          "caseIds": [
+            "NIGHTLY-PORTFOLIO-001"
+          ]
         }
       ],
       "createdAt": "2026-05-08T10:49:27.720Z",
