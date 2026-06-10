@@ -12,6 +12,7 @@ import {
   dismissOverlays, unlockWalletIfNeeded, goToWalletHome,
   closeAllModals,
   clickSidebarTab,
+  switchNetwork,
 } from '../../helpers/index.mjs';
 import { createSwap0xPolygonTests } from '../../shared/swap/0x-polygon.mjs';
 
@@ -91,52 +92,7 @@ async function openSwapFromWalletHome(page) {
 
 /** Switch network to Polygon via wallet home network selector. */
 async function switchToPolygon(page) {
-  const alreadyPolygon = await page.evaluate(() =>
-    (document.body?.textContent || '').includes('Polygon'));
-  if (!alreadyPolygon) {
-    const opened = await page.evaluate(() => {
-      const candidates = [];
-      for (const el of document.querySelectorAll('span,div,button,svg')) {
-        const r = el.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0) continue;
-        if (r.y > 120) continue;
-        const t = (el.textContent || '').trim();
-        if (t.includes('Polygon') || t.includes('Ethereum') || t.includes('Arbitrum')
-          || t.includes('Optimism') || t.includes('Base') || t.includes('BSC')
-          || t.includes('Avalanche')) {
-          candidates.push({ el, y: r.y, x: r.x });
-        }
-      }
-      candidates.sort((a, b) => (a.y - b.y) || (a.x - b.x));
-      if (candidates[0]) { candidates[0].el.click(); return true; }
-      return false;
-    });
-    if (opened) await sleep(1200);
-  }
-
-  // Click 网络 tab if present
-  await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    if (!modal) return;
-    for (const sp of modal.querySelectorAll('span')) {
-      if ((sp.textContent || '').trim() === '网络'
-        && sp.getBoundingClientRect().width > 0) { sp.click(); return; }
-    }
-  }).catch(() => {});
-  await sleep(600);
-
-  // Search "polygon" and click evm--137
-  const chainSearchSel = '[data-testid="nav-header-search-chain-selector"]';
-  const hasSearch = await page.locator(chainSearchSel).isVisible({ timeout: 1500 }).catch(() => false);
-  if (hasSearch) {
-    const input = page.locator(chainSearchSel).first();
-    await input.click().catch(() => {});
-    await input.fill('polygon').catch(() => {});
-    await sleep(800);
-    const poly = page.locator('[data-testid="evm--137"]').first();
-    await poly.click({ timeout: 8000 });
-    await sleep(2000);
-  }
+  await switchNetwork(page, 'Polygon');
 }
 
 /** Desktop goToSwap: wallet home → switch to Polygon → click 兑换. */

@@ -834,7 +834,12 @@ NODE
    - `APP-Modal-Screen` 打开时，`app-modal-stacks-backdrop` 覆盖全屏，拦截所有弹窗外的点击。
    - 如果需要操作弹窗外的元素（如列表页的收藏按钮），**必须先关闭弹窗**，或者用 `page.evaluate()` 在弹窗内部查找等价元素并通过 JS 点击。
 
-5. **Dashboard 热更新**
+5. **通知抽屉清理禁止点击通知入口**
+   - 通用 overlay/modal 清理逻辑可以关闭已经打开的通知抽屉，但**禁止**点击右上角通知入口（`header-right-notification`）来切换通知抽屉状态。
+   - 关闭已打开的通知抽屉只能使用 `Escape`、点击抽屉外主内容区域，或其它不触发通知入口的关闭方式。
+   - 只有明确测试通知模块/通知入口本身的用例，才允许点击 `header-right-notification`；其它模块脚本不得因为清理弹窗、解除遮挡、初始化页面而点击它。
+
+6. **Dashboard 热更新**
    - Dashboard (`src/dashboard/server.ts`) 使用 ESM `import()` 动态加载测试模块，Node.js 会缓存模块。
    - **修改测试脚本后必须重启 Dashboard**（`pkill -f "tsx src/dashboard"` 然后重新启动），否则执行的还是旧代码。
    - **每次启动 Dashboard 前必须先杀旧进程**：无论 5050 端口是否有响应，都先执行 `pkill -f "tsx src/dashboard"`，等待 1~2 秒后再启动新实例。旧进程可能残留上次的执行状态（running/卡住），导致新执行无法正常启动。
@@ -906,6 +911,14 @@ NODE
 - 搜索框被 overlay 拦截，用 `page.evaluate` 内部 `nativeInputValueSetter` 输入
 - 搜索**只在当前选中的钱包类型内**生效，切换观察钱包需先点击「观察钱包」tab
 - 公共方法：`switchToAccount(page, 'hl-99', '观察钱包')`
+
+#### 转账 submit / LN 支付规则：
+- 所有网络的转账脚本进入真实 `submit` 流程后，如果遇到钱包密码弹窗，必须自动读取钱包密码变量并输入后继续流程。
+- 钱包密码读取优先级：`shared/runtime-config.json` 的 `walletPassword` > 环境变量 `WALLET_PASSWORD` > 默认 `1234567890-=`。
+- 桌面端转账正向用例默认必须进入真实 `submit` / 广播流程，包括 `Max` 金额和 Lightning Network / LN；提交前必须在预览页校验接收地址是钱包内目标账户地址。
+- 提交后必须按链/交易类型校验历史记录，不能复用单一字段集：LN 至少校验金额/类型/状态；普通链至少校验币种/类型/状态/接收方；有 hash 展示的链必须校验 hash；Stellar / TON 等带 memo/comment 的用例必须按链校验历史里的 memo/comment。
+- 转账脚本不得硬编码钱包名或账户名。发送/接收账户必须从 `shared/runtime-config.json` 的 `walletAccounts.primary/secondary` 读取；脚本里的 `piggy`/`vault` 只能作为 primary/secondary 的角色别名。
+- 负向用例（非法金额、格式错误、激活边界等）不广播，只校验 UI 拦截。
 
 ## Task Status Flow
 pending → in_progress → completed | failed | blocked

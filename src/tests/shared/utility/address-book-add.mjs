@@ -17,16 +17,16 @@
 // Key selectors:
 // - Add button:          [data-testid="address-book-add-icon"]
 // - Network selector:    [data-testid="network-selector-input-text"]
-// - Network search:      [data-testid="nav-header-search-chain-selector"]
+// - Network search:      handled by helpers/chain-selector.mjs
 // - Name input:          [data-testid="address-form-name"]
 // - Address input:       [data-testid="address-form-address"]
 // - Memo/Tag input:      textarea[placeholder*="Memo"]
 // - Save button:         [data-testid="address-form-save"]
 // - Back button:         [data-testid="nav-header-back"]
 
-import { execSync } from 'node:child_process';
 import { sleep } from '../../helpers/constants.mjs';
 import { createStepTracker, safeStep } from '../../helpers/components.mjs';
+import { searchAndSelectChain } from '../../helpers/chain-selector.mjs';
 
 // ── DATA SETS ──────────────────────────────────────────────────
 
@@ -173,76 +173,7 @@ export function createAddressBookAddTests({
     await netSelector.waitFor({ state: 'visible', timeout: 10000 });
     await netSelector.click();
     await sleep(800);
-
-    const searchInput = page.locator('[data-testid="nav-header-search-chain-selector"]').first();
-    await searchInput.waitFor({ state: 'visible', timeout: 10000 });
-    await searchInput.click();
-    await sleep(200);
-
-    await page.evaluate(() => {
-      const el = document.querySelector('[data-testid="nav-header-search-chain-selector"]');
-      if (el) { el.focus(); el.select(); }
-    });
-    await page.keyboard.press('Backspace');
-    await sleep(300);
-
-    if (searchKey.includes(' ')) {
-      execSync('pbcopy', { input: searchKey });
-      await sleep(200);
-      await searchInput.click();
-      await sleep(100);
-      await page.keyboard.press('Meta+V');
-      await sleep(500);
-    } else {
-      await searchInput.pressSequentially(searchKey, { delay: 40 });
-      await sleep(300);
-    }
-
-    const actualValue = await page.evaluate(() => {
-      const el = document.querySelector('[data-testid="nav-header-search-chain-selector"]');
-      return el?.value || '';
-    });
-    if (actualValue !== searchKey) {
-      console.log(`  [warn] search input mismatch: expected="${searchKey}" actual="${actualValue}"`);
-    }
-
-    let clicked = false;
-    for (let i = 0; i < 20; i++) {
-      await sleep(500);
-      const pos = await page.evaluate((key) => {
-        const items = document.querySelectorAll('div[data-testid^="select-item-"]');
-        const rows = [];
-        for (const item of items) {
-          const r = item.getBoundingClientRect();
-          if (r.height < 40 || r.width < 100) continue;
-          rows.push({
-            el: item,
-            text: item.textContent?.trim() || '',
-            rect: { x: r.x + r.width / 2, y: r.y + r.height / 2 },
-          });
-        }
-        if (rows.length === 0) return null;
-
-        const keyLower = key.toLowerCase();
-        for (const row of rows) {
-          if (row.text.toLowerCase() === keyLower) return row.rect;
-        }
-        for (const row of rows) {
-          if (row.text.toLowerCase().startsWith(keyLower)) return row.rect;
-        }
-        for (const row of rows) {
-          if (row.text.toLowerCase().endsWith(keyLower)) return row.rect;
-        }
-        return rows[0].rect;
-      }, searchKey);
-      if (pos) {
-        await page.mouse.click(pos.x, pos.y);
-        clicked = true;
-        break;
-      }
-    }
-
-    if (!clicked) throw new Error(`Network "${searchKey}" not found in selector after 10s`);
+    await searchAndSelectChain(page, searchKey, { timeout: 10000 });
     await sleep(800);
   }
 

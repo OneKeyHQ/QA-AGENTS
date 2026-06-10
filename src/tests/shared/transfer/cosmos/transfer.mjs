@@ -200,8 +200,9 @@ export function createCosmosTransferTests({
     });
     if (!sendOpened) return t.result();
 
+    let selectedRecipientInfo = null;
     await _ss(`选择收款人 ${usedStrategy.recipient}`, async () => {
-      await selectRecipientFromContacts(page, usedStrategy.recipient);
+      selectedRecipientInfo = await selectRecipientFromContacts(page, usedStrategy.recipient);
       return usedStrategy.recipient;
     });
 
@@ -401,7 +402,18 @@ export function createCosmosTransferTests({
 
     await _ss('查看历史记录', async () => {
       await sleep(2000);
-      const { fields } = await verifyHistoryRecord(page, token);
+      const requiredFields = ['token', 'type', 'hash', 'status', 'recipient'];
+      if (memo) requiredFields.push('memo');
+      const { fields } = await verifyHistoryRecord(page, {
+        network,
+        token,
+        amount,
+        memo,
+        recipientAddress: selectedRecipientInfo?.address,
+        recipientLabel: selectedRecipientInfo?.label,
+        requiredFields,
+        optionalFields: ['fee', 'amount', 'network'],
+      });
       return `verified: ${fields.join(', ')}`;
     });
 

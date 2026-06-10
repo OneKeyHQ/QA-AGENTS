@@ -2,12 +2,14 @@
 // CLI wrapper for precondition checks.
 // Connects CDP, runs probes, returns structured JSON.
 
+import 'dotenv/config';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { existsSync } from 'node:fs';
-import { execSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { execSync, spawnSync } from 'node:child_process';
 
 const TESTS_DIR = join(import.meta.dirname, '..', 'tests');
+const PROJECT_ROOT = join(import.meta.dirname, '..', '..');
 const ONEKEY_BIN = process.env.ONEKEY_BIN ?? '/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey';
 const CDP_URL = process.env.CDP_URL ?? 'http://127.0.0.1:9222';
 
@@ -22,10 +24,35 @@ interface PreflightOutput {
   cdp: { connected: boolean; url: string };
   wallet: { unlocked: boolean };
   network: { reachable: boolean };
+  ios?: IosPreflightOutput;
   checks: PreflightCheck[];
   skippedCases: string[];
   warnings: Array<{ check: string; level: string; message: string }>;
   timestamp: string;
+}
+
+interface IosTarget {
+  kind: 'simulator' | 'real-device';
+  udid: string;
+  state?: string;
+}
+
+interface IosPreflightOutput {
+  ready: boolean;
+  target?: IosTarget;
+  checks: PreflightCheck[];
+  warnings: Array<{ check: string; level: string; message: string }>;
+}
+
+interface IosPreflightDeps {
+  env?: NodeJS.ProcessEnv | Record<string, string | undefined>;
+  runCommand?: (cmd: string, args: string[]) => string;
+  exists?: (path: string) => boolean;
+  readText?: (path: string) => string;
+}
+
+interface PreflightDeps {
+  iosPreflight?: () => IosPreflightOutput;
 }
 
 async function ensureCDP(): Promise<boolean> {
@@ -60,7 +87,154 @@ async function launchOneKey(): Promise<void> {
   throw new Error('OneKey launched but CDP did not become ready within 10s');
 }
 
-export async function runPreflight(caseIds: string[], json: boolean): Promise<PreflightOutput> {
+function defaultRunCommand(cmd: string, args: string[]): string {
+  const result = spawnSync(cmd, args, { encoding: 'utf8' });
+  const output = `${result.stdout ?? ''}${result.stderr ?? ''}`;
+  if (result.error) throw result.error;
+  if (result.status && result.status !== 0) {
+    throw new Error(output.trim() || `${cmd} ${args.join(' ')} exited with ${result.status}`);
+  }
+  return output;
+}
+
+function pushIosCheck(output: IosPreflightOutput, check: PreflightCheck) {
+  output.checks.push(check);
+  if (check.status === 'block') output.ready = false;
+}
+
+function findSimulator(simctlOutput: string, udid: string): IosTarget | undefined {
+  const line = simctlOutput.split(/\r?\n/).find(l => l.includes(`(${udid})`));
+  if (!line) return undefined;
+  const state = line.match(/\((Booted|Shutdown)\)/)?.[1];
+  return { kind: 'simulator', udid, ...(state ? { state } : {}) };
+}
+
+function findRealDevice(devicectlOutput: string, udid: string): IosTarget | undefined {
+  if (!devicectlOutput.includes(udid)) return undefined;
+  return { kind: 'real-device', udid };
+}
+
+function readSourceBundleId(readText: (path: string) => string): string | undefined {
+  const pbxprojPath = join(PROJECT_ROOT, '..', 'app-monorepo', 'apps', 'mobile', 'ios', 'OneKeyWallet.xcodeproj', 'project.pbxproj');
+  try {
+    const text = readText(pbxprojPath);
+    const match = text.match(/PRODUCT_BUNDLE_IDENTIFIER = ([^;\s]+);/);
+    return match?.[1];
+  } catch {
+    return undefined;
+  }
+}
+
+export function runIosPreflightChecks(deps: IosPreflightDeps = {}): IosPreflightOutput {
+  const env = deps.env ?? process.env;
+  const runCommand = deps.runCommand ?? defaultRunCommand;
+  const exists = deps.exists ?? existsSync;
+  const readText = deps.readText ?? ((path: string) => readFileSync(path, 'utf8'));
+  const output: IosPreflightOutput = { ready: true, checks: [], warnings: [] };
+
+  try {
+    const driverList = runCommand('appium', ['driver', 'list', '--installed']);
+    pushIosCheck(output, {
+      name: 'ios_appium_xcuitest_driver',
+      status: driverList.includes('xcuitest') ? 'ok' : 'block',
+      message: driverList.includes('xcuitest') ? undefined : 'Appium XCUITest driver is not installed',
+    });
+  } catch (e: any) {
+    pushIosCheck(output, {
+      name: 'ios_appium_xcuitest_driver',
+      status: 'block',
+      message: `Cannot run appium driver list --installed: ${e.message}`,
+    });
+  }
+
+  try {
+    const xcodeVersion = runCommand('xcodebuild', ['-version']).split(/\r?\n/)[0]?.trim();
+    pushIosCheck(output, { name: 'ios_xcode', status: 'ok', message: xcodeVersion || undefined });
+  } catch (e: any) {
+    pushIosCheck(output, {
+      name: 'ios_xcode',
+      status: 'block',
+      message: `Cannot run xcodebuild -version: ${e.message}`,
+    });
+  }
+
+  const udid = env.APPIUM_IOS_UDID?.trim();
+  if (!udid) {
+    pushIosCheck(output, { name: 'ios_device', status: 'block', message: 'APPIUM_IOS_UDID is not set' });
+  } else {
+    let simctlOutput = '';
+    let devicectlOutput = '';
+    try { simctlOutput = runCommand('xcrun', ['simctl', 'list', 'devices', 'available']); } catch {}
+    try { devicectlOutput = runCommand('xcrun', ['devicectl', 'list', 'devices']); } catch {}
+
+    const simulator = findSimulator(simctlOutput, udid);
+    const realDevice = findRealDevice(devicectlOutput, udid);
+    const target = simulator ?? realDevice;
+    if (target) {
+      output.target = target;
+      pushIosCheck(output, {
+        name: 'ios_device',
+        status: 'ok',
+        message: `${target.kind} ${target.udid}${target.state ? ` (${target.state})` : ''}`,
+      });
+      if (target.kind === 'simulator' && target.state !== 'Booted') {
+        const warning = 'Simulator is visible but not booted; Appium may boot it, but pre-booting is more reliable';
+        output.warnings.push({ check: 'ios_device', level: 'warn', message: warning });
+        output.checks.push({ name: 'ios_simulator_booted', status: 'warn', message: warning });
+      }
+    } else {
+      pushIosCheck(output, {
+        name: 'ios_device',
+        status: 'block',
+        message: `Unknown device or simulator UDID: ${udid}`,
+      });
+    }
+  }
+
+  const platformVersion = env.APPIUM_IOS_PLATFORMVERSION?.trim();
+  if (platformVersion) {
+    pushIosCheck(output, { name: 'ios_platform_version', status: 'ok', message: platformVersion });
+  } else {
+    const message = 'APPIUM_IOS_PLATFORMVERSION is not set';
+    output.warnings.push({ check: 'ios_platform_version', level: 'warn', message });
+    output.checks.push({ name: 'ios_platform_version', status: 'warn', message });
+  }
+
+  const bundleId = env.APPIUM_IOS_BUNDLEID?.trim();
+  if (!bundleId) {
+    pushIosCheck(output, { name: 'ios_bundle_id', status: 'block', message: 'APPIUM_IOS_BUNDLEID is not set' });
+  } else {
+    pushIosCheck(output, { name: 'ios_bundle_id', status: 'ok', message: bundleId });
+    const sourceBundleId = readSourceBundleId(readText);
+    if (sourceBundleId && sourceBundleId !== bundleId) {
+      const message = `APPIUM_IOS_BUNDLEID=${bundleId} differs from source bundle id ${sourceBundleId}`;
+      output.warnings.push({ check: 'ios_bundle_id_source_match', level: 'warn', message });
+      output.checks.push({ name: 'ios_bundle_id_source_match', status: 'warn', message });
+    }
+  }
+
+  const appPath = env.APPIUM_IOS_APP?.trim();
+  if (appPath) {
+    pushIosCheck(output, {
+      name: 'ios_app_path',
+      status: exists(appPath) ? 'ok' : 'block',
+      message: exists(appPath) ? appPath : `APPIUM_IOS_APP does not exist: ${appPath}`,
+    });
+  } else {
+    const message = 'APPIUM_IOS_APP is not set; Appium will launch an already-installed bundleId and will not install the app';
+    output.warnings.push({ check: 'ios_app_path', level: 'warn', message });
+    output.checks.push({ name: 'ios_app_path', status: 'warn', message });
+  }
+
+  return output;
+}
+
+function shouldRunIosPreflight() {
+  return process.env.MOBILE_TARGET_PLATFORM === 'ios'
+    || Object.keys(process.env).some(key => key.startsWith('APPIUM_IOS_'));
+}
+
+export async function runPreflight(caseIds: string[], json: boolean, deps: PreflightDeps = {}): Promise<PreflightOutput> {
   const checks: PreflightCheck[] = [];
   const output: PreflightOutput = {
     ready: true,
@@ -82,6 +256,15 @@ export async function runPreflight(caseIds: string[], json: boolean): Promise<Pr
   }
 
   try {
+    if (process.env.MOBILE_TARGET_PLATFORM === 'ios') {
+      const ios = deps.iosPreflight ? deps.iosPreflight() : runIosPreflightChecks();
+      output.ios = ios;
+      output.ready = ios.ready;
+      checks.push(...ios.checks);
+      output.warnings.push(...ios.warnings);
+      return output;
+    }
+
     // 1. CDP connection
     let cdpOk = await ensureCDP();
     if (!cdpOk) {
@@ -168,6 +351,14 @@ export async function runPreflight(caseIds: string[], json: boolean): Promise<Pr
       } catch (e: any) {
         checks.push({ name: 'preconditions', status: 'warn', message: `Preconditions module error: ${e.message}` });
       }
+    }
+
+    if (shouldRunIosPreflight()) {
+      const ios = runIosPreflightChecks();
+      output.ios = ios;
+      checks.push(...ios.checks);
+      output.warnings.push(...ios.warnings);
+      if (!ios.ready) output.ready = false;
     }
   } finally {
     if (json) {
