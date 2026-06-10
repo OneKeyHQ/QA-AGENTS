@@ -30,6 +30,7 @@ import { assertListRendered } from '../../helpers/components.mjs';
  * @param {(page: import('playwright-core').Page, dir: string, name: string) => Promise<void>} opts.screenshot
  * @param {string} opts.screenshotDir - Absolute directory for failure screenshots
  * @param {'flat'|'two-level'} [opts.tabLayout='flat'] - Tab layout for this platform
+ * @param {Array<{ query: string, expected: string }>} [opts.extraTwoLevelChineseSearchCases] - Extra 永续合约/全部 search cases for two-level layout.
  * @returns {{ testCases: Array, setup: (page) => Promise<void>, ensurePopoverOpen: (page) => Promise<void>, dismissPopover: (page) => Promise<void>, getPreReport: () => any }}
  */
 export function createPerpsTokenSearchTests({
@@ -39,6 +40,7 @@ export function createPerpsTokenSearchTests({
   screenshot,
   screenshotDir,
   tabLayout = 'flat',
+  extraTwoLevelChineseSearchCases = [],
 }) {
 
   // ── Helpers (Web-flavored, work on both layouts) ─────────────
@@ -466,23 +468,22 @@ export function createPerpsTokenSearchTests({
     await clickTopTab(page, '永续合约');
     await clickSubTab(page, '全部');
 
-    await clearSearch(page);
-    await searchAsset(page, '比特');
+    const searchCases = [
+      { query: '比特', expected: 'BTC' },
+      { query: '以太', expected: 'ETH' },
+      ...extraTwoLevelChineseSearchCases,
+    ];
 
-    const btTokens = await getTokenList(page);
-    t.add('永续合约/全部 搜索「比特」有结果', btTokens.length > 0 ? 'passed' : 'failed',
-      `results: ${btTokens.join(', ') || 'none'}`, { dataKey: '比特' });
-    t.add('「比特」匹配 BTC', btTokens.includes('BTC') ? 'passed' : 'failed',
-      `results: ${btTokens.join(', ')}`, { dataKey: '比特' });
+    for (const { query, expected } of searchCases) {
+      await clearSearch(page);
+      await searchAsset(page, query);
 
-    await clearSearch(page);
-    await searchAsset(page, '以太');
-
-    const ethTokens = await getTokenList(page);
-    t.add('永续合约/全部 搜索「以太」有结果', ethTokens.length > 0 ? 'passed' : 'failed',
-      `results: ${ethTokens.join(', ') || 'none'}`, { dataKey: '以太' });
-    t.add('「以太」匹配 ETH', ethTokens.includes('ETH') ? 'passed' : 'failed',
-      `results: ${ethTokens.join(', ')}`, { dataKey: '以太' });
+      const tokens = await getTokenList(page);
+      t.add(`永续合约/全部 搜索「${query}」有结果`, tokens.length > 0 ? 'passed' : 'failed',
+        `results: ${tokens.join(', ') || 'none'}`, { dataKey: query });
+      t.add(`「${query}」匹配 ${expected}`, tokens.includes(expected) ? 'passed' : 'failed',
+        `results: ${tokens.join(', ')}`, { dataKey: query });
+    }
 
     await clearSearch(page);
     return t.result();

@@ -2,7 +2,9 @@
 // Each function calls registry.resolve() internally
 // Imports from constants.mjs (NOT index.mjs) to avoid circular dependency
 import { registry } from './ui-registry.mjs';
-import { sleep, WALLET_PASSWORD } from './constants.mjs';
+import { sleep } from './constants.mjs';
+import { getWalletPassword } from './runtime-config.mjs';
+import { searchAndSelectChain } from './chain-selector.mjs';
 
 // ── Step Tracker (moved from market-search.mjs + market-chart.mjs) ──
 
@@ -159,6 +161,28 @@ export async function closeAllModals(page) {
   await sleep(300);
 }
 
+async function isNotificationDrawerOpen(page) {
+  return page.evaluate(() => {
+    const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const text = normalize(document.body?.innerText || document.body?.textContent || '');
+    return text.includes('通知') && text.includes('账户活动') && text.includes('系统');
+  }).catch(() => null);
+}
+
+async function dismissNotificationDrawer(page) {
+  if (!(await isNotificationDrawerOpen(page))) return;
+
+  await page.keyboard.press('Escape').catch(() => {});
+  await sleep(250);
+  if (!(await isNotificationDrawerOpen(page))) return;
+
+  const viewport = page.viewportSize?.() || { width: 1365, height: 768 };
+  const x = Math.max(24, Math.min(240, Math.floor(viewport.width * 0.2)));
+  const y = Math.max(80, Math.min(240, Math.floor(viewport.height * 0.3)));
+  await page.mouse.click(x, y).catch(() => {});
+  await sleep(250);
+}
+
 export async function dismissOverlays(page) {
   // Overlay popover (note: app has typo 'ovelay')
   const overlay = await registry.resolveOrNull(page, 'overlayPopover', { context: 'page', timeout: 500 });
@@ -172,18 +196,7 @@ export async function dismissOverlays(page) {
   }
   await page.keyboard.press('Escape');
   await sleep(200);
-
-  // Notification drawer on the right can stay open across tests and intercept clicks.
-  await page.evaluate(() => {
-    const bodyText = document.body.textContent || '';
-    const hasNotificationDrawer =
-      bodyText.includes('通知') && bodyText.includes('账户活动') && bodyText.includes('系统');
-    if (!hasNotificationDrawer) return;
-    const bell = document.querySelector('[data-testid="header-right-notification"]');
-    const r = bell?.getBoundingClientRect();
-    if (bell && r && r.width > 0 && r.height > 0) bell.click();
-  }).catch(() => {});
-  await sleep(200);
+  await dismissNotificationDrawer(page);
 
   // Wallet "more" menu on the bottom-left can also remain open and pollute subsequent steps.
   await page.evaluate(() => {
@@ -687,7 +700,7 @@ export async function unlockIfNeeded(page) {
     if (pwdInput) {
       await pwdInput.click();
       await sleep(300);
-      await pwdInput.fill(WALLET_PASSWORD);
+      await pwdInput.fill(getWalletPassword());
       await sleep(500);
       const submitBtn = await registry.resolveOrNull(page, 'verifyingPassword', { context: 'page', timeout: 1000 });
       if (submitBtn) {
@@ -698,7 +711,7 @@ export async function unlockIfNeeded(page) {
     } else {
       // Last resort fallback
       const fallback = page.locator('input[type="password"]').first();
-      await fallback.fill(WALLET_PASSWORD);
+      await fallback.fill(getWalletPassword());
       await sleep(500);
       await fallback.press('Enter');
     }
@@ -774,7 +787,7 @@ export async function handlePasswordPrompt(page) {
   if (pwdInput) {
     await pwdInput.click({ force: true }).catch(() => {});
     await sleep(200);
-    await pwdInput.fill(WALLET_PASSWORD);
+    await pwdInput.fill(getWalletPassword());
     await sleep(300);
 
     // Try submit button, then Enter key
@@ -822,7 +835,7 @@ export async function enterPassword(page) {
   const pwdInput = await registry.resolve(page, 'passwordInput', { context: 'modal' });
   await pwdInput.click();
   await sleep(200);
-  await pwdInput.fill(WALLET_PASSWORD);
+  await pwdInput.fill(getWalletPassword());
   await sleep(300);
   const submitBtn = await registry.resolveOrNull(page, 'verifyingPassword', { context: 'modal', timeout: 1000 });
   if (submitBtn) { await submitBtn.click(); } else { await page.keyboard.press('Enter'); }
@@ -839,26 +852,7 @@ export async function openNetworkSelector(page) {
 
 export async function selectNetwork(page, name) {
   await openNetworkSelector(page);
-  // Search for network by name inside the opened modal/popover
-  const chainInput = await registry.resolveOrNull(page, 'chainSearchInput', { context: 'modal', timeout: 3000 });
-  if (chainInput) {
-    await chainInput.click();
-    await sleep(200);
-    await chainInput.pressSequentially(name, { delay: 40 });
-    await sleep(1000);
-  }
-  // Click the first matching result
-  const clicked = await page.evaluate((networkName) => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]') || document.body;
-    for (const el of modal.querySelectorAll('span, div')) {
-      if (el.textContent?.trim() === networkName && el.getBoundingClientRect().width > 0) {
-        el.click();
-        return true;
-      }
-    }
-    return false;
-  }, name);
-  if (!clicked) throw new Error(`Network "${name}" not found`);
+  await searchAndSelectChain(page, name);
   await sleep(1000);
 }
 

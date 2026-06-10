@@ -11,6 +11,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { sleep } from '../../helpers/constants.mjs';
+import { isChainSelectorSearchVisible, searchAndSelectChain } from '../../helpers/chain-selector.mjs';
 import { connectExtensionCDP, getExtensionId } from '../../helpers/extension-cdp.mjs';
 import { createSwap0xPolygonTests } from '../../shared/swap/0x-polygon.mjs';
 
@@ -46,15 +47,9 @@ async function switchToPolygonInExt(page) {
   if (!opened) return;
   await sleep(1200);
   // Search Polygon in chain selector if exposed
-  const chainSearchSel = '[data-testid="nav-header-search-chain-selector"]';
-  const hasSearch = await page.locator(chainSearchSel).isVisible({ timeout: 1500 }).catch(() => false);
+  const hasSearch = await isChainSelectorSearchVisible(page, 1500);
   if (hasSearch) {
-    const input = page.locator(chainSearchSel).first();
-    await input.click().catch(() => {});
-    await input.fill('polygon').catch(() => {});
-    await sleep(800);
-    const poly = page.locator('[data-testid="evm--137"]').first();
-    await poly.click({ timeout: 8000 }).catch(() => {});
+    await searchAndSelectChain(page, 'Polygon', { timeout: 8000 });
     await sleep(2000);
   } else {
     // Fallback: click "Polygon" entry directly

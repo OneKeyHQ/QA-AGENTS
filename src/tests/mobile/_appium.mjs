@@ -95,6 +95,8 @@ export async function connectDriver({ platform } = {}) {
           'appium:xcodeOrgId': process.env.APPIUM_IOS_XCODEORGID,
           'appium:xcodeSigningId': 'iPhone Developer',
         } : {}),
+        'appium:noReset': true,
+        'appium:fullReset': false,
         'appium:showXcodeLog': false,
         // Reuse an already-installed WDA on subsequent runs so we don't
         // rebuild + reinstall it every session (saves ~30s per run).
@@ -115,6 +117,11 @@ export async function connectDriver({ platform } = {}) {
 }
 
 export async function disconnectDriver(driver) {
-  if (!driver) return;
-  try { await driver.deleteSession(); } catch (e) { console.warn('[appium] session close failed:', e.message); }
+  try {
+    if (driver) await driver.deleteSession();
+  } catch (e) {
+    console.warn('[appium] session close failed:', e.message);
+  } finally {
+    await stopAppium();
+  }
 }

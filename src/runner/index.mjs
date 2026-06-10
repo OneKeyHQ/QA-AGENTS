@@ -14,6 +14,11 @@ import { execSync, spawn } from 'node:child_process';
 import {
   updateSelectorStats, updateTierStats, createMemCell, updateProfile
 } from '../knowledge/memory-pipeline.mjs';
+import {
+  clickChainSelectorResult,
+  fillChainSelectorSearch,
+  isChainSelectorSearchVisible,
+} from '../tests/helpers/chain-selector.mjs';
 
 const SHARED_DIR = pathResolve(import.meta.dirname, '../../shared');
 const RESULTS_DIR = pathResolve(SHARED_DIR, 'results');
@@ -631,41 +636,35 @@ async function switchNetwork(page, networkName) {
   }
 
   const networkBtn = await resolve(page, 'networkButton');
-  await networkBtn.click();
+  try {
+    await networkBtn.click({ timeout: 3000 });
+  } catch {
+    await page.evaluate(() => {
+      const visible = (el) => {
+        const r = el?.getBoundingClientRect?.();
+        return !!r && r.width > 0 && r.height > 0;
+      };
+      const btn = Array.from(document.querySelectorAll('[data-testid="account-network-trigger-button"]')).find(visible);
+      btn?.click();
+    });
+  }
   await sleep(1500);
 
-  const searchInput = await resolve(page, 'chainSearchInput', { timeout: 5000 });
-  await searchInput.isVisible();
-  // searchInput might be a deep_search result, use page.locator for fill
-  const chainSearchSel = getRawSelector('chainSearchInput');
-  await page.locator(chainSearchSel).fill(networkName);
+  if (!(await isChainSelectorSearchVisible(page, 5000))) {
+    throw new Error(`Network selector search input not visible for ${networkName}`);
+  }
+  await fillChainSelectorSearch(page, networkName);
   await sleep(1500);
 
-  const clicked = await page.evaluate((name) => {
-    const spans = document.querySelectorAll('span');
-    for (const sp of spans) {
-      if (sp.textContent === name && sp.getBoundingClientRect().width > 0) {
-        sp.closest('[role="button"]')?.click() || sp.parentElement?.click() || sp.click();
-        return name;
-      }
-    }
-    for (const sp of spans) {
-      const t = sp.textContent?.trim() || '';
-      const r = sp.getBoundingClientRect();
-      if (r.width > 0 && r.height > 10 && t.toLowerCase().includes(name.toLowerCase())) {
-        sp.closest('[role="button"]')?.click() || sp.parentElement?.click() || sp.click();
-        return t;
-      }
-    }
-    return null;
-  }, networkName);
-
-  if (!clicked) {
+  let selected;
+  try {
+    selected = await clickChainSelectorResult(page, networkName, { timeout: 5000 });
+  } catch {
     await page.keyboard.press('Escape');
     await sleep(500);
     throw new Error(`Network "${networkName}" not found in dropdown`);
   }
-  console.log(`    Selected network: ${clicked}`);
+  console.log(`    Selected network: ${selected.text || networkName}`);
   await sleep(3000);
 
   const networkTextSel = getRawSelector('networkButtonText');

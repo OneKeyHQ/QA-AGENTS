@@ -2,7 +2,7 @@
 // Extracted from src/runner/index.mjs — uses direct testid selectors
 
 import { sleep, screenshot, RESULTS_DIR } from './index.mjs';
-import { ACCOUNTS } from './accounts.mjs';
+import { getConfiguredAccount } from './accounts.mjs';
 import { resolve } from 'node:path';
 
 const SEND_FORM_SEL = '[data-testid="send-recipient-amount-form"]';
@@ -84,28 +84,30 @@ export async function hasBalance(page) {
  * @returns {string} The fiat amount displayed (e.g., "¥0.04")
  */
 export async function verifyFiatToggle(page) {
-  const TOGGLE_SELECTOR = (container) => {
-    const paths = container.querySelectorAll('path, svg');
-    for (const p of paths) {
-      const r = p.getBoundingClientRect();
-      if (r.width > 8 && r.width < 30 && r.height > 8 && r.height < 30 &&
-          r.y > 200 && r.y < 450 && r.x > 350 && r.x < 700) {
-        return p;
-      }
-    }
-    return null;
-  };
-
   // Click toggle to show fiat
   const toggled = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const modals = document.querySelectorAll('[data-testid="APP-Modal-Screen"]');
+    const modal = modals[modals.length - 1];
     const container = modal || document;
-    const paths = container.querySelectorAll('path, svg');
-    for (const p of paths) {
-      const r = p.getBoundingClientRect();
-      if (r.width > 8 && r.width < 30 && r.height > 8 && r.height < 30 &&
-          r.y > 200 && r.y < 450 && r.x > 350 && r.x < 700) {
-        (p.closest('[role="button"]') || p.parentElement)?.click() || p.click();
+    const amountInput =
+      container.querySelector('[data-testid="send-amount-input"]') ||
+      container.querySelector('input[placeholder="0"]');
+    const inputRect = amountInput?.getBoundingClientRect();
+    const buttons = container.querySelectorAll('[role="button"], button');
+    for (const btn of buttons) {
+      const r = btn.getBoundingClientRect();
+      const text = btn.textContent?.trim() || '';
+      if (r.width <= 0 || r.height <= 0) continue;
+      if (inputRect) {
+        const alignedWithInput = Math.abs((r.x + r.width / 2) - (inputRect.x + inputRect.width / 2)) < 180;
+        const belowInput = r.y > inputRect.y && r.y < inputRect.y + 180;
+        if (alignedWithInput && belowInput && (text || btn.querySelector('svg'))) {
+          btn.click();
+          return true;
+        }
+      }
+      if (r.y > 200 && r.y < 520 && r.x > 260 && r.x < 900 && (text.includes('$') || text.includes('¥'))) {
+        btn.click();
         return true;
       }
     }
@@ -116,7 +118,8 @@ export async function verifyFiatToggle(page) {
 
   // Read fiat display
   const fiatAmount = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const modals = document.querySelectorAll('[data-testid="APP-Modal-Screen"]');
+    const modal = modals[modals.length - 1];
     const container = modal || document;
     for (const sp of container.querySelectorAll('span')) {
       const t = sp.textContent?.trim() || '';
@@ -131,14 +134,28 @@ export async function verifyFiatToggle(page) {
 
   // Toggle back to crypto
   await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const modals = document.querySelectorAll('[data-testid="APP-Modal-Screen"]');
+    const modal = modals[modals.length - 1];
     const container = modal || document;
-    const paths = container.querySelectorAll('path, svg');
-    for (const p of paths) {
-      const r = p.getBoundingClientRect();
-      if (r.width > 8 && r.width < 30 && r.height > 8 && r.height < 30 &&
-          r.y > 200 && r.y < 450 && r.x > 350 && r.x < 700) {
-        (p.closest('[role="button"]') || p.parentElement)?.click() || p.click();
+    const amountInput =
+      container.querySelector('[data-testid="send-amount-input"]') ||
+      container.querySelector('input[placeholder="0"]');
+    const inputRect = amountInput?.getBoundingClientRect();
+    const buttons = container.querySelectorAll('[role="button"], button');
+    for (const btn of buttons) {
+      const r = btn.getBoundingClientRect();
+      const text = btn.textContent?.trim() || '';
+      if (r.width <= 0 || r.height <= 0) continue;
+      if (inputRect) {
+        const alignedWithInput = Math.abs((r.x + r.width / 2) - (inputRect.x + inputRect.width / 2)) < 180;
+        const belowInput = r.y > inputRect.y && r.y < inputRect.y + 180;
+        if (alignedWithInput && belowInput && (text || btn.querySelector('svg'))) {
+          btn.click();
+          return;
+        }
+      }
+      if (r.y > 200 && r.y < 520 && r.x > 260 && r.x < 900 && (text.includes('$') || text.includes('¥'))) {
+        btn.click();
         return;
       }
     }
@@ -148,12 +165,81 @@ export async function verifyFiatToggle(page) {
   return fiatAmount;
 }
 
+function normalizeHistoryExpectations(expected) {
+  if (typeof expected === 'string') {
+    return {
+      token: expected,
+      requiredFields: ['token', 'type', 'hash', 'status'],
+    };
+  }
+  const normalized = expected || {};
+  return {
+    ...normalized,
+    requiredFields: normalized.requiredFields || ['token', 'type', 'hash', 'status'],
+    optionalFields: normalized.optionalFields || [],
+  };
+}
+
+function compactAddressVariants(address) {
+  if (!address) return [];
+  const value = String(address);
+  const variants = [value];
+  if (value.length >= 12) {
+    variants.push(`${value.slice(0, 6)}...${value.slice(-4)}`);
+    variants.push(`${value.slice(0, 8)}...${value.slice(-6)}`);
+    variants.push(`${value.slice(0, 10)}...${value.slice(-8)}`);
+  }
+  return variants;
+}
+
+function historyTextIncludesAddress(text, address) {
+  if (!address) return false;
+  const lowerText = text.toLowerCase();
+  return compactAddressVariants(address).some((variant) => lowerText.includes(variant.toLowerCase()));
+}
+
+function extractHistoryFields(text, expected) {
+  const fields = [];
+  if (expected.token && text.includes(expected.token)) fields.push('token');
+  if (expected.network && text.includes(expected.network)) fields.push('network');
+  if (expected.amount && expected.amount !== 'Max' && text.includes(String(expected.amount))) fields.push('amount');
+  if (text.includes('发送') || text.includes('Send')) fields.push('type');
+  if (text.includes('哈希') || text.includes('Hash') || text.includes('hash') || text.includes('交易ID') || text.includes('Transaction ID')) fields.push('hash');
+  if (text.includes('费用') || text.includes('Fee') || text.includes('网络费')) fields.push('fee');
+  if (
+    text.includes('处理中') ||
+    text.includes('已确认') ||
+    text.includes('成功') ||
+    text.includes('已发送') ||
+    text.includes('Pending') ||
+    text.includes('Confirmed') ||
+    text.includes('Success') ||
+    text.includes('Submitted')
+  ) fields.push('status');
+  if (
+    historyTextIncludesAddress(text, expected.recipientAddress) ||
+    (expected.recipientLabel && text.includes(expected.recipientLabel))
+  ) fields.push('recipient');
+  if (expected.memo && text.includes(expected.memo)) fields.push('memo');
+  return fields;
+}
+
 /**
  * Open history record list, click latest transaction, verify fields, then close.
- * @param {string} token — expected token symbol (e.g., 'ATOM', 'CRO')
- * @returns {{ fields: string[] }} Matched verification fields
+ * @param {string | {
+ *   token?: string,
+ *   network?: string,
+ *   amount?: string,
+ *   recipientAddress?: string,
+ *   recipientLabel?: string,
+ *   memo?: string,
+ *   requiredFields?: string[],
+ *   optionalFields?: string[],
+ * }} expected
+ * @returns {{ fields: string[], optionalMissing: string[], text: string }} Matched verification fields
  */
-export async function verifyHistoryRecord(page, token) {
+export async function verifyHistoryRecord(page, expected) {
+  const expectations = normalizeHistoryExpectations(expected);
   // Click "历史记录"
   const historyClicked = await page.evaluate(() => {
     for (const sp of document.querySelectorAll('span')) {
@@ -168,31 +254,53 @@ export async function verifyHistoryRecord(page, token) {
   await sleep(2000);
 
   // Verify latest record exists and click it
-  const latestTx = page.locator('[data-testid="tx-action-common-list-view"]').first();
-  const txVisible = await latestTx.isVisible({ timeout: 5000 }).catch(() => false);
-  if (!txVisible) throw new Error('历史记录中未找到交易');
-  await latestTx.click();
+  await page.waitForFunction(() => {
+    const visible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0;
+    };
+    return Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]')).some(visible);
+  }, { timeout: 15000 });
+  const listText = await page.evaluate(() => {
+    const visible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0;
+    };
+    const latest = Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]')).find(visible);
+    return latest?.textContent || '';
+  });
+  const clickedTx = await page.evaluate(() => {
+    const visible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0;
+    };
+    const latest = Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]')).find(visible);
+    if (!latest) return false;
+    latest.click();
+    return true;
+  });
+  if (!clickedTx) throw new Error('历史记录中未找到可见交易');
   await sleep(2000);
 
   // Read detail content
   const detailText = await page.evaluate(() => {
     const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    return (modal || document.body).textContent?.substring(0, 3000) || '';
+    return (modal || document.body).textContent?.substring(0, 5000) || '';
   });
-
-  const fields = [];
-  if (detailText.includes(token)) fields.push('token');
-  if (detailText.includes('发送') || detailText.includes('Send')) fields.push('type');
-  if (detailText.includes('哈希') || detailText.includes('Hash') || detailText.includes('hash')) fields.push('hash');
-  if (detailText.includes('费用') || detailText.includes('Fee')) fields.push('fee');
-  if (detailText.includes('处理中') || detailText.includes('已确认') || detailText.includes('Pending') || detailText.includes('Confirmed')) fields.push('status');
+  const text = `${listText}\n${detailText}`;
+  const fields = extractHistoryFields(text, expectations);
+  const missing = expectations.requiredFields.filter((field) => !fields.includes(field));
+  if (missing.length) {
+    throw new Error(`历史记录字段缺失: ${missing.join(', ')}; text=${text.substring(0, 240)}`);
+  }
+  const optionalMissing = expectations.optionalFields.filter((field) => !fields.includes(field));
 
   // Close detail
   const closeBtn = page.locator('[data-testid="nav-header-close"]');
   await closeBtn.click({ timeout: 3000 }).catch(() => page.keyboard.press('Escape'));
   await sleep(1000);
 
-  return { fields };
+  return { fields, optionalMissing, text };
 }
 
 /**
@@ -245,7 +353,24 @@ export async function clearMemoField(page) {
  * @returns {{ negative: string, zero: string, overBalance: string }}
  */
 export async function verifyInvalidAmounts(page) {
-  const amountInput = page.locator('input[placeholder="0"]').first();
+  const selectors = [
+    '[data-testid="APP-Modal-Screen"] [data-testid="send-amount-input"] input',
+    '[data-testid="APP-Modal-Screen"] [data-testid="send-amount-input"]',
+    '[data-testid="send-amount-input"] input',
+    '[data-testid="send-amount-input"]',
+    '[data-testid="APP-Modal-Screen"] input[placeholder="0"]',
+    'input[placeholder="0"]',
+  ];
+  let amountInput = null;
+  for (const selector of selectors) {
+    const candidate = page.locator(selector).first();
+    const visible = await candidate.isVisible({ timeout: 800 }).catch(() => false);
+    if (visible) {
+      amountInput = candidate;
+      break;
+    }
+  }
+  if (!amountInput) throw new Error('金额输入框不可见');
   const results = {};
 
   // Negative: can't be typed
@@ -373,8 +498,8 @@ export async function openSendForm(page, token) {
  * Click "账户" tab → click recipient account by label or testid.
  */
 export async function selectRecipientFromContacts(page, recipientName) {
-  const recipient = ACCOUNTS[recipientName];
-  if (!recipient) throw new Error(`Unknown recipient account: ${recipientName}`);
+  const recipient = getConfiguredAccount(recipientName);
+  const labels = recipient.labels || [recipient.label];
 
   // Click "账户" tab on the send form
   const tabClicked = await page.evaluate(() => {
@@ -396,35 +521,48 @@ export async function selectRecipientFromContacts(page, recipientName) {
   await sleep(2000);
 
   // Click recipient account — try by testid pattern first (recipient-item-<address>)
-  const recipientClicked = await page.evaluate((label) => {
+  const recipientClicked = await page.evaluate((labelList) => {
+    const getAddressFromTestId = (el) => {
+      const testId = el?.getAttribute?.('data-testid') || '';
+      return testId.startsWith('recipient-item-') ? testId.slice('recipient-item-'.length) : null;
+    };
     // Find recipient item containing the account label text
     const items = document.querySelectorAll('[data-testid^="recipient-item-"]');
     for (const item of items) {
       const r = item.getBoundingClientRect();
-      if (r.width > 0 && item.textContent?.includes(label)) {
+      if (r.width > 0 && labelList.some((label) => item.textContent?.includes(label))) {
         item.click();
-        return item.getAttribute('data-testid');
+        return { testId: item.getAttribute('data-testid'), address: getAddressFromTestId(item) };
       }
     }
     // Fallback: find span with label text and click its parent row
     for (const sp of document.querySelectorAll('span')) {
       const r = sp.getBoundingClientRect();
-      if (r.width > 0 && sp.textContent?.trim() === label) {
+      if (r.width > 0 && labelList.includes(sp.textContent?.trim())) {
         const row = sp.closest('[data-testid^="recipient-item-"]') ||
                     sp.closest('[role="button"]') ||
                     sp.parentElement?.parentElement;
-        if (row) { row.click(); return 'fallback-label'; }
+        if (row) {
+          row.click();
+          return { testId: row.getAttribute?.('data-testid') || 'fallback-label', address: getAddressFromTestId(row) };
+        }
       }
     }
     return null;
-  }, recipient.label);
+  }, labels);
 
   if (recipientClicked) {
-    console.log(`    Selected recipient ${recipient.label} (${recipientClicked})`);
+    console.log(`    Selected recipient ${recipient.label} (${recipient.role}, ${recipientClicked.testId})`);
   } else {
     throw new Error(`Recipient "${recipient.label}" not found in 账户 tab`);
   }
   await sleep(3000);
+  return {
+    name: recipientName,
+    label: recipient.label,
+    address: recipientClicked.address,
+    testId: recipientClicked.testId,
+  };
 }
 
 /**
@@ -456,20 +594,25 @@ export async function enterAmount(page, amount) {
     await sleep(2000);
   } else {
     // Find the amount input — try multiple scopes
-    let amountInput = page.locator('[data-testid="APP-Modal-Screen"] input[placeholder="0"]').first();
-    let visible = await amountInput.isVisible({ timeout: 1000 }).catch(() => false);
+    const selectors = [
+      '[data-testid="APP-Modal-Screen"] [data-testid="send-amount-input"]',
+      '[data-testid="send-amount-input"]',
+      '[data-testid="APP-Modal-Screen"] input[placeholder="0"]',
+      `${SEND_FORM_SEL} input`,
+      'input[placeholder="0"]',
+    ];
 
-    if (!visible) {
-      amountInput = page.locator(`${SEND_FORM_SEL} input`).first();
-      visible = await amountInput.isVisible({ timeout: 1000 }).catch(() => false);
+    let amountInput = null;
+    for (const selector of selectors) {
+      const candidate = page.locator(selector).first();
+      const visible = await candidate.isVisible({ timeout: 1000 }).catch(() => false);
+      if (visible) {
+        amountInput = candidate;
+        break;
+      }
     }
 
-    if (!visible) {
-      amountInput = page.locator('input[placeholder="0"]').first();
-      visible = await amountInput.isVisible({ timeout: 2000 }).catch(() => false);
-    }
-
-    if (!visible) throw new Error('Amount input not found');
+    if (!amountInput) throw new Error('Amount input not found');
 
     await amountInput.click();
     await sleep(300);
@@ -530,12 +673,97 @@ export async function checkInsufficientBalance(page) {
   });
 }
 
+export async function getAmountPageAssetLoadingState(page, { token } = {}) {
+  return page.evaluate(({ token }) => {
+    const isVisible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0;
+    };
+    const escapeRegExp = (value) => String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const modals = Array.from(document.querySelectorAll('[data-testid="APP-Modal-Screen"]')).filter(isVisible);
+    const modal = modals.at(-1) || document.body;
+    const amountInput =
+      modal.querySelector('[data-testid="send-amount-input"]') ||
+      modal.querySelector('[data-testid="amount-input-input-element-input"]') ||
+      modal.querySelector('input[placeholder="0"]');
+    const amountInputVisible = isVisible(amountInput);
+    const modalRect = modal.getBoundingClientRect();
+    const text = modal.textContent || '';
+    const assetSummaryReady =
+      /(可用|Available)[\s\S]{0,120}\d[\d.,]*\s*[A-Z0-9]{2,}/i.test(text) ||
+      (text.includes('最大') && /\d[\d.,]*\s*[A-Z0-9]{2,}/i.test(text));
+    const tokenBalanceReady = token
+      ? new RegExp(`${escapeRegExp(token)}[\\s\\S]{0,80}\\d[\\d.,]*`, 'i').test(text)
+      : false;
+
+    const skeletons = Array.from(modal.querySelectorAll('div, span'))
+      .filter(isVisible)
+      .map((el) => {
+        const r = el.getBoundingClientRect();
+        const style = window.getComputedStyle(el);
+        const visibleText = (el.innerText || el.textContent || '').trim();
+        const bg = style.backgroundColor;
+        const radius = parseFloat(style.borderRadius || '0') || 0;
+        return {
+          tag: el.tagName,
+          text: visibleText,
+          width: r.width,
+          height: r.height,
+          x: r.x,
+          y: r.y,
+          bg,
+          radius,
+          className: String(el.className || ''),
+        };
+      })
+      .filter((item) => {
+        if (item.text) return false;
+        if (item.width < 18 || item.width > 360) return false;
+        if (item.height < 4 || item.height > 90) return false;
+        if (item.y < modalRect.y + 80) return false;
+        if (!item.bg || item.bg === 'rgba(0, 0, 0, 0)' || item.bg === 'transparent') return false;
+        return item.radius > 0 || /skeleton|loading/i.test(item.className);
+      });
+
+    const loadingText = /loading|加载中/i.test(text);
+    return {
+      amountInputVisible,
+      assetSummaryReady,
+      tokenBalanceReady,
+      loading: !amountInputVisible || (!assetSummaryReady && !tokenBalanceReady && (skeletons.length > 0 || loadingText)),
+      skeletonCount: skeletons.length,
+      loadingText,
+      text: text.substring(0, 500),
+    };
+  }, { token });
+}
+
+export async function waitForAmountPageAssetsReady(page, { timeout = 10000, token } = {}) {
+  const started = Date.now();
+  let lastState = null;
+  while (Date.now() - started <= timeout) {
+    lastState = await getAmountPageAssetLoadingState(page, { token });
+    if (lastState.amountInputVisible && !lastState.loading) {
+      return {
+        ready: true,
+        waitedMs: Date.now() - started,
+        state: lastState,
+      };
+    }
+    await sleep(500);
+  }
+  throw new Error(
+    `金额页资产信息 ${Math.round(timeout / 1000)}s 内未加载完成: skeleton=${lastState?.skeletonCount ?? 'unknown'}, text=${(lastState?.text || '').substring(0, 160)}`,
+  );
+}
+
 /**
  * Assert preview page content against expected values.
  */
 export async function assertPreviewPage(page, expected) {
   const previewContent = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const modals = document.querySelectorAll('[data-testid="APP-Modal-Screen"]');
+    const modal = modals[modals.length - 1];
     const container = modal || document.body;
     const allText = container.textContent || '';
     const spans = container.querySelectorAll('span, div, p');
@@ -552,6 +780,13 @@ export async function assertPreviewPage(page, expected) {
 
   const checks = [];
   const allText = previewContent.allText;
+  const normalizedText = allText.replace(/\s+/g, ' ');
+  const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const amountMatches = (amount) => {
+    const escapedAmount = escapeRegex(amount);
+    const pattern = new RegExp(`(^|[^\\d.])[-−]?\\s*${escapedAmount}([^\\d.]|$)`);
+    return pattern.test(normalizedText);
+  };
 
   if (expected.network) {
     const found = allText.includes(expected.network);
@@ -563,13 +798,14 @@ export async function assertPreviewPage(page, expected) {
   }
   if (expected.recipientAddress) {
     const addr = expected.recipientAddress;
+    const prefix = addr.substring(0, Math.min(6, addr.length));
     const tail = addr.substring(addr.length - 4);
-    const found = allText.includes(tail);
-    checks.push({ field: 'recipient', expected: `...${tail}`, found, severity: found ? 'pass' : 'warn' });
+    const found = allText.includes(addr) || (allText.includes(prefix) && allText.includes(tail));
+    checks.push({ field: 'recipient', expected: `${prefix}...${tail}`, found, severity: found ? 'pass' : 'error' });
   }
   if (expected.amount && expected.amount !== 'Max') {
-    const found = allText.includes(expected.amount);
-    checks.push({ field: 'amount', expected: expected.amount, found, severity: found ? 'pass' : 'warn' });
+    const found = amountMatches(expected.amount);
+    checks.push({ field: 'amount', expected: expected.amount, found, severity: found ? 'pass' : 'error' });
   }
   if (expected.memo) {
     const found = allText.includes(expected.memo);
@@ -582,6 +818,11 @@ export async function assertPreviewPage(page, expected) {
   for (const c of checks) {
     const icon = c.found ? 'OK' : 'MISS';
     console.log(`      [${icon}] ${c.field}: "${c.expected}"`);
+  }
+
+  const blockingMissing = checks.filter((c) => !c.found && c.severity === 'error');
+  if (blockingMissing.length) {
+    throw new Error(`预览页字段校验失败: ${blockingMissing.map((c) => `${c.field}=${c.expected}`).join(', ')}`);
   }
 
   return { valid: checks.every(c => c.found), checks, passed, total };

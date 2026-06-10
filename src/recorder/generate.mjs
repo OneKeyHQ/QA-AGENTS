@@ -65,7 +65,7 @@ const INTENT_RULES = [
   { testid: /AccountSelectorTriggerBase/, intent: 'open_account_selector', semanticKey: 'wallet.account.selector.trigger', uiElement: 'walletSelector' },
   { testid: /account-item-index-(\d+)/, intent: 'select_account', semanticKey: 'wallet.account.selector.item_by_index', uiElement: 'accountItemByIndex', extractIndex: true },
   { testid: /account-network-trigger-button/, intent: 'open_network_selector', semanticKey: 'wallet.network.selector.trigger', uiElement: 'networkButton' },
-  { testid: /nav-header-search-chain-selector|network-selector-input|all-networks-manager-search-bar/, intent: 'search_network', semanticKey: 'wallet.network.selector.search_input', uiElement: 'chainSearchInput' },
+  { testid: /nav-header-search-chain-selector|chain-selector-(?:search-bar|list-view-search-bar|section-list-search-bar)|network-selector-input|all-networks-manager-search-bar/, intent: 'search_network', semanticKey: 'wallet.network.selector.search_input', uiElement: 'chainSearchInput' },
   { testid: /Wallet-Tab-Header/, text: /发送/, intent: 'click_send', semanticKey: 'wallet.home.header', uiElement: 'walletTabHeader' },
   { testid: /Wallet-Tab-Header/, text: /接收/, intent: 'click_receive', semanticKey: 'wallet.home.header', uiElement: 'walletTabHeader' },
   { testid: /APP-Modal-Screen/, intent: 'select_in_modal', semanticKey: 'global.modal.container', uiElement: 'modal' },

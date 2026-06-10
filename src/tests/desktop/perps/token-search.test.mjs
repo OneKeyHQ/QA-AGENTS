@@ -1,4 +1,4 @@
-// Token Search Tests (Desktop) — SEARCH-001 ~ SEARCH-003
+// Token Search Tests (Desktop) — SEARCH-001 ~ SEARCH-004
 // Thin wrapper: test logic lives in src/tests/shared/perps/token-search.mjs
 // Connects via CDP port 9222 (OneKey Electron app).
 
@@ -40,7 +40,11 @@ const { testCases, setup, ensurePopoverOpen, dismissPopover, getPreReport } =
     goToPerps,
     screenshot,
     screenshotDir: SCREENSHOT_DIR,
-    tabLayout: 'flat',
+    tabLayout: 'two-level',
+    extraTwoLevelChineseSearchCases: [
+      { query: '英伟达', expected: 'NVDA' },
+      { query: '苹果', expected: 'AAPL' },
+    ],
   });
 
 export { testCases, setup };
