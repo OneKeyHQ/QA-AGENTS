@@ -1,5 +1,8 @@
 # Transfer - Tron / Polkadot / Stellar 软件钱包自动化
 
+> 文档性质：本文档为**自动化覆盖映射**（记录脚本断言范围），非手动用例模板；表头为 `自动化 ID / 优先级 / 场景 / 自动化断言`，与 qa-rules §7.3 手动用例 4 列模板不同。
+> 规则文档：`docs/qa/rules/transfer-chain-rules.md`
+> 测试端：Desktop
 > 来源用例：
 > `docs/qa/testcases/cases/transfer/2026-05-08_Transfer-Tron转账-软件钱包.md`
 > `docs/qa/testcases/cases/transfer/2026-05-08_Transfer-Polkadot转账-软件钱包.md`
