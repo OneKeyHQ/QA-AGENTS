@@ -1,11 +1,11 @@
 {
   "version": "2.3.7",
-  "lastUpdated": "2026-06-04",
+  "lastUpdated": "2026-06-12",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
     "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134 — DOM定位/选择器/testid陷阱",
-    "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079,K-129,K-131 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097,K-119 — 工作流/前置条件/状态恢复",
+    "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140 — OneKey/Electron/React行为异常",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097,K-119,K-136 — 工作流/前置条件/状态恢复",
     "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095,K-120,K-132,K-133,K-135 — 断言策略/校验方法",
     "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109 — 录制器相关",
     "timing": "K-107,K-110,K-112,K-114 — 时序/异步/页面状态切换"
@@ -1074,6 +1074,46 @@
       "pattern": "All networks 复制地址弹窗不展示 BTC Nested/Native/Taproot 标签，不能作为该弹窗必需断言",
       "details": "2026-06-04 实跑 NIGHTLY-PORTFOLIO-001：网络选择器 `创建地址 & 应用` 成功后，复制地址弹窗全量滚动显示 `Bitcoin Legacy`、Ethereum/EVM、Tron、Solana、TON、XRP Ledger 等地址，且 XRP Ledger 底部地址已创建；但弹窗中没有 `Bitcoin Nested SegWit`、`Bitcoin Native SegWit`、`Bitcoin Taproot` 标签。修复口径：all-networks 复制地址弹窗按当前 UI 展示校验代表性网络地址和无 `创建地址` 残留；BTC 派生路径标签属于派生路径选择/单链地址上下文，不作为该弹窗必需项。",
       "confidence": 0.98
+    },
+    {
+      "id": "K-136",
+      "category": "process",
+      "platform": "firmware",
+      "pattern": "OneKey Pro 2 固件 UI 模拟器：~/workspace/codex-workspace/firmware-pro2-sim，可在 macOS 渲染/截图固件真实 LVGL 页面",
+      "details": "用 firmware-pro2 真实 UI 源码（LVGL 9）在 host 渲染 480×800 RGB565 页面，固件仓库零改动（CMake FIRMWARE_DIR 只读引用 ../firmware-pro2 + lvgl submodule）。三种模式：①交互 `./build/onekey-sim`（默认 demo 总菜单，`--page <id>` 打开 21 个注册表页面之一，传不存在的 id 会列出全部）②无头自检 `--frames N` ③批量截图 `SDL_VIDEODRIVER=dummy ./build/onekey-sim --snapshot out`（21 页 PNG 输出到 out/）。必须在工程根目录运行（lv_conf 的 LV_FS_STDIO_PATH \".\" 把 A: 盘映射到 CWD），错误 CWD 不 crash 但字体/图片缺失降级渲染。构建：gen_fonts.sh → gen_placeholder_images.py → cmake -B build -G Ninja → ninja -C build。详见该仓库 README.md。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-137",
+      "category": "quirk",
+      "platform": "firmware",
+      "pattern": "firmware-pro2 的 UI 资产不在仓库里：运行时从设备 EMMC 的 A: 盘加载，PC 模拟需自行生成字体 bin + 占位 PNG",
+      "details": "固件源码引用 `A:/assets/font/font_montserrat_*.bin`（10 个字号：14/16/20/22/24/26/28/30/32/48，ui_font_manager.c 的 map）和 `A:/assets|res/**.png` 图片，这些文件运行时由 EMMC 提供，仓库中不存在。模拟器方案：①字体用 `npx lv_font_conv@1.5.3`（pin 版本防供应链风险）从 Montserrat TTF 生成 `--format bin --bpp 4 --range 0x20-0x7E`，格式与固件 ui_binfont_loader.c 一致；②图片用 Python 脚本扫固件 .c/.h 源码正则 `A:(/(?:assets|res)/[\\w./-]+?\\.png(?:\\.png)?)` 提取引用路径，逐个生成灰色半透明占位 PNG（文件名 `_NN` 后缀推断尺寸，默认 32×32），已存在文件 SKIP 不覆盖——拿到真机资产直接覆盖即可。注意固件源码存在 `.png.png` 双后缀引用和 `/res/`（非 /assets/）路径两种偶发形态，正则要兼容。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-138",
+      "category": "quirk",
+      "platform": "firmware",
+      "pattern": "LVGL 固件 lv_conf.h 移植到 PC 模拟器的 host 化适配 checklist（firmware-pro2 实测 11 处）",
+      "details": "把嵌入式 LVGL 工程的 lv_conf.h 改为 host（macOS/SDL）可用，firmware-pro2 实测需改 11 处：①LV_COLOR_DEPTH 保持 16/RGB565（与真机一致才能复现渲染）②LV_USE_OS 改 LV_OS_PTHREAD ③开 LV_USE_SDL（窗口+输入）④开 LV_USE_FS_STDIO 且 LV_FS_STDIO_PATH \".\"（A: 盘映射 CWD，替代 EMMC/FATFS）⑤LV_MEM_ADR 置 0（用 malloc 堆，不用固定 SRAM 地址）⑥LV_ATTRIBUTE_FAST_MEM 等段属性宏置空（host 无 ITCM/DTCM 段）⑦关 LV_USE_FS_FATFS ⑧SDL include 路径用 `<SDL.h>`（CMake SDL2::SDL2 target 已把 include/SDL2 加进搜索路径，写 `<SDL2/SDL.h>` 反而找不到）⑨LV_DRAW_SW_ASM/ACCELERATED 置 0（关 NEON/汇编加速）⑩关 LV_USE_DRAW_DMA2D（STM32 硬件外设，host 走软件渲染）⑪固件 display.h 依赖改为直接定义 DISPLAY_BPP 2。通用规律：硬件外设宏（DMA2D/GPU/段属性/固定内存地址）全部关掉或置空，文件系统换 STDIO，OS 换 PTHREAD，颜色深度保持与真机一致。",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-139",
+      "category": "quirk",
+      "platform": "firmware",
+      "pattern": "LVGL 内置 lodepng 的 *_file API 被 LVGL 改为走 lv_fs 抽象层 + lv_malloc，PC 端导出 PNG 必须用内存版 encode + stdio 落盘",
+      "details": "LVGL 集成的 lodepng（modules/lvgl/src/libs/lodepng）不是原版：①`lodepng_save_file`/`lodepng_encode32_file` 等 *_file API 被改为走 lv_fs 抽象层，路径必须带盘符（如 A:/...），直接传普通文件路径会失败；②内部分配器被映射到 lv_malloc/lv_free。PC 端导出截图的正确做法：用内存版 `lodepng_encode32(&buf,&size,...)` 编码，再用标准 `fopen/fwrite` 写文件，编码产物 buffer 必须用 `lv_free` 释放（不是 free，分配器不匹配会 crash/泄漏）。",
+      "confidence": 0.9
+    },
+    {
+      "id": "K-140",
+      "category": "quirk",
+      "platform": "firmware",
+      "pattern": "LVGL modal 类组件（parent=NULL 的 action_sheet/page_sheet）挂在 lv_layer_top() 而非 active screen，lv_snapshot_take 截不到",
+      "details": "固件 UI 的 action_sheet/page_sheet 等 modal 组件在 parent=NULL 模式下创建到 `lv_layer_top()`，不在 `lv_screen_active()` 树里。后果：`lv_snapshot_take(lv_screen_active(),...)` 截图只有背景没有弹层。解法：对 layer_top 单独 `lv_snapshot_take(lv_layer_top(),...)`，再把两张图按 alpha 合成（layer_top 是 ARGB 透明背景）。另外跨页 snapshot 在单进程内做清理不可靠（固件 static 单例跨页污染），正确做法是**每页 fork+exec 子进程隔离**（参考 firmware-pro2-sim src/snapshot.c 的编排器模型 + alarm 看门狗）——曾因单进程清理钩子打不干净导致 SIGSEGV/无限自旋。",
+      "confidence": 0.9
     }
   ]
 }

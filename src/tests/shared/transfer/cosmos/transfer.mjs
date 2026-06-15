@@ -58,6 +58,8 @@ function loadMemoFixtures() {
  * @param {string} opts.password - Wallet password.
  * @param {(page: import('playwright-core').Page) => Promise<void>} opts.goToWallet
  *   Navigate to wallet home page.
+ * @param {(page: import('playwright-core').Page) => Promise<string|void>} [opts.ensureSoftwareWallet]
+ *   Optional platform hook to leave watch-only context before network selection.
  * @param {(page: import('playwright-core').Page, network: string, token: string) => Promise<void>} [opts.openTransfer]
  *   Optional override for opening the transfer/send form. Defaults to using
  *   `switchNetwork` + `openSendForm` from helpers/transfer.mjs.
@@ -71,6 +73,7 @@ export function createCosmosTransferTests({
   namePrefix = '',
   password,
   goToWallet,
+  ensureSoftwareWallet,
   openTransfer,
   screenshotDir,
   accountStrategies,
@@ -149,135 +152,90 @@ export function createCosmosTransferTests({
   }
 
   // ── Single transfer test case ──────────────────────────
-  async function testTransfer(page, transfer) {
+  function isRecoverableBalanceError(error) {
+    const text = String(error?.message || error || '');
+    return (
+      text.includes('GAS_INSUFFICIENT') ||
+      text.includes('余额不足') ||
+      text.includes('資金不足') ||
+      text.includes('资金不足') ||
+      text.includes('不足以支付') ||
+      text.includes('insufficient') ||
+      text.includes('Insufficient') ||
+      text.includes('No assets') ||
+      text.includes('not found after search')
+    );
+  }
+
+  async function attemptTransferWithStrategy(page, transfer, strategy, t) {
     const { id, network, token, amount, memo, verifyFiat } = transfer;
-    const t = createStepTracker(id);
-    const _ss = (name, fn) => safeStep(page, t, name, fn, screenshotDir);
+    let selectedRecipientInfo = null;
 
-    await _ss('回到钱包首页', async () => {
-      await dismissOverlays(page);
-      await handlePasswordPromptIfPresent(page);
-      await goToWallet(page);
-      return 'navigated';
-    });
-
-    await _ss(`切换到 ${network} 网络`, async () => {
-      await ensureSingleNetworkMode(page);
-      await switchNetwork(page, network);
-      return network;
-    });
-
-    let usedStrategy = null;
-    for (const strategy of DEFAULT_STRATEGIES) {
-      const switched = await _ss(`切换到 ${strategy.sender} 账户`, async () => {
-        await switchAccount(page, strategy.sender);
-        return strategy.sender;
-      });
-      if (!switched) continue;
+    try {
+      await switchAccount(page, strategy.sender);
+      t.add(`切换到 ${strategy.sender} 账户`, 'passed', strategy.sender);
 
       const hasBal = await hasBalance(page);
-      if (hasBal) {
-        usedStrategy = strategy;
-        t.add(`${strategy.sender} 有余额`, 'passed', '可以发送');
-        break;
-      } else {
-        t.add(`${strategy.sender} 余额不足`, 'skipped', '尝试下一个账户');
-      }
-    }
+      if (!hasBal) return { status: 'insufficient', reason: `${strategy.sender} 余额不足` };
+      t.add(`${strategy.sender} 有余额`, 'passed', '可以发送');
 
-    if (!usedStrategy) {
-      t.add('所有账户余额不足', 'failed', '无法执行转账');
-      return t.result();
-    }
-
-    const sendOpened = await _ss(`发送 ${token}`, async () => {
       if (openTransfer) {
         await openTransfer(page, network, token);
       } else {
         await openSendForm(page, token);
       }
-      return `token=${token}`;
-    });
-    if (!sendOpened) return t.result();
+      t.add(`发送 ${token} (${strategy.sender})`, 'passed', `token=${token}`);
 
-    let selectedRecipientInfo = null;
-    await _ss(`选择收款人 ${usedStrategy.recipient}`, async () => {
-      selectedRecipientInfo = await selectRecipientFromContacts(page, usedStrategy.recipient);
-      return usedStrategy.recipient;
-    });
+      selectedRecipientInfo = await selectRecipientFromContacts(page, strategy.recipient);
+      t.add(`选择收款人 ${strategy.recipient}`, 'passed', strategy.recipient);
 
-    if (memo) {
-      await _ss('输入备注', async () => {
+      if (memo) {
         await enterMemo(page, memo);
-        return `${Buffer.byteLength(memo, 'utf8')} bytes`;
-      });
-    }
+        t.add('输入备注', 'passed', `${Buffer.byteLength(memo, 'utf8')} bytes`);
+      }
 
-    await _ss('点击下一步', async () => {
       await clickFooterConfirm(page);
       await sleep(2000);
-      return 'entered amount page';
-    });
+      t.add('点击下一步', 'passed', 'entered amount page');
 
-    await _ss(`输入金额 ${amount}`, async () => {
       await enterAmount(page, amount);
       await sleep(1000);
-      return `amount=${amount}`;
-    });
+      t.add(`输入金额 ${amount}`, 'passed', `amount=${amount}`);
 
-    if (verifyFiat) {
-      await _ss('切换法币展示', async () => {
+      if (verifyFiat) {
         const fiatAmount = await verifyFiatToggle(page);
-        return `fiat=${fiatAmount}`;
-      });
-    }
+        t.add('切换法币展示', 'passed', `fiat=${fiatAmount}`);
+      }
 
-    const insufficient = await checkInsufficientBalance(page);
-    if (insufficient) {
-      t.add('余额不足', 'failed', `${amount} 超过可用余额`);
-      await recoverAfterCancel(page);
-      return t.result();
-    }
+      if (await checkInsufficientBalance(page)) {
+        return { status: 'insufficient', reason: `${amount} 超过可用余额` };
+      }
 
-    const previewOk = await _ss('点击预览', async () => {
       await clickFooterConfirm(page);
       for (let i = 0; i < 15; i++) {
         await sleep(1000);
         const state = await page.evaluate(() => {
           const text = document.body?.textContent || '';
-          if (text.includes('不足以支付网络费用') || text.includes('不足以支付')) {
+          if (text.includes('不足以支付网络费用') || text.includes('不足以支付網絡費用') || text.includes('不足以支付')) {
             return 'gas_insufficient';
           }
-          const hasFee = text.includes('预估网络费用') || text.includes('网络费用');
+          const hasFee = text.includes('预估网络费用') || text.includes('預估網絡費用') || text.includes('网络费用') || text.includes('網絡費用');
           const btns = document.querySelectorAll('[data-testid="page-footer-confirm"]');
-          const confirmBtn = Array.from(btns).find(b => b.textContent?.trim() === '确认');
+          const confirmBtn = Array.from(btns).find(b => ['确认', '確認', 'Confirm'].includes(b.textContent?.trim()));
           const btnReady = confirmBtn && !confirmBtn.disabled && confirmBtn.getBoundingClientRect().width > 0;
           if (hasFee && btnReady) return 'ready';
           if (hasFee && !btnReady) return 'fee_loaded_btn_disabled';
           return 'loading';
         });
-        if (state === 'ready') return `preview loaded (${i + 1}s)`;
+        if (state === 'ready') {
+          t.add('点击预览', 'passed', `preview loaded (${i + 1}s)`);
+          break;
+        }
         if (state === 'gas_insufficient') throw new Error('GAS_INSUFFICIENT');
         if (state === 'fee_loaded_btn_disabled' && i > 5) throw new Error('GAS_INSUFFICIENT');
+        if (i === 14) t.add('点击预览', 'passed', 'preview opened (fee may still be loading)');
       }
-      return 'preview opened (fee may still be loading)';
-    });
 
-    if (!previewOk) {
-      const isGasError = t.errors.some(e => e.includes('GAS_INSUFFICIENT'));
-      if (isGasError) {
-        t.add('主币 gas 不足', 'failed', `${network} 主币余额不足以支付网络费用，需要充值`);
-        await page.evaluate(() => {
-          const btn = document.querySelector('[data-testid="page-footer-cancel"]');
-          if (btn) btn.click();
-        });
-        await sleep(1000);
-        await closeAllModals(page).catch(() => {});
-        return t.result();
-      }
-    }
-
-    await _ss('验证预览页内容', async () => {
       const previewText = await page.evaluate(() => {
         const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
         return (modal || document.body).textContent?.substring(0, 3000) || '';
@@ -286,15 +244,12 @@ export function createCosmosTransferTests({
       if (previewText.includes(network) || previewText.includes(token)) checks.push('network/token');
       if (amount !== 'Max' && previewText.includes(amount)) checks.push('amount');
       if (memo && previewText.includes(memo.substring(0, 20))) checks.push('memo');
-      if (previewText.includes('费用') || previewText.includes('Fee') || previewText.includes('网络费用')) checks.push('fee');
-      return `matched: ${checks.join(', ')}`;
-    });
+      if (previewText.includes('费用') || previewText.includes('費用') || previewText.includes('Fee') || previewText.includes('网络费用') || previewText.includes('網絡費用')) checks.push('fee');
+      t.add('验证预览页内容', 'passed', `matched: ${checks.join(', ')}`);
 
-    await _ss('确认广播交易', async () => {
       await sleep(3000);
       const countBefore = await page.locator('[data-testid="page-footer-confirm"]').count();
       let clicked = false;
-
       for (let attempt = 0; attempt < 5 && !clicked; attempt++) {
         if (attempt === 0 || attempt === 1) {
           await page.locator('[data-testid="page-footer-confirm"]').last().click({ force: true, timeout: 3000 }).catch(() => {});
@@ -343,7 +298,7 @@ export function createCosmosTransferTests({
             const btns = document.querySelectorAll('button');
             for (const btn of btns) {
               const tx = btn.textContent?.trim();
-              if ((tx === '确认' || tx === 'Confirm' || tx === 'OK') && btn.getBoundingClientRect().width > 0) {
+              if ((tx === '确认' || tx === '確認' || tx === 'Confirm' || tx === 'OK') && btn.getBoundingClientRect().width > 0) {
                 btn.click();
                 return;
               }
@@ -362,11 +317,11 @@ export function createCosmosTransferTests({
           const toasts = document.querySelectorAll('[data-testid*="toast"], [data-testid*="Toast"], [role="status"]');
           for (const toast of toasts) {
             const tx = toast.textContent || '';
-            if (tx.includes('成功') || tx.includes('已发送') || tx.includes('Success')) return 'success';
+            if (tx.includes('成功') || tx.includes('已发送') || tx.includes('已發送') || tx.includes('Success')) return 'success';
           }
           const confirmBtns = document.querySelectorAll('[data-testid="page-footer-confirm"]');
           const hasConfirm = Array.from(confirmBtns).some(b =>
-            b.textContent?.trim() === '确认' && b.getBoundingClientRect().width > 0
+            ['确认', '確認', 'Confirm'].includes(b.textContent?.trim()) && b.getBoundingClientRect().width > 0
           );
           if (!hasConfirm) return 'success';
           const cancelBtns = document.querySelectorAll('[data-testid="page-footer-cancel"]');
@@ -379,10 +334,10 @@ export function createCosmosTransferTests({
           const topModal = modals.length > 0 ? modals[modals.length - 1] : null;
           if (topModal) {
             const modalText = topModal.textContent || '';
-            if (modalText.includes('成功') || modalText.includes('已发送') || modalText.includes('已提交')) return 'success';
+            if (modalText.includes('成功') || modalText.includes('已发送') || modalText.includes('已發送') || modalText.includes('已提交')) return 'success';
             const dialogs = topModal.querySelectorAll('[role="dialog"], [role="alertdialog"]');
             for (const d of dialogs) {
-              if (d.textContent?.includes('失败') || d.textContent?.includes('Failed')) return 'failed';
+              if (d.textContent?.includes('失败') || d.textContent?.includes('失敗') || d.textContent?.includes('Failed')) return 'failed';
             }
           }
           const pwdInputs = document.querySelectorAll('input[type="password"]');
@@ -391,16 +346,17 @@ export function createCosmosTransferTests({
           }
           return 'waiting';
         });
-        if (status === 'success') return `tx submitted (${i + 1}s)`;
+        if (status === 'success') {
+          t.add('确认广播交易', 'passed', `tx submitted (${i + 1}s)`);
+          break;
+        }
         if (status === 'failed') throw new Error('交易广播失败');
         if (status === 'waiting_password') {
           await handlePasswordPromptIfPresent(page).catch(() => {});
         }
+        if (i === 29) throw new Error('交易结果检测超时 (30s)');
       }
-      throw new Error('交易结果检测超时 (30s)');
-    });
 
-    await _ss('查看历史记录', async () => {
       await sleep(2000);
       const requiredFields = ['token', 'type', 'hash', 'status', 'recipient'];
       if (memo) requiredFields.push('memo');
@@ -414,9 +370,57 @@ export function createCosmosTransferTests({
         requiredFields,
         optionalFields: ['fee', 'amount', 'network'],
       });
-      return `verified: ${fields.join(', ')}`;
+      t.add('查看历史记录', 'passed', `verified: ${fields.join(', ')}`);
+      return { status: 'passed' };
+    } catch (error) {
+      if (isRecoverableBalanceError(error)) {
+        return { status: 'insufficient', reason: error.message || String(error) };
+      }
+      throw error;
+    }
+  }
+
+  async function testTransfer(page, transfer) {
+    const { id, network, token, amount, memo, verifyFiat } = transfer;
+    const t = createStepTracker(id);
+    const _ss = (name, fn) => safeStep(page, t, name, fn, screenshotDir);
+
+    await _ss('回到钱包首页', async () => {
+      await dismissOverlays(page);
+      await handlePasswordPromptIfPresent(page);
+      await goToWallet(page);
+      return 'navigated';
     });
 
+    if (ensureSoftwareWallet) {
+      await _ss('切换到主软件钱包账户', async () => ensureSoftwareWallet(page));
+    }
+
+    await _ss(`切换到 ${network} 网络`, async () => {
+      await ensureSingleNetworkMode(page);
+      await switchNetwork(page, network);
+      return network;
+    });
+
+    let lastInsufficient = null;
+    for (const strategy of DEFAULT_STRATEGIES) {
+      const result = await attemptTransferWithStrategy(page, transfer, strategy, t).catch((error) => {
+        t.add(`${strategy.sender} 转账流程`, 'failed', error.message || String(error));
+        return { status: 'fatal' };
+      });
+      if (result.status === 'passed') return t.result();
+      if (result.status === 'fatal') return t.result();
+      if (result.status === 'insufficient') {
+        lastInsufficient = result.reason;
+        t.add(`${strategy.sender} 余额/手续费不足`, 'skipped', `${result.reason}; 尝试下一个账户`);
+        await page.screenshot({ path: `${screenshotDir}/${id}-${strategy.sender}-insufficient.png` }).catch(() => {});
+        await closeAllModals(page).catch(() => {});
+        await dismissOverlays(page).catch(() => {});
+        await goToWallet(page).catch(() => {});
+      }
+    }
+
+    t.add('所有账户余额/手续费不足', 'failed', lastInsufficient || '无法执行转账');
     return t.result();
   }
 
@@ -524,7 +528,7 @@ export function createCosmosTransferTests({
         const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
         return (modal || document.body).textContent || '';
       });
-      if (!text.includes('无法发送 0') && !text.includes('0 金额')) throw new Error('未显示 0 金额错误提示');
+      if (!text.includes('无法发送 0') && !text.includes('無法發送 0') && !text.includes('0 金额') && !text.includes('0 金額')) throw new Error('未显示 0 金额错误提示');
       return '显示「无法发送 0 金额」';
     });
 
@@ -537,7 +541,7 @@ export function createCosmosTransferTests({
         const btns = document.querySelectorAll('[data-testid="page-footer-confirm"]');
         return btns[btns.length - 1]?.textContent?.trim() || '';
       });
-      if (!btnText.includes('资金不足') && !btnText.includes('Insufficient')) {
+      if (!btnText.includes('资金不足') && !btnText.includes('資金不足') && !btnText.includes('Insufficient')) {
         throw new Error(`按钮文案不是"资金不足": "${btnText}"`);
       }
       return `按钮="${btnText}"`;

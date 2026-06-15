@@ -203,14 +203,19 @@ function extractHistoryFields(text, expected) {
   if (expected.token && text.includes(expected.token)) fields.push('token');
   if (expected.network && text.includes(expected.network)) fields.push('network');
   if (expected.amount && expected.amount !== 'Max' && text.includes(String(expected.amount))) fields.push('amount');
-  if (text.includes('发送') || text.includes('Send')) fields.push('type');
-  if (text.includes('哈希') || text.includes('Hash') || text.includes('hash') || text.includes('交易ID') || text.includes('Transaction ID')) fields.push('hash');
-  if (text.includes('费用') || text.includes('Fee') || text.includes('网络费')) fields.push('fee');
+  if (text.includes('发送') || text.includes('發送') || text.includes('Send')) fields.push('type');
+  if (text.includes('哈希') || text.includes('Hash') || text.includes('hash') || text.includes('交易ID') || text.includes('交易 ID') || text.includes('Transaction ID')) fields.push('hash');
+  if (text.includes('费用') || text.includes('費用') || text.includes('Fee') || text.includes('网络费') || text.includes('網絡費')) fields.push('fee');
   if (
     text.includes('处理中') ||
+    text.includes('待处理') ||
+    text.includes('處理中') ||
+    text.includes('待處理') ||
     text.includes('已确认') ||
+    text.includes('已確認') ||
     text.includes('成功') ||
     text.includes('已发送') ||
+    text.includes('已發送') ||
     text.includes('Pending') ||
     text.includes('Confirmed') ||
     text.includes('Success') ||
@@ -222,6 +227,28 @@ function extractHistoryFields(text, expected) {
   ) fields.push('recipient');
   if (expected.memo && text.includes(expected.memo)) fields.push('memo');
   return fields;
+}
+
+export function isTransferInsufficientText(text = '') {
+  const value = String(text || '');
+  return (
+    value.includes('余额不足') ||
+    value.includes('餘額不足') ||
+    value.includes('资金不足') ||
+    value.includes('資金不足') ||
+    value.includes('可用余额不足') ||
+    value.includes('可用餘額不足') ||
+    value.includes('不足以支付网络费用') ||
+    value.includes('不足以支付網絡費用') ||
+    value.includes('无法发送 0') ||
+    value.includes('無法發送 0') ||
+    value.includes('不能发送 0') ||
+    value.includes('不能發送 0') ||
+    value.includes('0 金额') ||
+    value.includes('0 金額') ||
+    /insufficient\s+(balance|funds|fee)/i.test(value) ||
+    /not enough\s+(balance|funds|fee)/i.test(value)
+  );
 }
 
 /**
@@ -240,10 +267,11 @@ function extractHistoryFields(text, expected) {
  */
 export async function verifyHistoryRecord(page, expected) {
   const expectations = normalizeHistoryExpectations(expected);
-  // Click "历史记录"
+  // Click "历史记录" / "歷史記錄"
   const historyClicked = await page.evaluate(() => {
+    const historyLabels = new Set(['历史记录', '歷史記錄', 'History']);
     for (const sp of document.querySelectorAll('span')) {
-      if (sp.textContent?.trim() === '历史记录' && sp.getBoundingClientRect().width > 0) {
+      if (historyLabels.has(sp.textContent?.trim()) && sp.getBoundingClientRect().width > 0) {
         sp.click();
         return true;
       }
@@ -261,25 +289,57 @@ export async function verifyHistoryRecord(page, expected) {
     };
     return Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]')).some(visible);
   }, { timeout: 15000 });
-  const listText = await page.evaluate(() => {
-    const visible = (el) => {
-      const r = el?.getBoundingClientRect?.();
-      return !!r && r.width > 0 && r.height > 0;
-    };
-    const latest = Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]')).find(visible);
-    return latest?.textContent || '';
-  });
-  const clickedTx = await page.evaluate(() => {
-    const visible = (el) => {
-      const r = el?.getBoundingClientRect?.();
-      return !!r && r.width > 0 && r.height > 0;
-    };
-    const latest = Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]')).find(visible);
-    if (!latest) return false;
-    latest.click();
-    return true;
-  });
-  if (!clickedTx) throw new Error('历史记录中未找到可见交易');
+
+  let listText = '';
+  let lastRows = [];
+  let clickedTx = false;
+  const started = Date.now();
+  while (Date.now() - started < 15000 && !clickedTx) {
+    const match = await page.evaluate((expected) => {
+      const visible = (el) => {
+        const r = el?.getBoundingClientRect?.();
+        return !!r && r.width > 0 && r.height > 0;
+      };
+      const amountMatches = (text, amount) => {
+        if (!amount || amount === 'Max') return true;
+        if (text.includes(String(amount))) return true;
+        const expectedNum = Number(amount);
+        if (!Number.isFinite(expectedNum)) return false;
+        const numbers = text.match(/\d+(?:\.\d+)?/g) || [];
+        return numbers.some((value) => {
+          const actualNum = Number(value);
+          return Number.isFinite(actualNum) && Math.abs(actualNum - expectedNum) < 1e-12;
+        });
+      };
+      const isSend = (text) => text.includes('发送') || text.includes('發送') || text.includes('Send');
+      const rows = Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]'))
+        .filter(visible)
+        .map((row) => ({ row, text: row.textContent || '' }));
+      const rowTexts = rows.map((row) => row.text).slice(0, 8);
+      const matched = rows.find(({ text }) =>
+        (!expected.token || text.includes(expected.token)) &&
+        isSend(text) &&
+        amountMatches(text, expected.amount)
+      ) || rows.find(({ text }) =>
+        (!expected.token || text.includes(expected.token)) &&
+        isSend(text)
+      );
+      if (!matched) return { clicked: false, rows: rowTexts };
+      matched.row.click();
+      return { clicked: true, text: matched.text, rows: rowTexts };
+    }, expectations);
+    lastRows = match.rows || [];
+    if (match.clicked) {
+      listText = match.text || '';
+      clickedTx = true;
+      break;
+    }
+    await sleep(1000);
+  }
+
+  if (!clickedTx) {
+    throw new Error(`历史记录中未找到匹配的发送交易: ${lastRows.join(' | ').substring(0, 240)}`);
+  }
   await sleep(2000);
 
   // Read detail content
@@ -388,7 +448,7 @@ export async function verifyInvalidAmounts(page) {
   await amountInput.fill('0');
   await sleep(1000);
   const zeroText = await page.evaluate(() => document.body.textContent?.substring(0, 5000) || '');
-  const hasZeroError = zeroText.includes('无法发送 0') || zeroText.includes('0 金额') || zeroText.includes('cannot send 0');
+  const hasZeroError = zeroText.includes('无法发送 0') || zeroText.includes('無法發送 0') || zeroText.includes('0 金额') || zeroText.includes('0 金額') || zeroText.includes('cannot send 0');
   if (!hasZeroError) throw new Error('未显示 0 金额错误提示');
   results.zero = '无法发送 0 金额';
 
@@ -400,7 +460,7 @@ export async function verifyInvalidAmounts(page) {
     const btn = document.querySelector('[data-testid="page-footer-confirm"]');
     return btn?.textContent?.trim() || '';
   });
-  if (!btnText.includes('资金不足') && !btnText.includes('Insufficient') && !btnText.includes('不足')) {
+  if (!btnText.includes('资金不足') && !btnText.includes('資金不足') && !btnText.includes('Insufficient') && !btnText.includes('不足')) {
     throw new Error(`按钮文案不是"资金不足": "${btnText}"`);
   }
   results.overBalance = `按钮="${btnText}"`;
@@ -410,7 +470,7 @@ export async function verifyInvalidAmounts(page) {
 
 /**
  * Open send form for a given token.
- * Clicks "发送" in wallet tab header, then selects token if a picker appears.
+ * Clicks "发送"/"發送" in wallet tab header, then selects token if a picker appears.
  */
 export async function openSendForm(page, token) {
   // Quick dismiss any residual backdrops
@@ -420,17 +480,23 @@ export async function openSendForm(page, token) {
   await page.keyboard.press('Escape').catch(() => {});
   await sleep(300);
 
-  // Click 发送
-  await page.evaluate(() => {
+  // Click 发送 / 發送
+  const sendClicked = await page.evaluate(() => {
+    const sendLabels = new Set(['发送', '發送', 'Send']);
     const header = document.querySelector('[data-testid="Wallet-Tab-Header"]');
-    if (!header) return;
-    for (const sp of header.querySelectorAll('span')) {
-      if (sp.textContent?.trim() === '发送' && sp.getBoundingClientRect().width > 0) {
-        sp.click();
-        return;
+    const containers = [header, document].filter(Boolean);
+    for (const container of containers) {
+      for (const el of container.querySelectorAll('button, [role="button"], span')) {
+        if (!sendLabels.has(el.textContent?.trim())) continue;
+        if (el.getBoundingClientRect().width > 0) {
+          (el.closest('button, [role="button"]') || el).click();
+          return true;
+        }
       }
     }
+    return false;
   });
+  if (!sendClicked) throw new Error('Send button not found');
   await sleep(1500);
 
   // Check if send form opened directly (single-token wallet)
@@ -444,7 +510,7 @@ export async function openSendForm(page, token) {
   const clicked = await page.evaluate((tk) => {
     const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
     if (!modal) return null;
-    if (modal.textContent?.includes('没有资产')) return 'no_assets';
+    if (modal.textContent?.includes('没有资产') || modal.textContent?.includes('沒有資產')) return 'no_assets';
     for (const sp of modal.querySelectorAll('span')) {
       if (sp.textContent?.trim() === tk && sp.getBoundingClientRect().width > 0) {
         const row = sp.closest('[role="button"]') || sp.parentElement?.parentElement;
@@ -462,10 +528,10 @@ export async function openSendForm(page, token) {
   if (!clicked) {
     console.log(`    Token ${token} not found directly, searching...`);
     // Try multiple search input placeholders
-    let searchInput = page.locator('[data-testid="APP-Modal-Screen"] input[placeholder*="搜索"]').first();
+    let searchInput = page.locator('[data-testid="APP-Modal-Screen"] input[placeholder*="搜索"], [data-testid="APP-Modal-Screen"] input[placeholder*="搜尋"]').first();
     let hasSearch = await searchInput.isVisible({ timeout: 1000 }).catch(() => false);
     if (!hasSearch) {
-      searchInput = page.locator('input[placeholder="搜索资产"]').first();
+      searchInput = page.locator('input[placeholder="搜索资产"], input[placeholder="搜尋資產"]').first();
       hasSearch = await searchInput.isVisible({ timeout: 1000 }).catch(() => false);
     }
     if (hasSearch) {
@@ -473,17 +539,21 @@ export async function openSendForm(page, token) {
       await sleep(200);
       await searchInput.pressSequentially(token, { delay: 50 });
       await sleep(1500);
-      await page.evaluate((tk) => {
+      const clickedBySearch = await page.evaluate((tk) => {
         const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-        if (!modal) return;
+        if (!modal) return false;
         for (const sp of modal.querySelectorAll('span')) {
           if (sp.textContent?.trim() === tk && sp.getBoundingClientRect().width > 0) {
             const row = sp.closest('[role="button"]') || sp.parentElement?.parentElement;
             (row || sp).click();
-            return;
+            return true;
           }
         }
+        return false;
       }, token);
+      if (!clickedBySearch) throw new Error(`Token ${token} not found after search`);
+    } else {
+      throw new Error(`Token picker search input not found for ${token}`);
     }
   }
   console.log(`    Selected token ${token} (${clicked || 'search'})`);
@@ -494,8 +564,8 @@ export async function openSendForm(page, token) {
 
 /**
  * Select recipient on the send form.
- * New UI flow: send form has tabs (最近 / 账户 / 地址簿) inline.
- * Click "账户" tab → click recipient account by label or testid.
+ * New UI flow: send form has tabs (最近 / 账户/帳戶 / 地址簿) inline.
+ * Click "账户"/"帳戶" tab → click recipient account by label or testid.
  */
 export async function selectRecipientFromContacts(page, recipientName) {
   const recipient = getConfiguredAccount(recipientName);
@@ -504,9 +574,12 @@ export async function selectRecipientFromContacts(page, recipientName) {
   // Click "账户" tab on the send form
   const tabClicked = await page.evaluate(() => {
     const form = document.querySelector('[data-testid="send-recipient-amount-form"]') || document.body;
+    const accountLabels = new Set(['账户', '帳戶', 'Account']);
     for (const sp of form.querySelectorAll('span')) {
-      if (sp.textContent?.trim() === '账户' && sp.getBoundingClientRect().width > 0) {
-        sp.click();
+      const r = sp.getBoundingClientRect();
+      if (accountLabels.has(sp.textContent?.trim()) && r.width > 0 && r.height > 0) {
+        const clickable = sp.closest('[role="button"], button') || sp;
+        clickable.click();
         return true;
       }
     }
@@ -514,10 +587,21 @@ export async function selectRecipientFromContacts(page, recipientName) {
   });
 
   if (!tabClicked) {
-    // Fallback: try clicking "账户" anywhere visible
-    await page.locator('text=账户').first().click({ timeout: 5000 });
+    const fallbackClicked = await page.evaluate(() => {
+      const accountLabels = new Set(['账户', '帳戶', 'Account']);
+      for (const sp of document.querySelectorAll('span')) {
+        const r = sp.getBoundingClientRect();
+        if (accountLabels.has(sp.textContent?.trim()) && r.width > 0 && r.height > 0) {
+          const clickable = sp.closest('[role="button"], button') || sp;
+          clickable.click();
+          return true;
+        }
+      }
+      return false;
+    });
+    if (!fallbackClicked) throw new Error('Account tab not found');
   }
-  console.log(`    Clicked "账户" tab`);
+  console.log(`    Clicked account tab`);
   await sleep(2000);
 
   // Click recipient account — try by testid pattern first (recipient-item-<address>)
@@ -633,6 +717,8 @@ export async function enterMemo(page, memo) {
     'input[placeholder*="Memo"]',
     'textarea[placeholder*="备忘"]',
     'input[placeholder*="备忘"]',
+    'textarea[placeholder*="備忘"]',
+    'input[placeholder*="備忘"]',
   ];
 
   let memoInput = null;
@@ -662,7 +748,24 @@ export async function enterMemo(page, memo) {
 export async function checkInsufficientBalance(page) {
   return await page.evaluate(() => {
     const bodyText = document.body?.textContent?.substring(0, 8000) || '';
-    if (bodyText.includes('不足') || bodyText.includes('insufficient') || bodyText.includes('Insufficient')) {
+    const hasBlockingText =
+      bodyText.includes('余额不足') ||
+      bodyText.includes('餘額不足') ||
+      bodyText.includes('资金不足') ||
+      bodyText.includes('資金不足') ||
+      bodyText.includes('可用余额不足') ||
+      bodyText.includes('可用餘額不足') ||
+      bodyText.includes('不足以支付网络费用') ||
+      bodyText.includes('不足以支付網絡費用') ||
+      bodyText.includes('无法发送 0') ||
+      bodyText.includes('無法發送 0') ||
+      bodyText.includes('不能发送 0') ||
+      bodyText.includes('不能發送 0') ||
+      bodyText.includes('0 金额') ||
+      bodyText.includes('0 金額') ||
+      /insufficient\s+(balance|funds|fee)/i.test(bodyText) ||
+      /not enough\s+(balance|funds|fee)/i.test(bodyText);
+    if (hasBlockingText) {
       return true;
     }
     const confirmBtn = document.querySelector('[data-testid="page-footer-confirm"]');
@@ -785,7 +888,14 @@ export async function assertPreviewPage(page, expected) {
   const amountMatches = (amount) => {
     const escapedAmount = escapeRegex(amount);
     const pattern = new RegExp(`(^|[^\\d.])[-−]?\\s*${escapedAmount}([^\\d.]|$)`);
-    return pattern.test(normalizedText);
+    if (pattern.test(normalizedText)) return true;
+    const expectedNum = Number(amount);
+    if (!Number.isFinite(expectedNum)) return false;
+    const numbers = normalizedText.match(/\d+(?:\.\d+)?/g) || [];
+    return numbers.some((value) => {
+      const actualNum = Number(value);
+      return Number.isFinite(actualNum) && Math.abs(actualNum - expectedNum) < 1e-12;
+    });
   };
 
   if (expected.network) {
@@ -961,7 +1071,7 @@ export async function clickPreviewAndVerify(page, testId, verifyDepth = 'preview
       const bodyText = document.body?.textContent?.substring(0, 8000) || '';
 
       // Success indicators
-      if (bodyText.includes('成功') || bodyText.includes('已发送') ||
+      if (bodyText.includes('成功') || bodyText.includes('已发送') || bodyText.includes('已發送') ||
           bodyText.includes('交易已提交') || bodyText.includes('Transaction sent') ||
           bodyText.includes('Successfully') || bodyText.includes('submitted')) {
         return 'success';
@@ -971,13 +1081,13 @@ export async function clickPreviewAndVerify(page, testId, verifyDepth = 'preview
       const toasts = document.querySelectorAll('[data-testid*="toast"], [data-testid*="Toast"], [role="status"]');
       for (const toast of toasts) {
         const t = toast.textContent || '';
-        if (t.includes('成功') || t.includes('已发送') || t.includes('Success')) {
+        if (t.includes('成功') || t.includes('已发送') || t.includes('已發送') || t.includes('Success')) {
           return 'success';
         }
       }
 
       // Failure indicators
-      if (bodyText.includes('失败') || bodyText.includes('错误') ||
+      if (bodyText.includes('失败') || bodyText.includes('失敗') || bodyText.includes('错误') || bodyText.includes('錯誤') ||
           bodyText.includes('Failed') || bodyText.includes('Error')) {
         // Check if it's a real error dialog, not just background text
         const dialogs = document.querySelectorAll('[role="dialog"], [role="alertdialog"], [data-testid*="alert"]');
