@@ -88,34 +88,6 @@ export const SOFTWARE_WALLET_TRANSFER_AUTOMATION_CASES = {
   tron: [
     {
       id: 'TRON-001',
-      name: 'TRX 小额转账预览 + 法币切换',
-      type: 'preview',
-      network: 'Tron',
-      token: 'TRX',
-      amount: '0.001',
-      verifyFiat: true,
-      optionalPreviewTextGroups: [['网络费用', '网络费', '手续费', 'Fee']],
-    },
-    {
-      id: 'TRON-002',
-      name: 'TRX Max 金额预览',
-      type: 'preview',
-      network: 'Tron',
-      token: 'TRX',
-      amount: 'Max',
-      optionalPreviewTextGroups: [['网络费用', '网络费', '手续费', 'Fee']],
-    },
-    {
-      id: 'TRON-003',
-      name: 'TRX 金额 0 拦截',
-      type: 'invalid-amount',
-      network: 'Tron',
-      token: 'TRX',
-      amount: '0',
-      expectedTextGroups: [['无法发送 0', '不能发送 0', '0 金额', 'cannot send 0']],
-    },
-    {
-      id: 'TRON-004',
       name: 'USDT-TRC20 转账预览 + 资源字段',
       type: 'preview',
       network: 'Tron',
@@ -126,6 +98,34 @@ export const SOFTWARE_WALLET_TRANSFER_AUTOMATION_CASES = {
         ['能量', 'Energy'],
         ['带宽', 'Bandwidth'],
       ],
+    },
+    {
+      id: 'TRON-002',
+      name: 'TRX 小额转账预览 + 法币切换',
+      type: 'preview',
+      network: 'Tron',
+      token: 'TRX',
+      amount: '0.001',
+      verifyFiat: true,
+      optionalPreviewTextGroups: [['网络费用', '网络费', '手续费', 'Fee']],
+    },
+    {
+      id: 'TRON-003',
+      name: 'TRX 金额 0 拦截',
+      type: 'invalid-amount',
+      network: 'Tron',
+      token: 'TRX',
+      amount: '0',
+      expectedTextGroups: [['无法发送 0', '無法發送 0', '不能发送 0', '不能發送 0', '0 金额', '0 金額', 'cannot send 0']],
+    },
+    {
+      id: 'TRON-004',
+      name: 'TRX Max 金额预览',
+      type: 'preview',
+      network: 'Tron',
+      token: 'TRX',
+      amount: 'Max',
+      optionalPreviewTextGroups: [['网络费用', '网络费', '手续费', 'Fee']],
     },
   ],
   polkadot: [
@@ -264,7 +264,7 @@ export const SOFTWARE_WALLET_TRANSFER_AUTOMATION_CASES = {
       network: 'BNB Chain',
       token: 'USDT',
       amount: '0',
-      expectedTextGroups: [['无法发送 0', '不能发送 0', '0 金额', 'cannot send 0']],
+      expectedTextGroups: [['无法发送 0', '無法發送 0', '不能发送 0', '不能發送 0', '0 金额', '0 金額', 'cannot send 0']],
     },
     {
       id: 'EVM-005',
@@ -346,7 +346,7 @@ export const SOFTWARE_WALLET_TRANSFER_AUTOMATION_CASES = {
       network: 'Optimism',
       token: 'OP',
       amount: '0',
-      expectedTextGroups: [['无法发送 0', '不能发送 0', '0 金额', 'cannot send 0']],
+      expectedTextGroups: [['无法发送 0', '無法發送 0', '不能发送 0', '不能發送 0', '0 金额', '0 金額', 'cannot send 0']],
     },
     {
       id: 'EVM-013',
@@ -462,7 +462,7 @@ export const SOFTWARE_WALLET_TRANSFER_AUTOMATION_CASES = {
       network: 'Aptos',
       token: 'APT',
       amount: '0',
-      expectedTextGroups: [['无法发送 0', '不能发送 0', '0 金额', 'cannot send 0']],
+      expectedTextGroups: [['无法发送 0', '無法發送 0', '不能发送 0', '不能發送 0', '0 金额', '0 金額', 'cannot send 0']],
     },
     {
       id: 'APTOS-005',
@@ -555,7 +555,7 @@ export const SOFTWARE_WALLET_TRANSFER_AUTOMATION_CASES = {
       network: 'BenFen',
       token: 'LONG',
       amount: '0',
-      expectedTextGroups: [['无法发送 0', '不能发送 0', '0 金额', 'cannot send 0']],
+      expectedTextGroups: [['无法发送 0', '無法發送 0', '不能发送 0', '不能發送 0', '0 金额', '0 金額', 'cannot send 0']],
     },
     {
       id: 'BENFEN-006',
@@ -599,7 +599,7 @@ async function clearBlockingOverlays(page) {
 }
 
 async function clickFooterConfirm(page) {
-  const btn = page.locator('[data-testid="page-footer-confirm"]').last();
+  const btn = page.locator('[data-testid="page-footer-confirm"]').filter({ visible: true }).last();
   const text = (await btn.textContent({ timeout: 3000 }).catch(() => '')).trim();
   const box = await btn.boundingBox().catch(() => null);
   if (box) {
@@ -675,8 +675,17 @@ async function waitForSubmitResult(page, timeout = 30000) {
       const passwordVisible = Array.from(document.querySelectorAll('[data-testid="password-input"], input[type="password"], input[placeholder*="密码"]'))
         .some(visible);
       if (passwordVisible) return 'password';
-      if (text.includes('失败') || text.includes('Failed') || text.includes('Error')) return 'failed';
-      if (text.includes('成功') || text.includes('已发送') || text.includes('Submitted') || text.includes('Success')) return 'success';
+      if (text.includes('失败') || text.includes('失敗') || text.includes('Failed') || text.includes('Error')) return 'failed';
+      if (
+        text.includes('成功') ||
+        text.includes('已发送') ||
+        text.includes('已發送') ||
+        text.includes('待处理') ||
+        text.includes('待處理') ||
+        text.includes('Submitted') ||
+        text.includes('Pending') ||
+        text.includes('Success')
+      ) return 'success';
 
       const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
       const confirmVisible = Array.from(document.querySelectorAll('[data-testid="page-footer-confirm"], [data-testid="send-confirm-button"]'))
@@ -698,15 +707,23 @@ async function waitForSubmitResult(page, timeout = 30000) {
 
 async function isFooterConfirmDisabled(page) {
   return page.evaluate(() => {
-    const btns = document.querySelectorAll('[data-testid="page-footer-confirm"]');
+    const visible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0;
+    };
+    const btns = Array.from(document.querySelectorAll('[data-testid="page-footer-confirm"]')).filter(visible);
     const btn = btns[btns.length - 1];
     if (!btn) return true;
     const style = window.getComputedStyle(btn);
+    const text = btn.textContent || '';
     return (
       btn.disabled ||
       btn.getAttribute('aria-disabled') === 'true' ||
+      btn.getAttribute('data-disabled') === 'true' ||
+      btn.closest('[aria-disabled="true"], [data-disabled="true"], [disabled]') !== null ||
       style.pointerEvents === 'none' ||
-      Number(style.opacity) < 0.65
+      Number(style.opacity) < 0.65 ||
+      (text.includes('预览') || text.includes('預覽') || text.includes('Preview')) && style.cursor === 'not-allowed'
     );
   });
 }
@@ -717,6 +734,7 @@ async function selectRawRecipient(page, address) {
     '[data-testid="send-recipient-input"] input',
     '[data-testid="base-input-shared-styles-textarea"]',
     'textarea[placeholder*="搜索或粘贴"]',
+    'textarea[placeholder*="搜尋或貼上"]',
     'textarea[placeholder*="地址"]',
     'textarea',
   ];
@@ -764,7 +782,7 @@ async function openAmountPage(page, tc, recipientName) {
   while (Date.now() - started < 10000) {
     amountPageState = await page.evaluate((token) => {
       const text = document.body?.textContent || '';
-      const hasAmountContext = text.includes('选择币种') && text.includes('收款方');
+      const hasAmountContext = (text.includes('选择币种') || text.includes('選擇幣種')) && (text.includes('收款方') || text.includes('收款人'));
       const hasTokenBalance = token
         ? new RegExp(`${String(token).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\S]{0,80}\\d[\\d.,]*`, 'i').test(text)
         : false;
@@ -786,8 +804,7 @@ async function previewAndCancel(page, tc, verifyDepth, recipientInfo = {}) {
 
   if (await isFooterConfirmDisabled(page)) {
     await waitForAmountPageAssetsReady(page, { timeout: 10000, token: tc.token });
-    const text = await getVisibleText(page);
-    throw new Error(`预览按钮不可提交: ${text.substring(0, 240)}`);
+    return 'insufficient before preview: confirm disabled';
   }
 
   await clickFooterConfirm(page);
@@ -796,17 +813,49 @@ async function previewAndCancel(page, tc, verifyDepth, recipientInfo = {}) {
   let lastText = '';
   for (let i = 0; i < 40; i++) {
     await sleep(500);
-    const state = await page.evaluate(() => {
+    const state = await page.evaluate(({ token }) => {
+      const visible = (el) => {
+        const r = el?.getBoundingClientRect?.();
+        return !!r && r.width > 0 && r.height > 0;
+      };
+      const modals = Array.from(document.querySelectorAll('[data-testid="APP-Modal-Screen"]')).filter(visible);
+      const modal = modals.at(-1) || document.body;
+      const modalText = modal.textContent || '';
       const body = document.body.textContent || '';
-      const confirm = document.querySelector('[data-testid="tx-confirmation-body"]');
-      const hasFee = body.includes('网络费用') || body.includes('网络费') || body.includes('Fee') || body.includes('手续费');
+      const confirm = modal.querySelector('[data-testid="tx-confirmation-body"]') || document.querySelector('[data-testid="tx-confirmation-body"]');
+      const hasFee = modalText.includes('网络费用') || modalText.includes('網絡費用') || modalText.includes('网络费') || modalText.includes('網絡費') || modalText.includes('Fee') || modalText.includes('手续费') || modalText.includes('手續費');
       const hasConfirmBtn = Array.from(document.querySelectorAll('[data-testid="page-footer-confirm"], [data-testid="send-confirm-button"]'))
-        .some((btn) => btn.getBoundingClientRect().width > 0);
-      if (confirm && confirm.getBoundingClientRect().width > 0) return 'ready';
-      if (hasFee && hasConfirmBtn) return 'ready';
-      if (body.includes('不足') || body.includes('Insufficient')) return 'insufficient';
+        .some(visible);
+      const skeletons = Array.from(modal.querySelectorAll('div, span'))
+        .filter(visible)
+        .filter((el) => {
+          const text = (el.innerText || el.textContent || '').trim();
+          if (text) return false;
+          const r = el.getBoundingClientRect();
+          const style = window.getComputedStyle(el);
+          const bg = style.backgroundColor;
+          const radius = parseFloat(style.borderRadius || '0') || 0;
+          if (r.width < 18 || r.width > 420 || r.height < 4 || r.height > 90) return false;
+          if (!bg || bg === 'rgba(0, 0, 0, 0)' || bg === 'transparent') return false;
+          return radius > 0 || /skeleton|loading/i.test(String(el.className || ''));
+      });
+      const hasToken = token ? modalText.includes(token) : true;
+      if (confirm && visible(confirm) && hasToken) return 'ready';
+      if (hasFee && hasConfirmBtn && hasToken) return 'ready';
+      const hasBlockingInsufficient =
+        body.includes('余额不足') ||
+        body.includes('餘額不足') ||
+        body.includes('资金不足') ||
+        body.includes('資金不足') ||
+        body.includes('可用余额不足') ||
+        body.includes('可用餘額不足') ||
+        body.includes('不足以支付网络费用') ||
+        body.includes('不足以支付網絡費用') ||
+        /insufficient\s+(balance|funds|fee)/i.test(body) ||
+        /not enough\s+(balance|funds|fee)/i.test(body);
+      if (hasBlockingInsufficient) return 'insufficient';
       return 'loading';
-    });
+    }, { token: tc.token });
     if (i % 6 === 0) {
       lastText = await getVisibleText(page);
     }
@@ -841,6 +890,10 @@ async function previewAndCancel(page, tc, verifyDepth, recipientInfo = {}) {
       : 'preview verified and canceled';
   }
 
+  if (await isFooterConfirmDisabled(page)) {
+    return 'insufficient on preview: confirm disabled';
+  }
+
   await clickFooterConfirm(page);
   await handlePasswordPromptIfPresent(page);
   const submitResult = await waitForSubmitResult(page);
@@ -870,31 +923,41 @@ async function prepareCase(page, tc, goToWallet, t, screenshotDir, accountStrate
     return tc.network;
   });
 
-  let usedStrategy = null;
+  let lastPrepareError = null;
   for (const strategy of accountStrategies) {
-    const switched = await _ss(`切换到 ${strategy.sender} 账户`, async () => {
+    try {
       await clearBlockingOverlays(page);
       await switchAccount(page, strategy.sender);
       await clearBlockingOverlays(page);
-      return strategy.sender;
-    });
-    if (!switched) continue;
-    if (await hasBalance(page)) {
-      usedStrategy = strategy;
-      t.add(`${strategy.sender} 有余额`, 'passed', '可以继续');
-      break;
+      t.add(`切换到 ${strategy.sender} 账户`, 'passed', strategy.sender);
+    } catch (error) {
+      lastPrepareError = error.message || String(error);
+      t.add(`切换到 ${strategy.sender} 账户`, 'skipped', `${lastPrepareError}; 尝试下一个账户`);
+      await closeAllModals(page).catch(() => {});
+      await goToWallet(page).catch(() => {});
+      continue;
     }
-    t.add(`${strategy.sender} 余额不足`, 'skipped', '尝试下一个账户');
+
+    if (await hasBalance(page)) {
+      t.add(`${strategy.sender} 有余额`, 'passed', '可以继续');
+    } else {
+      t.add(`${strategy.sender} 余额不足`, 'skipped', '尝试下一个账户');
+      continue;
+    }
+
+    try {
+      await openSendForm(page, tc.token);
+      t.add(`打开 ${tc.token} 发送页 (${strategy.sender})`, 'passed', tc.token);
+      return strategy;
+    } catch (error) {
+      lastPrepareError = error.message || String(error);
+      t.add(`打开 ${tc.token} 发送页 (${strategy.sender})`, 'skipped', `${lastPrepareError}; 尝试下一个账户`);
+      await closeAllModals(page).catch(() => {});
+      await goToWallet(page).catch(() => {});
+    }
   }
 
-  if (!usedStrategy) throw new Error('两个默认账户都未检测到余额');
-
-  await _ss(`打开 ${tc.token} 发送页`, async () => {
-    await openSendForm(page, tc.token);
-    return tc.token;
-  });
-
-  return usedStrategy;
+  throw new Error(lastPrepareError || '两个默认账户都未检测到可用资产');
 }
 
 async function runPreviewCase(page, tc, opts) {

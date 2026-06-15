@@ -618,7 +618,7 @@ export async function clickWithPointerEvents(page, selector) {
 const SIDEBAR_TAB_MAP = {
   'Market': 'sidebarMarket', '市场': 'sidebarMarket', 'マーケット': 'sidebarMarket', 'Mercado': 'sidebarMarket',
   'Perps': 'sidebarPerps', '合约': 'sidebarPerps',
-  'Wallet': 'sidebarWallet', '钱包': 'sidebarWallet',
+  'Wallet': 'sidebarWallet', '钱包': 'sidebarWallet', '錢包': 'sidebarWallet',
   'Home': 'sidebarHome', '首页': 'sidebarHome',
   'Swap': 'sidebarSwap', '交易': 'sidebarSwap',
   'DeFi': 'sidebarDeFi',

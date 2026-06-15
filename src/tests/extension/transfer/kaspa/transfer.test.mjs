@@ -572,5 +572,5 @@ export async function run() {
   return { status: failed === 0 ? 'passed' : 'failed', passed, failed, total: results.length };
 }
 
-const isMain = !process.argv[1] || process.argv[1] === new URL(import.meta.url).pathname;
+const isMain = process.argv[1] === new URL(import.meta.url).pathname;
 if (isMain) run().catch(e => { console.error(e); process.exit(1); });
