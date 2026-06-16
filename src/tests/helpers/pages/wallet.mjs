@@ -31,7 +31,7 @@ export class WalletPage {
     const clicked = await this.page.evaluate(() => {
       for (const el of document.querySelectorAll('button, [role="button"]')) {
         const text = el.textContent?.trim();
-        if ((text === '发送' || text === 'Send') && el.getBoundingClientRect().width > 0) {
+        if ((text === '发送' || text === '發送' || text === 'Send') && el.getBoundingClientRect().width > 0) {
           el.click();
           return true;
         }

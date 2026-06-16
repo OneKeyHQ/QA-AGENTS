@@ -9,6 +9,7 @@ import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
   handlePasswordPromptIfPresent,
+  clickSidebarTab,
 } from '../../helpers/index.mjs';
 import { createStepTracker, safeStep } from '../../helpers/components.mjs';
 
@@ -660,7 +661,7 @@ async function goToListaUsdtDetail(page) {
   }
 
   // 2. 点侧栏 DeFi 入口 [data-testid="earn"]
-  await safeClickTestid(page, 'earn');
+  await clickSidebarTab(page, 'DeFi');
 
   // 2.5. 等待 DeFi 主页就绪（路由跳转 + RN 渲染 + token 列表 fetch 都需要时间）
   await waitForDefiPageReady(page, 15000);
@@ -740,7 +741,7 @@ async function goToDefiPortfolioTab(page) {
       await page.mouse.click(pos.x, pos.y);
       await sleep(600);
     }
-    await safeClickTestid(page, 'earn');
+    await clickSidebarTab(page, 'DeFi');
     await waitForDefiPageReady(page, 15000);
   } else {
     console.log('  [goToDefiPortfolioTab] already on DeFi home, just switching tab');

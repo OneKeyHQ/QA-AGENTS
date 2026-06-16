@@ -10,7 +10,7 @@ import { connectExtensionCDP, getExtensionId } from '../../../helpers/extension-
 import { createStepTracker, safeStep, switchToAccount, closeAllModals } from '../../../helpers/components.mjs';
 import { switchNetwork } from '../../../helpers/network.mjs';
 import { verifyHistoryRecord } from '../../../helpers/transfer.mjs';
-import { requireAccounts, resolveTransferDirection, getWalletPassword } from '../../../helpers/runtime-config.mjs';
+import { loadAccounts, requireAccounts, resolveTransferDirection, getWalletPassword } from '../../../helpers/runtime-config.mjs';
 
 const RESULTS_DIR = resolve(import.meta.dirname, '../../../../../../shared/results');
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'ext-kaspa-screenshots');
@@ -259,6 +259,65 @@ async function assertTransferFormAmount(page, expectedAmount, label) {
   return actual;
 }
 
+function normalizeDecimalAmount(value) {
+  if (value === null || value === undefined) return '';
+  const match = String(value).replace(/,/g, '').match(/\d+(?:\.\d+)?/);
+  if (!match) return '';
+  let [intPart, fracPart = ''] = match[0].split('.');
+  intPart = intPart.replace(/^0+(?=\d)/, '') || '0';
+  fracPart = fracPart.replace(/0+$/, '');
+  return fracPart ? `${intPart}.${fracPart}` : intPart;
+}
+
+function calculateHistoryAmount(sentAmount, _feeAmount, options = {}) {
+  const left = normalizeDecimalAmount(sentAmount);
+  if (!left) return '';
+  if (!options.fullAmount) return left;
+  return '';
+}
+
+function extractTokenAmountFromText(text, token) {
+  const normalized = String(text || '').replace(/,/g, ' ');
+  const escapedToken = String(token || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (escapedToken) {
+    const beforeToken = new RegExp(`(\\d+(?:\\.\\d+)?)\\s*${escapedToken}`, 'i').exec(normalized);
+    if (beforeToken) return normalizeDecimalAmount(beforeToken[1]);
+  }
+  return normalizeDecimalAmount(normalized);
+}
+
+function extractFeeAmountFromPreviewText(text, token) {
+  const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!normalized) return '';
+  const feeLabels = ['预估网络费用', '网络费用', '网络费', 'Fee'];
+  for (const label of feeLabels) {
+    let index = normalized.indexOf(label);
+    while (index >= 0) {
+      const forwardWindow = normalized.slice(index, index + 180);
+      const forwardAmount = extractTokenAmountFromText(forwardWindow, token);
+      if (forwardAmount) return forwardAmount;
+
+      const backwardWindow = normalized.slice(Math.max(0, index - 120), index + label.length);
+      const backwardAmount = extractTokenAmountFromText(backwardWindow, token);
+      if (backwardAmount) return backwardAmount;
+
+      index = normalized.indexOf(label, index + label.length);
+    }
+  }
+
+  const escapedToken = String(token || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const tokenPart = escapedToken ? `\\s*${escapedToken}` : '';
+  const feePatterns = [
+    new RegExp(`(?:预估网络费用|网络费用|Fee)[^\\d-]{0,80}(-?\\d+(?:\\.\\d+)?)${tokenPart}`, 'i'),
+    new RegExp(`(-?\\d+(?:\\.\\d+)?)${tokenPart}[^\\d-]{0,80}(?:预估网络费用|网络费用|Fee)`, 'i'),
+  ];
+  for (const re of feePatterns) {
+    const match = re.exec(normalized);
+    if (match?.[1]) return normalizeDecimalAmount(match[1]);
+  }
+  return '';
+}
+
 function kaspaAddressParts(address) {
   const normalized = (address || '').trim();
   const body = normalized.replace(/^kaspa:/i, '');
@@ -325,6 +384,7 @@ async function readPreviewFields(page, token, amount, direction = {}) {
       hasReceiverLabel,
       hasAddressRole,
       feeText,
+      previewText: text,
       actual: {
         tokenMatches: tokenMatches.map(({ haystack, ...node }) => node).slice(0, 10),
         tokenRows: tokenRows.map((row) => ({
@@ -343,6 +403,9 @@ async function readPreviewFields(page, token, amount, direction = {}) {
     senderName: direction.sender?.accountName || '',
     receiverName: direction.receiver?.accountName || '',
   });
+
+  state.feeAmount = extractTokenAmountFromText(state.feeText, token)
+    || extractFeeAmountFromPreviewText(state.previewText, token);
 
   const missing = [];
   if (!state.hasToken) missing.push('token-symbol');
@@ -474,7 +537,7 @@ async function waitForPreviewConfirmPage(page, token = null, amount = null, dire
     });
     last = state;
     if (state.hasConfirm && state.hasFeePreview) {
-      if (token) await readPreviewFields(page, token, amount, direction);
+      if (token) return readPreviewFields(page, token, amount, direction);
       return state;
     }
     if (state.hasPreview && i % 3 === 0) {
@@ -486,10 +549,25 @@ async function waitForPreviewConfirmPage(page, token = null, amount = null, dire
   throw new Error(`点击预览后未进入预览确认页 | state=${JSON.stringify(last || {})}`);
 }
 
-async function submitTransfer(page, token, amount = null, direction = {}) {
+async function submitTransfer(page, token, amount = null, direction = {}, options = {}) {
   await clickPreview(page);
-  await waitForPreviewConfirmPage(page, token, amount, direction);
-  return finishSubmittedTransfer(page, token);
+  const preview = await waitForPreviewConfirmPage(page, token, amount, direction);
+  const summary = await finishSubmittedTransfer(page, token);
+  const sentAmount = normalizeDecimalAmount(amount);
+  const feeAmount = normalizeDecimalAmount(preview?.feeAmount);
+  const historyAmount = calculateHistoryAmount(sentAmount, feeAmount, options);
+  const totalAmount = options.fullAmount ? sentAmount : historyAmount;
+  return {
+    summary,
+    sentAmount,
+    feeAmount,
+    historyAmount,
+    totalAmount,
+    historyAmountMode: options.fullAmount ? 'amountPlusFeeEquals' : 'primary',
+    toString() {
+      return `${summary}; sent=${sentAmount || '-'}; fee=${feeAmount || '-'}; historyAmount=${historyAmount || '-'}; totalAmount=${totalAmount || '-'}; mode=${options.fullAmount ? 'amount+fee' : 'primary'}`;
+    },
+  };
 }
 
 async function clickVisibleByTestId(page, testId, label = 'button') {
@@ -800,15 +878,33 @@ async function saveFeeEditorAndWaitClosed(page, level) {
   throw new Error(`费用档位保存后弹窗未关闭: ${level} | debug=${JSON.stringify(state || {})}`);
 }
 
+async function resetKaspaCaseState(page) {
+  await page.bringToFront().catch(() => {});
+  await closeAllModals(page).catch(() => {});
+  await dismissOverlays(page).catch(() => {});
+  await goToWallet(page);
+  await unlockWalletIfNeeded(page);
+  await closeAllModals(page).catch(() => {});
+  await dismissOverlays(page).catch(() => {});
+
+  const accounts = loadAccounts();
+  const resetAccount = accounts.primary?.accountName || accounts.secondary?.accountName || '';
+  if (resetAccount) {
+    await switchToAccount(page, resetAccount);
+    await dismissOverlays(page).catch(() => {});
+  }
+
+  await switchNetwork(page, 'Kaspa');
+  await goToWallet(page);
+  return resetAccount ? `wallet ready; account reset=${resetAccount}; network=Kaspa` : 'wallet ready; network=Kaspa';
+}
+
 async function runCase(page, id, name, fn) {
   const t = createStepTracker(id);
-  await safeStep(page, t, '进入钱包并解锁', async () => {
-    await dismissOverlays(page);
-    await goToWallet(page);
-    await unlockWalletIfNeeded(page);
-    await switchNetwork(page, 'Kaspa');
-    return 'wallet ready';
+  const ready = await safeStep(page, t, 'Step 0: 清理状态并重置账户', async () => {
+    return resetKaspaCaseState(page);
   }, SCREENSHOT_DIR);
+  if (!ready) return t.result();
   await fn(t);
   return t.result();
 }
@@ -850,6 +946,7 @@ export const testCases = [
     name: 'SILVER 金额=0.2 + 费用四档',
     fn: async (page) => runCase(page, 'EXT-KASPA-002', 'SILVER 金额=0.2 + 费用四档', async (t) => {
       let direction;
+      let submitted = null;
       await safeStep(page, t, '准备 SILVER 转账方向', async () => {
         direction = await prepareKaspaTransferDirection(page, 'SILVER', MIN_BALANCE.SILVER_FIXED);
         return `sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
@@ -1036,14 +1133,24 @@ export const testCases = [
         }
 
         const switchedSummary = clickedLevels.join('>');
-        await readPreviewFields(page, 'SILVER', '0.2', direction);
+        const preview = await readPreviewFields(page, 'SILVER', '0.2', direction);
         const finishSummary = await finishSubmittedTransfer(page, 'SILVER');
-        return `submitted fee-switch=${switchedSummary}; ${finishSummary}`;
+        const feeAmount = normalizeDecimalAmount(preview?.feeAmount);
+        submitted = {
+          sentAmount: '0.2',
+          feeAmount,
+          historyAmount: calculateHistoryAmount('0.2', feeAmount),
+        };
+        return `submitted fee-switch=${switchedSummary}; ${finishSummary}; fee=${submitted.feeAmount || '-'}; historyAmount=${submitted.historyAmount || '-'}`;
       }, SCREENSHOT_DIR);
       await safeStep(page, t, '校验 SILVER 历史记录字段', async () => {
         const { fields } = await verifyHistoryRecord(page, 'SILVER', {
           expectedFields: ['token', 'type', 'status', 'hash', 'fee', 'amount', 'network', 'fromTo', 'time'],
           expectedAmount: '0.2',
+          historyAmount: submitted?.historyAmount,
+          strictHistoryAmount: true,
+          sentAmount: '0.2',
+          feeAmount: submitted?.feeAmount,
           expectedNetwork: 'Kaspa',
         });
         return `fields=${fields.join(',')}`;
@@ -1057,6 +1164,7 @@ export const testCases = [
     fn: async (page) => runCase(page, 'EXT-KASPA-003', 'SILVER 最大值发送', async (t) => {
       let direction;
       let submittedMaxAmount = null;
+      let submitted = null;
       await safeStep(page, t, '准备 SILVER 转账方向', async () => {
         direction = await prepareKaspaTransferDirection(page, 'SILVER', MIN_BALANCE.SILVER_MAX);
         return `sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
@@ -1073,14 +1181,19 @@ export const testCases = [
       await safeStep(page, t, '预览并确认', async () => {
         const maxAmount = await readAmountInputValue(page);
         submittedMaxAmount = maxAmount;
-        const summary = await submitTransfer(page, 'SILVER', maxAmount, direction);
-        return `submitted ${summary}`;
+        submitted = await submitTransfer(page, 'SILVER', maxAmount, direction, { fullAmount: true });
+        return `submitted ${submitted}`;
       }, SCREENSHOT_DIR);
       await safeStep(page, t, '校验 SILVER 历史记录字段', async () => {
         if (!submittedMaxAmount) throw new Error('SILVER 最大值发送金额未记录，无法校验历史金额');
         const { fields } = await verifyHistoryRecord(page, 'SILVER', {
           expectedFields: ['token', 'type', 'status', 'hash', 'fee', 'amount', 'network', 'fromTo', 'time'],
-          expectedAmount: submittedMaxAmount,
+          expectedAmount: submitted?.totalAmount || submittedMaxAmount,
+          totalAmount: submitted?.totalAmount || submittedMaxAmount,
+          historyAmountMode: submitted?.historyAmountMode || 'amountPlusFeeEquals',
+          strictHistoryAmount: true,
+          sentAmount: submittedMaxAmount,
+          feeAmount: submitted?.feeAmount,
           expectedNetwork: 'Kaspa',
         });
         return `fields=${fields.join(',')}; amount=${submittedMaxAmount}`;
@@ -1124,6 +1237,7 @@ export const testCases = [
     name: 'KAS 金额=0.2 发送',
     fn: async (page) => runCase(page, 'EXT-KASPA-005', 'KAS 金额=0.2 发送', async (t) => {
       let direction;
+      let submitted = null;
       await safeStep(page, t, '准备 KAS 转账方向', async () => {
         direction = await prepareKaspaTransferDirection(page, 'KAS', MIN_BALANCE.KAS_FIXED);
         return `sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
@@ -1137,13 +1251,17 @@ export const testCases = [
         return `amount=${actualAmount} sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
       }, SCREENSHOT_DIR);
       await safeStep(page, t, '预览并确认', async () => {
-        const summary = await submitTransfer(page, 'KAS', '0.2', direction);
-        return `submitted ${summary}`;
+        submitted = await submitTransfer(page, 'KAS', '0.2', direction);
+        return `submitted ${submitted}`;
       }, SCREENSHOT_DIR);
       await safeStep(page, t, '校验 KAS 历史记录字段', async () => {
         const { fields } = await verifyHistoryRecord(page, 'KAS', {
           expectedFields: ['token', 'type', 'status', 'hash', 'fee', 'amount', 'network', 'fromTo', 'time'],
           expectedAmount: '0.2',
+          historyAmount: submitted?.historyAmount,
+          strictHistoryAmount: true,
+          sentAmount: '0.2',
+          feeAmount: submitted?.feeAmount,
           expectedNetwork: 'Kaspa',
         });
         return `fields=${fields.join(',')}`;
@@ -1157,6 +1275,7 @@ export const testCases = [
     fn: async (page) => runCase(page, 'EXT-KASPA-006', 'KAS 最大值发送', async (t) => {
       let direction;
       let submittedMaxAmount = null;
+      let submitted = null;
       await safeStep(page, t, '准备 KAS 转账方向', async () => {
         direction = await prepareKaspaTransferDirection(page, 'KAS', MIN_BALANCE.KAS_MAX);
         return `sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
@@ -1173,14 +1292,19 @@ export const testCases = [
       await safeStep(page, t, '预览并确认', async () => {
         const maxAmount = await readAmountInputValue(page);
         submittedMaxAmount = maxAmount;
-        const summary = await submitTransfer(page, 'KAS', maxAmount, direction);
-        return `submitted ${summary}`;
+        submitted = await submitTransfer(page, 'KAS', maxAmount, direction, { fullAmount: true });
+        return `submitted ${submitted}`;
       }, SCREENSHOT_DIR);
       await safeStep(page, t, '校验 KAS 历史记录字段', async () => {
         if (!submittedMaxAmount) throw new Error('KAS 最大值发送金额未记录，无法校验历史金额');
         const { fields } = await verifyHistoryRecord(page, 'KAS', {
           expectedFields: ['token', 'type', 'status', 'hash', 'fee', 'amount', 'network', 'fromTo', 'time'],
-          expectedAmount: submittedMaxAmount,
+          expectedAmount: submitted?.totalAmount || submittedMaxAmount,
+          totalAmount: submitted?.totalAmount || submittedMaxAmount,
+          historyAmountMode: submitted?.historyAmountMode || 'amountPlusFeeEquals',
+          strictHistoryAmount: true,
+          sentAmount: submittedMaxAmount,
+          feeAmount: submitted?.feeAmount,
           expectedNetwork: 'Kaspa',
         });
         return `fields=${fields.join(',')}; amount=${submittedMaxAmount}`;
@@ -1188,7 +1312,6 @@ export const testCases = [
       t.skip('区块浏览器对账', '插件端区块浏览器跳转会打开系统浏览器，当前自动化不接管外部浏览器；本用例已校验预览页与历史详情字段');
     }),
   },
-
 ];
 
 export async function setup(page) {
@@ -1245,5 +1368,5 @@ export async function run() {
   return { status: failed === 0 ? 'passed' : 'failed', passed, failed, total: results.length };
 }
 
-const isMain = !process.argv[1] || process.argv[1] === new URL(import.meta.url).pathname;
+const isMain = process.argv[1] === new URL(import.meta.url).pathname;
 if (isMain) run().catch(e => { console.error(e); process.exit(1); });

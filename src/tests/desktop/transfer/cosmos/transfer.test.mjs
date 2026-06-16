@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import {
   connectCDP, sleep, RESULTS_DIR, WALLET_PASSWORD,
   dismissErrorDialogs, closeAllModals, goToWalletHome,
-  unlockWalletIfNeeded,
+  unlockWalletIfNeeded, ensurePrimarySoftwareWallet,
 } from '../../../helpers/index.mjs';
 import { createCosmosTransferTests } from '../../../shared/transfer/cosmos/transfer.mjs';
 
@@ -30,6 +30,7 @@ const { testCases, setup } = createCosmosTransferTests({
   namePrefix: '',
   password: WALLET_PASSWORD,
   goToWallet,
+  ensureSoftwareWallet: ensurePrimarySoftwareWallet,
   screenshotDir: SCREENSHOT_DIR,
 });
 

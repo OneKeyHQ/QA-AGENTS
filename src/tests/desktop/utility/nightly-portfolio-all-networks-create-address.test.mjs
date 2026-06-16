@@ -14,6 +14,7 @@ import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, RESULTS_DIR, WALLET_PASSWORD,
   closeAllModals, dismissOverlays, goToWalletHome, unlockWalletIfNeeded,
+  ensurePrimarySoftwareWallet,
 } from '../../helpers/index.mjs';
 import { createStepTracker, safeStep } from '../../helpers/components.mjs';
 
@@ -907,9 +908,11 @@ async function testNightlyPortfolioCreateAddress(page) {
 
   if (!await safeStep(page, t, 'Step 0 前置: 回到钱包首页', async () => {
     await ensureWalletHome(page);
+    const softwareAccount = await ensurePrimarySoftwareWallet(page);
+    await ensureWalletHome(page);
     const selectedName = await readSelectedAccountName(page);
     assert(selectedName.length > 0, 'selected account name is empty');
-    return `selected=${selectedName}`;
+    return `software=${softwareAccount}; selected=${selectedName}`;
   }, SCREENSHOT_DIR)) return t.result();
 
   if (!await safeStep(page, t, '切换投资组合为所有网络', async () => {

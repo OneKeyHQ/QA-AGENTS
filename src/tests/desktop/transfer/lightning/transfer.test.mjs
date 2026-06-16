@@ -29,6 +29,10 @@ const LN_ADDRESS = 'shortmen02@walletofsatoshi.com';
 const LNURL = 'lnurl1dp68gurn8ghj7ampd3kx2ar0veekzar0wd5xjtnrdakj7tnhv4kxctttdehhwm30d3h82unvwqhhx6r0wf6x6etwxqeq3p2554';
 const DEFAULT_INVOICE_AMOUNT = '1';
 const DEFAULT_INVOICE_COMMENT = 'OneKey Invoice';
+const DEFAULT_STRATEGIES = [
+  { label: 'primary', sender: 'piggy', recipient: 'vault' },
+  { label: 'reversed', sender: 'vault', recipient: 'piggy' },
+];
 
 async function clearBlockingOverlays(page) {
   await page.keyboard.press('Escape').catch(() => {});
@@ -314,10 +318,22 @@ async function assertTextGroups(page, groups) {
   return `matched ${groups.length}/${groups.length}`;
 }
 
+function isLightningInsufficientText(text = '') {
+  const value = String(text || '');
+  return (
+    value.includes('余额不足') ||
+    value.includes('餘額不足') ||
+    value.includes('资金不足') ||
+    value.includes('資金不足') ||
+    /insufficient\s+(balance|funds|fee)/i.test(value) ||
+    /not enough\s+(balance|funds|fee)/i.test(value)
+  );
+}
+
 async function assertLightningPreviewReachable(page) {
   if (await isFooterConfirmDisabled(page)) {
     const text = await getVisibleText(page);
-    if (text.includes('不足')) return `余额不足，停在金额页: ${text.substring(0, 180)}`;
+    if (isLightningInsufficientText(text)) return `余额不足，停在金额页: ${text.substring(0, 180)}`;
     throw new Error(`确认发送按钮不可提交: ${text.substring(0, 240)}`);
   }
   await screenshot(page, SCREENSHOT_DIR, 'lightning-preview-ready');
@@ -347,25 +363,45 @@ async function verifyLightningHistoryRecord(page, { amount }) {
     };
     return Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]')).some(visible);
   }, { timeout: 15000 });
-  const listText = await page.evaluate(() => {
-    const visible = (el) => {
-      const r = el?.getBoundingClientRect?.();
-      return !!r && r.width > 0 && r.height > 0;
-    };
-    const latest = Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]')).find(visible);
-    return latest?.textContent || '';
-  });
-  const clickedTx = await page.evaluate(() => {
-    const visible = (el) => {
-      const r = el?.getBoundingClientRect?.();
-      return !!r && r.width > 0 && r.height > 0;
-    };
-    const latest = Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]')).find(visible);
-    if (!latest) return false;
-    latest.click();
-    return true;
-  });
-  if (!clickedTx) throw new Error('历史记录中未找到可见交易');
+  let listText = '';
+  let lastRows = [];
+  let clickedTx = false;
+  const started = Date.now();
+  while (Date.now() - started < 15000 && !clickedTx) {
+    const match = await page.evaluate(({ amount }) => {
+      const visible = (el) => {
+        const r = el?.getBoundingClientRect?.();
+        return !!r && r.width > 0 && r.height > 0;
+      };
+      const amountMatches = (text) => {
+        if (!amount) return true;
+        if (text.includes(String(amount))) return true;
+        const expectedNum = Number(amount);
+        if (!Number.isFinite(expectedNum)) return false;
+        const numbers = text.match(/\d+(?:\.\d+)?/g) || [];
+        return numbers.some((value) => Number(value) === expectedNum);
+      };
+      const isSend = (text) => text.includes('发送') || text.includes('發送') || /Send/i.test(text);
+      const isLightning = (text) => text.includes('Lightning') || text.includes('闪电') || text.includes('閃電') || /sats/i.test(text);
+      const rows = Array.from(document.querySelectorAll('[data-testid="tx-action-common-list-view"]'))
+        .filter(visible)
+        .map((row) => ({ row, text: row.textContent || '' }));
+      const rowTexts = rows.map((row) => row.text).slice(0, 8);
+      const matched = rows.find(({ text }) => isLightning(text) && isSend(text) && amountMatches(text)) ||
+        rows.find(({ text }) => isLightning(text) && isSend(text));
+      if (!matched) return { clicked: false, rows: rowTexts };
+      matched.row.click();
+      return { clicked: true, text: matched.text, rows: rowTexts };
+    }, { amount });
+    lastRows = match.rows || [];
+    if (match.clicked) {
+      listText = match.text || '';
+      clickedTx = true;
+      break;
+    }
+    await sleep(1000);
+  }
+  if (!clickedTx) throw new Error(`历史记录中未找到匹配的 Lightning 发送交易: ${lastRows.join(' | ').substring(0, 240)}`);
   await sleep(2000);
 
   const detailText = await page.evaluate(() => {
@@ -375,9 +411,9 @@ async function verifyLightningHistoryRecord(page, { amount }) {
   const text = `${listText}\n${detailText}`;
   const fields = [];
   if (text.includes(String(amount)) && /sats/i.test(text)) fields.push('amount');
-  if (text.includes('发送') || /Send/i.test(text)) fields.push('type');
-  if (text.includes('Lightning') || text.includes('闪电')) fields.push('network');
-  if (text.includes('成功') || text.includes('已确认') || /Success|Confirmed|Completed/i.test(text)) fields.push('status');
+  if (text.includes('发送') || text.includes('發送') || /Send/i.test(text)) fields.push('type');
+  if (text.includes('Lightning') || text.includes('闪电') || text.includes('閃電')) fields.push('network');
+  if (text.includes('成功') || text.includes('已确认') || text.includes('已確認') || text.includes('待处理') || text.includes('待處理') || /Success|Confirmed|Completed|Pending|Submitted/i.test(text)) fields.push('status');
 
   await page.locator('[data-testid="nav-header-close"]').click({ timeout: 3000 }).catch(() => page.keyboard.press('Escape'));
   await sleep(1000);
@@ -463,6 +499,18 @@ async function closeCurrentFlow(page) {
   await sleep(800);
 }
 
+function isRecoverableLightningBalanceError(error) {
+  const text = String(error?.message || error || '');
+  return (
+    text.includes('余额不足') ||
+    text.includes('資金不足') ||
+    text.includes('资金不足') ||
+    text.includes('Insufficient') ||
+    text.includes('insufficient') ||
+    text.includes('confirm disabled')
+  );
+}
+
 const LIGHTNING_CASES = [
   {
     id: 'LIGHTNING-001',
@@ -532,71 +580,122 @@ async function runLightningCase(page, tc) {
   const t = createStepTracker(tc.id);
   const _ss = (name, fn) => safeStep(page, t, name, fn, SCREENSHOT_DIR);
 
-  let recipient = tc.recipient;
-  if (tc.generatedInvoice) {
-    const invoiceGenerated = await _ss('生成 Lightning 发票', async () => {
+  async function runPayAttempt(strategy) {
+    let recipient = tc.recipient;
+    if (tc.generatedInvoice) {
       recipient = await generateLightningInvoice(page, {
         ...tc.generatedInvoice,
+        accountName: strategy.recipient,
         testId: tc.id,
       });
-      return `${tc.generatedInvoice.amount ? `${tc.generatedInvoice.amount} sats` : 'open amount'} invoice`;
-    });
-    if (!invoiceGenerated) return t.result();
-  }
+      t.add(`生成 Lightning 发票 (${strategy.recipient})`, 'passed', `${tc.generatedInvoice.amount ? `${tc.generatedInvoice.amount} sats` : 'open amount'} invoice`);
+    }
 
-  if (!await _ss('打开 Lightning 发送页', async () => {
-    await openLightningSendForm(page);
-    return 'send form';
-  })) return t.result();
+    await openLightningSendForm(page, strategy.sender);
+    t.add(`打开 Lightning 发送页 (${strategy.sender})`, 'passed', 'send form');
 
-  if (!await _ss('输入收款信息', async () => {
     await fillLightningRecipient(page, recipient);
-    return recipient.slice(0, 32);
-  })) return t.result();
+    t.add('输入收款信息', 'passed', recipient.slice(0, 32));
 
-  if (tc.kind === 'invalid-recipient') {
-    await _ss('验证无效收款信息拦截', async () => {
-      await sleep(1500);
-      await assertTextGroups(page, tc.expectedTextGroups);
-      if (!(await isFooterConfirmDisabled(page))) throw new Error('下一步按钮未置灰');
-      await screenshot(page, SCREENSHOT_DIR, `${tc.id}-invalid-recipient`);
-      return 'invalid recipient blocked';
-    });
-    await closeCurrentFlow(page);
-    return t.result();
-  }
-
-  if (!await _ss('解析进入金额页', async () => {
     await clickFooterConfirm(page);
     const state = tc.kind === 'invoice-pay-request'
       ? await waitForLightningPayStep(page)
       : await waitForLightningAmountPage(page);
     tc._payStep = state.step || 'amount';
-    return `${tc._payStep} loaded in ${state.waitedMs}ms`;
-  })) return t.result();
+    t.add('解析进入金额页', 'passed', `${tc._payStep} loaded in ${state.waitedMs}ms`);
 
-  if (tc._payStep !== 'confirm') {
+    if (tc._payStep !== 'confirm') {
+      await enterLightningAmount(page, tc.amount);
+      const commentResult = tc.comment ? await enterLightningComment(page, tc.comment) : String(tc.amount);
+      t.add(`输入金额 ${tc.amount}`, 'passed', commentResult);
+    } else {
+      t.add(`输入金额 ${tc.amount}`, 'skipped', '指定金额发票已锁定金额');
+    }
+
+    const previewState = await assertLightningPreviewReachable(page);
+    if (String(previewState).includes('余额不足')) {
+      return { status: 'insufficient', reason: previewState };
+    }
+    t.add('确认发送前状态校验', 'passed', previewState);
+
+    const submitResult = await submitLightningPayment(page, tc);
+    t.add('提交 Lightning 支付并校验历史', 'passed', submitResult);
+    return { status: 'passed' };
+  }
+
+  if (!['pay-request', 'invoice-pay-request'].includes(tc.kind)) {
+    let recipient = tc.recipient;
+    if (!await _ss('打开 Lightning 发送页', async () => {
+      await openLightningSendForm(page);
+      return 'send form';
+    })) return t.result();
+
+    if (!await _ss('输入收款信息', async () => {
+      await fillLightningRecipient(page, recipient);
+      return recipient.slice(0, 32);
+    })) return t.result();
+
+    if (tc.kind === 'invalid-recipient') {
+      await _ss('验证无效收款信息拦截', async () => {
+        await sleep(1500);
+        await assertTextGroups(page, tc.expectedTextGroups);
+        if (!(await isFooterConfirmDisabled(page))) throw new Error('下一步按钮未置灰');
+        await screenshot(page, SCREENSHOT_DIR, `${tc.id}-invalid-recipient`);
+        return 'invalid recipient blocked';
+      });
+      await closeCurrentFlow(page);
+      return t.result();
+    }
+
+    if (!await _ss('解析进入金额页', async () => {
+      await clickFooterConfirm(page);
+      const state = await waitForLightningAmountPage(page);
+      tc._payStep = state.step || 'amount';
+      return `${tc._payStep} loaded in ${state.waitedMs}ms`;
+    })) return t.result();
+
     if (!await _ss(`输入金额 ${tc.amount}`, async () => {
       await enterLightningAmount(page, tc.amount);
       if (tc.comment) return enterLightningComment(page, tc.comment);
       return String(tc.amount);
     })) return t.result();
-  } else {
-    t.add(`输入金额 ${tc.amount}`, 'skipped', '指定金额发票已锁定金额');
-  }
 
-  if (tc.kind === 'invalid-amount') {
     await _ss('验证金额拦截', async () => {
       await assertTextGroups(page, tc.expectedTextGroups);
       if (!(await isFooterConfirmDisabled(page))) throw new Error('确认发送按钮未置灰');
       await screenshot(page, SCREENSHOT_DIR, `${tc.id}-invalid-amount`);
       return 'invalid amount blocked';
     });
-  } else {
-    await _ss('确认发送前状态校验', async () => assertLightningPreviewReachable(page));
-    await _ss('提交 Lightning 支付并校验历史', async () => submitLightningPayment(page, tc));
+
+    await closeCurrentFlow(page);
+    return t.result();
   }
 
+  let lastInsufficient = null;
+  for (const strategy of DEFAULT_STRATEGIES) {
+    const result = await runPayAttempt(strategy).catch((error) => {
+      if (isRecoverableLightningBalanceError(error)) {
+        return { status: 'insufficient', reason: error.message || String(error) };
+      }
+      t.add(`${strategy.sender} Lightning 支付流程`, 'failed', error.message || String(error));
+      return { status: 'fatal' };
+    });
+
+    if (result.status === 'passed') {
+      await closeCurrentFlow(page);
+      return t.result();
+    }
+    if (result.status === 'fatal') {
+      await closeCurrentFlow(page);
+      return t.result();
+    }
+    lastInsufficient = result.reason;
+    t.add(`${strategy.sender} 余额不足`, 'skipped', `${result.reason}; 尝试下一个账户`);
+    await screenshot(page, SCREENSHOT_DIR, `${tc.id}-${strategy.sender}-insufficient`).catch(() => {});
+    await closeCurrentFlow(page);
+  }
+
+  t.add('所有账户余额不足', 'failed', lastInsufficient || 'Lightning 支付无法执行');
   await closeCurrentFlow(page);
   return t.result();
 }

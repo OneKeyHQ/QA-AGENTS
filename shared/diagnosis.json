@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-06-16T10:51:24Z",
+  "diagnoses": [
+    {
+      "testId": "EXT-KASPA-006",
+      "rootCause": "assertion_logic",
+      "confidence": "high",
+      "evidence": "Dashboard run-state shows EXT-KASPA-006 sent 1.46549257 KAS from Account #1 to Account #2, then failed in history validation with detail text starting \"接收 17:17 • Wallet 2 / Account #2 +1.4655 KAS\" and missing field \"type\". CDP DOM inspection after the run showed history rows containing both send and receive records; the failed row was a receive record with the same rounded amount, so the pre-click matcher accepted token+amount without requiring send direction.",
+      "recommendation": "Restore the pre-click send-direction guard in verifyHistoryRecord(): latestHistoryMatchesExpected() should require the latest row to contain 发送/發送/Send when validating outgoing transfer history, before counting it as a stable match and clicking it.",
+      "suggestedFix": {
+        "file": "src/tests/helpers/transfer.mjs",
+        "action": "Add a send-type predicate to latestHistoryMatchesExpected() or pass expected historyType='send'; keep amount rounding logic, but require token + rounded amount + send label before clicking the latest row."
+      }
+    }
+  ]
+}

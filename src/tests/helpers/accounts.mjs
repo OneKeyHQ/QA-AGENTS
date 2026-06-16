@@ -1,7 +1,7 @@
 // Account helpers — role-based account switching from runtime config
 
 import { sleep } from './constants.mjs';
-import { requireAccounts } from './runtime-config.mjs';
+import { loadAccounts } from './runtime-config.mjs';
 
 /**
  * Account role aliases used by legacy test code.
@@ -16,18 +16,46 @@ export const ACCOUNTS = {
   },
 };
 
+const LEGACY_ACCOUNT_FALLBACKS = {
+  primary: {
+    walletName: process.env.ONEKEY_PRIMARY_WALLET || process.env.NIGHTLY_SOFTWARE_WALLET || 'ran',
+    accountName: process.env.ONEKEY_PRIMARY_ACCOUNT || process.env.NIGHTLY_SOFTWARE_ACCOUNT || 'piggy🐷',
+    labels: [
+      process.env.ONEKEY_PRIMARY_ACCOUNT || process.env.NIGHTLY_SOFTWARE_ACCOUNT || 'piggy🐷',
+      'piggy',
+      'Account #1',
+    ],
+  },
+  secondary: {
+    walletName: process.env.ONEKEY_SECONDARY_WALLET || process.env.NIGHTLY_SOFTWARE_WALLET || 'ran',
+    accountName: process.env.ONEKEY_SECONDARY_ACCOUNT || 'vault😂',
+    labels: [
+      process.env.ONEKEY_SECONDARY_ACCOUNT || 'vault😂',
+      'vault',
+      'Account #2',
+    ],
+  },
+};
+
 export function getConfiguredAccount(accountName) {
   const roleMeta = ACCOUNTS[accountName];
   if (!roleMeta) throw new Error(`Unknown account role: ${accountName}`);
-  const accounts = requireAccounts();
+  const accounts = loadAccounts();
   const configured = accounts[roleMeta.role];
+  const fallback = LEGACY_ACCOUNT_FALLBACKS[roleMeta.role];
+  const walletName = configured.walletName || fallback.walletName;
+  const label = configured.accountName || fallback.accountName;
+  const usesRuntimeConfig = Boolean(configured.walletName && configured.accountName);
   return {
     role: roleMeta.role,
-    walletName: configured.walletName,
-    accountName: configured.accountName,
-    label: configured.accountName,
-    labels: [configured.accountName],
-    fullLabel: `${configured.walletName} / ${configured.accountName}`,
+    walletName,
+    accountName: label,
+    label,
+    labels: usesRuntimeConfig
+      ? [label]
+      : Array.from(new Set([label, ...(fallback.labels || [])].filter(Boolean))),
+    fullLabel: `${walletName} / ${label}`,
+    source: usesRuntimeConfig ? 'runtime-config' : 'legacy-fallback',
   };
 }
 
@@ -120,4 +148,14 @@ export async function switchAccount(page, accountName) {
   if (!labels.some((label) => newAccount?.includes(label))) {
     throw new Error(`Failed to switch to account ${accountName}, got: ${newAccount}`);
   }
+}
+
+/**
+ * Ensure flows that require address derivation/signing start from the configured
+ * primary HD/software wallet account, not a watch-only account.
+ */
+export async function ensurePrimarySoftwareWallet(page) {
+  const account = getConfiguredAccount('piggy');
+  await switchAccount(page, 'piggy');
+  return account.fullLabel;
 }
