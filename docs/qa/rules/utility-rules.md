@@ -207,7 +207,12 @@ Utility 模块包含以下核心功能：
 | 搜索历史 | 显示最近搜索 |
 | 热门推荐 | 显示热门搜索 |
 
-### 7.3 通用搜索框（Wallets / Tokens / dApps / My assets / Perps / Settings / All）
+### 7.3 通用搜索框（动态 Tab / 搜索类型）
+
+- 通用搜索 Tab 按当前搜索词的实际命中类型动态展示；无命中的类型不展示对应 Tab。
+- `Tokens/代币` 独立 Tab 已移除；Token 搜索结果按当前 UI 暴露类型展示，可能出现在聚合/推荐/Market 相关结果中。
+- 自动化断言不得固定要求 `Wallets / Tokens / dApps / My assets / Perps / Settings` Tab 一定存在；应先读取当前可见 Tab，再只对已展示类型做结果/跳转断言。
+- 目标类型未展示但搜索弹窗处于有效搜索态（已有其它结果或明确空态）时，应记录为动态隐藏/未暴露，不作为失败。
 
 #### 7.3.1 Wallets Tab（账户）
 
@@ -224,13 +229,13 @@ Utility 模块包含以下核心功能：
   - URL 钱包结果：跳转至对应网络的 URL 钱包页面
   - 已有账户结果：跳转至 wallet 页面，并切换为当前账户与对应网络
 
-#### 7.3.2 Tokens Tab（代币）
+#### 7.3.2 Token 搜索结果（代币类型；无独立代币 Tab）
 
 - 输入 Token Symbol/关键词：支持精准与模糊搜索，不区分大小写
 - 列表展示字段包含：Token 图标、Symbol、名称、实时币价
 - 排序规则：按 Tokens 7天总市值排序
 - 支持搜索价格为 `null` 的 Token（如 POWER/AIP）
-- 点击搜索结果：跳转到对应 Token 的币种详情 modal
+- 点击已展示的 Token 搜索结果：跳转到对应 Token 的币种详情 modal
 
 #### 7.3.3 dApps Tab（DApp）
 
@@ -266,8 +271,8 @@ Utility 模块包含以下核心功能：
 
 #### 7.3.7 All Tab（聚合）
 
-- 非 Market 上下文下聚合顺序：`Wallets > Tokens > My assets > dApps`
-- Market 上下文下聚合顺序：`Tokens > Wallets > My assets > dApps`
+- 非 Market 上下文下聚合按当前实际暴露类型展示；无结果类型不展示。
+- Market 上下文下聚合按当前实际暴露类型展示；无结果类型不展示。
 - 展示规则：
   - 无结果板块不展示
   - 每个板块最多展示前 5 个结果

@@ -58,7 +58,7 @@ async function goToWallet(page) {
 
 const triggerSearch = (page) => openSearchModal(page);
 
-/** Click a main tab (自选/现货/合约) — Desktop layout: main tabs at y~130-195. */
+/** Click a main tab (自选/热门/股票/合约) — Desktop layout: main tabs at y~130-195. */
 async function clickMainTab(page, name) {
   const clicked = await page.evaluate((tabName) => {
     for (const el of document.querySelectorAll('span')) {
