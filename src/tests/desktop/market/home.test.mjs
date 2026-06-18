@@ -49,7 +49,7 @@ async function clickMainTab(page, tab) {
   await sleep(1500);
 }
 
-/** Click a filter chip — Desktop layout: filter chips are at y~205-280. */
+/** Click a filter chip — Desktop layout: chips can sit beside or below main tabs. */
 async function clickFilterChip(page, label) {
   const ok = await page.evaluate((name) => {
     const nodes = document.querySelectorAll('span, div, button');
@@ -57,7 +57,7 @@ async function clickFilterChip(page, label) {
       const text = (el.textContent || '').trim();
       if (text !== name) continue;
       const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0 && r.y > 205 && r.y < 280) {
+      if (r.width > 0 && r.height > 0 && r.y > 155 && r.y < 290) {
         el.scrollIntoView({ inline: 'center', block: 'nearest' });
         el.click();
         return true;

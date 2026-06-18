@@ -34,7 +34,7 @@ import {
  * @param {object} opts
  * @param {string} opts.prefix - Test ID prefix, e.g. 'MARKET-CHART'
  * @param {string} [opts.namePrefix] - Display name prefix, e.g. ''
- * @param {(page) => Promise<{count: number}>} opts.openMarketSpotList - Enter Market → 现货 list, return visible token count
+ * @param {(page) => Promise<{count: number}>} opts.openMarketSpotList - Enter Market → 热门 list, return visible token count
  * @param {(page) => Promise<{text: string}>} opts.clickFirstToken - Click first visible token row, return clicked text
  * @param {(page) => Promise<void>} opts.navigateToTokenDetail - Ensure we are on a token detail page (used by tests 002-008)
  * @param {string} opts.screenshotDir - Absolute path to screenshot directory
@@ -243,9 +243,9 @@ export function createDesktopMarketChartTests({
   async function testMarketChart001(page) {
     const t = createStepTracker(`${prefix}-001`);
 
-    await _ssStep(page, t, '进入 Market 现货列表', async () => {
+    await _ssStep(page, t, '进入 Market 热门列表', async () => {
       const { count } = await openMarketSpotList(page);
-      if (count === 0) throw new Error('现货列表无可见 token');
+      if (count === 0) throw new Error('热门列表无可见 token');
       return `${count} visible tokens`;
     });
 

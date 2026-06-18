@@ -64,7 +64,7 @@ async function clickVisibleAccountSelector(page) {
     const selectors = Array.from(document.querySelectorAll('[data-testid="AccountSelectorTriggerBase"]'));
     for (const el of selectors) {
       const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) {
+      if (r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 && r.left < window.innerWidth && r.top < window.innerHeight) {
         el.click();
         return el.textContent || '';
       }
@@ -78,53 +78,87 @@ async function clickVisibleAccountSelector(page) {
 
 async function selectWalletInAccountSelector(page, walletName) {
   if (!walletName) return;
-  const selected = await page.evaluate((targetWalletName) => {
+  const target = await page.evaluate((targetWalletName) => {
     const visible = (el) => {
       const r = el?.getBoundingClientRect?.();
-      return !!r && r.width > 0 && r.height > 0;
+      return !!r && r.width > 0 && r.height > 0 &&
+        r.right > 0 && r.bottom > 0 && r.left < window.innerWidth && r.top < window.innerHeight;
     };
+    const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
     const modal = Array.from(document.querySelectorAll('[data-testid="APP-Modal-Screen"]')).filter(visible).at(-1);
     const container = modal || document.body;
-    for (const el of container.querySelectorAll('span, div')) {
-      if (el.textContent?.trim() !== targetWalletName || !visible(el)) continue;
-      const row = el.closest('[role="button"]') || el.parentElement;
-      (row || el).click();
-      return true;
+    for (const row of container.querySelectorAll('[data-testid^="wallet-"]')) {
+      if (!visible(row) || normalize(row.textContent) !== targetWalletName) continue;
+      const r = row.getBoundingClientRect();
+      return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2), text: normalize(row.textContent), method: 'wallet-row' };
     }
-    return false;
+    for (const el of container.querySelectorAll('span, div')) {
+      if (normalize(el.textContent) !== targetWalletName || !visible(el)) continue;
+      const row = el.closest('[role="button"]') || el.parentElement || el;
+      const r = row.getBoundingClientRect();
+      return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2), text: normalize(el.textContent), method: 'text' };
+    }
+    return null;
   }, walletName);
-  if (!selected) throw new Error(`Wallet ${walletName} not found in account selector`);
+  if (!target) throw new Error(`Wallet ${walletName} not found in account selector`);
+  await page.mouse.click(target.x, target.y);
   await sleep(1200);
 }
 
 async function clickAccountInSelectedWallet(page, account) {
-  const clicked = await page.evaluate(({ labels }) => {
+  const target = await page.evaluate(({ labels }) => {
     const visible = (el) => {
       const r = el?.getBoundingClientRect?.();
-      return !!r && r.width > 0 && r.height > 0;
+      return !!r && r.width > 0 && r.height > 0 &&
+        r.right > 0 && r.bottom > 0 && r.left < window.innerWidth && r.top < window.innerHeight;
     };
     const modal = Array.from(document.querySelectorAll('[data-testid="APP-Modal-Screen"]')).filter(visible).at(-1);
     const container = modal || document.body;
     for (const label of labels) {
+      for (const row of container.querySelectorAll('[data-testid^="account-item-index-"]')) {
+        if (!visible(row) || !(row.textContent || '').includes(label)) continue;
+        const r = row.getBoundingClientRect();
+        return {
+          method: 'account-row',
+          label,
+          x: Math.round(r.x + r.width / 2),
+          y: Math.round(r.y + r.height / 2),
+        };
+      }
       for (const el of container.querySelectorAll('span, div')) {
         if (el.textContent?.trim() !== label || !visible(el)) continue;
-        const row = el.closest('[role="button"]') || el.parentElement?.parentElement || el.parentElement;
-        (row || el).click();
-        return { method: 'label', label };
+        let node = el;
+        let target = el;
+        for (let i = 0; i < 6 && node && node !== container; i += 1) {
+          const r = node.getBoundingClientRect();
+          const text = node.textContent || '';
+          if (text.includes(label) && r.width >= 240 && r.height >= 40 && r.height <= 90) {
+            target = node;
+          }
+          node = node.parentElement;
+        }
+        const r = target.getBoundingClientRect();
+        return {
+          method: 'label',
+          label,
+          x: Math.round(r.x + r.width / 2),
+          y: Math.round(r.y + r.height / 2),
+        };
       }
     }
     return null;
   }, { labels: account.labels || [account.label] });
-  if (!clicked) throw new Error(`Account ${account.label} not found in selected wallet`);
+  if (!target) throw new Error(`Account ${account.label} not found in selected wallet`);
+  await page.mouse.click(target.x, target.y);
   await sleep(2000);
-  return clicked;
+  return target;
 }
 
 async function getVisibleCurrentAccountText(page) {
   return page.evaluate(() => {
     for (const el of document.querySelectorAll('[data-testid="AccountSelectorTriggerBase"]')) {
       const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0) return el.textContent || '';
+      if (r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 && r.left < window.innerWidth && r.top < window.innerHeight) return el.textContent || '';
     }
     return '';
   });
@@ -138,9 +172,21 @@ export async function switchAccount(page, accountName) {
   const account = getConfiguredAccount(accountName);
   const labels = account.labels || [account.label];
 
-  await clickVisibleAccountSelector(page);
-  await selectWalletInAccountSelector(page, account.walletName);
-  const clicked = await clickAccountInSelectedWallet(page, account);
+  let clicked;
+  let lastError;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    try {
+      await clickVisibleAccountSelector(page);
+      await selectWalletInAccountSelector(page, account.walletName);
+      clicked = await clickAccountInSelectedWallet(page, account);
+      break;
+    } catch (error) {
+      lastError = error;
+      await page.keyboard.press('Escape').catch(() => {});
+      await sleep(800);
+    }
+  }
+  if (!clicked) throw lastError || new Error(`Failed to click account ${accountName}`);
   console.log(`    Clicked ${clicked.label} for ${accountName}/${account.role} in wallet ${account.walletName}`);
 
   // Verify

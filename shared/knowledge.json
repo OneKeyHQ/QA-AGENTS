@@ -1,14 +1,14 @@
 {
-  "version": "2.3.7",
-  "lastUpdated": "2026-06-16",
+  "version": "2.3.9",
+  "lastUpdated": "2026-06-18",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146 — DOM定位/选择器/testid陷阱",
-    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156 — 断言策略/校验方法",
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164 — DOM定位/选择器/testid陷阱",
+    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165 — OneKey/Electron/React行为异常",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161 — 断言策略/校验方法",
     "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109,K-116,K-117,K-118 — 录制器相关",
-    "timing": "K-107,K-110,K-112,K-114,K-144,K-149 — 时序/异步/页面状态切换"
+    "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166 — 时序/异步/页面状态切换"
   },
   "patterns": [
     {
@@ -825,7 +825,7 @@
       "platform": "all",
       "pattern": "shared/results/recording/ 目录被清空会导致 recorder 崩溃（ENOENT），录制前必须 mkdir -p",
       "details": "录制器 listen.mjs 在用户点击时同步 writeFileSync 到 shared/results/recording/steps.json，如果目录不存在会抛 ENOENT 直接退出（错误堆栈在 /tmp/recorder.log）。\n\n症状：用户操作 OneKey 但 Monitor UI (http://localhost:3210) 看不到事件流，停止录制后 steps.json 不存在。\n\n解决：在启动 recorder 前总是 `mkdir -p shared/results/recording`。建议把这个 mkdir 写到 listen.mjs 启动逻辑里防呆。\n\n触发场景：新会话首次录制；用户手动清理过该目录。\n\n相关 commit/issue：2026-05-13 Lista DeFi 录制时首次遇到。",
-      "confidence": 1.0
+      "confidence": 1
     },
     {
       "id": "K-105",
@@ -833,7 +833,7 @@
       "platform": "all",
       "pattern": "Lista DeFi 预估年收益公式：USDT(USD) = (原生APY − 业绩费) × 认购价值；LISTA(USD) = LISTA奖励 APY × 认购价值（不扣业绩费）",
       "details": "💡 推荐用简化版 K-130：sum(USD) ≈ APY × USD。本条拆分公式仍正确，作为 P1 深入验证。\n\nLista 简单赚币产品的预估年收益拆分：\n\n①USDT 部分(USD) = (原生 APY − 业绩费率) × 认购价值(USD)\n②LISTA 奖励(USD) = LISTA APY × 认购价值(USD)，**LISTA 奖励不扣业绩费**\n③综合 APY = 原生 APY + LISTA APY − 业绩费 ≈ 1.79% 之类\n④页面同时显示代币数量 = USD 收益 / 该代币当前价格（带四舍五入）\n⑤业绩费规则：利润的 10%（OneKey 5% + 金库管理者 5%），仅对利润收，不收本金（小金额测试时业绩费 ≈ 0）\n\n断言写法：从 APY 弹窗读 native/lista/perfFee 三个百分比值，从输入框附近读 USD 价值，套公式计算预期，允许误差 ±$0.01 或 5% 相对误差。\n\n触发场景：编写 / 维护 DeFi Lista 用例时使用；其他渠道的公式不同（Kamino / Pendle 等需各自验证）。",
-      "confidence": 1.0
+      "confidence": 1
     },
     {
       "id": "K-106",
@@ -849,7 +849,7 @@
       "platform": "all",
       "pattern": "DeFi 质押/赎回交易：提交立即返回成功，但历史记录列表更新延迟最长 60 秒，必须轮询",
       "details": "用户实测：质押/赎回的两步签名（授权 + 认购，或单步赎回）按钮点击后立即返回成功状态。但要在「历史记录」入口的列表中看到对应条目，最长需要约 60 秒（链上确认 + 后端索引 + 前端轮询周期）。\n\n断言写法：进入历史记录后，用轮询循环（每 2 秒查一次，超时 60 秒），匹配条件「列表项文本同时包含 'Lista' 和质押金额字符串（如 '0.001'）」。\n\n触发场景：所有 DeFi 渠道质押/赎回后验证历史记录条目时；其他链上交易（Swap、Transfer）也建议用类似轮询模式。",
-      "confidence": 1.0
+      "confidence": 1
     },
     {
       "id": "K-108",
@@ -1249,6 +1249,86 @@
       "platform": "ext",
       "pattern": "插件端 Dashboard 必须显式连接 Chrome CDP 和目标 Extension ID",
       "details": "本轮插件端执行稳定方法：先启动包含 OneKey 插件登录态的 Chrome Profile，并打开远程调试端口，例如 `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=9222 --user-data-dir=<Chrome用户数据根目录或已确认的调试副本> --profile-directory=<Profile N>`；启动后用 `curl http://127.0.0.1:9222/json/version` 和 `/json/list` 确认 CDP 可用且存在 `chrome-extension://<extensionId>/...` 页面。再启动 Dashboard 时显式传入 `EXT_CDP_URL=http://127.0.0.1:9222` 和 `ONEKEY_EXT_ID=<extensionId>`（本轮为 `goodgebcoklfekldbhjmckehehjdfipe`），必要时同步 `CDP_URL` 便于执行器复用。注意：`connectExtensionCDP()` 默认会排除 9222 以避免误连桌面 OneKey，因此插件端若复用 9222 必须设置 `EXT_CDP_URL`；严禁改连 OneKey 桌面 app CDP、空 Chrome Profile 或未安装/未登录插件的临时 Profile。触发场景：插件端 qatest、Dashboard 重启、EXT-* 用例执行前环境恢复。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-158",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Desktop-TF checklist 不能直接信任 Dashboard registry 的重复 caseId 解析，需确认 file 属于 desktop 模块",
+      "details": "2026-06-17 OneKey Desktop TF Nightly：/api/tests 中 MARKET-CHART-001~003 同时存在 web 与 desktop 定义，Dashboard startRun 按 registry 顺序取第一个匹配，导致 Desktop-TF checklist 可能误跑 web/market/chart.test.mjs。执行平台绑定 checklist 前，必须先对 caseId -> file 做校验；若发现 file 不是 `desktop/...`，应使用明确的 desktop module runner 或修正 registry 去重/平台过滤，避免把 web 结果计入 Desktop-TF 报告。",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-159",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "通用搜索 Tab 按命中类型动态展示，代币 Tab 已移除，自动化不能固定断言 Tab 存在",
+      "details": "2026-06-17 用户确认：通用搜索现在是动态显示 Tab，且已经移除 `代币/Tokens` 独立 Tab。修复口径：用例先读取当前搜索弹窗可见 Tab；目标类型 Tab 存在时再做结果、点击、跳转断言；目标类型未展示但弹窗仍处于有效搜索态（有其它结果或明确空态）时，记录为动态隐藏/未暴露并跳过该类型点击断言，不判失败。`SEARCH-UTIL-001~007` 已按此口径调整，`SEARCH-UTIL-003` 的代币搜索覆盖改为“代币类型结果”，不再要求 Tokens Tab 存在。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-160",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Market 主 tab 已改为自选/热门/股票/合约，现货只在自选二级 tab 中出现",
+      "details": "2026-06-17 用户确认 Market tab 按最新设计变更断言；CDP 实探 Desktop TF 6.5.0 显示主 tab 为 `自选 / 热门 / 股票 / 合约`，`现货` 出现在自选页的二级 tab `全部 / 现货 / 合约` 中，不再是 Market 主 tab。修复口径：Market 首页布局和主标签切换必须断言当前 4 个主 tab，且不能把 `现货` 当主 tab；公开代币/Token 详情/K 线入口走 `热门` 列表；股票代币走 `股票` 主 tab；收藏结果校验仍可进入 `自选 -> 现货` 二级分组。旧的 `现货` 主 tab、现货网络筛选器、All Networks/BNB/Ethereum 断言应从主流程中移除或迁移到产品重新提供入口后再覆盖。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-161",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "AccountSelectorTriggerBase 的 innerText 可能为空，账户名断言应优先读 textContent",
+      "details": "2026-06-17 修复 NIGHTLY-PORTFOLIO-001 Step 0：脚本已通过 `ensurePrimarySoftwareWallet()` 切到软件钱包 `ran / piggy🐷`，CDP DOM 显示 `[data-testid=\"AccountSelectorTriggerBase\"]` 可见且 `textContent='piggy🐷'`，但 Playwright `innerText()` 返回空串，导致误报 `selected account name is empty`。修复口径：账户 selector 文本读取应遍历可见候选并用 `textContent || innerText` 归一化，必要时轮询到非空；不要把 `innerText()` 空值等同于未选中账户。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-162",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Desktop TF 6.5.0 统一网络选择器的所有网络 footer 点击可能无效，不能弱化为通过",
+      "details": "2026-06-17 实跑 NIGHTLY-PORTFOLIO-001：新版统一网络选择器顶部文案为 `所有网络 / 单一网络`，源码中 `所有网络` 对应 portfolio tab，`page-footer-confirm` 会在 `handlePortfolioDone()` 中创建缺失地址并切到 `onekeyall`。CDP 最小复现显示：打开 Arbitrum 单网络触发器 -> 所有网络 tab 可见 -> `chain-selector-all-networks-toggle-all-btn` 可切换全选/取消全选 -> `page-footer-confirm` 文案 `完成` 且未 disabled；但点击 footer 后弹窗不关闭，首页仍为 `Arbitrum`，并在切换全选时捕获 pageerror `Cannot access 'Vault' before initialization`。修复口径：脚本要先切软件钱包账户，再进入统一网络选择器 `所有网络` tab，全选网络并点击 `page-footer-confirm`；如果 footer 点击后首页仍是单网络或弹窗不关闭，应标记失败并保留产品运行时错误，不允许通过关闭弹窗或跳过 all-networks 断言来掩盖。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-163",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Desktop TF 创建助记词钱包改为 seed phrase testid + 完成页，不能再强制 KeyTag 备份链路",
+      "details": "2026-06-17 修复 WALLET-001：新版 `/onboarding/get-started` 第一层入口是 `创建新钱包 / 添加已有钱包 / 连接硬件钱包`，点击 `创建新钱包` 卡片需要用真实鼠标坐标点击卡片中心，DOM `.click()` 不会触发导航。第二层助记词入口已有稳定 testid `onboarding-create-new-wallet-seed-phrase-btn`；点击后当前 TF 6.5.0 可直接进入 `您的钱包已准备就绪 / 进入钱包` 完成页，不再必经 `OneKey KeyTag` 备份、密码输入、助记词弹窗。React Native Web 会残留离屏/历史 onboarding 节点，`body.innerText/textContent` 和仅判断 rect 宽高会混入旧页面文案；脚本必须优先使用当前 testid，且可见判断要限制在视口内，避免把隐藏 `备份您的钱包` 或旧方式页误判为当前页面。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-164",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "账户选择器切钱包/账户要用当前视口内行 testid 坐标，不能点大容器中心",
+      "details": "2026-06-17 修复 NIGHTLY-PORTFOLIO-001 前置：创建钱包后当前选中 `Wallet 113 / Account #1`，需要切回配置软件钱包 `ran / piggy🐷`。账户选择器左侧钱包列表和右侧账户列表会存在多个文本父级，直接用 `el.parentElement.parentElement` 或只看 rect 宽高可能命中大列表容器或离屏副本，点击后实际选中 `Account #4`。修复口径：钱包/账户切换应限制元素在当前视口内；钱包项用行中心真实鼠标点击；账户优先使用 `[data-testid^=\"account-item-index-\"]` 且文本包含目标账号的 60px 行中心点击，再校验 `AccountSelectorTriggerBase` 文本。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-165",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "统一网络选择器可能被锁屏层盖住，modal 只剩所有网络/单一网络 header",
+      "details": "2026-06-17 排查 NIGHTLY-PORTFOLIO-001：网络选择器已经打开，`APP-Modal-Screen` 可见，但 `modalText` 只有 `所有网络 单一网络`，列表/全选/footer 不渲染；DOM 同时显示 `password-input`、`verifying-password` 和 `app-state-lock.tsx-btn`。根因是锁屏层叠在 selector modal 内部，脚本若只在打开 selector 前解锁，会误判为 selector 内容空白或 tab 逻辑错误。修复口径：打开网络选择器后也要轮询 `password-input`，先完成解锁；解锁后若 modal 被关闭，需要重新点击 `account-network-trigger-button` 打开 selector，再等待全选/已选择数量出现。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-166",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "Market 列表数据可见不代表可点击，锁屏层会让 token 详情点击落到 Welcome back",
+      "details": "2026-06-17 修复 MARKET-CHART-001：Market 热门列表 DOM 中 `list-column-name` 可读且可统计出 10 个 token，但 `elementFromPoint` 在 token 行坐标返回的是锁屏层 `欢迎回来 / 忘记密码？`，导致点击详情无效、后续 TV webview 断言失败。修复口径：Market 列表打开前和点击 token 前都调用 `unlockWalletIfNeeded()`；由于解锁可能回到 Wallet 首页，点击 token 前若列表不在前台，要重新进入 `Market -> 热门`。点击失败时记录坐标命中的顶层元素，避免把锁屏拦截误诊为 Market tab 或 TV 图表问题。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-167",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Desktop TF Nightly 脚本必须用 Node 22+，不要用 bash -lc 触发系统 Node 18",
+      "details": "2026-06-18 跑 Desktop TF Nightly 时，外层命令使用 `bash -lc`，PATH 解析到 `/usr/local/bin/node` v18.18.0；仓库 helper `src/tests/helpers/constants.mjs` 依赖 `import.meta.dirname`，在 Node 18 下为 undefined，导致 `resolve(import.meta.dirname, ...)` 抛 `ERR_INVALID_ARG_TYPE`，所有用例在连接 OneKey 前失败。修复口径：自动化 runner 使用当前 zsh/nvm 的 Node v22.22.0，或显式调用 `/Users/chole/.nvm/versions/node/v22.22.0/bin/node`；不要用 `bash -lc` 包一层跑 `node src/tests/...`。预执行 Node 版本错误不应计入产品/用例失败，但必须重跑真实 CDP 测试。",
       "confidence": 0.99
     }
   ]

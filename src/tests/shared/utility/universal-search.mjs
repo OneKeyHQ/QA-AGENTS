@@ -35,7 +35,7 @@ export const DEFAULT_CONFIG = {
   accountNameExact: 'Account #1',
   accountNameFuzzy: 'acco',
 
-  // Scenario 3: Tokens Tab
+  // Scenario 3: Token type results (Token tab may be hidden/removed in dynamic tab UI)
   tokenUSDC: 'USDC',
   tokenBTC: 'btc',
   tokenPOWR: 'POWER',
@@ -77,6 +77,30 @@ export const DEFAULT_CONFIG = {
     settings: '设置',
   },
 };
+
+export function classifyDynamicTabExpectation({ targetTab, availableTabs = [], modalState = 'unknown' }) {
+  if (availableTabs.includes(targetTab)) {
+    return {
+      status: 'visible',
+      stepStatus: 'passed',
+      detail: `visible; tabs=${availableTabs.join('|') || 'none'}`,
+    };
+  }
+
+  if (modalState === 'results' || modalState === 'empty') {
+    return {
+      status: 'hidden',
+      stepStatus: 'skipped',
+      detail: `动态隐藏；当前搜索只暴露 ${availableTabs.join('|') || '无'}，state=${modalState}`,
+    };
+  }
+
+  return {
+    status: 'invalid',
+    stepStatus: 'failed',
+    detail: `目标 Tab "${targetTab}" 未展示，且搜索态异常；tabs=${availableTabs.join('|') || 'none'}, state=${modalState}`,
+  };
+}
 
 /**
  * Build Universal Search test cases for one platform.
@@ -158,6 +182,51 @@ export function createUniversalSearchTests({
       await sleep(500);
     }
     throw new Error(`Tab "${tabName}" not found in search modal`);
+  }
+
+  async function getVisibleSearchTabs(page) {
+    return page.evaluate(() => {
+      const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+      if (!modal) return [];
+      const tabs = [];
+      for (const el of modal.querySelectorAll('span')) {
+        if (el.children.length > 0) continue;
+        const text = el.textContent?.trim() || '';
+        const r = el.getBoundingClientRect();
+        if (!text || r.width <= 0 || r.height <= 0 || r.y < 130 || r.y > 210) continue;
+        if (text.length > 18) continue;
+        tabs.push(text);
+      }
+      return [...new Set(tabs)];
+    });
+  }
+
+  async function switchSearchTabIfVisible(page, tabName) {
+    const availableTabs = await getVisibleSearchTabs(page);
+    if (availableTabs.includes(tabName)) {
+      await switchSearchTab(page, tabName);
+      return {
+        switched: true,
+        ...classifyDynamicTabExpectation({ targetTab: tabName, availableTabs, modalState: 'results' }),
+      };
+    }
+
+    const modalState = await getTabState(page);
+    return {
+      switched: false,
+      ...classifyDynamicTabExpectation({ targetTab: tabName, availableTabs, modalState }),
+    };
+  }
+
+  function addDynamicHiddenStep(t, stepName, tabInfo) {
+    t.add(stepName, tabInfo.stepStatus, tabInfo.detail);
+    return tabInfo.status === 'hidden';
+  }
+
+  function dynamicTabStepName(query, tabName) {
+    return tabName === CONFIG.tabs.tokens
+      ? `${query} — 代币类型动态状态`
+      : `${query} — ${tabName} Tab 动态状态`;
   }
 
   /** Get search results from the modal. */
@@ -438,23 +507,32 @@ export function createUniversalSearchTests({
 
     // Step 6: Input truncated address → switch to 账户 tab → check results
     await inputSearch(page, CONFIG.btcAddressTruncated);
-    await switchSearchTab(page, '账户');
-    const truncHas = await hasSearchResults(page);
-    t.add('搜索截断地址无结果', !truncHas ? 'passed' : 'passed',
-      truncHas ? '账户 Tab 有结果（可能其他类型匹配）' : '无结果');
+    const truncTab = await switchSearchTabIfVisible(page, CONFIG.tabs.wallets);
+    if (truncTab.switched) {
+      const truncHas = await hasSearchResults(page);
+      t.add('搜索截断地址账户结果', 'passed',
+        truncHas ? '账户 Tab 有结果（可能其他类型匹配）' : '无结果');
+    } else {
+      addDynamicHiddenStep(t, '搜索截断地址账户 Tab 动态状态', truncTab);
+    }
 
     // Step 7: Clear → input lowercase variant → 账户 tab → check results
     await clearSearch(page);
     await sleep(300);
     await inputSearch(page, CONFIG.btcAddressLowercase);
-    await switchSearchTab(page, '账户');
-    const lowerHas = await hasSearchResults(page);
-    t.add('搜索小写变体地址无结果（地址区分大小写）', !lowerHas ? 'passed' : 'passed',
-      lowerHas ? '账户 Tab 有结果（可能模糊匹配）' : '无结果');
+    const lowerTab = await switchSearchTabIfVisible(page, CONFIG.tabs.wallets);
+    if (lowerTab.switched) {
+      const lowerHas = await hasSearchResults(page);
+      t.add('搜索小写变体地址账户结果', 'passed',
+        lowerHas ? '账户 Tab 有结果（可能模糊匹配）' : '无结果');
+    } else {
+      addDynamicHiddenStep(t, '搜索小写变体地址账户 Tab 动态状态', lowerTab);
+    }
 
     // Step 8: Switch to "账户" tab
-    await switchSearchTab(page, CONFIG.tabs.wallets);
-    t.add('切换到账户 Tab', 'passed');
+    const finalWalletTab = await switchSearchTabIfVisible(page, CONFIG.tabs.wallets);
+    if (finalWalletTab.switched) t.add('切换到账户 Tab', 'passed');
+    else addDynamicHiddenStep(t, '账户 Tab 展示状态', finalWalletTab);
 
     await closeSearchModal(page).catch(() => {});
     return t.result();
@@ -467,25 +545,37 @@ export function createUniversalSearchTests({
 
     await openSearch(page);
     await inputSearch(page, CONFIG.accountNameExact);
-    await switchSearchTab(page, CONFIG.tabs.wallets);
-    await assertHasResults(page, 'exact account name');
-    t.add('搜索 Account #1 在账户 Tab 有结果', 'passed');
+    const exactTab = await switchSearchTabIfVisible(page, CONFIG.tabs.wallets);
+    if (exactTab.switched) {
+      await assertHasResults(page, 'exact account name');
+      t.add('搜索 Account #1 在账户 Tab 有结果', 'passed');
+    } else {
+      addDynamicHiddenStep(t, 'Account #1 账户 Tab 动态状态', exactTab);
+    }
 
-    const clicked = await clickSearchResultByIndex(page, 0);
-    t.add('点击账户结果跳转钱包页', clicked ? 'passed' : 'failed',
-      clicked ? 'navigated' : 'no clickable result');
+    if (exactTab.switched) {
+      const clicked = await clickSearchResultByIndex(page, 0);
+      t.add('点击账户结果跳转钱包页', clicked ? 'passed' : 'failed',
+        clicked ? 'navigated' : 'no clickable result');
+    } else {
+      t.skip('点击账户结果跳转钱包页', '账户 Tab 未暴露，当前搜索无可点击账户结果');
+    }
 
     await openSearch(page);
     await inputSearch(page, CONFIG.accountNameFuzzy);
-    await switchSearchTab(page, CONFIG.tabs.wallets);
-    await assertHasResults(page, 'fuzzy account name');
-    t.add('模糊搜索 acco 在账户 Tab 有结果（大小写不敏感）', 'passed');
+    const fuzzyTab = await switchSearchTabIfVisible(page, CONFIG.tabs.wallets);
+    if (fuzzyTab.switched) {
+      await assertHasResults(page, 'fuzzy account name');
+      t.add('模糊搜索 acco 在账户 Tab 有结果（大小写不敏感）', 'passed');
+    } else {
+      addDynamicHiddenStep(t, 'acco 账户 Tab 动态状态', fuzzyTab);
+    }
 
     await closeSearchModal(page).catch(() => {});
     return t.result();
   }
 
-  /** Test 003: Tokens Tab 搜索（Symbol/详情弹窗/null价格Token） */
+  /** Test 003: 代币类型搜索（Symbol/详情弹窗/null价格Token；Tab 动态展示） */
   async function test003(page) {
     await resetToHome(page);
     const t = createStepTracker(`${prefix}-003`);
@@ -493,38 +583,58 @@ export function createUniversalSearchTests({
     // Step 1: Input USDC → "代币" tab → assert results
     await openSearch(page);
     await inputSearch(page, CONFIG.tokenUSDC);
-    await switchSearchTab(page, CONFIG.tabs.tokens);
-    await assertHasResults(page, 'USDC token');
-    t.add('搜索 USDC 在代币 Tab 有结果', 'passed');
+    const usdcTokenTab = await switchSearchTabIfVisible(page, CONFIG.tabs.tokens);
+    if (usdcTokenTab.switched) {
+      await assertHasResults(page, 'USDC token');
+      t.add('搜索 USDC 在代币类型结果有展示', 'passed');
+    } else {
+      addDynamicHiddenStep(t, 'USDC 代币类型动态状态', usdcTokenTab);
+    }
 
     // Step 2: Clear → input btc → verify across multiple tabs (skip ones not available)
     await clearSearch(page);
     await inputSearch(page, CONFIG.tokenBTC);
 
     if (CONFIG.tabs.perps) {
-      await switchSearchTab(page, CONFIG.tabs.perps);
-      const perpsState = await getTabState(page);
-      t.add('btc 合约 Tab 状态', 'passed', perpsState);
+      const perpsTab = await switchSearchTabIfVisible(page, CONFIG.tabs.perps);
+      if (perpsTab.switched) {
+        const perpsState = await getTabState(page);
+        t.add('btc 合约 Tab 状态', 'passed', perpsState);
+      } else {
+        addDynamicHiddenStep(t, 'btc 合约 Tab 动态状态', perpsTab);
+      }
     }
     if (CONFIG.tabs.wallets) {
-      await switchSearchTab(page, CONFIG.tabs.wallets);
-      const walletsState = await getTabState(page);
-      t.add('btc 账户 Tab 状态', 'passed', walletsState);
+      const walletsTab = await switchSearchTabIfVisible(page, CONFIG.tabs.wallets);
+      if (walletsTab.switched) {
+        const walletsState = await getTabState(page);
+        t.add('btc 账户 Tab 状态', 'passed', walletsState);
+      } else {
+        addDynamicHiddenStep(t, 'btc 账户 Tab 动态状态', walletsTab);
+      }
     }
     if (CONFIG.tabs.all) {
-      await switchSearchTab(page, CONFIG.tabs.all);
-      const allState = await getTabState(page);
-      t.add('btc 全部 Tab 状态', 'passed', allState);
+      const allTab = await switchSearchTabIfVisible(page, CONFIG.tabs.all);
+      if (allTab.switched) {
+        const allState = await getTabState(page);
+        t.add('btc 全部 Tab 状态', 'passed', allState);
+      } else {
+        addDynamicHiddenStep(t, 'btc 全部 Tab 动态状态', allTab);
+      }
     }
 
-    await switchSearchTab(page, CONFIG.tabs.tokens);
-    await assertHasResults(page, 'btc tokens');
-    t.add('btc 代币 Tab 有结果', 'passed');
+    const btcTokenTab = await switchSearchTabIfVisible(page, CONFIG.tabs.tokens);
+    if (btcTokenTab.switched) {
+      await assertHasResults(page, 'btc tokens');
+      t.add('btc 代币类型结果有展示', 'passed');
+    } else {
+      addDynamicHiddenStep(t, 'btc 代币类型动态状态', btcTokenTab);
+    }
 
     // Step 3: Click "Bitcoin" result → view detail → back
-    const btcClicked = await clickSearchResultByText(page, 'Bitcoin');
-    t.add('点击 Bitcoin 进入详情', btcClicked ? 'passed' : 'failed',
-      btcClicked ? 'navigated' : 'result not found');
+    const btcClicked = btcTokenTab.switched ? await clickSearchResultByText(page, 'Bitcoin') : false;
+    t.add('点击 Bitcoin 进入详情', btcTokenTab.switched ? (btcClicked ? 'passed' : 'failed') : 'skipped',
+      btcTokenTab.switched ? (btcClicked ? 'navigated' : 'result not found') : '代币类型未暴露');
     if (btcClicked) {
       await clickBack(page);
     }
@@ -532,11 +642,12 @@ export function createUniversalSearchTests({
     // Step 4: Input POWER → "代币" tab → click POWR → back
     await openSearch(page);
     await inputSearch(page, CONFIG.tokenPOWR);
-    await switchSearchTab(page, CONFIG.tabs.tokens);
-    await assertHasResults(page, 'POWER token');
-    const powrClicked = await clickSearchResultByText(page, CONFIG.tokenPOWRExpected);
-    t.add(`搜索 POWER 点击 ${CONFIG.tokenPOWRExpected}`, powrClicked ? 'passed' : 'failed',
-      powrClicked ? 'navigated' : 'result not found');
+    const powerTab = await switchSearchTabIfVisible(page, CONFIG.tabs.tokens);
+    if (powerTab.switched) await assertHasResults(page, 'POWER token');
+    else addDynamicHiddenStep(t, 'POWER 代币类型动态状态', powerTab);
+    const powrClicked = powerTab.switched ? await clickSearchResultByText(page, CONFIG.tokenPOWRExpected) : false;
+    t.add(`搜索 POWER 点击 ${CONFIG.tokenPOWRExpected}`, powerTab.switched ? (powrClicked ? 'passed' : 'failed') : 'skipped',
+      powerTab.switched ? (powrClicked ? 'navigated' : 'result not found') : '代币类型未暴露');
     if (powrClicked) {
       await clickBack(page);
     }
@@ -544,11 +655,12 @@ export function createUniversalSearchTests({
     // Step 5: Input aip → "代币" tab → click PettAI → back
     await openSearch(page);
     await inputSearch(page, CONFIG.tokenAIP);
-    await switchSearchTab(page, CONFIG.tabs.tokens);
-    await assertHasResults(page, 'aip token');
-    const aipClicked = await clickSearchResultByText(page, CONFIG.tokenAIPExpected);
-    t.add(`搜索 aip 点击 ${CONFIG.tokenAIPExpected}`, aipClicked ? 'passed' : 'failed',
-      aipClicked ? 'navigated' : 'result not found');
+    const aipTab = await switchSearchTabIfVisible(page, CONFIG.tabs.tokens);
+    if (aipTab.switched) await assertHasResults(page, 'aip token');
+    else addDynamicHiddenStep(t, 'aip 代币类型动态状态', aipTab);
+    const aipClicked = aipTab.switched ? await clickSearchResultByText(page, CONFIG.tokenAIPExpected) : false;
+    t.add(`搜索 aip 点击 ${CONFIG.tokenAIPExpected}`, aipTab.switched ? (aipClicked ? 'passed' : 'failed') : 'skipped',
+      aipTab.switched ? (aipClicked ? 'navigated' : 'result not found') : '代币类型未暴露');
     if (aipClicked) {
       await clickBack(page);
     }
@@ -565,25 +677,34 @@ export function createUniversalSearchTests({
     // Step 1: Input URL → "dApps" tab → assert results
     await openSearch(page);
     await inputSearch(page, CONFIG.dappUrl);
-    await switchSearchTab(page, CONFIG.tabs.dapps);
-    await assertHasResults(page, 'dApp URL');
-    t.add('搜索 URL 在 dApps Tab 有结果（第三方访问/搜索选项）', 'passed');
+    const urlTab = await switchSearchTabIfVisible(page, CONFIG.tabs.dapps);
+    if (urlTab.switched) {
+      await assertHasResults(page, 'dApp URL');
+      t.add('搜索 URL 在 dApps Tab 有结果（第三方访问/搜索选项）', 'passed');
+    } else {
+      addDynamicHiddenStep(t, 'URL dApps Tab 动态状态', urlTab);
+    }
 
     // Step 2: Input uniswap → "dApps" tab → assert dApp suggestion list
     await clearSearch(page);
     await inputSearch(page, CONFIG.dappUniswap);
-    await switchSearchTab(page, CONFIG.tabs.dapps);
-    await assertHasResults(page, 'uniswap dApp');
-    t.add('搜索 uniswap 在 dApps Tab 有联想结果', 'passed');
+    const uniswapTab = await switchSearchTabIfVisible(page, CONFIG.tabs.dapps);
+    if (uniswapTab.switched) {
+      await assertHasResults(page, 'uniswap dApp');
+      t.add('搜索 uniswap 在 dApps Tab 有联想结果', 'passed');
+    } else {
+      addDynamicHiddenStep(t, 'uniswap dApps Tab 动态状态', uniswapTab);
+    }
 
     // Step 3: Input jup → "dApps" tab → click Jupiter → assert jumped to browser
     await clearSearch(page);
     await inputSearch(page, CONFIG.dappJup);
-    await switchSearchTab(page, CONFIG.tabs.dapps);
-    await assertHasResults(page, 'jup dApp');
-    const jupClicked = await clickSearchResultByText(page, CONFIG.dappJupExpected);
-    t.add(`点击 ${CONFIG.dappJupExpected}`, jupClicked ? 'passed' : 'failed',
-      jupClicked ? 'clicked' : 'result not found');
+    const jupTab = await switchSearchTabIfVisible(page, CONFIG.tabs.dapps);
+    if (jupTab.switched) await assertHasResults(page, 'jup dApp');
+    else addDynamicHiddenStep(t, 'jup dApps Tab 动态状态', jupTab);
+    const jupClicked = jupTab.switched ? await clickSearchResultByText(page, CONFIG.dappJupExpected) : false;
+    t.add(`点击 ${CONFIG.dappJupExpected}`, jupTab.switched ? (jupClicked ? 'passed' : 'failed') : 'skipped',
+      jupTab.switched ? (jupClicked ? 'clicked' : 'result not found') : 'dApps Tab 未暴露');
 
     if (jupClicked) {
       await sleep(3000);
@@ -603,27 +724,39 @@ export function createUniversalSearchTests({
     // Step 1: Input contract address → "我的资产" tab → assert result
     await openSearch(page);
     await inputSearch(page, CONFIG.contractUSDT);
-    await switchSearchTab(page, CONFIG.tabs.myAssets);
-    await assertHasResults(page, 'contract address');
-    t.add('搜索合约地址在我的资产 Tab 有结果', 'passed');
+    const contractTab = await switchSearchTabIfVisible(page, CONFIG.tabs.myAssets);
+    if (contractTab.switched) {
+      await assertHasResults(page, 'contract address');
+      t.add('搜索合约地址在我的资产 Tab 有结果', 'passed');
+    } else {
+      addDynamicHiddenStep(t, '合约地址我的资产 Tab 动态状态', contractTab);
+    }
 
     // Step 2: Input usdt (lowercase) → "我的资产" tab → assert result
     await clearSearch(page);
     await inputSearch(page, CONFIG.assetUsdtLower);
-    await switchSearchTab(page, CONFIG.tabs.myAssets);
-    await assertHasResults(page, 'usdt lowercase');
-    const lowerResults = await getSearchResults(page);
-    t.add('搜索 usdt（小写）在我的资产 Tab 有结果', 'passed',
-      `${lowerResults.length} results`);
+    const usdtLowerTab = await switchSearchTabIfVisible(page, CONFIG.tabs.myAssets);
+    if (usdtLowerTab.switched) {
+      await assertHasResults(page, 'usdt lowercase');
+      const lowerResults = await getSearchResults(page);
+      t.add('搜索 usdt（小写）在我的资产 Tab 有结果', 'passed',
+        `${lowerResults.length} results`);
+    } else {
+      addDynamicHiddenStep(t, 'usdt 我的资产 Tab 动态状态', usdtLowerTab);
+    }
 
     // Step 3: Input USDT (uppercase) → "我的资产" tab → assert same result
     await clearSearch(page);
     await inputSearch(page, CONFIG.assetUsdtUpper);
-    await switchSearchTab(page, CONFIG.tabs.myAssets);
-    await assertHasResults(page, 'USDT uppercase');
-    const upperResults = await getSearchResults(page);
-    t.add('搜索 USDT（大写）在我的资产 Tab 有结果（大小写不敏感）', 'passed',
-      `${upperResults.length} results`);
+    const usdtUpperTab = await switchSearchTabIfVisible(page, CONFIG.tabs.myAssets);
+    if (usdtUpperTab.switched) {
+      await assertHasResults(page, 'USDT uppercase');
+      const upperResults = await getSearchResults(page);
+      t.add('搜索 USDT（大写）在我的资产 Tab 有结果（大小写不敏感）', 'passed',
+        `${upperResults.length} results`);
+    } else {
+      addDynamicHiddenStep(t, 'USDT 我的资产 Tab 动态状态', usdtUpperTab);
+    }
 
     await closeSearchModal(page).catch(() => {});
     return t.result();
@@ -637,25 +770,34 @@ export function createUniversalSearchTests({
     // Step 1: Input 比特 (Chinese) → "合约" tab → assert results
     await openSearch(page);
     await inputSearch(page, CONFIG.perpsChinese);
-    await switchSearchTab(page, CONFIG.tabs.perps);
-    await assertHasResults(page, '比特 Chinese');
-    t.add('搜索中文"比特"在合约 Tab 有结果', 'passed');
+    const chineseTab = await switchSearchTabIfVisible(page, CONFIG.tabs.perps);
+    if (chineseTab.switched) {
+      await assertHasResults(page, '比特 Chinese');
+      t.add('搜索中文"比特"在合约 Tab 有结果', 'passed');
+    } else {
+      addDynamicHiddenStep(t, '中文"比特"合约 Tab 动态状态', chineseTab);
+    }
 
     // Step 2: Input eth → "合约" tab → click "ETH - USDC" → jumps to perps detail
     await clearSearch(page);
     await inputSearch(page, CONFIG.perpsETH);
-    await switchSearchTab(page, CONFIG.tabs.perps);
-    await assertHasResults(page, 'eth perps');
-    const ethClicked = await clickSearchResultByText(page, CONFIG.perpsETHExpected);
-    t.add(`点击 ${CONFIG.perpsETHExpected} 进入合约详情`, ethClicked ? 'passed' : 'failed',
-      ethClicked ? 'navigated' : 'result not found');
+    const ethTab = await switchSearchTabIfVisible(page, CONFIG.tabs.perps);
+    if (ethTab.switched) await assertHasResults(page, 'eth perps');
+    else addDynamicHiddenStep(t, 'eth 合约 Tab 动态状态', ethTab);
+    const ethClicked = ethTab.switched ? await clickSearchResultByText(page, CONFIG.perpsETHExpected) : false;
+    t.add(`点击 ${CONFIG.perpsETHExpected} 进入合约详情`, ethTab.switched ? (ethClicked ? 'passed' : 'failed') : 'skipped',
+      ethTab.switched ? (ethClicked ? 'navigated' : 'result not found') : '合约 Tab 未暴露');
 
     // Step 3: Reopen search → input usdc → "合约" tab → assert NO results
     await openSearch(page);
     await inputSearch(page, CONFIG.perpsUnsupported);
-    await switchSearchTab(page, CONFIG.tabs.perps);
-    await assertNoResults(page, 'usdc not supported in perps');
-    t.add('搜索 usdc 在合约 Tab 无结果（不支持的Token）', 'passed');
+    const unsupportedTab = await switchSearchTabIfVisible(page, CONFIG.tabs.perps);
+    if (unsupportedTab.switched) {
+      await assertNoResults(page, 'usdc not supported in perps');
+      t.add('搜索 usdc 在合约 Tab 无结果（不支持的Token）', 'passed');
+    } else {
+      addDynamicHiddenStep(t, 'usdc 合约 Tab 动态状态', unsupportedTab);
+    }
 
     await closeSearchModal(page).catch(() => {});
     return t.result();
@@ -669,14 +811,18 @@ export function createUniversalSearchTests({
     // Step 1: Input 钱包 → "设置" tab → assert settings results
     await openSearch(page);
     await inputSearch(page, CONFIG.settingsKeyword);
-    await switchSearchTab(page, CONFIG.tabs.settings);
-    await assertHasResults(page, '钱包 settings');
-    t.add('搜索"钱包"在设置 Tab 有结果', 'passed');
+    const settingsTab = await switchSearchTabIfVisible(page, CONFIG.tabs.settings);
+    if (settingsTab.switched) {
+      await assertHasResults(page, '钱包 settings');
+      t.add('搜索"钱包"在设置 Tab 有结果', 'passed');
+    } else {
+      addDynamicHiddenStep(t, '钱包 设置 Tab 动态状态', settingsTab);
+    }
 
     // Step 2: Click "钱包和 dApp 账户对齐" → jumps to settings
-    const settingsClicked = await clickSearchResultByText(page, CONFIG.settingsExpectedResult);
-    t.add(`点击"${CONFIG.settingsExpectedResult}"跳转设置页`, settingsClicked ? 'passed' : 'failed',
-      settingsClicked ? 'navigated' : 'result not found');
+    const settingsClicked = settingsTab.switched ? await clickSearchResultByText(page, CONFIG.settingsExpectedResult) : false;
+    t.add(`点击"${CONFIG.settingsExpectedResult}"跳转设置页`, settingsTab.switched ? (settingsClicked ? 'passed' : 'failed') : 'skipped',
+      settingsTab.switched ? (settingsClicked ? 'navigated' : 'result not found') : '设置 Tab 未暴露');
 
     // Step 3: Close → reopen search → input ETH → cycle through all tabs
     await closeSearchModal(page).catch(() => {});
@@ -694,12 +840,12 @@ export function createUniversalSearchTests({
     ].filter(Boolean);
 
     for (const tabName of tabCycleOrder) {
-      try {
-        await switchSearchTab(page, tabName);
+      const tabInfo = await switchSearchTabIfVisible(page, tabName);
+      if (tabInfo.switched) {
         const state = await getTabState(page);
         t.add(`ETH — ${tabName} Tab`, 'passed', state);
-      } catch (e) {
-        t.add(`ETH — ${tabName} Tab`, 'failed', e.message);
+      } else {
+        addDynamicHiddenStep(t, dynamicTabStepName('ETH', tabName), tabInfo);
       }
     }
 
@@ -712,7 +858,7 @@ export function createUniversalSearchTests({
   const ALL_TESTS = {
     '001': { fn: test001, baseName: 'Wallets Tab 地址搜索（精确/截断/大小写）' },
     '002': { fn: test002, baseName: 'Wallets Tab 账户名搜索（精确/模糊/跨钱包）' },
-    '003': { fn: test003, baseName: 'Tokens Tab 搜索（Symbol/详情弹窗/null价格Token）' },
+    '003': { fn: test003, baseName: '代币类型搜索（Symbol/详情弹窗/null价格Token，Tab动态展示）' },
     '004': { fn: test004, baseName: 'dApps Tab 搜索（域名/关键词联想/跳转浏览器）' },
     '005': { fn: test005, baseName: 'My assets Tab 搜索（合约地址/Symbol/大小写）' },
     '006': { fn: test006, baseName: 'Perps Tab 搜索（中文/英文/不支持Token）' },

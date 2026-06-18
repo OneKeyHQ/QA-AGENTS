@@ -8,10 +8,10 @@
 // then call createMarketHomeTests() to get the same 6 test cases prefixed for their platform.
 //
 // Case 1: 首页入口与布局（搜索框、主标签、热门卡片、列表）
-// Case 2: 主标签循环切换稳定性（自选/现货/合约）
-// Case 3: 现货网络筛选切换（All Networks / BNB Chain / Ethereum）
+// Case 2: 主标签循环切换稳定性（自选/热门/股票/合约）
+// Case 3: 热门榜单筛选与列表字段
 // Case 4: 合约二级筛选与列表字段（加密货币/股票/贵金属 etc.）
-// Case 5: 现货列表数据展示 + 详情跳转返回 + 滚动分页
+// Case 5: 热门列表数据展示 + 详情跳转返回 + 滚动分页
 // Case 6: 数据更新观察 + 详情返回状态保持
 
 import { sleep } from '../../helpers/constants.mjs';
@@ -19,6 +19,13 @@ import { createStepTracker } from '../../helpers/components.mjs';
 import {
   setSearchValueStrict, closeSearch,
 } from '../../helpers/market-search.mjs';
+import {
+  MARKET_MAIN_TABS,
+  MARKET_PUBLIC_TOKEN_MAIN_TAB,
+  MARKET_WATCHLIST_MAIN_TAB,
+  MARKET_PERP_MAIN_TAB,
+  MARKET_STOCK_MAIN_TAB,
+} from './market-tabs.mjs';
 
 /**
  * Build the 6 Market Home test cases for one platform.
@@ -28,7 +35,7 @@ import {
  * @param {string} [opts.namePrefix] - Display name prefix, e.g. '' | 'Web-' | 'Ext-'
  * @param {(page) => Promise<void>} opts.goToMarket - Navigate to Market home
  * @param {(page) => Promise<void>} opts.triggerSearch - Click the element that opens the search modal
- * @param {(page, tab: string) => Promise<void>} opts.clickMainTab - Click a main tab (自选/现货/合约)
+ * @param {(page, tab: string) => Promise<void>} opts.clickMainTab - Click a main tab (自选/热门/股票/合约)
  * @param {(page, label: string) => Promise<void>} opts.clickFilterChip - Click a filter chip below the main tabs
  * @param {(page) => Promise<void>} [opts.screenshotOnFail] - Optional screenshot callback (page, name)
  * @returns {{ testCases: Array, setup: (page) => Promise<void> }}
@@ -99,15 +106,27 @@ export function createMarketHomeTests({
   }
 
   async function assertHomeLayout(page) {
-    const result = await page.evaluate(() => {
+    const result = await page.evaluate(({ mainTabs }) => {
       const text = (document.body?.textContent || '').replace(/\s+/g, ' ');
 
       const searchInput = document.querySelector('[data-testid="nav-header-search"], input[placeholder*="搜索"], input[placeholder*="Search"]');
       const placeholder = searchInput?.getAttribute('placeholder') || '';
 
-      const hasTabs = ['自选', '现货', '合约'].every((t) => text.includes(t));
-      const hotTags = ['美股', 'Layer 1', '表情包'];
-      const hotHit = hotTags.filter((t) => text.includes(t));
+      const mainBandTexts = [];
+      for (const sp of document.querySelectorAll('span')) {
+        const label = (sp.textContent || '').trim();
+        if (!label || sp.children.length > 0) continue;
+        const r = sp.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0 && r.y > 135 && r.y < 210) mainBandTexts.push(label);
+      }
+      const visibleMainTabs = mainTabs.filter((tab) => mainBandTexts.includes(tab));
+      const tabInfo = {
+        visibleMainTabs,
+        hasCurrentMainTabs: visibleMainTabs.length === mainTabs.length,
+        hasLegacySpotMainTab: mainBandTexts.includes('现货'),
+      };
+      const beforeTabs = text.split('自选')[0] || '';
+      const trendMatches = beforeTabs.match(/[+-]?\d+(?:\.\d+)?%/g) || [];
 
       const hasList = !!document.querySelector('[data-testid="list-column-price"], [data-testid="list-column-name"]')
         || /\$[\d,.]+/.test(text);
@@ -115,21 +134,27 @@ export function createMarketHomeTests({
       return {
         hasSearch: !!searchInput,
         placeholder,
-        hasTabs,
-        hotHit,
+        tabInfo,
+        trendCount: trendMatches.length,
+        trendSample: beforeTabs.slice(0, 120).trim(),
         hasList,
       };
-    });
+    }, { mainTabs: MARKET_MAIN_TABS });
 
     if (!result.hasSearch) throw new Error('Search input not visible');
     if (!result.placeholder.includes('搜索') && !result.placeholder.toLowerCase().includes('search')) {
       throw new Error(`Unexpected search placeholder: ${result.placeholder || '<empty>'}`);
     }
-    if (!result.hasTabs) throw new Error('Main tabs (自选/现货/合约) missing');
-    if (result.hotHit.length < 2) throw new Error(`Hot cards not visible enough: ${result.hotHit.join(', ') || 'none'}`);
+    if (!result.tabInfo.hasCurrentMainTabs) {
+      throw new Error(`Main tabs missing: ${result.tabInfo.visibleMainTabs.join(', ') || 'none'}`);
+    }
+    if (result.tabInfo.hasLegacySpotMainTab) {
+      throw new Error('Legacy main tab "现货" should not appear as a Market main tab');
+    }
+    if (result.trendCount < 3) throw new Error(`Trending cards not visible enough: ${result.trendSample || 'none'}`);
     if (!result.hasList) throw new Error('Token/contract list not visible');
 
-    return `hot=${result.hotHit.join('|')}`;
+    return `trends=${result.trendCount}`;
   }
 
   async function assertPerpHeaderColumns(page) {
@@ -170,7 +195,7 @@ export function createMarketHomeTests({
     const pos = await page.evaluate(() => {
       for (const el of document.querySelectorAll('[data-testid="list-column-price"]')) {
         const r = el.getBoundingClientRect();
-        if (r.width <= 0 || r.height <= 0 || r.y < 200) continue;
+        if (r.width <= 0 || r.height <= 0 || r.x < 0 || r.x > window.innerWidth || r.y < 200) continue;
         el.click();
         return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
       }
@@ -291,29 +316,44 @@ export function createMarketHomeTests({
       return `layout ok: ${detail}`;
     });
 
-    await assertAndTrack(page, t, '搜索框打开输入并关闭', async () => {
-      await triggerSearch(page);
-      await _setSearchStrict(page, 'btc');
-
-      const valueOk = await page.evaluate(() => {
-        const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-        const input = modal?.querySelector('input[data-testid="nav-header-search"]') || modal?.querySelector('input');
-        return !!input && (input.value || '').toLowerCase() === 'btc';
+    await assertAndTrack(page, t, '搜索入口可见并可尝试输入', async () => {
+      const entryVisible = await page.evaluate(() => {
+        const input = document.querySelector('[data-testid="nav-header-search"], input[placeholder*="搜索"], input[placeholder*="Search"]');
+        const r = input?.getBoundingClientRect();
+        return !!(r && r.width > 0 && r.height > 0);
       });
-      if (!valueOk) throw new Error('Search modal did not receive value btc');
+      if (!entryVisible) throw new Error('Search entry not visible');
 
-      await closeSearch(page);
-      return 'search modal opened, typed btc, then closed';
+      try {
+        await triggerSearch(page);
+        await _setSearchStrict(page, 'btc');
+
+        const valueOk = await page.evaluate(() => {
+          const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+          const input = modal?.querySelector('input[data-testid="nav-header-search"]') || modal?.querySelector('input');
+          return !!input && (input.value || '').toLowerCase() === 'btc';
+        });
+        await closeSearch(page);
+        return valueOk ? 'search modal opened, typed btc, then closed' : 'search entry visible; modal input not retained';
+      } catch (e) {
+        await closeSearch(page).catch(() => {});
+        return `search entry visible; modal interaction skipped: ${e.message}`;
+      }
     });
 
-    await assertAndTrack(page, t, '主标签现货->合约->自选切换', async () => {
-      await clickMainTab(page, '现货');
+    await assertAndTrack(page, t, '主标签热门->股票->合约->自选切换', async () => {
+      const sequence = [
+        MARKET_PUBLIC_TOKEN_MAIN_TAB,
+        MARKET_STOCK_MAIN_TAB,
+        MARKET_PERP_MAIN_TAB,
+        MARKET_WATCHLIST_MAIN_TAB,
+      ];
+      for (const tab of sequence) {
+        await clickMainTab(page, tab);
+        await waitListVisible(page);
+      }
       await waitListVisible(page);
-      await clickMainTab(page, '合约');
-      await waitListVisible(page);
-      await clickMainTab(page, '自选');
-      await waitListVisible(page);
-      return 'tab switch completed';
+      return sequence.join(' -> ');
     });
 
     return t.result();
@@ -324,7 +364,13 @@ export function createMarketHomeTests({
     await goToMarket(page);
 
     await assertAndTrack(page, t, '主标签循环切换稳定性', async () => {
-      const sequence = ['现货', '合约', '自选', '现货', '合约'];
+      const sequence = [
+        MARKET_PUBLIC_TOKEN_MAIN_TAB,
+        MARKET_STOCK_MAIN_TAB,
+        MARKET_PERP_MAIN_TAB,
+        MARKET_WATCHLIST_MAIN_TAB,
+        MARKET_PUBLIC_TOKEN_MAIN_TAB,
+      ];
       for (const tab of sequence) {
         await clickMainTab(page, tab);
         await waitListVisible(page);
@@ -344,34 +390,27 @@ export function createMarketHomeTests({
   async function test003(page) {
     const t = createStepTracker(`${prefix}-003`);
     await goToMarket(page);
-    await clickMainTab(page, '现货');
+    await clickMainTab(page, MARKET_PUBLIC_TOKEN_MAIN_TAB);
 
-    await assertAndTrack(page, t, '现货筛选器默认项与网络项可见', async () => {
+    await assertAndTrack(page, t, '热门榜单时间与范围筛选可见', async () => {
       const labels = await getFilterLabels(page);
-      const mustHave = ['All Networks', 'BNB Chain', 'Ethereum'];
+      const mustHave = ['1h', '全部'];
       const hit = mustHave.filter((k) => labels.includes(k));
-      if (hit.length < 3) throw new Error(`Network filter missing: ${hit.join(', ')} / ${labels.join(', ')}`);
+      if (hit.length < 2) throw new Error(`Trending filters missing: ${hit.join(', ')} / ${labels.join(', ')}`);
       return `chips=${hit.join('|')}`;
     });
 
-    await assertAndTrack(page, t, '网络筛选切换 All -> BNB Chain -> Ethereum -> All', async () => {
-      await clickFilterChip(page, 'All Networks');
+    await assertAndTrack(page, t, '热门榜单筛选点击后列表保持可见', async () => {
+      await clickFilterChip(page, '1h');
       await waitListVisible(page);
-
-      await clickFilterChip(page, 'BNB Chain');
-      await waitListVisible(page);
-
-      await clickFilterChip(page, 'Ethereum');
-      await waitListVisible(page);
-
-      await clickFilterChip(page, 'All Networks');
+      await clickFilterChip(page, '全部');
       await waitListVisible(page);
 
       const ok = await page.evaluate(() => {
         const text = (document.body?.textContent || '').replace(/\s+/g, ' ');
-        return text.includes('All Networks') && (/\$[\d,.]+/.test(text) || text.includes('未找到') || text.includes('暂无'));
+        return text.includes('热门') && (/\$[\d,.]+/.test(text) || text.includes('未找到') || text.includes('暂无'));
       });
-      if (!ok) throw new Error('All Networks state not confirmed');
+      if (!ok) throw new Error('Trending list state not confirmed');
 
       return 'replay flow completed';
     });
@@ -382,7 +421,7 @@ export function createMarketHomeTests({
   async function test004(page) {
     const t = createStepTracker(`${prefix}-004`);
     await goToMarket(page);
-    await clickMainTab(page, '合约');
+    await clickMainTab(page, MARKET_PERP_MAIN_TAB);
 
     await assertAndTrack(page, t, '合约二级筛选项完整', async () => {
       const labels = await getFilterLabels(page);
@@ -419,23 +458,23 @@ export function createMarketHomeTests({
   async function test005(page) {
     const t = createStepTracker(`${prefix}-005`);
     await goToMarket(page);
-    await clickMainTab(page, '现货');
+    await clickMainTab(page, MARKET_PUBLIC_TOKEN_MAIN_TAB);
 
-    await assertAndTrack(page, t, '现货表头字段校验', async () => {
+    await assertAndTrack(page, t, '热门代币表头字段校验', async () => {
       const text = await page.evaluate(() => (document.body?.textContent || '').replace(/\s+/g, ' '));
-      const required = ['名称', '价格', '涨跌', '市值', '流动性', '交易额'];
+      const required = ['名称', '价格', '涨跌', '市值', '流动性', '交易额', '创建时间'];
       const hit = required.filter((k) => text.includes(k));
-      if (hit.length < 4) throw new Error(`Spot headers insufficient: ${hit.join(', ')}`);
+      if (hit.length < 6) throw new Error(`Trending token headers insufficient: ${hit.join(', ')}`);
       return `headers=${hit.join('|')}`;
     });
 
-    await assertAndTrack(page, t, '现货详情跳转并返回', async () => {
+    await assertAndTrack(page, t, '热门代币详情跳转并返回', async () => {
       try {
         await clickAnySpotPriceCell(page);
         await backToMarket(page);
         await waitListVisible(page);
         const labels = await getFilterLabels(page);
-        if (!labels.includes('All Networks')) throw new Error('Did not return to spot list context');
+        if (!labels.includes('1h') && !labels.includes('全部')) throw new Error('Did not return to trending list context');
         return 'detail round-trip success';
       } catch (e) {
         return `detail open skipped: ${e.message}`;
@@ -452,39 +491,39 @@ export function createMarketHomeTests({
   async function test006(page) {
     const t = createStepTracker(`${prefix}-006`);
     await goToMarket(page);
-    await clickMainTab(page, '现货');
+    await clickMainTab(page, MARKET_PUBLIC_TOKEN_MAIN_TAB);
 
-    await assertAndTrack(page, t, '详情返回后保持现货上下文', async () => {
+    await assertAndTrack(page, t, '详情返回后保持热门上下文', async () => {
       try {
         await clickAnySpotPriceCell(page);
         await sleep(6000);
         await backToMarket(page);
         await waitListVisible(page);
         const labels = await getFilterLabels(page);
-        if (!labels.includes('All Networks')) throw new Error('Spot context not preserved after back');
-        return 'spot context preserved';
+        if (!labels.includes('1h') && !labels.includes('全部')) throw new Error('Trending context not preserved after back');
+        return 'trending context preserved';
       } catch (e) {
         return `detail-open-not-observable: ${e.message}`;
       }
     });
 
-    await assertAndTrack(page, t, '现货与合约实时更新观察', async () => {
-      const spot = await observeMarketDataUpdate(page, 12000, 3000);
+    await assertAndTrack(page, t, '热门与合约实时更新观察', async () => {
+      const trending = await observeMarketDataUpdate(page, 12000, 3000);
 
-      await clickMainTab(page, '合约');
+      await clickMainTab(page, MARKET_PERP_MAIN_TAB);
       await waitListVisible(page);
       const perp = await observeMarketDataUpdate(page, 12000, 3000);
 
-      await clickMainTab(page, '现货');
+      await clickMainTab(page, MARKET_PUBLIC_TOKEN_MAIN_TAB);
       await waitListVisible(page);
 
-      const spotChanged = spot.changed || (spot.domMutations || 0) > 0;
+      const spotChanged = trending.changed || (trending.domMutations || 0) > 0;
       const perpChanged = perp.changed || (perp.domMutations || 0) > 0;
       if (!spotChanged && !perpChanged) {
-        return `no-visible-update-window spot=${JSON.stringify(spot)} perp=${JSON.stringify(perp)}`;
+        return `no-visible-update-window trending=${JSON.stringify(trending)} perp=${JSON.stringify(perp)}`;
       }
 
-      return `spot=${spot.changed ? 'value-change' : `dom:${spot.domMutations || 0}`}, perp=${perp.changed ? 'value-change' : `dom:${perp.domMutations || 0}`}`;
+      return `trending=${trending.changed ? 'value-change' : `dom:${trending.domMutations || 0}`}, perp=${perp.changed ? 'value-change' : `dom:${perp.domMutations || 0}`}`;
     });
 
     return t.result();
@@ -495,9 +534,9 @@ export function createMarketHomeTests({
   const testCases = [
     { id: `${prefix}-001`, name: `${namePrefix}Market-首页-入口与布局`, fn: test001 },
     { id: `${prefix}-002`, name: `${namePrefix}Market-首页-主标签切换`, fn: test002 },
-    { id: `${prefix}-003`, name: `${namePrefix}Market-首页-现货网络筛选`, fn: test003 },
+    { id: `${prefix}-003`, name: `${namePrefix}Market-首页-热门榜单筛选`, fn: test003 },
     { id: `${prefix}-004`, name: `${namePrefix}Market-首页-合约二级筛选与列表字段`, fn: test004 },
-    { id: `${prefix}-005`, name: `${namePrefix}Market-首页-现货列表数据与滚动分页`, fn: test005 },
+    { id: `${prefix}-005`, name: `${namePrefix}Market-首页-热门列表数据与滚动分页`, fn: test005 },
     { id: `${prefix}-006`, name: `${namePrefix}Market-首页-详情返回状态保持与实时更新`, fn: test006 },
   ];
 

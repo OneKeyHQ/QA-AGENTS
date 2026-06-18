@@ -37,10 +37,10 @@
 
 ## 3. 功能范围
 
-通用搜索入口包含以下 Tab：
+通用搜索入口按当前搜索词的实际命中类型动态展示 Tab；无命中的类型不展示对应 Tab。`Tokens/代币` 独立 Tab 已移除，Token 结果按当前 UI 暴露类型展示。
 
 - `Wallets Tab`：搜索账户（地址/账户名）
-- `Tokens Tab`：搜索 Token（Symbol/名称的精准与模糊）
+- Token 结果：搜索 Token（Symbol/名称的精准与模糊），无独立代币 Tab
 - `dApps Tab`：搜索 DApp（域名/内容关键词）
 - `My assets Tab`：搜索当前账户的我的资产（合约地址/Symbol/名称/网络）
 - `Perps Tab`：搜索 Perps 支持的合约 Token
@@ -95,14 +95,14 @@
 
 ---
 
-### 4.2 Tokens Tab - Token 搜索
+### 4.2 Token 搜索（无独立代币 Tab）
 
-- 在 `Tokens Tab` 输入以下关键字：`USDC/USDT/btc/eth/Doge/et/us/th/dc/dt`
+- 在通用搜索输入以下关键字：`USDC/USDT/btc/eth/Doge/et/us/th/dc/dt`
   - 展示所有精准搜索与模糊搜索相关的 Token
   - 搜索结果不区分大小写
   - 展示字段包含：Tokens 图标、Symbol、名称、实时币价
   - 列表按 `Tokens 7天总市值` 排序
-- 点击 Token 搜索结果：
+- 点击已展示的 Token 搜索结果：
   - 跳转到对应 Token 的币种详情 modal
 - 输入价格为 `null` 的 Token（如 `POWER/AIP`）：
   - 支持搜索并展示结果
@@ -184,7 +184,7 @@
 
 - 在非 Market 模块打开时，检查 `All` tab 搜索结果
 - 输入 `Account` / `ETH`
-  - 聚合顺序为：`Wallets > Tokens > My assets > dApps`
+  - 聚合结果按当前实际暴露类型展示，无结果类型不展示
   - 没有搜索结果的板块不展示
   - 最多显示前 5 个结果
   - 当某板块超过 5 个结果时展示“显示更多”按钮
@@ -196,7 +196,7 @@
 
 - 在 Market 模块打开时，检查 `All` tab 搜索结果
 - 输入 `Account` / `ETH`
-  - 聚合顺序为：`Tokens > Wallets > My assets > dApps`
+  - 聚合结果按当前实际暴露类型展示，无结果类型不展示
   - 展示规则同非 Market 上下文（无结果不展示、最多前 5、显示更多与保留输入）
 
 ---
@@ -223,4 +223,3 @@
 | 日期 | 变更内容 |
 |------|---------|
 | 2026-03-20 | 新增通用搜索功能需求文档（账户/代币/dApp/我的资产/Perps/设置 + All 聚合排序与展示规则） |
-

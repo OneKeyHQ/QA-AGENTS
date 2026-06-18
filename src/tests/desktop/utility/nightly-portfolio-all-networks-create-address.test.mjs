@@ -48,6 +48,14 @@ function normalizeText(text) {
   return String(text || '').replace(/\s+/g, ' ').trim();
 }
 
+export function extractAccountSelectorText(candidates) {
+  for (const item of candidates || []) {
+    const text = normalizeText(item?.textContent || item?.innerText || '');
+    if (text) return text;
+  }
+  return '';
+}
+
 async function waitForVisibleTestId(page, testid, timeout = 10000) {
   const locator = page.locator(`[data-testid="${testid}"]:visible`).first();
   await locator.waitFor({ state: 'visible', timeout });
@@ -58,6 +66,53 @@ async function clickVisibleTestId(page, testid, delay = 600) {
   const locator = await waitForVisibleTestId(page, testid);
   await locator.click();
   await sleep(delay);
+}
+
+async function clickVisibleTestIdByMouse(page, testid, delay = 600) {
+  const box = await page.locator(`[data-testid="${testid}"]:visible`).first()
+    .boundingBox({ timeout: 5000 })
+    .catch(() => null);
+  assert(box && box.width > 0 && box.height > 0, `${testid} visible bounding box not found`);
+  await page.mouse.click(Math.round(box.x + box.width / 2), Math.round(box.y + box.height / 2));
+  await sleep(delay);
+}
+
+async function isAnyModalOpen(page) {
+  return page.locator('[data-testid="APP-Modal-Screen"]:visible').first()
+    .isVisible({ timeout: 500 })
+    .catch(() => false);
+}
+
+async function clickNetworkTriggerAndWaitModal(page, delay = 900) {
+  await dismissBlockingOvelayPopover(page);
+  await clickVisibleTestIdByMouse(page, 'account-network-trigger-button', delay).catch(async (error) => {
+    if (!/visible bounding box|intercepts pointer events|Timeout/i.test(error.message || '')) throw error;
+  });
+  if (await isAnyModalOpen(page)) return;
+
+  const dispatched = await page.evaluate(() => {
+    const visible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 &&
+        r.left < window.innerWidth && r.top < window.innerHeight;
+    };
+    const target = Array.from(document.querySelectorAll('[data-testid="account-network-trigger-button"]'))
+      .find(visible);
+    target?.click();
+    return Boolean(target);
+  });
+  assert(dispatched, 'account-network-trigger-button not found for JS click fallback');
+  await sleep(delay);
+  assert(await isAnyModalOpen(page), 'network trigger did not open selector modal');
+}
+
+async function unlockNetworkSelectorIfCovered(page) {
+  if (!await isPasswordPromptVisible(page, 4000)) return;
+  await fillPasswordAndVerify(page);
+  await sleep(1500);
+  if (!await isAnyModalOpen(page)) {
+    await clickNetworkTriggerAndWaitModal(page, 1000);
+  }
 }
 
 async function clickHomeTestIdWithOverlayFallback(page, testid, delay = 600) {
@@ -135,6 +190,33 @@ async function isWalletHomeReady(page) {
   });
 }
 
+async function isWalletShellReady(page) {
+  return page.evaluate(() => {
+    const visible = (selector) => {
+      const el = document.querySelector(selector);
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0;
+    };
+    return visible('[data-testid="home-page"]') &&
+      visible('[data-testid="AccountSelectorTriggerBase"]');
+  });
+}
+
+async function ensureWalletShell(page) {
+  await closeAllModals(page).catch(() => {});
+  await dismissOverlays(page).catch(() => {});
+  if (await isWalletShellReady(page)) return;
+
+  await goToWalletHome(page).catch(async () => {
+    await page.evaluate(() => {
+      const home = document.querySelector('[data-testid="home"]');
+      if (home) home.click();
+    });
+    await sleep(1800);
+  });
+  assert(await isWalletShellReady(page), 'wallet shell not ready after navigation');
+}
+
 async function ensureWalletHome(page) {
   await closeAllModals(page).catch(() => {});
   await dismissOverlays(page).catch(() => {});
@@ -152,7 +234,18 @@ async function ensureWalletHome(page) {
 }
 
 async function readSelectedAccountName(page) {
-  return normalizeText(await page.locator('[data-testid="AccountSelectorTriggerBase"]').first().innerText({ timeout: 5000 }));
+  return waitUntil('selected account name', async () => {
+    const candidates = await page.evaluate(() => {
+      const isVisible = (el) => {
+        const r = el?.getBoundingClientRect?.();
+        return !!r && r.width > 0 && r.height > 0;
+      };
+      return Array.from(document.querySelectorAll('[data-testid="AccountSelectorTriggerBase"]'))
+        .filter(isVisible)
+        .map((el) => ({ innerText: el.innerText || '', textContent: el.textContent || '' }));
+    });
+    return extractAccountSelectorText(candidates) || null;
+  }, { timeout: 15000, interval: 500 });
 }
 
 async function openAccountSelector(page) {
@@ -224,11 +317,151 @@ async function collectAccountSelectorState(page) {
   });
 }
 
+async function readNetworkSelectorAllNetworksState(page) {
+  return page.evaluate(() => {
+    const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const isVisible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0;
+    };
+    const rectOf = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      if (!r) return null;
+      return {
+        x: Math.round(r.x + r.width / 2),
+        y: Math.round(r.y + r.height / 2),
+        width: Math.round(r.width),
+        height: Math.round(r.height),
+      };
+    };
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    if (!modal || !isVisible(modal)) return { visible: false };
+    const text = normalize(modal.innerText || modal.textContent);
+    const legacyToggle = document.querySelector('[data-testid="chain-selector-all-networks-toggle-all-btn"]');
+    const legacyToggleText = isVisible(legacyToggle) ? normalize(legacyToggle.textContent || legacyToggle.innerText) : '';
+    const allNetworksTab = Array.from(modal.querySelectorAll('span, div, button, [role="button"]'))
+      .filter(isVisible)
+      .map((el) => ({ el, text: normalize(el.textContent || el.innerText), rect: rectOf(el) }))
+      .filter(item => item.text === '所有网络' && item.rect && item.rect.y >= 70 && item.rect.y <= 140 && item.rect.width <= 120)
+      .sort((a, b) => a.rect.width - b.rect.width)[0];
+    const selectAll = Array.from(modal.querySelectorAll('span, div, button, [role="button"]'))
+      .filter(isVisible)
+      .map((el) => ({ el, text: normalize(el.textContent || el.innerText), rect: rectOf(el) }))
+      .filter(item => item.rect && /^(全选|Select All)$/i.test(item.text))
+      .sort((a, b) => a.rect.width - b.rect.width)[0];
+    const closeButton = modal.querySelector('[data-testid="nav-header-close"]');
+    return {
+      visible: true,
+      text,
+      legacyToggleText,
+      hasLegacyToggle: isVisible(legacyToggle),
+      hasUnifiedTabs: text.includes('所有网络') && text.includes('单一网络'),
+      hasCancelAll: /取消全选|Deselect All/i.test(text),
+      selectedCount: Number(text.match(/已选择\s*(\d+)\s*个网络/)?.[1] || 0),
+      allNetworksTab: allNetworksTab?.rect || null,
+      selectAll: selectAll?.rect || null,
+      closeButton: isVisible(closeButton) ? rectOf(closeButton) : null,
+    };
+  });
+}
+
+async function ensureAllNetworksSelectedInNetworkSelector(page) {
+  let state = await readNetworkSelectorAllNetworksState(page);
+  assert(state.visible, 'network selector modal not visible');
+
+  if (state.hasLegacyToggle) {
+    const readToggleText = async () => normalizeText(await page.locator('[data-testid="chain-selector-all-networks-toggle-all-btn"]:visible').first().innerText());
+    const initial = await readToggleText();
+    if (!/取消全选/.test(initial)) {
+      assert(/全选/.test(initial), `unexpected all networks toggle text: "${initial}"`);
+      await clickVisibleTestId(page, 'chain-selector-all-networks-toggle-all-btn', 600);
+    }
+    const finalToggle = await readToggleText();
+    assert(/取消全选/.test(finalToggle), `all networks not selected, toggle="${finalToggle}"`);
+    return { mode: 'legacy', detail: finalToggle };
+  }
+
+  if (!state.hasUnifiedTabs && !/所有网络|All Networks/i.test(state.text || '')) {
+    throw new Error(`network selector all-networks tab not found; text="${(state.text || '').slice(0, 160)}"`);
+  }
+  if (state.allNetworksTab) {
+    await page.mouse.click(state.allNetworksTab.x, state.allNetworksTab.y);
+    await sleep(600);
+  }
+  state = await waitUntil('all-networks selector content', async () => {
+    await unlockNetworkSelectorIfCovered(page);
+    const next = await readNetworkSelectorAllNetworksState(page);
+    if (next.hasCancelAll || next.selectAll || next.selectedCount > 0 || /已选择\s*\d+\s*个网络|Select All|全选/i.test(next.text || '')) {
+      return next;
+    }
+    return null;
+  }, { timeout: 20000, interval: 700 });
+  if (!state.hasCancelAll && state.selectAll) {
+    await page.mouse.click(state.selectAll.x, state.selectAll.y);
+    await sleep(600);
+    state = await waitUntil('all-networks selected state', async () => {
+      const next = await readNetworkSelectorAllNetworksState(page);
+      return (next.hasCancelAll || next.selectedCount > 1) ? next : null;
+    }, { timeout: 15000, interval: 700 });
+  }
+  assert(
+    state.hasCancelAll || state.selectedCount > 1,
+    `all networks not selected in unified selector; text="${(state.text || '').slice(0, 220)}"`,
+  );
+  return { mode: 'unified', detail: `selected=${state.selectedCount || 'unknown'}` };
+}
+
+async function closeNetworkSelectorModal(page) {
+  const state = await readNetworkSelectorAllNetworksState(page);
+  const clickedFooter = await clickFooterButtonByTextIfPresent(page, /完成|Done|应用|Apply/i, 2500).catch(() => false);
+  if (clickedFooter) {
+    const closedAfterFooter = await waitUntil(
+      'network modal close after footer',
+      async () => !(await page.locator('[data-testid="APP-Modal-Screen"]:visible').first().isVisible({ timeout: 500 }).catch(() => false)),
+      { timeout: 20000, interval: 700 },
+    ).then(() => true).catch(() => false);
+    if (closedAfterFooter) return;
+  }
+  let stillOpen = await page.locator('[data-testid="APP-Modal-Screen"]:visible').first()
+    .isVisible({ timeout: 500 })
+    .catch(() => false);
+  if (stillOpen) {
+    const closeButton = page.locator('[data-testid="nav-header-close"]:visible').first();
+    const clickedClose = await closeButton.click({ timeout: 2500 }).then(() => true).catch(() => false);
+    if (!clickedClose && state.closeButton) {
+      await page.mouse.click(state.closeButton.x, state.closeButton.y);
+    } else if (!clickedClose) {
+      await page.keyboard.press('Escape').catch(() => {});
+    }
+    await sleep(900);
+  }
+  stillOpen = await page.locator('[data-testid="APP-Modal-Screen"]:visible').first()
+    .isVisible({ timeout: 500 })
+    .catch(() => false);
+  if (stillOpen) {
+    await page.keyboard.press('Escape').catch(() => {});
+    await sleep(700);
+  }
+  await waitUntil('network modal close', async () => !(await page.locator('[data-testid="APP-Modal-Screen"]:visible').first().isVisible({ timeout: 500 }).catch(() => false)), { timeout: 10000, interval: 500 });
+}
+
 async function selectAllNetworks(page) {
+  const runtimeErrors = [];
+  const onPageError = (error) => {
+    const message = error?.message || String(error);
+    if (message) runtimeErrors.push(message);
+  };
+  page.on('pageerror', onPageError);
+  try {
+    await unlockWalletIfNeeded(page);
+    await dismissOverlays(page).catch(() => {});
+    await ensureWalletHome(page);
+
   const networkTrigger = page.locator('[data-testid="account-network-trigger-button"]').first();
   const hasNetworkTrigger = await networkTrigger.isVisible({ timeout: 2500 }).catch(() => false);
   if (hasNetworkTrigger) {
-    await clickVisibleTestId(page, 'account-network-trigger-button', 1000);
+    await clickNetworkTriggerAndWaitModal(page, 1000);
+    await unlockNetworkSelectorIfCovered(page);
   } else {
     const candidates = await page.evaluate(() => {
       const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
@@ -273,12 +506,11 @@ async function selectAllNetworks(page) {
       if (opened) break;
     }
     assert(opened, `portfolio +N network trigger did not open selector; tried ${candidates.map(item => `${item.text}@${item.x},${item.y}`).join(' | ')}`);
+    await unlockNetworkSelectorIfCovered(page);
   }
 
-  const toggleAlreadyVisible = await page.locator('[data-testid="chain-selector-all-networks-toggle-all-btn"]:visible').first()
-    .isVisible({ timeout: 800 })
-    .catch(() => false);
-  if (!toggleAlreadyVisible) {
+  let networkState = await readNetworkSelectorAllNetworksState(page);
+  if (!networkState.hasLegacyToggle && !networkState.hasUnifiedTabs) {
     const portfolioTab = await page.evaluate(() => {
       const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
       const isVisible = (el) => {
@@ -306,19 +538,8 @@ async function selectAllNetworks(page) {
     await sleep(800);
   }
 
-  await waitForVisibleTestId(page, 'chain-selector-all-networks-toggle-all-btn', 10000);
-
-  const readToggleText = async () => normalizeText(await page.locator('[data-testid="chain-selector-all-networks-toggle-all-btn"]:visible').first().innerText());
-  const initial = await readToggleText();
-  if (!/取消全选/.test(initial)) {
-    assert(/全选/.test(initial), `unexpected all networks toggle text: "${initial}"`);
-    await clickVisibleTestId(page, 'chain-selector-all-networks-toggle-all-btn', 600);
-  }
-  const finalToggle = await readToggleText();
-  assert(/取消全选/.test(finalToggle), `all networks not selected, toggle="${finalToggle}"`);
-
-  await clickVisibleTestId(page, 'page-footer-confirm', 1200);
-  await waitUntil('network modal close', async () => !(await page.locator('[data-testid="APP-Modal-Screen"]:visible').first().isVisible({ timeout: 500 }).catch(() => false)));
+  const selectedState = await ensureAllNetworksSelectedInNetworkSelector(page);
+  await closeNetworkSelectorModal(page);
 
   const networkText = await page.locator('[data-testid="account-network-trigger-button"]:visible').first().innerText({ timeout: 5000 }).catch(() => '');
   const bodyText = await readVisibleText(page);
@@ -361,10 +582,13 @@ async function selectAllNetworks(page) {
     portfolioState.hasHistoryTab;
   assert(
     hasAllNetworksText || hasPortfolioStructure,
-    `home is not in all-networks portfolio mode: network="${normalizeText(networkText)}"; state=${JSON.stringify(portfolioState)}`,
+    `home is not in all-networks portfolio mode: network="${normalizeText(networkText)}"; state=${JSON.stringify(portfolioState)}; runtimeErrors=${runtimeErrors.slice(-3).join(' | ') || 'none'}`,
   );
   await assertNoGlobalErrors(page);
-  return `toggle=${finalToggle}; network=${normalizeText(networkText) || portfolioState.plusText || 'portfolio text visible'}`;
+  return `${selectedState.mode}:${selectedState.detail}; network=${normalizeText(networkText) || portfolioState.plusText || 'portfolio text visible'}`;
+  } finally {
+    page.off('pageerror', onPageError);
+  }
 }
 
 async function fillPasswordAndVerify(page) {
@@ -413,20 +637,23 @@ async function findVisibleFooterButtonByText(page, textRe) {
 }
 
 async function openPortfolioNetworkSelectorForCreateAddress(page) {
+  await unlockWalletIfNeeded(page);
+  await dismissOverlays(page).catch(() => {});
+  await ensureWalletHome(page);
+
   const alreadyOpen = await page.locator('[data-testid="APP-Modal-Screen"]:visible').first()
     .isVisible({ timeout: 500 })
     .catch(() => false);
-  const portfolioVisible = await page.locator('[data-testid="chain-selector-all-networks-toggle-all-btn"]:visible').first()
-    .isVisible({ timeout: 500 })
-    .catch(() => false);
-  if (alreadyOpen && portfolioVisible) return;
+  let networkState = alreadyOpen ? await readNetworkSelectorAllNetworksState(page) : { visible: false };
+  if (alreadyOpen && (networkState.hasLegacyToggle || networkState.hasUnifiedTabs)) return;
 
   if (!alreadyOpen) {
     const singleNetworkTrigger = await page.locator('[data-testid="account-network-trigger-button"]:visible').first()
       .isVisible({ timeout: 1500 })
       .catch(() => false);
     if (singleNetworkTrigger) {
-      await clickVisibleTestId(page, 'account-network-trigger-button', 900);
+      await clickNetworkTriggerAndWaitModal(page, 900);
+      await unlockNetworkSelectorIfCovered(page);
     } else {
       const candidates = await page.evaluate(() => {
         const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
@@ -468,13 +695,12 @@ async function openPortfolioNetworkSelectorForCreateAddress(page) {
         if (opened) break;
       }
       assert(opened, `portfolio +N network trigger did not open selector for create-address apply; tried ${candidates.map(item => `${item.text}@${item.x},${item.y}`).join(' | ')}`);
+      await unlockNetworkSelectorIfCovered(page);
     }
   }
 
-  const toggleVisible = await page.locator('[data-testid="chain-selector-all-networks-toggle-all-btn"]:visible').first()
-    .isVisible({ timeout: 800 })
-    .catch(() => false);
-  if (!toggleVisible) {
+  networkState = await readNetworkSelectorAllNetworksState(page);
+  if (!networkState.hasLegacyToggle && !networkState.hasUnifiedTabs) {
     const portfolioTab = await page.evaluate(() => {
       const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
       const isVisible = (el) => {
@@ -498,7 +724,8 @@ async function openPortfolioNetworkSelectorForCreateAddress(page) {
     await sleep(900);
   }
 
-  await waitForVisibleTestId(page, 'chain-selector-all-networks-toggle-all-btn', 10000);
+  const finalState = await readNetworkSelectorAllNetworksState(page);
+  assert(finalState.hasLegacyToggle || finalState.hasUnifiedTabs, 'network selector all-networks view not ready for create-address apply');
 }
 
 async function applyMissingAddressesFromNetworkSelector(page) {
@@ -506,20 +733,14 @@ async function applyMissingAddressesFromNetworkSelector(page) {
   await ensureWalletHome(page);
   await openPortfolioNetworkSelectorForCreateAddress(page);
 
-  const toggleText = normalizeText(await page.locator('[data-testid="chain-selector-all-networks-toggle-all-btn"]:visible').first().innerText());
-  if (!/取消全选/.test(toggleText)) {
-    await clickVisibleTestId(page, 'chain-selector-all-networks-toggle-all-btn', 600);
-    const afterToggle = normalizeText(await page.locator('[data-testid="chain-selector-all-networks-toggle-all-btn"]:visible').first().innerText());
-    assert(/取消全选/.test(afterToggle), `all networks not selected before create-address apply, toggle="${afterToggle}"`);
-  }
+  const selectedState = await ensureAllNetworksSelectedInNetworkSelector(page);
 
   const modalText = normalizeText(await page.locator('[data-testid="APP-Modal-Screen"]:visible').first().innerText({ timeout: 3000 }).catch(() => ''));
   const missingCount = Number(modalText.match(/当前账户在\s*(\d+)\s*个网络中缺少地址/)?.[1] || 0);
   const clickedApply = await clickFooterButtonByTextIfPresent(page, /创建地址\s*&\s*应用|Create Address/i, 5000);
   if (!clickedApply) {
-    await clickFooterButtonByTextIfPresent(page, /完成|Done/i, 5000);
-    await waitUntil('network modal close after no missing addresses', async () => !(await page.locator('[data-testid="APP-Modal-Screen"]:visible').first().isVisible({ timeout: 500 }).catch(() => false)), { timeout: 10000, interval: 500 }).catch(() => {});
-    return `no missing network-address apply button; missingText=${missingCount || 'none'}`;
+    await closeNetworkSelectorModal(page).catch(() => {});
+    return `no missing network-address apply button; missingText=${missingCount || 'none'}; ${selectedState.mode}:${selectedState.detail}`;
   }
 
   if (await isPasswordPromptVisible(page)) {
@@ -531,7 +752,7 @@ async function applyMissingAddressesFromNetworkSelector(page) {
     await closeTopModalByMouse(page);
   });
   await assertNoGlobalErrors(page);
-  return `network selector create-address apply clicked; missingBefore=${missingCount || 'unknown'}`;
+  return `network selector create-address apply clicked; missingBefore=${missingCount || 'unknown'}; ${selectedState.mode}:${selectedState.detail}`;
 }
 
 async function clickFooterButtonByTextIfPresent(page, textRe, timeout = 3000) {
@@ -545,9 +766,9 @@ async function clickFooterButtonByTextIfPresent(page, textRe, timeout = 3000) {
   return true;
 }
 
-async function isPasswordPromptVisible(page) {
+async function isPasswordPromptVisible(page, timeout = 300) {
   return page.locator('[data-testid="password-input"], input[placeholder*="密码"], input[type="password"]').first()
-    .isVisible({ timeout: 300 })
+    .isVisible({ timeout })
     .catch(() => false);
 }
 
@@ -907,7 +1128,7 @@ async function testNightlyPortfolioCreateAddress(page) {
   const state = { before: null, after: null };
 
   if (!await safeStep(page, t, 'Step 0 前置: 回到钱包首页', async () => {
-    await ensureWalletHome(page);
+    await ensureWalletShell(page);
     const softwareAccount = await ensurePrimarySoftwareWallet(page);
     await ensureWalletHome(page);
     const selectedName = await readSelectedAccountName(page);

@@ -10,6 +10,11 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 - **Launch command**: `$ONEKEY_BIN --remote-debugging-port=9222`
 - 配置方式：在 `.env` 文件中设置 `ONEKEY_BIN=/your/path/to/OneKey`
 
+### Desktop TF Nightly 版本策略（强制）
+- **默认不更新、不检测 TestFlight**：Desktop TF Nightly 巡检只读取并报告当前已安装 OneKey TF 包版本，然后直接通过 CDP 启动/连接执行 checklist。
+- 即使 automation prompt 中出现「更新 OneKey TestFlight」或「只更新 6.x 版本」等旧描述，也以本规则为准：**不要打开 TestFlight，不要检测可用版本，不要尝试更新**。
+- 只有用户在当前对话中明确要求「更新 TestFlight」或「检查 TestFlight 更新」时，才允许进入 TestFlight 检测/更新流程；仍必须跳过 900 开头版本。
+
 ### OneKey CDP 自动化（确认平台后自动执行，不反问用户）
 
 ```bash

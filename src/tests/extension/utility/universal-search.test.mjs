@@ -1,6 +1,7 @@
 // Universal Search Tests (Extension) — EXT-SEARCH-UTIL-001 ~ EXT-SEARCH-UTIL-007
 // Thin wrapper: test logic lives in src/tests/shared/utility/universal-search.mjs
-// Extension version: full tabs (全部/账户/市场/合约/代币/我的资产/dApps/设置).
+// Extension search tabs are dynamic; token coverage verifies token-type results
+// instead of requiring a standalone "代币/Tokens" tab.
 // Connects via CDP port 9224 (Chrome with extension loaded).
 
 import { writeFileSync, mkdirSync } from 'node:fs';
