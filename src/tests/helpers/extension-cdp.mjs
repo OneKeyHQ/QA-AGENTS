@@ -6,6 +6,7 @@ import { chromium } from 'playwright-core';
 import { existsSync, readdirSync, mkdirSync } from 'node:fs';
 import { execSync, spawn } from 'node:child_process';
 import { resolve, join } from 'node:path';
+import { installNoEvalSafeEvaluate } from './no-eval-cdp.mjs';
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -266,5 +267,6 @@ export async function connectExtensionCDP() {
   }
 
   console.log(`  Extension page: ${page.url()}`);
+  await installNoEvalSafeEvaluate(page);
   return { browser, page };
 }

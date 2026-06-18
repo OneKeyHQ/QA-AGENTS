@@ -189,6 +189,7 @@ function normalizeHistoryExpectations(expected, legacyOptions = null) {
       network: opts.network || opts.expectedNetwork,
       amount: opts.amount || opts.expectedAmount,
       historyAmount: opts.historyAmount,
+      previewAmount: opts.previewAmount,
       historyAmountMode: opts.historyAmountMode,
       totalAmount: opts.totalAmount || opts.maxAmount,
       strictHistoryAmount: !!opts.strictHistoryAmount,
@@ -400,6 +401,10 @@ function historyTextMatchesAmountExpectation(text, expected) {
     const decimalPlaces = Math.max(displayedDecimalPlaces(primary.raw), displayedDecimalPlaces(fee.raw));
     return displayedAmountMatchesExpected(totalAmount, displayedTotal, decimalPlaces);
   }
+  if (expected.historyAmountMode === 'previewPrimary') {
+    const expectedPreviewAmount = expected.previewAmount || expected.historyAmount;
+    return !expectedPreviewAmount || /^max$/i.test(String(expectedPreviewAmount)) || historyTextIncludesAmount(text, expectedPreviewAmount, expected.token);
+  }
   const expectedHistoryAmount = expected.historyAmount || (expected.strictHistoryAmount ? null : expected.amount);
   return !expectedHistoryAmount || /^max$/i.test(String(expectedHistoryAmount)) || historyTextIncludesAmount(text, expectedHistoryAmount, expected.token);
 }
@@ -527,7 +532,10 @@ export async function verifyHistoryRecord(page, expected, legacyOptions = null) 
   if (expectations.historyAmountMode === 'amountPlusFeeEquals' && !expectations.totalAmount) {
     throw new Error(`历史记录金额+网络费匹配缺少 totalAmount: token=${expectations.token || '-'} sent=${expectations.sentAmount || expectations.amount || '-'}`);
   }
-  if (expectations.strictHistoryAmount && !expectations.historyAmount && expectations.historyAmountMode !== 'amountPlusFeeEquals') {
+  if (expectations.historyAmountMode === 'previewPrimary' && !expectations.previewAmount && !expectations.historyAmount) {
+    throw new Error(`历史记录预览金额匹配缺少 previewAmount/historyAmount: token=${expectations.token || '-'} sent=${expectations.sentAmount || expectations.amount || '-'}`);
+  }
+  if (expectations.strictHistoryAmount && !expectations.historyAmount && !['amountPlusFeeEquals', 'previewPrimary'].includes(expectations.historyAmountMode)) {
     throw new Error(`历史记录严格金额匹配缺少 historyAmount: token=${expectations.token || '-'} sent=${expectations.sentAmount || expectations.amount || '-'} fee=${expectations.feeAmount || '-'}`);
   }
 
@@ -558,7 +566,8 @@ export async function verifyHistoryRecord(page, expected, legacyOptions = null) 
     const fee = extractHistoryFeeAmount(listText, expectations.token);
     const total = primary && fee ? addDecimalStrings(primary.value, fee.value) : '';
     const primaryDirect = primary && expectations.totalAmount ? historyAmountMatchesPrimary(expectations.totalAmount, primary) : false;
-    throw new Error(`最新历史记录 30s 内未匹配目标 type/token/amount: mode=${expectations.historyAmountMode || 'primary'} type=${expectations.historyType || 'send'} token=${expectations.token || '-'} historyAmount=${expectations.historyAmount || (expectations.strictHistoryAmount ? '-' : expectations.amount) || '-'} totalAmount=${expectations.totalAmount || '-'} strict=${expectations.strictHistoryAmount ? 'true' : 'false'} sent=${expectations.sentAmount || expectations.amount || '-'} fee=${expectations.feeAmount || fee?.raw || '-'} primary=${primary?.raw || '-'} primaryDirect=${primaryDirect ? 'true' : 'false'} historyFee=${fee?.raw || '-'} rowTotal=${total || '-'} matched=${primary?.matchedString || '-'} stable=${stableMatches}; initial=${initialListText.substring(0, 180)}; latest=${listText.substring(0, 240)}`);
+    const previewDirect = primary && expectations.previewAmount ? historyAmountMatchesPrimary(expectations.previewAmount, primary) : false;
+    throw new Error(`最新历史记录 30s 内未匹配目标 type/token/amount: mode=${expectations.historyAmountMode || 'primary'} type=${expectations.historyType || 'send'} token=${expectations.token || '-'} historyAmount=${expectations.historyAmount || (expectations.strictHistoryAmount ? '-' : expectations.amount) || '-'} previewAmount=${expectations.previewAmount || '-'} totalAmount=${expectations.totalAmount || '-'} strict=${expectations.strictHistoryAmount ? 'true' : 'false'} sent=${expectations.sentAmount || expectations.amount || '-'} fee=${expectations.feeAmount || fee?.raw || '-'} primary=${primary?.raw || '-'} primaryDirect=${primaryDirect ? 'true' : 'false'} previewDirect=${previewDirect ? 'true' : 'false'} historyFee=${fee?.raw || '-'} rowTotal=${total || '-'} matched=${primary?.matchedString || '-'} stable=${stableMatches}; initial=${initialListText.substring(0, 180)}; latest=${listText.substring(0, 240)}`);
   }
 
   const clickedTx = await page.evaluate(() => {

@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url';
 
 const TESTS_DIR = join(import.meta.dirname, '..', 'tests');
 
-type EventType = 'queue' | 'start' | 'pass' | 'fail' | 'skip' | 'stopped' | 'done' | 'step' | 'log';
+type EventType = 'queue' | 'start' | 'pass' | 'fail' | 'skip' | 'stopped' | 'done' | 'step' | 'log' | 'reset';
 
 export interface RunEvent {
   event: EventType;
@@ -162,6 +162,27 @@ function isMobileFile(filePath: string): boolean {
   return /(^|[\\/])mobile[\\/]/.test(filePath);
 }
 
+let noEvalModulePromise: Promise<any> | null = null;
+
+async function getNoEvalModule() {
+  if (!noEvalModulePromise) {
+    const helperUrl = pathToFileURL(join(TESTS_DIR, 'helpers', 'no-eval-cdp.mjs')).href;
+    noEvalModulePromise = import(`${helperUrl}?t=${Date.now()}`).catch((error) => {
+      noEvalModulePromise = null;
+      throw error;
+    });
+  }
+  return noEvalModulePromise;
+}
+
+async function ensureNoEvalSafeEvaluate(page: any) {
+  if (!page || typeof page.url !== 'function') return false;
+  const url = page.url();
+  if (!url.startsWith('chrome-extension://')) return false;
+  const noEval = await getNoEvalModule();
+  return noEval.installNoEvalSafeEvaluate(page);
+}
+
 async function executeQueue() {
   // Lazy session handles — only the platforms actually used get initialized.
   let desktopPage: any = null;
@@ -178,6 +199,7 @@ async function executeQueue() {
       const helpers = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'index.mjs')).href}?t=${Date.now()}`);
       const cdp = await helpers.connectCDP();
       desktopPage = cdp.page;
+      await ensureNoEvalSafeEvaluate(desktopPage);
       await helpers.unlockWalletIfNeeded(desktopPage);
     } catch (e: any) {
       for (const item of queue) {
@@ -263,6 +285,7 @@ async function executeQueue() {
       if (tc?.fn) {
         // If file changed, run setup (navigate to correct page)
         if (item.file !== lastFile && mod.setup) {
+          if (!isMobileFile(item.file)) await ensureNoEvalSafeEvaluate(sessionHandle);
           await mod.setup(sessionHandle);
         }
 
@@ -309,6 +332,7 @@ async function executeQueue() {
           });
           let result: any;
           try {
+            if (!isMobileFile(item.file)) await ensureNoEvalSafeEvaluate(sessionHandle);
             result = await Promise.race([tc.fn(sessionHandle), stopChecker]);
           } finally {
             clearStopChecker?.();

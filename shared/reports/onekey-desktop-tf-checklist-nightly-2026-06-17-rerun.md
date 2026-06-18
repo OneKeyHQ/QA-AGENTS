@@ -22,7 +22,7 @@
 | `MARKET-CHART-001` | FAIL | 点击热门列表首个 Token 后详情页未打开，TV webview 未出现；非 Market Tab 旧断言问题 | `shared/results/MARKET-CHART-001.json` |
 | `NIGHTLY-PORTFOLIO-001` | FAIL | 已正确切到 `ran / piggy🐷`，但应用所有网络后首页仍为 `Arbitrum`，未进入 all-networks portfolio mode | `shared/results/NIGHTLY-PORTFOLIO-001.json` |
 
-自动化用例聚焦复跑：通过 3 / 失败 2 / 阻塞 0。  
+自动化用例聚焦复跑：通过 3 / 失败 2 / 阻塞 0。
 单元验证：`node --test src/tests/shared/utility/universal-search.dynamic-tabs.test.mjs src/tests/shared/market/market-tabs.test.mjs src/tests/desktop/utility/nightly-portfolio-account-text.test.mjs` 通过 8 / 失败 0。
 
 ## 失败与阻塞说明

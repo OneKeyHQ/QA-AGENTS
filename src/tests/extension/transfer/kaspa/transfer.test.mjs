@@ -4,19 +4,33 @@
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { sleep } from '../../../helpers/constants.mjs';
-import { dismissOverlays, unlockWalletIfNeeded, handlePasswordPromptIfPresent } from '../../../helpers/index.mjs';
-import { connectExtensionCDP, getExtensionId } from '../../../helpers/extension-cdp.mjs';
+import { sleep, RESULTS_DIR } from '../../../helpers/constants.mjs';
+import { handlePasswordPromptIfPresent } from '../../../helpers/index.mjs';
+import { connectExtensionCDP } from '../../../helpers/extension-cdp.mjs';
 import { createStepTracker, safeStep, switchToAccount, closeAllModals } from '../../../helpers/components.mjs';
 import { switchNetwork } from '../../../helpers/network.mjs';
+import {
+  prepareExtensionTransferCaseState,
+  readExtensionFloatingNotifications,
+  waitForExtensionOutgoingHistoryIdle,
+  waitForExtensionTokenBalance,
+  waitForExtensionTransferSubmitResult,
+  waitForExtensionTransferPreviewReady,
+} from '../../../helpers/extension-transfer.mjs';
 import { verifyHistoryRecord } from '../../../helpers/transfer.mjs';
-import { loadAccounts, requireAccounts, resolveTransferDirection, getWalletPassword } from '../../../helpers/runtime-config.mjs';
+import { requireAccounts, resolveTransferDirection, getWalletPassword } from '../../../helpers/runtime-config.mjs';
 
-const RESULTS_DIR = resolve(import.meta.dirname, '../../../../../../shared/results');
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'ext-kaspa-screenshots');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
 export const displayName = 'Kaspa 转账';
+
+const NETWORK = 'Kaspa';
+const STEP0_OPTIONS = {
+  network: NETWORK,
+  tokenRowPrefix: 'home-token-item-kaspa--',
+  portfolioLabel: NETWORK,
+};
 
 const MIN_BALANCE = {
   SILVER_FIXED: 0.2,
@@ -25,24 +39,9 @@ const MIN_BALANCE = {
   KAS_MAX: 0.000001,
 };
 
-async function goToWallet(page) {
-  const clicked = await page.evaluate(() => {
-    const sidebar = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
-    if (!sidebar) return false;
-    for (const sp of sidebar.querySelectorAll('span, div')) {
-      const txt = sp.textContent?.trim() || '';
-      if ((txt === '钱包' || txt === 'Wallet') && sp.getBoundingClientRect().width > 0) {
-        sp.click();
-        return true;
-      }
-    }
-    return false;
-  });
-  if (!clicked) {
-    const extId = getExtensionId();
-    await page.goto(`chrome-extension://${extId}/ui-expand-tab.html#/main/TabHome`).catch(() => {});
-    await sleep(1500);
-  }
+async function selectAllAndClearFocusedInput(page) {
+  await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A');
+  await page.keyboard.press('Backspace');
 }
 
 async function selectToken(page, token) {
@@ -90,21 +89,16 @@ async function selectToken(page, token) {
 async function switchToConfiguredAccount(page, account) {
   if (!account?.accountName) throw new Error('Runtime config accountName missing');
   await switchToAccount(page, account.accountName);
-  await switchNetwork(page, 'Kaspa');
+  await switchNetwork(page, NETWORK);
 }
 
 async function readTokenBalance(page, token) {
-  const result = await page.evaluate((targetToken) => {
-    const normalize = (str) => (str || '').replace(/\s+/g, ' ').trim();
-    const row = document.querySelector(`[data-testid="home-token-item-kaspa--kaspa-${targetToken}"]`);
-    if (!row) return { balance: 0, text: '', found: false };
-    const text = normalize(row.textContent || '');
-    const beforeFiat = text.split('$')[0] || text;
-    const matches = Array.from(beforeFiat.matchAll(/([0-9][0-9,]*(?:\.[0-9]+)?)/g)).map((m) => m[1]);
-    const raw = matches[matches.length - 1] || '0';
-    return { balance: Number(raw.replace(/,/g, '')) || 0, text, found: true };
-  }, token);
-  if (!result.found) throw new Error(`未找到 ${token} 余额行`);
+  const result = await waitForExtensionTokenBalance(page, {
+    token,
+    exactTestId: `home-token-item-kaspa--kaspa-${token}`,
+    tokenRowPrefix: 'home-token-item-kaspa--',
+    label: `${NETWORK} ${token}`,
+  });
   return result.balance;
 }
 
@@ -162,8 +156,7 @@ async function enterRecipientAndNext(page, recipient) {
   const input = page.locator('[data-testid="APP-Modal-Screen"] [data-testid="base-input-shared-styles-textarea"]').last();
   await input.waitFor({ state: 'visible', timeout: 8000 });
   await input.click();
-  await input.evaluate((el) => el.select());
-  await input.press('Backspace');
+  await selectAllAndClearFocusedInput(page);
   await input.pressSequentially(recipient, { delay: 40 });
 
   let last = null;
@@ -204,8 +197,7 @@ async function enterRecipientAndNext(page, recipient) {
 async function enterAmount(page, amount) {
   const input = page.locator('[data-testid="send-amount-input"]').first();
   await input.click();
-  await input.evaluate((el) => el.select());
-  await input.press('Backspace');
+  await selectAllAndClearFocusedInput(page);
   await input.pressSequentially(amount, { delay: 50 });
   await sleep(600);
   return input.inputValue().catch(() => '');
@@ -325,11 +317,12 @@ function kaspaAddressParts(address) {
   return { full: normalized, prefix: body.slice(0, 8), suffix: body.slice(-6) };
 }
 
-async function readPreviewFields(page, token, amount, direction = {}) {
+async function readPreviewFields(page, token, amount, direction = {}, options = {}) {
   const expectedRecipient = kaspaAddressParts(direction.recipientAddress);
   const state = await page.evaluate((args) => {
-    const { token: targetToken, amount: targetAmount, recipient, senderName, receiverName } = args;
+    const { token: targetToken, amount: targetAmount, recipient, senderName, receiverName, fullAmount } = args;
     const normalize = (str) => (str || '').replace(/\s+/g, ' ').trim();
+    const escapeRegExp = (str) => String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const root = document.querySelector('[data-testid="APP-Modal-Screen"]') || document.body;
     const text = normalize(root.textContent || '');
     const feeTrigger = document.querySelector('[data-testid="sig-confirm-fee-selector-trigger"]');
@@ -372,11 +365,13 @@ async function readPreviewFields(page, token, amount, direction = {}) {
     const hasSenderLabel = !!senderName && text.includes(senderName);
     const hasReceiverLabel = !!receiverName && text.includes(receiverName);
     const hasAddressRole = text.includes('发送') || text.includes('来自') || text.includes('From') || text.includes('收款') || text.includes('至') || text.includes('To');
+    const tokenAmountPattern = new RegExp(`\\d+(?:\\.\\d+)?\\s*${escapeRegExp(targetToken)}`, 'i');
+    const hasTokenAmount = tokenAmountPattern.test(text);
     return {
       text: text.slice(0, 1600),
       hasToken: hasTokenText,
       hasTokenIcon,
-      hasAmount: targetAmount ? text.includes(targetAmount) : /[0-9]/.test(text),
+      hasAmount: fullAmount ? hasTokenAmount : (targetAmount ? text.includes(targetAmount) : hasTokenAmount || /[0-9]/.test(text)),
       hasNetwork: text.includes('Kaspa'),
       hasFee: text.includes('网络费用') || text.includes('预估网络费用') || text.includes('Fee') || !!feeTrigger,
       hasRecipientAddress,
@@ -402,6 +397,7 @@ async function readPreviewFields(page, token, amount, direction = {}) {
     recipient: expectedRecipient,
     senderName: direction.sender?.accountName || '',
     receiverName: direction.receiver?.accountName || '',
+    fullAmount: !!options.fullAmount,
   });
 
   state.feeAmount = extractTokenAmountFromText(state.feeText, token)
@@ -448,7 +444,7 @@ async function readPreviewFields(page, token, amount, direction = {}) {
   return state;
 }
 
-async function clickFooterConfirmByText(page, expectedText, label) {
+async function clickFooterConfirmByText(page, expectedText, label, { settleMs = 1200 } = {}) {
   let clicked = false;
   let clickedText = null;
   let debug = null;
@@ -503,7 +499,7 @@ async function clickFooterConfirmByText(page, expectedText, label) {
     await sleep(700);
   }
   if (!clicked) throw new Error(`未找到可点击的${label}: page-footer-confirm | debug=${JSON.stringify(debug || {})}`);
-  await sleep(1200);
+  if (settleMs > 0) await sleep(settleMs);
   return clickedText || expectedText;
 }
 
@@ -515,43 +511,22 @@ async function clickConfirm(page) {
   await clickFooterConfirmByText(page, '确认', '确认按钮');
 }
 
-async function waitForPreviewConfirmPage(page, token = null, amount = null, direction = {}) {
-  let last = null;
-  for (let i = 0; i < 20; i++) {
-    const state = await page.evaluate(() => {
-      const normalize = (str) => (str || '').replace(/\s+/g, ' ').trim();
-      const isVisible = (el) => {
-        const r = el.getBoundingClientRect();
-        if (r.width <= 0 || r.height <= 0) return false;
-        const style = window.getComputedStyle(el);
-        return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
-      };
-      const footerButtons = Array.from(document.querySelectorAll('[data-testid="page-footer-confirm"]'))
-        .filter(isVisible)
-        .map((btn) => normalize(btn.textContent || ''));
-      const body = normalize(document.body?.textContent || '');
-      const hasConfirm = footerButtons.some((text) => text.includes('确认'));
-      const hasPreview = footerButtons.some((text) => text.includes('预览'));
-      const hasFeePreview = body.includes('预估网络费用') || body.includes('网络费用') || !!document.querySelector('[data-testid="sig-confirm-fee-selector-trigger"]');
-      return { hasConfirm, hasPreview, hasFeePreview, footerButtons, body: body.slice(0, 500) };
-    });
-    last = state;
-    if (state.hasConfirm && state.hasFeePreview) {
-      if (token) return readPreviewFields(page, token, amount, direction);
-      return state;
-    }
-    if (state.hasPreview && i % 3 === 0) {
-      await clickFooterConfirmByText(page, '预览', '预览按钮');
-    } else {
-      await sleep(500);
-    }
-  }
-  throw new Error(`点击预览后未进入预览确认页 | state=${JSON.stringify(last || {})}`);
+async function waitForPreviewConfirmPage(page, token = null, amount = null, direction = {}, options = {}) {
+  return waitForExtensionTransferPreviewReady(page, {
+    token,
+    amount,
+    direction,
+    fullAmount: !!options.fullAmount,
+    readPreviewFields,
+    clickPreview: () => clickPreview(page),
+    previewButtonTexts: ['预览'],
+    confirmButtonTexts: ['确认'],
+  });
 }
 
 async function submitTransfer(page, token, amount = null, direction = {}, options = {}) {
   await clickPreview(page);
-  const preview = await waitForPreviewConfirmPage(page, token, amount, direction);
+  const preview = await waitForPreviewConfirmPage(page, token, amount, direction, options);
   const summary = await finishSubmittedTransfer(page, token);
   const sentAmount = normalizeDecimalAmount(amount);
   const feeAmount = normalizeDecimalAmount(preview?.feeAmount);
@@ -683,8 +658,7 @@ async function handleKaspaPasswordPrompt(page) {
   const password = getWalletPassword();
   const input = page.locator('input[type="password"]').first();
   await input.click({ force: true }).catch(() => {});
-  await input.evaluate((el) => el.select());
-  await input.press('Backspace');
+  await selectAllAndClearFocusedInput(page);
   await input.pressSequentially(password, { delay: 40 });
   await sleep(500);
 
@@ -718,73 +692,25 @@ async function handleKaspaPasswordPrompt(page) {
   return { handled: true, type: clicked?.clicked ? `fallback:${clicked.text || 'button'}` : 'fallback:enter' };
 }
 
-async function waitTransferCompletion(page, token) {
-  const actions = [];
-  for (let i = 0; i < 90; i++) {
-    const state = await page.evaluate(() => {
-      const normalize = (str) => (str || '').replace(/\s+/g, ' ').trim();
-      const isVisible = (el) => {
-        const r = el.getBoundingClientRect();
-        if (r.width <= 0 || r.height <= 0) return false;
-        const style = window.getComputedStyle(el);
-        return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
-      };
-      const body = normalize(document.body?.textContent || '');
-      const modalTexts = Array.from(document.querySelectorAll('[data-testid="APP-Modal-Screen"], [role="dialog"]'))
-        .filter(isVisible)
-        .map((el) => normalize(el.textContent || ''));
-      const doneText = ['发送成功', '交易已提交', '交易完成', '发送完成', 'Transaction submitted', 'Transaction completed', 'Send success', 'Sent successfully']
-        .some((word) => body.includes(word));
-      const submittingText = ['发送中', '提交中', '广播中', '处理中', 'Submitting', 'Sending']
-        .some((word) => body.includes(word));
-      const previewOpen = modalTexts.some((txt) => {
-        const hasPreviewFee = txt.includes('预估网络费用') || txt.includes('sig-confirm-fee-selector-trigger');
-        const hasPreviewFields = txt.includes('资产') && txt.includes('至') && txt.includes('确认');
-        const hasInputPage = txt.includes('输入金额') && txt.includes('预览');
-        return hasPreviewFee || hasPreviewFields || hasInputPage;
-      });
-      const anyBlockingModal = modalTexts.length > 0;
-      return {
-        doneText,
-        submittingText,
-        previewOpen,
-        anyBlockingModal,
-        modalTexts: modalTexts.map((txt) => txt.slice(0, 300)),
-        body: body.slice(0, 500),
-      };
-    });
-
-    const pwdResult = await handleKaspaPasswordPrompt(page);
-    if (pwdResult?.handled) actions.push(`password:${pwdResult.type || 'handled'}`);
-
-    // 用户要求：不看历史记录，预览发送页自动关闭即判定提交流程完成。
-    if (state.doneText || (!state.previewOpen && !state.anyBlockingModal && i > 0)) {
-      return { done: true, actions, state };
-    }
-
-    const clicked = await clickVisibleFinalAction(page);
-    if (clicked) actions.push(clicked);
-    await sleep(clicked ? 900 : (state.submittingText ? 1500 : 1000));
-  }
-
-  const finalState = await page.evaluate(() => {
-    const normalize = (str) => (str || '').replace(/\s+/g, ' ').trim();
-    const modalTexts = Array.from(document.querySelectorAll('[data-testid="APP-Modal-Screen"], [role="dialog"]'))
-      .map((el) => normalize(el.textContent || ''))
-      .slice(0, 5);
-    return { body: normalize(document.body?.textContent || '').slice(0, 800), modalTexts };
+async function waitTransferCompletion(page, token, { baselineNotifications = [] } = {}) {
+  return waitForExtensionTransferSubmitResult(page, {
+    token,
+    baselineNotifications,
+    handlePasswordPrompt: handleKaspaPasswordPrompt,
+    clickFinalAction: () => clickVisibleFinalAction(page),
+    confirmButtonTexts: ['确认'],
+    submitAttempted: true,
   });
-  throw new Error(`提交后预览发送页未自动关闭: ${token} | actions=${actions.join('>')} | state=${JSON.stringify(finalState)}`);
 }
 
 async function finishSubmittedTransfer(page, token) {
   const feeState = await getFeeEditorState(page);
   if (feeState.open) await saveFeeEditorAndWaitClosed(page, token);
-  const finalConfirm = await clickFooterConfirmByText(page, '确认', '预览页最终确认按钮');
-  await sleep(1200);
-  const completion = await waitTransferCompletion(page, token);
+  const baselineNotifications = await readExtensionFloatingNotifications(page);
+  const finalConfirm = await clickFooterConfirmByText(page, '确认', '预览页最终确认按钮', { settleMs: 0 });
+  const completion = await waitTransferCompletion(page, token, { baselineNotifications });
   const closed = completion.state?.previewOpen === false && completion.state?.anyBlockingModal === false;
-  return `final=${finalConfirm}; actions=${completion.actions.join('>') || 'none'}; previewClosed=${closed}`;
+  return `final=${finalConfirm}; actions=${completion.actions.join('>') || 'none'}; busySeen=${completion.busySeen ? 'true' : 'false'}; previewClosed=${closed}`;
 }
 
 async function getFeeEditorState(page) {
@@ -879,24 +805,7 @@ async function saveFeeEditorAndWaitClosed(page, level) {
 }
 
 async function resetKaspaCaseState(page) {
-  await page.bringToFront().catch(() => {});
-  await closeAllModals(page).catch(() => {});
-  await dismissOverlays(page).catch(() => {});
-  await goToWallet(page);
-  await unlockWalletIfNeeded(page);
-  await closeAllModals(page).catch(() => {});
-  await dismissOverlays(page).catch(() => {});
-
-  const accounts = loadAccounts();
-  const resetAccount = accounts.primary?.accountName || accounts.secondary?.accountName || '';
-  if (resetAccount) {
-    await switchToAccount(page, resetAccount);
-    await dismissOverlays(page).catch(() => {});
-  }
-
-  await switchNetwork(page, 'Kaspa');
-  await goToWallet(page);
-  return resetAccount ? `wallet ready; account reset=${resetAccount}; network=Kaspa` : 'wallet ready; network=Kaspa';
+  return prepareExtensionTransferCaseState(page, STEP0_OPTIONS);
 }
 
 async function runCase(page, id, name, fn) {
@@ -959,7 +868,7 @@ export const testCases = [
         await assertTransferFormAmount(page, '0.2', '输入 0.2');
         return `amount=${actualAmount} sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
       }, SCREENSHOT_DIR);
-      await safeStep(page, t, '预览页切换费用档并确认', async () => {
+      const submitOk = await safeStep(page, t, '预览页切换费用档并确认', async () => {
         // EXT-KASPA-002 专用：预览按钮偶发可见但不可点，局部重试避免影响其他用例
         let previewClicked = false;
         for (let i = 0; i < 3; i++) {
@@ -1143,7 +1052,9 @@ export const testCases = [
         };
         return `submitted fee-switch=${switchedSummary}; ${finishSummary}; fee=${submitted.feeAmount || '-'}; historyAmount=${submitted.historyAmount || '-'}`;
       }, SCREENSHOT_DIR);
+      if (!submitOk) return;
       await safeStep(page, t, '校验 SILVER 历史记录字段', async () => {
+        if (!submitted) throw new Error('SILVER 提交结果未记录，无法校验历史金额');
         const { fields } = await verifyHistoryRecord(page, 'SILVER', {
           expectedFields: ['token', 'type', 'status', 'hash', 'fee', 'amount', 'network', 'fromTo', 'time'],
           expectedAmount: '0.2',
@@ -1178,14 +1089,16 @@ export const testCases = [
         const maxAmount = await assertTransferFormAmount(page, null, '点击最大值');
         return `max=${maxAmount} sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
       }, SCREENSHOT_DIR);
-      await safeStep(page, t, '预览并确认', async () => {
+      const submitOk = await safeStep(page, t, '预览并确认', async () => {
         const maxAmount = await readAmountInputValue(page);
         submittedMaxAmount = maxAmount;
         submitted = await submitTransfer(page, 'SILVER', maxAmount, direction, { fullAmount: true });
         return `submitted ${submitted}`;
       }, SCREENSHOT_DIR);
+      if (!submitOk) return;
       await safeStep(page, t, '校验 SILVER 历史记录字段', async () => {
         if (!submittedMaxAmount) throw new Error('SILVER 最大值发送金额未记录，无法校验历史金额');
+        if (!submitted) throw new Error('SILVER 提交结果未记录，无法校验历史金额');
         const { fields } = await verifyHistoryRecord(page, 'SILVER', {
           expectedFields: ['token', 'type', 'status', 'hash', 'fee', 'amount', 'network', 'fromTo', 'time'],
           expectedAmount: submitted?.totalAmount || submittedMaxAmount,
@@ -1250,11 +1163,13 @@ export const testCases = [
         await assertTransferFormAmount(page, '0.2', '输入 0.2');
         return `amount=${actualAmount} sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
       }, SCREENSHOT_DIR);
-      await safeStep(page, t, '预览并确认', async () => {
+      const submitOk = await safeStep(page, t, '预览并确认', async () => {
         submitted = await submitTransfer(page, 'KAS', '0.2', direction);
         return `submitted ${submitted}`;
       }, SCREENSHOT_DIR);
+      if (!submitOk) return;
       await safeStep(page, t, '校验 KAS 历史记录字段', async () => {
+        if (!submitted) throw new Error('KAS 提交结果未记录，无法校验历史金额');
         const { fields } = await verifyHistoryRecord(page, 'KAS', {
           expectedFields: ['token', 'type', 'status', 'hash', 'fee', 'amount', 'network', 'fromTo', 'time'],
           expectedAmount: '0.2',
@@ -1276,6 +1191,10 @@ export const testCases = [
       let direction;
       let submittedMaxAmount = null;
       let submitted = null;
+      const historyIdle = await safeStep(page, t, '等待历史发送记录完成', async () => {
+        return waitForExtensionOutgoingHistoryIdle(page, STEP0_OPTIONS);
+      }, SCREENSHOT_DIR);
+      if (!historyIdle) return;
       await safeStep(page, t, '准备 KAS 转账方向', async () => {
         direction = await prepareKaspaTransferDirection(page, 'KAS', MIN_BALANCE.KAS_MAX);
         return `sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
@@ -1289,14 +1208,16 @@ export const testCases = [
         const maxAmount = await assertTransferFormAmount(page, null, '点击最大值');
         return `max=${maxAmount} sender=${direction.sender.accountName} receiver=${direction.receiver.accountName}${direction.flipped ? ' flipped' : ''}`;
       }, SCREENSHOT_DIR);
-      await safeStep(page, t, '预览并确认', async () => {
+      const submitOk = await safeStep(page, t, '预览并确认', async () => {
         const maxAmount = await readAmountInputValue(page);
         submittedMaxAmount = maxAmount;
         submitted = await submitTransfer(page, 'KAS', maxAmount, direction, { fullAmount: true });
         return `submitted ${submitted}`;
       }, SCREENSHOT_DIR);
+      if (!submitOk) return;
       await safeStep(page, t, '校验 KAS 历史记录字段', async () => {
         if (!submittedMaxAmount) throw new Error('KAS 最大值发送金额未记录，无法校验历史金额');
+        if (!submitted) throw new Error('KAS 提交结果未记录，无法校验历史金额');
         const { fields } = await verifyHistoryRecord(page, 'KAS', {
           expectedFields: ['token', 'type', 'status', 'hash', 'fee', 'amount', 'network', 'fromTo', 'time'],
           expectedAmount: submitted?.totalAmount || submittedMaxAmount,
@@ -1315,10 +1236,7 @@ export const testCases = [
 ];
 
 export async function setup(page) {
-  await dismissOverlays(page);
-  await unlockWalletIfNeeded(page);
-  await goToWallet(page);
-  await switchNetwork(page, 'Kaspa');
+  await page.bringToFront().catch(() => {});
 }
 
 export async function run() {

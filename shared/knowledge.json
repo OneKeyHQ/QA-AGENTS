@@ -1,14 +1,14 @@
 {
-  "version": "2.3.9",
-  "lastUpdated": "2026-06-18",
+  "version": "2.3.18",
+  "lastUpdated": "2026-06-19",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164 — DOM定位/选择器/testid陷阱",
-    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161 — 断言策略/校验方法",
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164,K-170 — DOM定位/选择器/testid陷阱",
+    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165,K-169,K-171,K-172,K-173 — OneKey/Electron/React行为异常",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167,K-168,K-175 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161,K-177,K-178,K-180,K-181,K-182 — 断言策略/校验方法",
     "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109,K-116,K-117,K-118 — 录制器相关",
-    "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166 — 时序/异步/页面状态切换"
+    "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166,K-174,K-176,K-179 — 时序/异步/页面状态切换"
   },
   "patterns": [
     {
@@ -1329,6 +1329,126 @@
       "platform": "desktop",
       "pattern": "Desktop TF Nightly 脚本必须用 Node 22+，不要用 bash -lc 触发系统 Node 18",
       "details": "2026-06-18 跑 Desktop TF Nightly 时，外层命令使用 `bash -lc`，PATH 解析到 `/usr/local/bin/node` v18.18.0；仓库 helper `src/tests/helpers/constants.mjs` 依赖 `import.meta.dirname`，在 Node 18 下为 undefined，导致 `resolve(import.meta.dirname, ...)` 抛 `ERR_INVALID_ARG_TYPE`，所有用例在连接 OneKey 前失败。修复口径：自动化 runner 使用当前 zsh/nvm 的 Node v22.22.0，或显式调用 `/Users/chole/.nvm/versions/node/v22.22.0/bin/node`；不要用 `bash -lc` 包一层跑 `node src/tests/...`。预执行 Node 版本错误不应计入产品/用例失败，但必须重跑真实 CDP 测试。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-168",
+      "category": "process",
+      "platform": "all",
+      "pattern": "验证新增测试文件时不要全量 import Dashboard registry，避免触发测试文件副作用",
+      "details": "准备插件端 ADA 转账脚本时，用 `getTestRegistry()` 全量扫描会动态 import `src/tests/**/*.test.mjs`；仓库里部分既有测试文件在 import 阶段存在 CLI 副作用，会尝试连接/启动 CDP 或 Appium，导致本机没有 appium 时直接 `spawn appium ENOENT`。验证新增脚本优先使用 `node --check <file>` 和 `node --input-type=module -e \"const mod=await import('<file>')\"` 检查目标模块导出；如确实要验证 Dashboard 展示，优先刷新正在运行的 Dashboard 或调用只针对目标文件的轻量导入，不要在本地校验脚本中全量 import registry。",
+      "confidence": 0.92
+    },
+    {
+      "id": "K-169",
+      "category": "quirk",
+      "platform": "ext",
+      "pattern": "插件页启用 SES no-eval 时 Playwright page.evaluate 会被拦截，应走 CDP Runtime.evaluate fallback",
+      "details": "排查插件端 ADA 转账时，Dashboard 报 `page.evaluate: TypeError: Cannot eval with evalTaming set to \"no-eval\" (SES_NO_EVAL)`，但 `curl http://127.0.0.1:9222/json/list` 能看到正确的 `chrome-extension://<extensionId>/ui-expand-tab.html`，说明不是插件缺失，而是插件页 SES 环境禁止普通 evaluate。稳定做法：在插件页 setup 前、Dashboard executor 调用通用 unlock/dismiss 前，先安装 no-eval 兼容层，用 CDP `Runtime.evaluate` 替代 `page.evaluate` / `page.waitForFunction`；同时避免 `locator.evaluate()`，改用键盘或 CDP 坐标点击。裸命令调试时也必须显式带 `EXT_CDP_URL` 和 `ONEKEY_EXT_ID`，否则 helper 会使用默认插件 ID 并误报插件找不到。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-170",
+      "category": "locator",
+      "platform": "ext",
+      "pattern": "插件端 Cardano 资产 testid 使用 ada--0-*，不是 cardano--cardano-*",
+      "details": "排查 EXT-ADA-001/004 时，脚本最初按 Kaspa 规律猜测 `home-token-item-cardano--cardano-MELD/ADA`，导致 Dashboard 报“未找到 MELD/ADA 余额行”。CDP 实探 Cardano 首页真实可见行是 `home-token-item-ada--0-ADA`、`home-token-item-ada--0-BANK`、`home-token-item-ada--0-MELD`，发送资产弹窗对应 `asset-selector-token-item-ada--0-*`。插件端 Cardano 脚本应将 chain slug 设为 `ada`、token network id 设为 `0`，fallback 选择器用 `home-token-item-ada--` 前缀并在 modal 内找 `asset-selector-token-item-ada--0-<TOKEN>`；不要从网络展示名 Cardano 直接推导 testid。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-171",
+      "category": "quirk",
+      "platform": "ext",
+      "pattern": "SES no-eval 兼容必须覆盖插件端通用连接层，且不能再使用 locator.evaluate",
+      "details": "用户纠正 Kaspa 转账同样报 SES 后确认：只在 ADA 脚本内安装 no-eval fallback 不够。Dashboard 层的 `page.evaluate` fallback 能让 Step 0/余额读取通过，但 `locator.evaluate(el => el.select())` 仍会使用 Playwright utility script 并触发 `Cannot eval with evalTaming set to \"no-eval\"`。稳定做法：`connectExtensionCDP()` 返回插件页前统一安装 `installNoEvalSafeEvaluate(page)`，Dashboard 通过普通 `connectCDP()` 连到插件页时也要安装；所有插件端输入框清空/选中避免 `locator.evaluate`，改用 focus 后 `Meta+A/Control+A` + `Backspace`，或用 CDP 坐标/键盘操作。触发场景：插件端 ADA/Kaspa/其他 EXT-* 脚本、输入框 select/清空、Dashboard 与 CLI 两种执行入口。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-172",
+      "category": "quirk",
+      "platform": "ext",
+      "pattern": "Dashboard 同一插件端测试文件只跑一次 setup，no-eval fallback 要由 executor 在每个 case 前统一重装",
+      "details": "用户指出 ADA 只勾选部分发送用例（如 EXT-ADA-002/003/005/006）仍在 Step 0 报 `page.evaluate ... SES_NO_EVAL`。根因是 Dashboard executor 对同一个测试文件只在 `item.file !== lastFile` 时调用一次模块 `setup(page)`，后续 case 直接进各自 `fn(page)`；如果 no-eval patch 只放在文件级 setup 或安装 helper 看到标记就跳过，后续 case 的 Step 0 仍可能回到原生 `page.evaluate`。稳定做法：`installNoEvalSafeEvaluate(page)` 必须可重复调用且每次重新覆盖 `page.evaluate/page.waitForFunction`；Dashboard executor 在调用通用 unlock/dismiss 前、模块 `setup(page)` 前、以及每个 `tc.fn(page)` 前统一执行 `ensureNoEvalSafeEvaluate(page)`，只对 `chrome-extension://` 页面生效。各插件端转账脚本不要再散落单独调用，独立 CLI 运行仍由 `connectExtensionCDP()` 返回插件页前统一安装。修改 helper/executor 后必须重启 Dashboard，避免长驻 Node 进程继续使用 ESM 缓存里的旧代码。触发场景：Dashboard 批量勾选同一插件端转账文件的部分/多个 case、ADA/Kaspa/Cosmos 等 EXT-* 转账回归。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-173",
+      "category": "quirk",
+      "platform": "ext",
+      "pattern": "插件端钱包首页 Tab 状态会保留，读取余额前必须切回现货",
+      "details": "诊断 EXT-ADA-003 时，Step 0 显示已回到 Account #2/Cardano，但失败截图停在“历史记录”Tab；`readTokenBalance()` 只查可见的 `home-token-item-ada--*` 资产行，历史 Tab 下这些行不可见，所以误报“未找到 BANK 余额行”。同一页面 DOM/文本里可能仍包含隐藏的现货列表和历史记录里的 BANK 文本，不能把 bodyText 包含 token 当成余额可读。稳定做法：插件端转账脚本统一调用 `src/tests/helpers/extension-transfer.mjs` 的 `prepareExtensionTransferCaseState(page, { network, tokenRowPrefix })` 作为 Step 0；该 helper 按“前台化 → 清理/回钱包/解锁 → 切默认账户 → 切目标网络 → 回钱包并等待现货资产行”的顺序恢复状态。不要把切回现货散落在每个余额读取点。历史记录校验前再显式切 `[data-testid=\"home-tab-history\"]`。同时 safeStep 捕获准备方向失败后应保留一手错误，避免继续访问空 direction 产生“未获取 recipientAddress”这类二次噪声。触发场景：插件端 ADA/Kaspa 等钱包首页现货/历史 Tab 来回切换、连续执行转账用例、读取 token 余额。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-174",
+      "category": "timing",
+      "platform": "ext",
+      "pattern": "全额转账前先等待历史发送记录完成",
+      "details": "用户要求 EXT-ADA-006 / EXT-KASPA-006 这类全额/Max 原生币转账在读余额和点击最大值前，先确认历史记录里之前的发送交易都已结束。原因是全额转账依赖当前可用余额/UTXO，如果上一笔发送仍处于发送中、提交中、广播中、处理中、待确认、Pending/Confirming/Submitting/Sending/Submitted 等状态，立即点 Max 可能读到未稳定余额或构造错误金额。稳定做法：不要放进通用 Step 0；在全额转账专属 precondition safeStep 中调用 `waitForExtensionOutgoingHistoryIdle(page, { tokenRowPrefix })`，轮询 `home-tab-history` 下可见的 `tx-action-common-list-view` 发送记录。历史行尚未渲染时要先等待最小渲染窗口，不能把空列表立即当作 idle；连续两次无 pending 后再自动切回 `home-tab-portfolio` 继续准备方向；超时则阻止全额转账并输出 pending row 摘要。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-175",
+      "category": "process",
+      "platform": "ext",
+      "pattern": "新增或调整插件端测试依赖后 Dashboard 用例列表缺组，先重启长驻 Dashboard",
+      "details": "排查插件端 ADA/Kaspa 转账用例在 Dashboard 里消失：`/api/tests` 初始没有 `extension/transfer/ada/transfer.test.mjs` 和 `extension/transfer/kaspa/transfer.test.mjs`，但目标测试文件单独 `import()` 均能正常导出 6 条 `testCases`。重启占用 5050 的 Dashboard 进程后，后端注册表立即恢复显示“Cardano 转账”和“Kaspa 转账”。原因是 Dashboard 是长驻 Node/tsx 进程，测试文件虽然用时间戳动态 import，但测试文件内静态依赖的 helper（如 `extension-transfer.mjs`、`no-eval-cdp.mjs`）仍可能被旧进程缓存或保留失败状态；新增 helper、移动公共 Step 0、改 executor/no-eval 兼容层后，必须重启 Dashboard 再判断列表是否真的缺失。诊断顺序：先查 `curl http://localhost:5050/api/tests` 是否缺目标 file；再用单文件 `node --input-type=module` 动态 import 验证脚本 export；若单文件 OK 但 API 缺组，停掉 5050 进程并用插件端环境变量重启 Dashboard。",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-176",
+      "category": "timing",
+      "platform": "ext",
+      "pattern": "插件端转账预览页 shell 出现不等于详情字段已渲染",
+      "details": "排查 EXT-ADA-006：点击“预览”后弹窗已经切到确认页 shell，底部可见“确认”和“预估网络费用”，但主体仍是骨架屏/费用估算 loading，确认按钮带 spinner 且置灰；旧逻辑只看到 confirm+fee 就立即读取预览字段，导致误报 `预览确认页字段缺失: amount,sender-label`。稳定做法：插件端转账统一调用 `waitForExtensionTransferPreviewReady()`，先确认预览 shell 已进入且确认按钮不再 loading/disabled，再轮询读取 token、金额、网络、费用、收款地址、发送/接收账户标签等阻断字段。Max/fullAmount 预览页不要强行用完整输入金额精确匹配，预览阶段只要求出现对应 token 金额，精确金额口径继续交给历史记录匹配。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-177",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "ADA Max 历史金额匹配用预览页最终主金额，不套 Kaspa 主金额+费用口径",
+      "details": "排查 EXT-ADA-006：发送页 Max 输入为 2.75836 ADA，预览提交成功，但最新历史行显示发送 -1.3584 ADA、网络费用 0.1702 ADA，`主金额 + 网络费用 = 1.5286` 与输入 Max 相差 1.22976。Cardano 是 UTxO 模型，Max 发送会受到找零输出、native token 最小 ADA、UTxO 选择、冻结/保留余额等影响，输入框 Max 不一定等于历史主金额或主金额+网络费。稳定口径：保留通用 `amountPlusFeeEquals` 给 Kaspa 等链；新增通用 `previewPrimary` 历史匹配模式，ADA Max 从预览页读取最终展示的转账主金额 `previewAmount`，历史记录只要求方向正确、token 正确、历史主金额按展示精度匹配 `previewAmount`。输入 Max 与 fee 只做 debug，不作为 ADA Max 历史金额断言。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-178",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "签名确认页预览金额要从资产行读取，避免账户名数字被误当金额",
+      "details": "用户提供 EXT-ADA-006 签名确认页 DOM 后确认：预览主金额没有 testid，但资产行带有 `data-sentry-source-file*=\"Assets.tsx\"`，并且 token 图标 `src` 包含 `ada--0/native.png`；金额由同一行的多个 span 组合成 `-`、`3.889691`、` ADA`。旧的全弹窗文本正则会先命中 `Wallet 1` / `Account #1` 里的数字，把 `previewAmount` 误解析成 `1`，导致历史记录明明显示 `-3.889691 ADA` 也匹配失败。稳定做法：预览金额解析必须限定在可见的资产行范围内，优先按 token 图标路径/链 token 标识定位目标资产行，再在该行文本中解析 `<amount> TOKEN`；同时排除包含 `Wallet`、`Account #`、收款方/发送方、地址、网络费用/Fee 等字段的范围。触发场景：插件端转账预览页、ADA/UTxO Max 转账、无 testid 的 SignatureConfirm Assets 行。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-179",
+      "category": "timing",
+      "platform": "ext",
+      "pattern": "插件端资产行出现后仍可能余额列为占位符，读取余额必须等待可解析数字",
+      "details": "排查 EXT-ADA-003：Step 0 已识别 `home-token-item-ada--0-BANK`，失败截图也显示 BANK 行存在，但余额列和价格列仍是 `-`，顶部总资产旁还有加载状态；脚本旧逻辑从资产行文本中找不到数字时直接把余额当 0，于是误报 `Account #1 0 BANK < 1`。失败后 CDP 只读同一行，BANK 已加载为 `BANKBankercoin1,000< $0.01...`，证明数据存在，只是读取过早。稳定做法：插件端转账读取余额时用通用轮询，资产行必须 found=true 且余额列出现可解析数字才返回；`-`、空文本、skeleton、价格还没加载都继续等待。若超时，错误应区分“余额未加载完成”和“真实余额不足”。触发场景：ADA/Kaspa 等插件端转账方向判断、Step 0 刚切账户/网络后立即读余额、Dashboard 连续执行多条转账用例。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-180",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "插件端转账最终确认后要识别 toast 失败态并回传提示文案",
+      "details": "用户指出 EXT-ADA-005 实际提交失败：点击预览页最终“确认”后按钮出现 loading，随后右下角弹出失败提示卡片（例：`可用的 UTXO 不足`），确认按钮又恢复可点击，但旧脚本只等待预览页关闭或历史记录，容易把这类提交失败误当作继续等待/后续历史匹配失败。稳定做法：不要按固定错误文案白名单判断；在点击最终确认前记录已有浮层提示，点击后立即轮询通用提交状态，只要观察到确认按钮进入过 busy/loading，新出现浮层提示，且预览弹窗仍打开、确认按钮恢复可点击，就判定提交失败，并将浮层提示文本写入 safeStep 错误详情。触发场景：插件端 ADA/Kaspa 等转账最终确认、UTxO 不足/构造交易失败/广播前校验失败、右下角 toast 带“客服/复制”等操作按钮。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-181",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "插件端转账提交失败后必须门禁后续历史记录校验",
+      "details": "QA review 发现：`safeStep()` 失败时只记录 failed 并返回 false，不会自动中断用例。插件端 ADA/Kaspa 转账在 `预览并确认` 或费用档确认 step 中识别到 toast 失败后，如果不检查 safeStep 返回值，仍会继续执行 `verifyHistoryRecord()`，把真实提交失败污染成“未匹配历史记录”或“提交结果未记录”等二次错误。稳定做法：所有依赖提交成功的历史校验前都用 `const submitOk = await safeStep(...); if (!submitOk) return;` 门禁，并在历史校验 step 开头检查 `submitted` / `submittedAmount` 已记录。触发场景：插件端 EXT-ADA/EXT-KASPA 转账最终确认、网络/UTxO/广播前校验失败、任何提交后才允许查历史的自动化脚本。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-182",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "插件端提交失败 toast 判定不能用 submitAttempted 替代 busySeen",
+      "details": "EXT-ADA-006 最大值发送时，最终确认后右下角弹出 `SOL 价格提醒` 市场通知，发送确认弹窗仍打开且确认按钮还在 spinner/loading。旧逻辑把 `submitAttempted + newNotification + previewOpen + hasReadyConfirm` 判成提交失败，误报 `提交后出现失败提示: SOL 价格提醒`。用户明确要求的失败判定必须同时满足：确认按钮曾进入 loading/busy、发送弹窗未关闭、确认按钮恢复可点击、出现新的浮层提示。稳定做法：`submitAttempted` 只用于日志和重试保护，不能替代 `busySeen` 触发失败；失败条件应保留 `busySeen && previewOpen && hasReadyConfirm && newNotification`，并优先确认 ready 按钮来自当前发送确认弹窗。触发场景：插件端转账最终确认期间弹出价格提醒/系统通知/其它非交易通知。",
       "confidence": 0.99
     }
   ]

@@ -1,15 +1,114 @@
 {
-  "timestamp": "2026-06-16T10:51:24Z",
+  "timestamp": "2026-06-18T16:06:33Z",
   "diagnoses": [
     {
-      "testId": "EXT-KASPA-006",
+      "testId": "EXT-ADA-006",
       "rootCause": "assertion_logic",
       "confidence": "high",
-      "evidence": "Dashboard run-state shows EXT-KASPA-006 sent 1.46549257 KAS from Account #1 to Account #2, then failed in history validation with detail text starting \"接收 17:17 • Wallet 2 / Account #2 +1.4655 KAS\" and missing field \"type\". CDP DOM inspection after the run showed history rows containing both send and receive records; the failed row was a receive record with the same rounded amount, so the pre-click matcher accepted token+amount without requiring send direction.",
-      "recommendation": "Restore the pre-click send-direction guard in verifyHistoryRecord(): latestHistoryMatchesExpected() should require the latest row to contain 发送/發送/Send when validating outgoing transfer history, before counting it as a stable match and clicking it.",
+      "evidence": "Dashboard run-state 显示 EXT-ADA-006 在 `预览并确认` 失败，错误为 `提交后出现失败提示: 📉 SOL 价格提醒 SOL 在过去 24 小时内下跌 6.90% | token=ADA busySeen=false submitAttempted=true buttonReady=true ...`。失败截图 `shared/results/ext-ada-screenshots/EXT-ADA-006-预览并确认-fail.png` 显示预览发送弹窗仍打开，底部确认按钮仍处于 spinner/loading 状态，右下角弹出的确是市场价格提醒通知，不是转账提交失败提示。",
+      "recommendation": "当前逻辑把 `(seenBusyConfirm || submitAttempted) + previewOpen + hasReadyConfirm + newNotification` 判为提交失败。用户之前要求的判断点是：正常点击确认得到 loading 响应后弹出提示，同时发送弹窗未关闭，且确认按钮恢复可点击。这里 `busySeen=false` 且截图按钮仍在 loading，不满足该条件。建议把失败判定收紧为 `seenBusyConfirm && previewOpen && hasReadyConfirm && newNotification`；`submitAttempted` 只能用于日志/重试保护，不应用来替代 `seenBusyConfirm` 触发失败。另需确认 `hasReadyConfirm` 只来自当前发送确认弹窗的最终确认按钮，避免页面其它 role=button 被误认为确认按钮。",
       "suggestedFix": {
-        "file": "src/tests/helpers/transfer.mjs",
-        "action": "Add a send-type predicate to latestHistoryMatchesExpected() or pass expected historyType='send'; keep amount rounding logic, but require token + rounded amount + send label before clicking the latest row."
+        "file": "src/tests/helpers/extension-transfer.mjs",
+        "action": "移除失败判定中 `attemptedSubmit` 对 `seenBusyConfirm` 的替代；失败 toast 必须同时满足确认按钮曾 busy/loading、预览弹窗仍打开、当前确认按钮恢复可点击、新通知出现。必要时将 confirm button 查询限定到当前 `APP-Modal-Screen` 的 footer/signature confirm 按钮。"
+      }
+    },
+    {
+      "testId": "EXT-ADA-005",
+      "rootCause": "assertion_logic",
+      "confidence": "high",
+      "evidence": "用户提供的执行截图显示：预览页最终确认后，确认按钮进入 loading，右下角弹出失败提示卡片，内容为 `可用的 UTXO 不足`，同时预览弹窗仍停留在确认页。旧脚本只等待成功文案/弹窗关闭/后续历史记录，没有把“确认按钮 busy 后出现新 toast 且按钮恢复可点”识别为提交失败，因此不能在 `预览并确认` step 中反馈真实失败原因。",
+      "recommendation": "不要通过固定失败文案白名单判断；在插件端通用提交完成等待中，点击最终确认前记录已有浮层提示，点击后轮询确认按钮 busy/ready 状态和新出现的浮层提示。若出现 `busySeen + new floating notification + preview still open + confirm ready`，立即判定提交失败，并把浮层文本回传到 safeStep 错误详情。",
+      "suggestedFix": {
+        "file": "src/tests/helpers/extension-transfer.mjs, src/tests/extension/transfer/ada/transfer.test.mjs, src/tests/extension/transfer/kaspa/transfer.test.mjs",
+        "action": "新增通用 `readExtensionFloatingNotifications()` / `waitForExtensionTransferSubmitResult()`，ADA/Kaspa 最终确认后复用该方法判断 toast 失败态。"
+      }
+    },
+    {
+      "testId": "EXT-ADA-003",
+      "rootCause": "timing",
+      "confidence": "high",
+      "evidence": "本轮 Dashboard run-state 显示 `Step 0` 已通过并识别到资产行 `assets=ada--0-ADA,ada--0-BANK`，但 `准备 BANK 转账方向` 失败为 `发送账户余额不足: Account #1 0 BANK < 1`。失败截图 `shared/results/ext-ada-screenshots/EXT-ADA-003-准备-BANK-转账方向-fail.png` 显示当前确实在 Account #1/Cardano 的现货 Tab，BANK 行存在，但 ADA/BANK 两行余额列仍显示 `-`，顶部总资产旁也有加载状态。失败后通过 CDP 只读当前 DOM，同一 `home-token-item-ada--0-BANK` 行已加载为 `BANKBankercoin1,000< $0.01...`，说明数据存在，失败时只是余额尚未渲染完成。",
+      "recommendation": "这次不是 BANK 余额缺失，也不是账号方向选错；根因是 `prepareExtensionTransferCaseState()` 只等到资产行存在就认为 portfolio ready，而 `readTokenBalance()` 遇到余额占位符 `-` 时直接解析为 0。建议在读取转账方向余额前增加通用余额就绪轮询：目标 token 行必须出现可解析数字，且不能只有 `-` / skeleton；对 native ADA 费用余额也同样等待。超时后再报“余额未加载/余额为 0”，避免把加载中误报成余额不足。",
+      "suggestedFix": {
+        "file": "src/tests/helpers/extension-transfer.mjs, src/tests/extension/transfer/ada/transfer.test.mjs",
+        "action": "在 Step 0 或 `readTokenBalance()` 前增加资产行余额 ready 条件；`readTokenBalance()` 遇到 found=true 但无数字时返回 loading/empty 状态并轮询，而不是直接返回 0。"
+      }
+    },
+    {
+      "testId": "EXT-ADA-001/EXT-ADA-004",
+      "rootCause": "environment",
+      "confidence": "high",
+      "evidence": "Dashboard 初始报错为 `page.evaluate: TypeError: Cannot eval with evalTaming set to \"no-eval\" (SES_NO_EVAL)`；同时 `curl http://127.0.0.1:9222/json/list` 能看到 `chrome-extension://goodgebcoklfekldbhjmckehehjdfipe/ui-expand-tab.html`，说明插件页存在，失败不是插件缺失，而是插件 SES 环境拦截 Playwright evaluate。",
+      "recommendation": "插件端 Dashboard 在调用通用 unlock/dismiss、模块 setup、每个 case fn 前统一安装 CDP Runtime.evaluate fallback；插件脚本避免散落重复安装，并避免使用 `locator.evaluate()`。",
+      "suggestedFix": {
+        "file": "src/tests/helpers/no-eval-cdp.mjs, src/dashboard/test-executor.ts",
+        "action": "新增 no-eval 安全 evaluate helper，并由 Dashboard executor 对插件页统一安装；独立 CLI 入口由 `connectExtensionCDP()` 安装。"
+      }
+    },
+    {
+      "testId": "EXT-ADA-001/EXT-ADA-004",
+      "rootCause": "selector_stale",
+      "confidence": "high",
+      "evidence": "修复 no-eval 后用例推进到准备转账方向，但失败为“未找到 MELD/ADA 余额行”。CDP 实探 Cardano 首页真实 testid 为 `home-token-item-ada--0-ADA`、`home-token-item-ada--0-BANK`、`home-token-item-ada--0-MELD`，旧脚本按 `cardano--cardano-*` 推导导致未匹配。",
+      "recommendation": "Cardano 插件端转账脚本使用 `ada` 作为 chain slug、`0` 作为 token network id，资产首页和选币弹窗都按 `ada--0-*` 匹配。",
+      "suggestedFix": {
+        "file": "src/tests/extension/transfer/ada/transfer.test.mjs",
+        "action": "调整 `tokenTestId()`、余额行 fallback 和发送资产选择逻辑，使用页面实际展示的 Cardano testid 格式。"
+      }
+    },
+    {
+      "testId": "EXT-KASPA-001/EXT-KASPA-004",
+      "rootCause": "environment",
+      "confidence": "high",
+      "evidence": "Dashboard 失败步骤为“打开 SILVER/KAS 发送”，错误是 `locator.evaluate: TypeError: Cannot eval with evalTaming set to \"no-eval\" (SES_NO_EVAL)`。这说明先前 Dashboard 层的 `page.evaluate` fallback 已覆盖普通 evaluate，但 Kaspa 脚本里的 `locator.evaluate(el => el.select())` 仍会触发 Playwright 注入脚本并被 SES 拦截。",
+      "recommendation": "no-eval 兼容应放在插件端通用连接层，并移除插件转账脚本里的 `locator.evaluate` 输入框选中逻辑。",
+      "suggestedFix": {
+        "file": "src/tests/helpers/extension-cdp.mjs, src/tests/extension/transfer/kaspa/transfer.test.mjs",
+        "action": "在 `connectExtensionCDP()` 中统一安装 `installNoEvalSafeEvaluate(page)`；Kaspa 输入框清空改为 focus 后 `Meta+A/Control+A` + `Backspace`。"
+      }
+    },
+    {
+      "testId": "EXT-ADA-002/EXT-ADA-003/EXT-ADA-005/EXT-ADA-006",
+      "rootCause": "environment",
+      "confidence": "high",
+      "evidence": "用户反馈未勾选的 ADA 发送/最大值用例仍报 SES。读取 Dashboard run-state 显示这四条均在 `Step 0: 清理状态并重置账户` 报 `page.evaluate: TypeError: Cannot eval with evalTaming set to \"no-eval\" (SES_NO_EVAL)`。这说明文件级 setup 的一次性安装不足以覆盖同文件后续 case，且 no-eval helper 的旧幂等逻辑在看到 `PATCH_KEY` 后会直接跳过重装。",
+      "recommendation": "no-eval fallback 必须在每个插件端转账 case 执行前重装；helper 自身必须允许重复覆盖 page.evaluate/page.waitForFunction。Dashboard 入口应由 executor 统一处理，脚本内不再散落重复调用。",
+      "suggestedFix": {
+        "file": "src/tests/helpers/no-eval-cdp.mjs, src/dashboard/test-executor.ts, src/tests/helpers/extension-cdp.mjs, src/tests/extension/transfer/ada/transfer.test.mjs, src/tests/extension/transfer/kaspa/transfer.test.mjs, src/tests/extension/transfer/cosmos/transfer.test.mjs",
+        "action": "移除 `installNoEvalSafeEvaluate()` 的 `page[PATCH_KEY]` 早退；Dashboard executor 在 setup/case 前统一调用；保留 `connectExtensionCDP()` 的独立 CLI 兜底；移除 ADA/Kaspa/Cosmos 转账脚本内的重复安装调用。"
+      }
+    },
+    {
+      "testId": "EXT-ADA-003",
+      "rootCause": "assertion_logic",
+      "confidence": "high",
+      "evidence": "Dashboard run-state 显示 Step 0 已通过：`wallet ready; account reset=Account #2; network=Cardano`；失败 step 是 `准备 BANK 转账方向`，detail 为 `未找到 BANK 余额行`，随后外层错误变成 `准备 BANK 转账方向失败：未获取 recipientAddress`。失败截图 `shared/results/ext-ada-screenshots/EXT-ADA-003-准备-BANK-转账方向-fail.png` 显示页面停在 Cardano 的“历史记录”Tab；CDP 只读 DOM 验证当前可见 `home-token-item-ada--*` 余额行数量为 0，但页面文本中存在 Account #2 的 BANK/ADA 资产与历史记录。",
+      "recommendation": "真实一手失败是余额读取前未确保切回“现货”Tab；`未获取 recipientAddress` 是 `safeStep` 捕获失败后继续执行方向空值检查导致的二次错误，提示应收敛。修复方向：在 `resetAdaCaseState()` / `switchToConfiguredAccount()` / `readTokenBalance()` 前确保点击并等待 `home-tab-portfolio`，再读取可见资产行；同时 `准备转账方向` step 失败后应直接 return/throw 一手错误，避免再报 recipientAddress。",
+      "suggestedFix": {
+        "file": "src/tests/extension/transfer/ada/transfer.test.mjs",
+        "action": "新增并复用 ensurePortfolioTab(page)，在读取 Cardano 余额前切到现货资产列表；调整 runTransferCase 中 direction 失败后的错误处理，避免覆盖 safeStep 的原始错误。"
+      }
+    },
+    {
+      "testId": "EXT-ADA-006",
+      "rootCause": "timing",
+      "confidence": "high",
+      "evidence": "Dashboard run-state 显示失败 step 是 `预览并确认`，错误为 `预览确认页字段缺失: amount,sender-label`。前置步骤均已通过：Step 0、等待历史发送记录完成、准备 ADA 转账方向、打开 ADA 发送并输入最大值 `max=3.928569`。失败截图 `shared/results/ext-ada-screenshots/EXT-ADA-006-预览并确认-fail.png` 显示预览弹窗仍是骨架屏/加载态，底部确认按钮带 spinner 且置灰；脚本 debug 的 `pageText` 也只包含发送表单/预估网络费用等内容，未出现预览详情里的金额和发送账户。",
+      "recommendation": "这次实际没获取到的是预览详情页的 `amount` 和 `sender-label`，不是收款地址。根因是 `waitForPreviewConfirmPage()` 只看到“确认”按钮和“预估网络费用”就放行，骨架屏也满足该条件，导致 `readPreviewFields()` 太早断言。建议等待预览详情真正渲染完成后再读字段，例如轮询到目标金额和发送账户标签出现、确认按钮不再 loading/disabled，或将 `readPreviewFields()` 改成带超时的重试读取。",
+      "suggestedFix": {
+        "file": "src/tests/extension/transfer/ada/transfer.test.mjs",
+        "action": "收紧 `waitForPreviewConfirmPage()` 的 ready 条件，避免预览骨架屏阶段提前返回；必要时让预览字段读取支持轮询直到 `amount`、`sender-label` 等阻断字段出现。"
+      }
+    },
+    {
+      "testId": "EXT-ADA-006",
+      "rootCause": "assertion_logic",
+      "confidence": "high",
+      "evidence": "本次 Dashboard run-state 显示 `预览并确认` 已通过，但提交摘要记录为 `sent=5.6599; preview=1; fee=0.1783; historyAmount=1; mode=previewPrimary`。随后历史校验失败：最新历史行是 `发送 18:32 • Wallet 2 / Account #2 -4.0599 ADA 网络费用 0.1783 ADA`，截图 `shared/results/ext-ada-screenshots/EXT-ADA-006-校验-ADA-历史记录字段-fail.png` 也显示最新历史主金额为 `-4.0599 ADA`。因此不是历史未刷新或点错记录，而是 `extractPreviewPrimaryAmountFromText()` 从预览页文本中错误提取了 `1` 作为 previewAmount，导致用 `1` 匹配 `4.0599`。",
+      "recommendation": "修复方向应集中在 ADA 预览金额解析：不要用整段 modal 文本的全局 token/数字正则找第一个非 fee 候选；需要把解析范围限定到预览页的金额/资产行，或排除 `Wallet 1`、`Account #1/#2` 这类账户标签数字，并在失败日志里保留 `previewText` 片段和 `previewAmount`。另外 `verifyHistoryRecord(page, token, expected)` 的 legacy normalizer 当前未透传 `previewAmount`，所以错误里显示 `previewAmount=-`，应补充透传便于诊断。",
+      "suggestedFix": {
+        "file": "src/tests/extension/transfer/ada/transfer.test.mjs, src/tests/helpers/transfer.mjs",
+        "action": "收紧 `extractPreviewPrimaryAmountFromText()` 的 DOM/文本范围，避免账户名数字被当作转账金额；同时在 legacy `normalizeHistoryExpectations()` 中保留 `previewAmount`。"
       }
     }
   ]
