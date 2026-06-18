@@ -14,7 +14,7 @@
 - TestFlight 更新: 未执行安装。TestFlight 进程可启动，但本轮无可见/可访问窗口，无法安全确认候选 build 是否为 6.x；因此保留当前已安装 6.x build，未安装任何 900 开头版本。
 - OneKey 启动: 先清理 stale OneKey，再用 `.env` 中 `ONEKEY_BIN=/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey` 以 `--remote-debugging-port=9222` 启动。
 - 运行时修正: 首次 wrapper 用 `bash -lc` 触发 Node 18，因 `import.meta.dirname` 不支持导致预执行失败；已改用 Node `v22.22.0` 重新执行，预执行失败未计入产品/用例结果。
-- 新增知识沉淀: `K-150`，记录 Desktop TF Nightly 必须用 Node 22+，避免 `bash -lc` 触发系统 Node 18。
+- 新增知识沉淀: `K-167`，记录 Desktop TF Nightly 必须用 Node 22+，避免 `bash -lc` 触发系统 Node 18。
 
 ## Checklist 汇总
 

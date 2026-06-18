@@ -70,4 +70,4 @@
 ## 执行备注
 
 - Dashboard `/api/run-state` 有 2026-06-16 的 stopped 队列残留，并且 `/api/tests` 对重复 caseId 会把部分 Market Chart 解析到 `web/market/chart.test.mjs`。本轮为保证 Desktop-TF 结果准确，使用显式 desktop module runner 执行 33 个 caseIds。
-- 已沉淀知识 `K-141`: Desktop-TF checklist 执行前必须校验 caseId -> file 属于 `desktop/...`，避免 Dashboard registry 重复 ID 误跑 web 模块。
+- 已沉淀知识 `K-158`: Desktop-TF checklist 执行前必须校验 caseId -> file 属于 `desktop/...`，避免 Dashboard registry 重复 ID 误跑 web 模块。

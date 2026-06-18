@@ -38,12 +38,12 @@
 
 ## 代码与知识沉淀
 
-- 新增/更新知识：`K-146`（创建钱包新流程）、`K-147`（账户选择器当前视口行点击）。
+- 新增/更新知识：`K-163`（创建钱包新流程）、`K-164`（账户选择器当前视口行点击）。
 - 相关修复文件：`src/tests/shared/wallet/create-mnemonic.mjs`, `src/tests/helpers/accounts.mjs`, `src/tests/desktop/utility/nightly-portfolio-all-networks-create-address.test.mjs`, `src/tests/shared/utility/universal-search.mjs`, `src/tests/shared/market/*`。
 
 ## 20:03 CST 补充
 
 - `MARKET-CHART-001` 已修复并复跑通过：Market 列表打开和点击 Token 前都会再次解锁；若解锁回到 Wallet，会重新进入 `Market -> 热门`。结果：10 个可见 token，点击 `SPACEMOON0xf255...7777` 进入详情页，TV 图表 7 个 canvas，K 线 canvas 非白屏（hash `920242726`）。结果文件：`shared/results/MARKET-CHART-001.json`。
 - `NIGHTLY-PORTFOLIO-001` 已确认进入正确的 unified all-networks 流程，但点击完成后产品运行时报 `Cannot access 'Vault' before initialization`，首页仍停在单网络 `Cardano`，没有进入 all-networks。脚本已保留该错误并判失败；不能继续执行“创建地址 & 应用”和复制地址列表残留校验。
-- 新增知识：`K-148`（统一网络选择器被锁屏层覆盖时只剩 header）、`K-149`（Market 列表 DOM 可见但点击被锁屏层拦截）。
+- 新增知识：`K-165`（统一网络选择器被锁屏层覆盖时只剩 header）、`K-166`（Market 列表 DOM 可见但点击被锁屏层拦截）。
 - 最新聚焦结果：`MARKET-CHART-001` PASS，`NIGHTLY-PORTFOLIO-001` FAIL（产品 runtime 阻断），相关单测 8/8 PASS。

@@ -1,32 +1,16 @@
 {
-  "version": "2.3.8",
+  "version": "2.3.9",
   "lastUpdated": "2026-06-18",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134 — DOM定位/选择器/testid陷阱",
-    "quirk": "K-002~K-005,K-011~K-016,K-018,K-022~K-029,K-031,K-033~K-037,K-039~K-046,K-049,K-052~K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-148 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061~K-063,K-068~K-071,K-073,K-076~K-078,K-082,K-083,K-092,K-096,K-097,K-119,K-136,K-141,K-150 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-090,K-091,K-093,K-095,K-120,K-132,K-133,K-135,K-142,K-143 — 断言策略/校验方法",
-    "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109 — 录制器相关",
-    "timing": "K-107,K-110,K-112,K-114,K-149 — 时序/异步/页面状态切换"
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164 — DOM定位/选择器/testid陷阱",
+    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165 — OneKey/Electron/React行为异常",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161 — 断言策略/校验方法",
+    "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109,K-116,K-117,K-118 — 录制器相关",
+    "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166 — 时序/异步/页面状态切换"
   },
   "patterns": [
-    {
-      "id": "K-103",
-      "category": "recording",
-      "platform": "android",
-      "pattern": "smartType 后 IME 仍开着，下一步 smartTap 找不到被键盘遮住的按钮（Join/Submit 等）",
-      "details": "现象：runner 步骤 [12] type VIP999 ✓ 成功；步骤 [13] tap Join contentDesc 找不到 → fall to coords (931, 1395) → coord 落在键盘 region 上没点中 Join → VIP999 没真绑定。**根因**：smartType 完成后 IME 键盘仍然在 app 之上，UIAutomator dump 时键盘的 view tree 遮盖了被覆盖的 app 视图，contentDesc=Join 在 dump 中不可见；coord (931, 1395) 这个位置在 1140×2616 屏幕上确实是 Join 按钮位置，但键盘 popup 时该位置变成键盘按键 region，tap 落在键盘上。**修复**：smartType 完成后默认发一次 （KEYCODE_BACK），Android 标准行为是 IME 可见时第一次 BACK 只关键盘**不**触发 activity 返回。可通过 options.dismissKeyboard=false 关闭（Search 场景留键盘看 autosuggest）。**额外坑**：第二次 BACK 才会真返回；shell 脚本里连续多次 BACK 必踩此坑（今天 2 次连环 BACK 把 OneKey 退到 Android 桌面）。**判别 binding 是否真生效**：referral card 消失**不**等于绑定成功（可能只是被动 dismiss），需查 Settings → Referral 看是否显示已绑定码。2026-05-12 VIP999 绑定 4 次都没真的发生绑定就是这个原因。",
-      "confidence": 0.98
-    },
-    {
-      "id": "K-102",
-      "category": "recording",
-      "platform": "android",
-      "pattern": "smartType 用 text 选择器时容易命中同名 TextView 标签而不是真正的 EditText 输入框",
-      "details": "现象：smartType({text:\"Referral code\"}, \"VIP999\") → 框里 0 字符或只 1 字符进。**根因**：OneKey RN 表单在 dump 中常有两个同名节点—— ①TextView 标签（屏幕上看像 placeholder 那段字） ②真正的 EditText 输入框。findElementByText 返回**第一个**匹配，多数情况就是 TextView。tap 命中 TextView 没焦点效果，后续 \"input text X\" 全飘走。**修复**：smartType 改用专门的 findEditTextMatching → 在 elements 中显式 filter className.includes(\"EditText\")，绕过同名标签。**附带改动**：tap 后 400ms 等 IME 稳定 + 逐字符 input text（间隔 60ms）防 IME race。**验证**：2026-05-12 修复后用 smartType({resourceId:\"nav-header-search\"}, \"VIP999\") → dump 显示 text=\"VIP999\" 完整入框。**通用经验**：但凡涉及 RN 表单的输入操作，selector 都应优先用 resource-id（最稳）或 className 限定，避免靠 text 兜底（易撞标签）。",
-      "confidence": 0.98
-    },
     {
       "id": "K-001",
       "category": "locator",
@@ -412,19 +396,19 @@
       "confidence": 0.95
     },
     {
-      "id": "K-050",
-      "category": "locator",
-      "platform": "desktop",
-      "pattern": "网络选择器结果行渲染在 portal 中，不在 APP-Modal-Screen DOM 子树内",
-      "details": "网络选择弹窗的搜索结果列表（select-item-{impl}--{chainId}）不在 APP-Modal-Screen 的 DOM 子树内，而是渲染在独立的 portal/overlay 层。必须用 document.querySelectorAll 全局搜索，不能限定在 modal 内。DIV 行容器 testid='select-item-{impl}--{chainId}'（w~624, h~48），SPAN 文本标签 testid='select-item-select-item-{impl}--{chainId}'（w~66）。点击应该用 div[data-testid^='select-item-'] + height>=40 匹配行容器，再用 page.mouse.click 精确坐标点击。",
-      "confidence": 0.98
-    },
-    {
       "id": "K-049",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "地址栏粘贴/清空按钮互斥显示",
       "details": "地址栏为空时显示「粘贴」按钮（address-form-address-clip），有内容时粘贴按钮消失显示「清空」按钮（address-form-address-clear）。不能先输入内容再点粘贴，必须先清空才能看到粘贴按钮。脚本中测试粘贴功能需要先确保地址栏为空。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-050",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "网络选择器结果行渲染在 portal 中，不在 APP-Modal-Screen DOM 子树内",
+      "details": "网络选择弹窗的搜索结果列表（select-item-{impl}--{chainId}）不在 APP-Modal-Screen 的 DOM 子树内，而是渲染在独立的 portal/overlay 层。必须用 document.querySelectorAll 全局搜索，不能限定在 modal 内。DIV 行容器 testid='select-item-{impl}--{chainId}'（w~624, h~48），SPAN 文本标签 testid='select-item-select-item-{impl}--{chainId}'（w~66）。点击应该用 div[data-testid^='select-item-'] + height>=40 匹配行容器，再用 page.mouse.click 精确坐标点击。",
       "confidence": 0.98
     },
     {
@@ -772,28 +756,12 @@
       "confidence": 0.98
     },
     {
-      "id": "K-100",
-      "category": "recording",
-      "platform": "android",
-      "pattern": "豆包 / GLM / Kimi 等国产视觉模型不支持 `response_format: {type:'json_object'}`，会返 400",
-      "details": "OpenAI SDK 的 `response_format.type: 'json_object'` 是较新的字段，OpenAI/Anthropic 都支持但**国产 OpenAI 兼容网关大多不支持**——豆包/GLM/Kimi 等都会返 `400 The parameter response_format.type ... is not supported by this model`。**解决方案**：在 `chat.completions.create` 调用里**完全去掉 `response_format`**，靠 prompt 明确要求「Return ONLY a JSON object」+ 代码侧 `text.match(/\\{[\\s\\S]*\\}/)` regex 兜底解析。OneKey LLM 网关 (`llm-api.onekeytest.com/v1`) 的所有非 OpenAI 系列模型都需要这样处理。如果想要硬约束 JSON 输出，只能用 Anthropic 的 `output_config.format.json_schema`，但那需要 Anthropic SDK + Anthropic 协议。2026-05-11 在 android recorder 切豆包时遇到。",
-      "confidence": 0.98
-    },
-    {
-      "id": "K-099",
-      "category": "recording",
-      "platform": "android",
-      "pattern": "`adb kill-server` 会静默杀死 recorder 的 getevent 子进程，HTTP server 还在跑但触摸事件捕获已死",
-      "details": "Recorder 在 `startTouchMonitor()` 里 `spawn(ADB, ['-s', DEVICE_ID, 'shell', 'getevent', '-lt'])` 启动一个 adb 子进程持续监听触摸事件。**`adb kill-server` 会杀掉所有 adb 客户端连接**（不只是 daemon），包括 recorder spawn 出来的 getevent shell。child process 退出但 recorder.mjs **没有监控 child exit 也没有重连逻辑**——结果：①HTTP server (端口 3212) 继续 LISTEN，浏览器看着像在录制；②session.json 永远停在 eventCount=0；③用户点屏幕完全没反应。**诊断方法**：`pgrep -P <recorder_pid> -a` 若输出为空说明 getevent 子进程已死。**修复**：重启 recorder（`pkill -f tests/android/recorder.mjs && node src/tests/android/recorder.mjs`）。**预防**：调试 adb 时优先用 `adb reconnect` 或针对单个设备 `adb -s <udid> reconnect`，不要 `adb kill-server`；如必须 kill-server，**记得重启 recorder**。2026-05-11 排查录制问题时 `adb kill-server + start-server` 后 recorder 14377 永久失聋，浪费了 5 分钟才发现。",
-      "confidence": 0.98
-    },
-    {
-      "id": "K-098",
-      "category": "recording",
-      "platform": "android",
-      "pattern": "Android recorder 重启时必须先 pkill `adb getevent` 子进程，否则僵尸进程抢事件流导致新 recorder 收不到 tap",
-      "details": "`src/tests/android/recorder.mjs` 启动时 spawn `adb -s <udid> shell getevent -lt` 子进程监听触摸事件。kill 父 node 进程时**子 adb getevent 不会跟着死**（detached）。下一次启动 recorder 会再 spawn 一个新 getevent，同一台设备的事件被旧/新 getevent 竞争分发——新 recorder 经常 0 个 tap 捕获。**正确重启序列**：`pkill -f \"adb.*getevent\"; sleep 1; pkill -f \"tests/android/recorder.mjs\"; sleep 1; node src/tests/android/recorder.mjs`。验证方法：`pgrep -fa \"getevent\"` 启动后应只有 1 个（父进程是当前 recorder PID）。后续可在 recorder.mjs 的 SIGINT handler 加 `monitor.kill('SIGKILL')` + 主动杀子 adb，但目前还没做。2026-05-11 切 doubao 模型时连续重启 3 次累积 4 个僵尸 getevent，新 recorder 8 个 tap 全标 unknown（实际是事件根本没到 AI 调用层）。",
-      "confidence": 0.95
+      "id": "K-096",
+      "category": "process",
+      "platform": "all",
+      "pattern": "RocketX 渠道接入：provider=SwapRocketX，同链 + 跨链，构建依赖 quoteResultCtx",
+      "details": "新渠道 RocketX 接入约束（用于生成 Swap 用例）：① provider 标识统一为 `SwapRocketX`；② 同链 + 跨链均覆盖，分别写在 `2026-04-20_Swap-RocketX渠道同链测试.md` / `2026-04-20_Swap-RocketX渠道跨链测试.md`，对齐 Houdini 两份模板；③ 构建接口 `POST /swap/v1/build-tx` **依赖 `quoteResultCtx`**，每条用例必须按 `quote → 提取 RocketX quoteResultCtx → build-tx` 闭环执行，不允许直接 build（与 Exodus / CowSwap / 1inch Fusion / LiFi / Changelly / ChangeHero 同组）；④ 断言失败口径：`data` 未命中 `SwapRocketX` / 命中但携带 `errorMessage` / 命中但无 `quoteResultCtx`，任意一条都判定 failed，失败时输出 `providers=` 与 `rocketxQuote=` 便于定位；⑤ 目前 `app-monorepo` 的 `x` 分支未检索到 `SwapRocketX` 相关常量（`packages/shared/types/swap/SwapProvider.constants.ts` 仅枚举了 `Swap1inchFusion`），支持网络清单采用占位「EVM 七条 + Solana + BTC」，正式清单确认后必须先更新 `docs/qa/rules/swap-rules.md` 的 RocketX 网络节点，再回填用例中的具体场景。详见 `docs/qa/rules/swap-rules.md` 2026-04-20 变更记录。",
+      "confidence": 0.9
     },
     {
       "id": "K-097",
@@ -804,12 +772,28 @@
       "confidence": 0.95
     },
     {
-      "id": "K-096",
-      "category": "process",
-      "platform": "all",
-      "pattern": "RocketX 渠道接入：provider=SwapRocketX，同链 + 跨链，构建依赖 quoteResultCtx",
-      "details": "新渠道 RocketX 接入约束（用于生成 Swap 用例）：① provider 标识统一为 `SwapRocketX`；② 同链 + 跨链均覆盖，分别写在 `2026-04-20_Swap-RocketX渠道同链测试.md` / `2026-04-20_Swap-RocketX渠道跨链测试.md`，对齐 Houdini 两份模板；③ 构建接口 `POST /swap/v1/build-tx` **依赖 `quoteResultCtx`**，每条用例必须按 `quote → 提取 RocketX quoteResultCtx → build-tx` 闭环执行，不允许直接 build（与 Exodus / CowSwap / 1inch Fusion / LiFi / Changelly / ChangeHero 同组）；④ 断言失败口径：`data` 未命中 `SwapRocketX` / 命中但携带 `errorMessage` / 命中但无 `quoteResultCtx`，任意一条都判定 failed，失败时输出 `providers=` 与 `rocketxQuote=` 便于定位；⑤ 目前 `app-monorepo` 的 `x` 分支未检索到 `SwapRocketX` 相关常量（`packages/shared/types/swap/SwapProvider.constants.ts` 仅枚举了 `Swap1inchFusion`），支持网络清单采用占位「EVM 七条 + Solana + BTC」，正式清单确认后必须先更新 `docs/qa/rules/swap-rules.md` 的 RocketX 网络节点，再回填用例中的具体场景。详见 `docs/qa/rules/swap-rules.md` 2026-04-20 变更记录。",
-      "confidence": 0.9
+      "id": "K-098",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "Android recorder 重启时必须先 pkill `adb getevent` 子进程，否则僵尸进程抢事件流导致新 recorder 收不到 tap",
+      "details": "`src/tests/android/recorder.mjs` 启动时 spawn `adb -s <udid> shell getevent -lt` 子进程监听触摸事件。kill 父 node 进程时**子 adb getevent 不会跟着死**（detached）。下一次启动 recorder 会再 spawn 一个新 getevent，同一台设备的事件被旧/新 getevent 竞争分发——新 recorder 经常 0 个 tap 捕获。**正确重启序列**：`pkill -f \"adb.*getevent\"; sleep 1; pkill -f \"tests/android/recorder.mjs\"; sleep 1; node src/tests/android/recorder.mjs`。验证方法：`pgrep -fa \"getevent\"` 启动后应只有 1 个（父进程是当前 recorder PID）。后续可在 recorder.mjs 的 SIGINT handler 加 `monitor.kill('SIGKILL')` + 主动杀子 adb，但目前还没做。2026-05-11 切 doubao 模型时连续重启 3 次累积 4 个僵尸 getevent，新 recorder 8 个 tap 全标 unknown（实际是事件根本没到 AI 调用层）。",
+      "confidence": 0.95
+    },
+    {
+      "id": "K-099",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "`adb kill-server` 会静默杀死 recorder 的 getevent 子进程，HTTP server 还在跑但触摸事件捕获已死",
+      "details": "Recorder 在 `startTouchMonitor()` 里 `spawn(ADB, ['-s', DEVICE_ID, 'shell', 'getevent', '-lt'])` 启动一个 adb 子进程持续监听触摸事件。**`adb kill-server` 会杀掉所有 adb 客户端连接**（不只是 daemon），包括 recorder spawn 出来的 getevent shell。child process 退出但 recorder.mjs **没有监控 child exit 也没有重连逻辑**——结果：①HTTP server (端口 3212) 继续 LISTEN，浏览器看着像在录制；②session.json 永远停在 eventCount=0；③用户点屏幕完全没反应。**诊断方法**：`pgrep -P <recorder_pid> -a` 若输出为空说明 getevent 子进程已死。**修复**：重启 recorder（`pkill -f tests/android/recorder.mjs && node src/tests/android/recorder.mjs`）。**预防**：调试 adb 时优先用 `adb reconnect` 或针对单个设备 `adb -s <udid> reconnect`，不要 `adb kill-server`；如必须 kill-server，**记得重启 recorder**。2026-05-11 排查录制问题时 `adb kill-server + start-server` 后 recorder 14377 永久失聋，浪费了 5 分钟才发现。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-100",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "豆包 / GLM / Kimi 等国产视觉模型不支持 `response_format: {type:'json_object'}`，会返 400",
+      "details": "OpenAI SDK 的 `response_format.type: 'json_object'` 是较新的字段，OpenAI/Anthropic 都支持但**国产 OpenAI 兼容网关大多不支持**——豆包/GLM/Kimi 等都会返 `400 The parameter response_format.type ... is not supported by this model`。**解决方案**：在 `chat.completions.create` 调用里**完全去掉 `response_format`**，靠 prompt 明确要求「Return ONLY a JSON object」+ 代码侧 `text.match(/\\{[\\s\\S]*\\}/)` regex 兜底解析。OneKey LLM 网关 (`llm-api.onekeytest.com/v1`) 的所有非 OpenAI 系列模型都需要这样处理。如果想要硬约束 JSON 输出，只能用 Anthropic 的 `output_config.format.json_schema`，但那需要 Anthropic SDK + Anthropic 协议。2026-05-11 在 android recorder 切豆包时遇到。",
+      "confidence": 0.98
     },
     {
       "id": "K-101",
@@ -818,6 +802,22 @@
       "pattern": "Web Perps 搜索弹窗两级 tab 结构（2026-05 起）：顶级 自选/永续合约/现货 在 y≈180；子级 全部/加密货币/股票/贵金属/指数/大宗商品/外汇/预上线 仅在 永续合约 下出现于 y≈227；现货 tab 下无子级，直接列表",
       "details": "Web 端 (app.onekeytest.com/perps) 在 SILVER 增加现货支持后，token 选择器弹窗改成两级 tab。由于 \"自选\" 同名在顶级出现，\"全部\" 在子级出现，按 textContent 直接 click 会撞名。必须按 popover 相对 y-offset 区分：顶级 tab `(span.y - popover.y) < 100`，子级 tab `100 <= dy < 200`。脚本中已封装 `clickTopTab(name)` 和 `clickSubTab(name)` 两个 helper（见 `src/tests/web/perps/token-search.test.mjs`）。\\n\\n另一关键差异：现货 tab 下 token 行格式为 `BTC/USDC` 带斜杠 pair；永续合约下是单 ticker `BTC` + `40x` 杠杆 + `比特币` 中文标签。提取代币正则必须同时兼容 `/^[A-Z][A-Z0-9]{1,9}$/` 与 `/^[A-Z][A-Z0-9]{1,9}\\/[A-Z]{2,6}$/`。现货 tab 列头：资产 / 最新价格 / 24h涨跌 / 成交量 / 市值（无资金费率列）。\\n\\n触发场景：编写 / 维护 Web Perps token 选择器相关测试时。",
       "confidence": 0.95
+    },
+    {
+      "id": "K-102",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "smartType 用 text 选择器时容易命中同名 TextView 标签而不是真正的 EditText 输入框",
+      "details": "现象：smartType({text:\"Referral code\"}, \"VIP999\") → 框里 0 字符或只 1 字符进。**根因**：OneKey RN 表单在 dump 中常有两个同名节点—— ①TextView 标签（屏幕上看像 placeholder 那段字） ②真正的 EditText 输入框。findElementByText 返回**第一个**匹配，多数情况就是 TextView。tap 命中 TextView 没焦点效果，后续 \"input text X\" 全飘走。**修复**：smartType 改用专门的 findEditTextMatching → 在 elements 中显式 filter className.includes(\"EditText\")，绕过同名标签。**附带改动**：tap 后 400ms 等 IME 稳定 + 逐字符 input text（间隔 60ms）防 IME race。**验证**：2026-05-12 修复后用 smartType({resourceId:\"nav-header-search\"}, \"VIP999\") → dump 显示 text=\"VIP999\" 完整入框。**通用经验**：但凡涉及 RN 表单的输入操作，selector 都应优先用 resource-id（最稳）或 className 限定，避免靠 text 兜底（易撞标签）。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-103",
+      "category": "recording",
+      "platform": "android",
+      "pattern": "smartType 后 IME 仍开着，下一步 smartTap 找不到被键盘遮住的按钮（Join/Submit 等）",
+      "details": "现象：runner 步骤 [12] type VIP999 ✓ 成功；步骤 [13] tap Join contentDesc 找不到 → fall to coords (931, 1395) → coord 落在键盘 region 上没点中 Join → VIP999 没真绑定。**根因**：smartType 完成后 IME 键盘仍然在 app 之上，UIAutomator dump 时键盘的 view tree 遮盖了被覆盖的 app 视图，contentDesc=Join 在 dump 中不可见；coord (931, 1395) 这个位置在 1140×2616 屏幕上确实是 Join 按钮位置，但键盘 popup 时该位置变成键盘按键 region，tap 落在键盘上。**修复**：smartType 完成后默认发一次 （KEYCODE_BACK），Android 标准行为是 IME 可见时第一次 BACK 只关键盘**不**触发 activity 返回。可通过 options.dismissKeyboard=false 关闭（Search 场景留键盘看 autosuggest）。**额外坑**：第二次 BACK 才会真返回；shell 脚本里连续多次 BACK 必踩此坑（今天 2 次连环 BACK 把 OneKey 退到 Android 桌面）。**判别 binding 是否真生效**：referral card 消失**不**等于绑定成功（可能只是被动 dismiss），需查 Settings → Referral 看是否显示已绑定码。2026-05-12 VIP999 绑定 4 次都没真的发生绑定就是这个原因。",
+      "confidence": 0.98
     },
     {
       "id": "K-104",
@@ -1117,6 +1117,142 @@
     },
     {
       "id": "K-141",
+      "category": "locator",
+      "platform": "ext",
+      "pattern": "插件端网络选择弹窗的搜索输入框 testid 是 nav-header-search-chain-selector-search-bar，不是旧的 nav-header-search-chain-selector",
+      "details": "排查插件端执行网络切换时发现：点击 [data-testid=\"account-network-trigger-button\"] 后，APP-Modal-Screen 已可见，弹窗内真实可见输入框为 [data-testid=\"nav-header-search-chain-selector-search-bar\"]，位置约 x=147 y=223 w=598 h=36；旧 selector [data-testid=\"nav-header-search-chain-selector\"] 在当前 DOM 中数量为 0，会导致 locator.waitFor visible 超时。后续插件端 switchNetwork 不要保留旧 testid，直接使用 search-bar 版本。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-142",
+      "category": "locator",
+      "platform": "ext",
+      "pattern": "插件端 Kaspa 预览页网络费用档位是 SegmentControl 合成文本，应按四等分坐标点击慢/正常/快速/自定义",
+      "details": "排查 EXT-KASPA-002 时，网络费用弹窗肉眼可见“慢/正常/快速/自定义”，但 DOM 中“慢/正常/快速”并不稳定暴露为独立可点击节点；SegmentControlFrame 区域整体文本为“慢正常快速自定义”，宽约 360px。注意：预览页底部“预估网络费用•正常”会误导弹窗就绪判断；但 RN portal 重渲染时，四档文案/标题可能不在 dialog root 或短暂不可读，不能把“网络费用 + 慢/快速/自定义”作为唯一 open 条件。更可靠的 open 条件是可见 [data-testid=signature-confirm-btn] 且文本包含“保存”；标题/四档文本只作为 debug 辅助。费用入口点击前先检查费用编辑层是否已打开，已打开则复用，严禁在等待期间反复点击 sig-confirm-fee-selector-trigger，否则可能让费用弹窗停留在最终确认按钮上层；每个档位只允许“打开一次 → 坐标点击档位 → 点保存 → 等保存层关闭”。保存后必须轮询确认 signature-confirm-btn 消失，再进入下一档或最终 page-footer-confirm。触发场景：插件端 Kaspa 转账预览页切换费用档。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-143",
+      "category": "process",
+      "platform": "ext",
+      "pattern": "转账预览页最终确认后不能立刻结束，需要处理二次确认并等待发送完成",
+      "details": "排查 EXT-KASPA-002/003/004/005 时发现，脚本切换费用档并点击预览页 page-footer-confirm 后直接 return submitted，容易漏掉后续 signature-confirm-btn / 确认 / 发送 / 完成 等二次确认。同一流程 DOM 中会残留多个 page-footer-confirm（下一步/预览/确认 或隐藏历史页面按钮），Playwright locator.first().click() 可能命中隐藏按钮并卡在 element is not visible；即使元素 visible，RN 叠层下第一个“下一步”的中心点可能顶层实际是“预览”，单纯 containsTop/面积排序也会误选。正确做法：页脚提交按钮应按目标文案优先（预览/确认），遍历所有可见 page-footer-confirm，记录 btn.textContent 和 elementFromPoint 顶层文本，优先点击 btn 文案匹配目标的按钮，再兜底顶层文本匹配；如果没有目标文案，不能随便点候选按钮。点击“预览”后必须等待进入预览确认页（出现“确认”页脚 + 预估网络费用/sig-confirm-fee-selector-trigger），如果仍只有“预览/下一步”说明还在输入金额页，应重试点预览，不能马上进入最终确认。按当前用例口径：最终确认后不检查历史记录，不用旧历史/新增历史作为成功条件；应持续处理后续确认/发送/完成按钮，直到预览发送页/确认弹窗自动关闭，或页面出现明确发送/交易成功文案。若预览发送页未关闭则 fail。触发场景：插件端转账预览确认、费用弹窗保存后提交、签名页重渲染、最大值发送。",
+      "confidence": 0.94
+    },
+    {
+      "id": "K-144",
+      "category": "timing",
+      "platform": "ext",
+      "pattern": "钱包历史记录 tab 切换后交易行异步加载，不能固定 sleep 后立即断言",
+      "details": "排查 EXT-KASPA-006 时，进入钱包后 2 秒内点击“历史记录”并立刻查 tx-action-common-list-view，Dashboard 报“历史记录中未找到交易”。历史 tab 的交易行会异步渲染/刷新，尤其在插件端刚切网络或刚完成转账后。正确做法：优先点 [data-testid=home-tab-history]，再轮询最多约 20 秒等待可见 [data-testid=tx-action-common-list-view]；验证指定 token 时优先点击包含目标 token 的记录，否则再兜底首条；打开详情后也要轮询等待详情文本包含 token/hash/fee/status 之一。后续调整：不要把历史字段校验拆成独立用例，容易脱离刚完成的发送上下文；应参考 Cosmos，在每个发送用例完成后立即追加历史字段校验 step。Kaspa 中 EXT-KASPA-002/003 校验 SILVER，EXT-KASPA-004/005 校验 KAS，独立 EXT-KASPA-006 已移除。触发场景：转账后历史记录字段检查、钱包首页历史 tab。",
+      "confidence": 0.94
+    },
+    {
+      "id": "K-145",
+      "category": "process",
+      "platform": "ext",
+      "pattern": "插件端 Chrome 远程调试不能用空用户目录；默认用户目录被限制时应复制指定 Profile 副本再启用 9222",
+      "details": "QATest 插件端启动时，用户选择指定 Chrome Profile（如 Profile 10）后，不能为了绕过 Chrome 的 `DevTools remote debugging requires a non-default data directory` 限制而直接创建空的 `--user-data-dir`，否则会变成空用户、丢失 OneKey 插件登录态和配置。正确做法：1) 先尝试按指定用户启动：`Google Chrome --remote-debugging-port=9222 --profile-directory=\"Profile 10\"`；2) 若日志提示默认用户目录不允许远程调试，则征得用户确认后复制原 Chrome 用户数据目录到调试副本（例如 `$HOME/Chrome-OneKey-Profile10-Debug`），再用 `--user-data-dir=<副本根目录> --profile-directory=\"Profile 10\"` 启动；3) 启动后用 `/json/version` 和 `/json/list` 验证 9222，并确认列表里存在目标扩展 `chrome-extension://<extensionId>/...`。严禁未经确认改用空目录或空 Profile。触发场景：`/onekey-qatest`、插件端执行面板启动、Chrome 136+ 默认用户目录远程调试限制。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-146",
+      "category": "locator",
+      "platform": "ext",
+      "pattern": "插件端 Kaspa 发送弹窗会同时显示选币和收款地址输入，必须限定在 modal 内点击资产行并等待地址输入触发下一步",
+      "details": "排查 EXT-KASPA-001 时，脚本停在选择/输入转账地址前；CDP 实探显示 APP-Modal-Screen 文案同时包含“选择币种”和“选择地址”，其中可见 `asset-selector-token-item-kaspa--kaspa-SILVER`、`base-input-shared-styles-textarea`，但还没有 `page-footer-confirm`。页面后台同时残留钱包首页 `home-token-item-kaspa--kaspa-*`，如果选币或输入地址不限定在当前 modal 内，容易点到后台 token row 或输入未触发 React 校验。稳定做法：1) 点击发送后只在 `[data-testid=APP-Modal-Screen]` 内找可见 `asset-selector-token-item-kaspa--kaspa-<TOKEN>`，用坐标点击；2) 收款地址输入框用 modal 内最后一个 `base-input-shared-styles-textarea`；3) `pressSequentially` 输入地址后轮询确认 textarea.value 非空且可见 `page-footer-confirm` 文案包含“下一步”，再点击下一步。触发场景：插件端 Kaspa 转账、EXT-KASPA-001/002/003/004/005 的选币与收款地址输入阶段。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-147",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "插件端 Kaspa 输入 0 金额可不出现最小金额提示，但预览必须不可提交",
+      "details": "用户纠正 EXT-KASPA-001/004 的 0 金额断言：输入 0 后，产品可能不展示“最小金额/0.2”提示，不能把缺少最小金额提示作为失败。稳定断言口径应是：输入框接受 0 后，预览/Preview 按钮不可提交；最小金额提示存在时记录为 detail，不存在也允许通过。触发场景：插件端 Kaspa 转账 0 金额拦截、SILVER/KAS 金额=0 用例。",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-148",
+      "category": "process",
+      "platform": "ext",
+      "pattern": "插件端转账用例每个 case 开头必须清理残留 modal 并重置账户/网络状态；历史校验 helper 要兼容旧签名字段",
+      "details": "排查 EXT-KASPA-005/006 时发现，前一个发送用例失败后页面可能残留在转账 modal、历史详情或账户选择上下文，后续 case 若只做普通 dismiss/goToWallet，容易出现 Account not found 或 recipientAddress 未获取。稳定做法：每个 case 的 Step 0 先 bringToFront → closeAllModals → dismissOverlays → goToWallet → unlock → 再 close/dismiss 一次，随后切回 runtime-config 的 primary/secondary 中一个配置账户，并强制 switchNetwork(Kaspa)。另一个坑是 verifyHistoryRecord 原本只支持 verifyHistoryRecord(page, expectedObject)，但 Kaspa 旧脚本用 verifyHistoryRecord(page, token, options) 且 options.expectedFields/expectedAmount/expectedNetwork；如果归一化后 requiredFields 为空或未兼容，会在 requiredFields.filter 上抛 Cannot read properties of undefined (reading 'filter')。应在 helper 内统一 normalizeFieldList，兼容 expectedFields→requiredFields、expectedAmount→amount、expectedNetwork→network，并避免无 recipientAddress 时强制 fromTo/recipient。触发场景：插件端 Kaspa 转账多 case 连跑、发送失败后继续跑、历史记录字段校验。",
+      "confidence": 0.96
+    },
+    {
+      "id": "K-149",
+      "category": "timing",
+      "platform": "ext",
+      "pattern": "插件端转账历史校验只等待最新第一条记录匹配 token/amount，不遍历旧记录",
+      "details": "用户多次纠正 EXT-KASPA-005/006 的历史记录校验口径，并通过临时调试用例验证最终可行逻辑：verifyHistoryRecord() 只允许点击最新第一条历史记录，点击前最多轮询 30 秒，第一条摘要必须连续两轮稳定匹配发送方向 + token + 金额口径；匹配失败直接报错，不遍历旧记录、不用详情页文本兜底放行。金额口径必须区分场景：非全额/固定金额转账的历史摘要 amount 就是转出金额 sentAmount，不额外叠加网络费用；全额/Max 转账不依赖预览页 fee，而是用历史行里的“转账主金额 + 网络费用 = Max 输入金额”来匹配，按页面展示精度容忍尾数差。固定金额的 expectedAmount/historyAmount 均用 sentAmount；全额/Max 传 totalAmount=Max 输入金额 + historyAmountMode=amountPlusFeeEquals。金额匹配必须只取 token 左侧近邻窗口里的主金额，忽略 token 右侧、隐藏文本、时间、手续费档位或其它数字；debug 输出需包含 primary/historyFee/rowTotal/stable，便于判断为什么未匹配。触发场景：插件端 Kaspa/SILVER/KAS 转账后历史记录字段校验、链上交易异步刷新、固定金额与 Max 金额发送。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-150",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "转账历史摘要金额会按 UI 展示精度截断/四舍五入，不能用完整发送金额字符串精确匹配",
+      "details": "排查 EXT-KASPA-006 最大值发送：输入框发送金额为 2.29861257，但钱包历史列表第一条摘要显示 -2.2986 KAS，旧逻辑把 normalize 后的完整金额 2.29861257 与页面主金额 2.2986 做严格相等，导致误报“最新历史记录 30s 内未匹配目标 token/amount”。修复口径：先从历史行 token 左侧的主金额 raw 值推导页面展示小数位数（如 -2.2986 → 4 位），再将 expected/historyAmount 按该位数四舍五入后比较；详情页字段校验仍等待 hash/status/network 等 requiredFields 真正出现，不能因为列表金额已匹配就提前结束。触发场景：插件端转账 Max/全额发送、余额包含更多小数位但历史列表只展示固定精度、KAS/SILVER 等 token 历史摘要金额匹配。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-151",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "预览页网络费用可作为辅助信息，但 Max 历史匹配以历史行网络费用为准",
+      "details": "排查 EXT-KASPA-005/006 后用户纠正金额口径：非全额固定金额转账的历史摘要匹配金额就是 sentAmount，不额外加网络费用；全额/Max 转账不要再用预览页 fee 直接计算 historyAmount，因为预览页可能把 Max 输入金额、fee trigger、完整 modal 文本混在一起，导致 fee 被误解析成 sentAmount。稳定口径：固定金额 historyAmount=sentAmount；Max/fullAmount 传 totalAmount=Max 输入金额，历史行匹配时读取最新发送记录里的转账主金额和“网络费用”字段，校验主金额 + 网络费用 ≈ totalAmount（按历史行展示精度容忍尾数差）。预览页费用解析仍可保留为 debug/辅助输出，但不能作为 Max 历史匹配的唯一依据。触发场景：插件端 KAS/SILVER 固定金额转账、Max/全额转账、预览页费用 DOM 文本分散、历史记录摘要金额匹配。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-152",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "转账历史摘要匹配必须同时校验方向，不能只用 token+金额",
+      "details": "排查 EXT-KASPA-006：KAS 最大值发送后，历史校验点击了上一条“接收 +1.4655 KAS”记录，原因是 expected=1.46549257 按页面展示精度四舍五入后同样是 1.4655，旧匹配只看 token+amount，未要求“发送/Send”。修复口径：verifyHistoryRecord() 默认 historyType=send，最新第一条历史记录必须同时匹配发送方向、token、按 UI 展示精度四舍五入后的 historyAmount，连续稳定后才允许点击；如未来确实要校验接收记录，显式传 historyType=receive，特殊场景才传 historyType=any。触发场景：插件端转账后历史记录校验、同一账户互转导致发送/接收两边金额相同、Max/全额金额四舍五入后撞上旧记录。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-153",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "转账历史金额口径：固定金额不加燃料费，全额/Max 要扣燃料费",
+      "details": "用户纠正 Kaspa 转账历史匹配金额口径：非全额转账（如输入 0.2）历史摘要的主金额就是转出金额本身，不能把网络费用/燃料费加进去；全额/Max 转账时输入框金额是最大可转出总额，历史摘要里的转账主金额通常已扣除网络费用，因此应在历史行中读取“主金额 + 网络费用”，两者相加后匹配 Max 输入金额。实现时固定金额不应要求 feeAmount 才能计算 historyAmount；全额/Max 不应依赖预览页 fee，应该用 historyAmountMode=amountPlusFeeEquals，在历史行读取费用并按展示精度比较 totalAmount。触发场景：插件端 EXT-KASPA-005 固定金额发送、EXT-KASPA-006 最大值发送、SILVER/KAS 全额转账历史摘要匹配。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-154",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "预览页网络费用解析要在 fee label 附近找 token 金额，不能被法币数字截断",
+      "details": "EXT-KASPA-006 曾因预览页网络费用解析不稳而误判：当前 OneKey 预览页可能把网络费用显示成“网络费用 ... $0.01 ... 0.1844 KAS”或把 token 金额渲染在完整 modal 文本里而不是 fee trigger 文本里；旧正则 `(?:网络费用|Fee)[^\\d-]{0,80}(amount KAS)` 遇到中间的法币数字就失败。稳定做法：先读 fee trigger；读不到时在完整预览文本中定位 fee label（预估网络费用/网络费用/网络费/Fee），截取 label 前后窗口，再在窗口内找 `<amount> <token>`，这样不会被 `$0.01` 截断。注意：预览页 fee 只能作为提交摘要/辅助调试；Max 历史金额匹配必须以历史记录行里的网络费用为准。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-155",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "Max 转账历史匹配用历史行主金额+网络费用等于 Max 输入金额，避免预览页 fee 误解析",
+      "details": "EXT-KASPA-006 再次失败：预览页 fee 被误解析成 Max 输入金额 6.09677257，导致 historyAmount=0；真实历史行显示“发送 ... -5.7872 KAS ... 网络费用 0.3095 KAS”，5.7872+0.3095=6.0967，按历史行 4 位展示精度可匹配 Max 输入 6.09677257。修复口径：verifyHistoryRecord 增加 `historyAmountMode: 'amountPlusFeeEquals'` + `totalAmount=<Max 输入金额>`，最新发送历史行必须满足主金额 + 网络费用 ≈ totalAmount；误差容忍按历史行主金额/网络费用展示的小数位决定。错误输出需包含 primary/historyFee/rowTotal，方便判断是否是精度差还是解析错。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-156",
+      "category": "assertion",
+      "platform": "ext",
+      "pattern": "Max 转账历史金额允许主金额直匹配或主金额+网络费用匹配",
+      "details": "用户进一步确认：在保持历史行“主金额 + 网络费用 = Max 输入金额”逻辑的基础上，全额/Max 转账也可能直接用历史记录主金额匹配 Max 输入金额。实现上 `historyAmountMode: 'amountPlusFeeEquals'` 应先校验最新发送记录的主金额是否按页面展示精度等于 totalAmount；若不等，再读取历史行网络费用并校验主金额 + 网络费用 ≈ totalAmount。只要方向正确、token 正确，并且两种金额口径任一命中，就算匹配成功；固定金额转账仍只按 sentAmount 主金额匹配。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-157",
+      "category": "process",
+      "platform": "ext",
+      "pattern": "插件端 Dashboard 必须显式连接 Chrome CDP 和目标 Extension ID",
+      "details": "本轮插件端执行稳定方法：先启动包含 OneKey 插件登录态的 Chrome Profile，并打开远程调试端口，例如 `/Applications/Google Chrome.app/Contents/MacOS/Google Chrome --remote-debugging-port=9222 --user-data-dir=<Chrome用户数据根目录或已确认的调试副本> --profile-directory=<Profile N>`；启动后用 `curl http://127.0.0.1:9222/json/version` 和 `/json/list` 确认 CDP 可用且存在 `chrome-extension://<extensionId>/...` 页面。再启动 Dashboard 时显式传入 `EXT_CDP_URL=http://127.0.0.1:9222` 和 `ONEKEY_EXT_ID=<extensionId>`（本轮为 `goodgebcoklfekldbhjmckehehjdfipe`），必要时同步 `CDP_URL` 便于执行器复用。注意：`connectExtensionCDP()` 默认会排除 9222 以避免误连桌面 OneKey，因此插件端若复用 9222 必须设置 `EXT_CDP_URL`；严禁改连 OneKey 桌面 app CDP、空 Chrome Profile 或未安装/未登录插件的临时 Profile。触发场景：插件端 qatest、Dashboard 重启、EXT-* 用例执行前环境恢复。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-158",
       "category": "process",
       "platform": "desktop",
       "pattern": "Desktop-TF checklist 不能直接信任 Dashboard registry 的重复 caseId 解析，需确认 file 属于 desktop 模块",
@@ -1124,7 +1260,7 @@
       "confidence": 0.96
     },
     {
-      "id": "K-142",
+      "id": "K-159",
       "category": "assertion",
       "platform": "desktop",
       "pattern": "通用搜索 Tab 按命中类型动态展示，代币 Tab 已移除，自动化不能固定断言 Tab 存在",
@@ -1132,7 +1268,7 @@
       "confidence": 0.99
     },
     {
-      "id": "K-143",
+      "id": "K-160",
       "category": "assertion",
       "platform": "desktop",
       "pattern": "Market 主 tab 已改为自选/热门/股票/合约，现货只在自选二级 tab 中出现",
@@ -1140,7 +1276,7 @@
       "confidence": 0.99
     },
     {
-      "id": "K-144",
+      "id": "K-161",
       "category": "assertion",
       "platform": "desktop",
       "pattern": "AccountSelectorTriggerBase 的 innerText 可能为空，账户名断言应优先读 textContent",
@@ -1148,7 +1284,7 @@
       "confidence": 0.99
     },
     {
-      "id": "K-145",
+      "id": "K-162",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "Desktop TF 6.5.0 统一网络选择器的所有网络 footer 点击可能无效，不能弱化为通过",
@@ -1156,7 +1292,7 @@
       "confidence": 0.98
     },
     {
-      "id": "K-146",
+      "id": "K-163",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "Desktop TF 创建助记词钱包改为 seed phrase testid + 完成页，不能再强制 KeyTag 备份链路",
@@ -1164,7 +1300,7 @@
       "confidence": 0.99
     },
     {
-      "id": "K-147",
+      "id": "K-164",
       "category": "locator",
       "platform": "desktop",
       "pattern": "账户选择器切钱包/账户要用当前视口内行 testid 坐标，不能点大容器中心",
@@ -1172,7 +1308,7 @@
       "confidence": 0.98
     },
     {
-      "id": "K-148",
+      "id": "K-165",
       "category": "quirk",
       "platform": "desktop",
       "pattern": "统一网络选择器可能被锁屏层盖住，modal 只剩所有网络/单一网络 header",
@@ -1180,7 +1316,7 @@
       "confidence": 0.99
     },
     {
-      "id": "K-149",
+      "id": "K-166",
       "category": "timing",
       "platform": "desktop",
       "pattern": "Market 列表数据可见不代表可点击，锁屏层会让 token 详情点击落到 Welcome back",
@@ -1188,7 +1324,7 @@
       "confidence": 0.99
     },
     {
-      "id": "K-150",
+      "id": "K-167",
       "category": "process",
       "platform": "desktop",
       "pattern": "Desktop TF Nightly 脚本必须用 Node 22+，不要用 bash -lc 触发系统 Node 18",
