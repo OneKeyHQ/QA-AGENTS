@@ -10,7 +10,7 @@ import {
 } from '../../helpers/index.mjs';
 import { clickSidebarTab, ensureOnListPage } from '../../helpers/components.mjs';
 import { createDesktopMarketChartTests } from '../../shared/market/chart.mjs';
-import { MARKET_PUBLIC_TOKEN_MAIN_TAB } from '../../shared/market/market-tabs.mjs';
+import { MARKET_PUBLIC_TOKEN_MAIN_TAB, marketTabLabels } from '../../shared/market/market-tabs.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'market-chart');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -18,18 +18,56 @@ mkdirSync(SCREENSHOT_DIR, { recursive: true });
 // ── Platform-specific Navigation ─────────────────────────────
 
 async function clickMainTab(page, tab) {
-  const ok = await page.evaluate((name) => {
-    for (const sp of document.querySelectorAll('span')) {
-      if ((sp.textContent || '').trim() !== name) continue;
-      const r = sp.getBoundingClientRect();
-      if (r.width > 0 && r.height > 0 && r.y > 135 && r.y < 210) {
-        sp.click();
-        return true;
+  const labels = marketTabLabels(tab);
+  let target = null;
+  for (let i = 0; i < 8; i++) {
+    target = await page.evaluate((names) => {
+      const visibleRect = (el) => {
+        const r = el?.getBoundingClientRect?.();
+        if (!r || r.width <= 0 || r.height <= 0) return null;
+        if (r.x < 70 || r.y < 80 || r.y > 260) return null;
+        return r;
+      };
+      const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+      const candidates = [];
+
+      for (const el of document.querySelectorAll('span, button, [role="tab"], [role="button"], div')) {
+        const text = normalize(el.textContent);
+        if (!names.includes(text)) continue;
+        const r = visibleRect(el);
+        if (!r) continue;
+
+        let clickable = el.closest('button,[role="tab"],[role="button"]');
+        if (!clickable) {
+          let node = el.parentElement;
+          while (node && node !== document.body) {
+            const nr = visibleRect(node);
+            const nodeText = normalize(node.textContent);
+            if (nr && nodeText === text && nr.width >= r.width && nr.height >= r.height) {
+              clickable = node;
+            }
+            if (nr && nr.height >= 32 && nr.height <= 70 && nr.width >= r.width && nodeText === text) break;
+            node = node.parentElement;
+          }
+        }
+
+        const cr = visibleRect(clickable || el) || r;
+        candidates.push({
+          x: cr.x + cr.width / 2,
+          y: cr.y + cr.height / 2,
+          text,
+          score: Math.abs(cr.y - 175) + Math.abs(cr.x - 180) / 10,
+        });
       }
-    }
-    return false;
-  }, tab);
-  if (!ok) throw new Error(`Cannot click main tab: ${tab}`);
+
+      candidates.sort((a, b) => a.score - b.score);
+      return candidates[0] || null;
+    }, labels);
+    if (target) break;
+    await sleep(500);
+  }
+  if (!target) throw new Error(`Cannot click main tab: ${tab}`);
+  await page.mouse.click(target.x, target.y);
   await sleep(1500);
 }
 
@@ -63,12 +101,51 @@ async function assertNoLockLayer(page) {
   }
 }
 
+async function isMarketForeground(page) {
+  return page.evaluate(() => {
+    const visible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0 && r.x >= 0 && r.y >= 0 && r.x < window.innerWidth && r.y < window.innerHeight;
+    };
+    const bodyText = document.body?.innerText || '';
+    const marketSidebar = document.querySelector('[data-testid="market"]');
+    const hasMarketList = Array.from(document.querySelectorAll('[data-testid="list-column-name"]'))
+      .some((el) => visible(el) && el.getBoundingClientRect().y > 180);
+    const hasMarketTabs = /自选|自選|热门|熱門|股票|合约|合約|现货|現貨/.test(bodyText);
+    const marketActive = !!document.querySelector('[data-testid="tab-modal-active-item-TradingViewCandlesSolid"]');
+    return !!(marketActive && (hasMarketList || hasMarketTabs));
+  });
+}
+
+async function ensureMarketForeground(page) {
+  for (let i = 0; i < 3; i++) {
+    await clickSidebarTab(page, 'Market').catch(() => {});
+    await sleep(1000);
+    if (await isMarketForeground(page)) return;
+
+    const point = await page.evaluate(() => {
+      const el = document.querySelector('[data-testid="market"]');
+      const r = el?.getBoundingClientRect?.();
+      if (!r || r.width <= 0 || r.height <= 0) return null;
+      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+    });
+    if (point) {
+      await page.mouse.click(point.x, point.y);
+      await sleep(2000);
+    }
+    if (await isMarketForeground(page)) return;
+  }
+  throw new Error('Market page did not become foreground after sidebar click');
+}
+
 /** Enter Market → 热门 tab, return count of visible token rows. */
 async function openMarketSpotList(page) {
   await unlockWalletIfNeeded(page);
   await dismissOverlays(page);
-  await clickSidebarTab(page, 'Market');
-  await sleep(2000);
+  await ensureMarketForeground(page);
+  await unlockWalletIfNeeded(page);
+  await dismissOverlays(page);
+  await ensureMarketForeground(page);
   await clickMainTab(page, MARKET_PUBLIC_TOKEN_MAIN_TAB);
   await sleep(1500);
   await assertNoLockLayer(page);

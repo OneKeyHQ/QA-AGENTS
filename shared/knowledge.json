@@ -1,12 +1,12 @@
 {
-  "version": "2.3.18",
-  "lastUpdated": "2026-06-19",
+  "version": "2.4.2",
+  "lastUpdated": "2026-06-23",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164,K-170 — DOM定位/选择器/testid陷阱",
-    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165,K-169,K-171,K-172,K-173 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167,K-168,K-175 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161,K-177,K-178,K-180,K-181,K-182 — 断言策略/校验方法",
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164,K-170,K-183,K-186 — DOM定位/选择器/testid陷阱",
+    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165,K-169,K-171,K-172,K-173,K-188,K-189 — OneKey/Electron/React行为异常",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167,K-168,K-175,K-187 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161,K-177,K-178,K-180,K-181,K-182,K-184,K-185 — 断言策略/校验方法",
     "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109,K-116,K-117,K-118 — 录制器相关",
     "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166,K-174,K-176,K-179 — 时序/异步/页面状态切换"
   },
@@ -1450,6 +1450,62 @@
       "pattern": "插件端提交失败 toast 判定不能用 submitAttempted 替代 busySeen",
       "details": "EXT-ADA-006 最大值发送时，最终确认后右下角弹出 `SOL 价格提醒` 市场通知，发送确认弹窗仍打开且确认按钮还在 spinner/loading。旧逻辑把 `submitAttempted + newNotification + previewOpen + hasReadyConfirm` 判成提交失败，误报 `提交后出现失败提示: SOL 价格提醒`。用户明确要求的失败判定必须同时满足：确认按钮曾进入 loading/busy、发送弹窗未关闭、确认按钮恢复可点击、出现新的浮层提示。稳定做法：`submitAttempted` 只用于日志和重试保护，不能替代 `busySeen` 触发失败；失败条件应保留 `busySeen && previewOpen && hasReadyConfirm && newNotification`，并优先确认 ready 按钮来自当前发送确认弹窗。触发场景：插件端转账最终确认期间弹出价格提醒/系统通知/其它非交易通知。",
       "confidence": 0.99
+    },
+    {
+      "id": "K-183",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "Desktop TF 侧边栏可能是图标/Traditional Chinese 标签，运行时应优先用 sidebar data-testid",
+      "details": "2026-06-23 Desktop TF Nightly：当前应用语言为繁体中文（香港），侧边栏可见文案为 `錢包 / 市場 / 交易 / 合約 / 轉介 / 瀏覽器`。旧 `shared/ui-map.json` 的 `sidebarMarket/sidebarWallet/...` primary 依赖 `text=市场/钱包`，导致 Market checklist 误报 `Cannot find sidebar tab: Market`；CDP 实探显示稳定可见 testid 为 `home/market/swap/perp/earn/discovery`。修复口径：执行层导航优先使用这些 sidebar icon testid，旧简体/英文 text selector 只保留作 fallback；更新前后必须用 CDP 验证 bounding box 可见。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-184",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Market 自动化断言与点击要支持繁体中文别名，不能只匹配简体标签",
+      "details": "2026-06-23 Desktop TF Nightly：Market 当前主 tab 渲染为 `自選 / 熱門 / 股票 / 合約`，搜索 placeholder 为 `搜尋任何內容`，表头/筛选也多为繁体。旧脚本只点击/断言 `自选/热门/合约/现货/搜索`，导致 Market Chart/Home/Favorite 出现非产品阻塞。修复口径：Market tab 和 watchlist sub-tab 使用 canonical 简体 caseId/用例名，但点击与分类应接受别名映射：`自选=自選`、`热门=熱門`、`合约=合約`、`现货=現貨`；后续 header/placeholder 断言也应使用同一类 locale alias，而不是硬编码单一语言。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-185",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "所有网络是当前产品名，脚本和报告不要再把该模式叫投资组合",
+      "details": "2026-06-23 用户纠正 Desktop TF Nightly 结果：钱包首页/网络选择器里的原“投资组合”模式当前产品名是 `所有网络`。修复口径：用户可见步骤、case name、cover 文案、失败原因和 selector tab 匹配都应使用 `所有网络`；`投资组合` 只能作为旧文档/历史代码上下文，不应作为当前 UI tab 名称匹配。自动化可接受 `所有网络 / 所有網絡 / All Networks`，但不应把 `投资组合` 当作当前命名通过。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-186",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "新版账户选择器添加账户入口是 search bar 加号，点击后还要选择添加账户菜单项",
+      "details": "2026-06-23 修复 NIGHTLY-PORTFOLIO-001：当前 Desktop TF 6.5.0 账户选择器不再稳定暴露旧 `account-add-account`；可见入口是顶部搜索栏右侧 `[data-testid=\"account-search-bar-add-button\"]`。点击该加号后会先打开菜单，需要再点 `添加账户 / 新增帳戶 / Add Account` 才进入新建账户流程。修复口径：打开账户选择器时先点 `AccountSelectorTriggerBase` 的箭头/右侧区域；添加账户时优先用 `account-search-bar-add-button`，并兼容二级菜单文本，不要把找不到旧 testid 当作产品阻塞。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-187",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "所有网络地址创建流程必须确认钱包首页在前台，不能被后台挂载 DOM 误导",
+      "details": "2026-06-23 修复 NIGHTLY-PORTFOLIO-001：失败截图停留在 Market 页，但 DOM 中仍有钱包首页和账户选择器节点，旧脚本只看节点存在就继续寻找所有网络 `+N` 触发器，导致页面上下文漂移。修复口径：进入所有网络/创建地址前，必须通过侧边栏 `home` 导航并验证前台快照包含钱包上下文，且排除 Market/Swap/DeFi 等前台页面；React Native Web 后台挂载节点不能作为页面已切回 Wallet 的证据。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-188",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Desktop TF 创建助记词钱包可能点击创建入口后直接回到钱包首页",
+      "details": "2026-06-23 修复 WALLET-001：当前 TF 在点击 `創建新錢包 / 创建新钱包 / Create New Wallet` 入口后，可能直接完成创建并回到钱包首页，选中账户如 `Account #34`，不再出现方法选择、备份、密码或完成页。修复口径：点击创建入口后先检测是否已在钱包首页且账户选择器可见；若已完成，应记录 direct-completion path 并校验钱包/账户可操作，不要强制等待旧 onboarding 后续页面。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-189",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "TradingView guest-view 桥接调用失败不等于图表白屏，应保留画布/视觉断言",
+      "details": "2026-06-23 修复 Market Chart 用例：Electron guest view 中 `executeJavaScriptInGuestView` 可能抛 `GUEST_VIEW_MANAGER_CALL`，但同一页面截图和 canvas 像素检查显示 K 线图表已经渲染。修复口径：这类错误按 automation bridge 限制记录为 `SKIP:` detail，不应直接判产品失败；仍必须验证页面不白屏、canvas 非空、价格/指标等可见元素，只有视觉/DOM 断言也失败时才判图表流程失败。",
+      "confidence": 0.98
     }
   ]
 }

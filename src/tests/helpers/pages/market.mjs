@@ -2,6 +2,7 @@
 import { clickSidebarTab, openSearchModal, typeSearch, clearSearch, closeSearch } from '../components.mjs';
 import { registry } from '../ui-registry.mjs';
 import { sleep } from '../constants.mjs';
+import { marketTabLabels } from '../../shared/market/market-tabs.mjs';
 
 export class MarketPage {
   constructor(page) { this.page = page; }
@@ -78,19 +79,56 @@ export class MarketPage {
   }
 
   async switchTab(name) {
-    const clicked = await this.page.evaluate((tabName) => {
-      const candidates = document.querySelectorAll('button, span, [role="tab"]');
-      for (const el of candidates) {
-        const txt = el.textContent?.trim();
-        const r = el.getBoundingClientRect();
-        if (txt === tabName && r.width > 0 && r.height > 0 && r.y > 50 && r.y < 250) {
-          el.click();
-          return true;
+    const labels = marketTabLabels(name);
+    let target = null;
+    for (let i = 0; i < 8; i++) {
+      target = await this.page.evaluate((tabNames) => {
+        const visibleRect = (el) => {
+          const r = el?.getBoundingClientRect?.();
+          if (!r || r.width <= 0 || r.height <= 0) return null;
+          if (r.x < 70 || r.y < 50 || r.y > 280) return null;
+          return r;
+        };
+        const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+        const candidates = [];
+
+        for (const el of document.querySelectorAll('button, span, [role="tab"], [role="button"], div')) {
+          const txt = normalize(el.textContent);
+          if (!tabNames.includes(txt)) continue;
+          const r = visibleRect(el);
+          if (!r) continue;
+
+          let clickable = el.closest('button,[role="tab"],[role="button"]');
+          if (!clickable) {
+            let node = el.parentElement;
+            while (node && node !== document.body) {
+              const nr = visibleRect(node);
+              const nodeText = normalize(node.textContent);
+              if (nr && nodeText === txt && nr.width >= r.width && nr.height >= r.height) {
+                clickable = node;
+              }
+              if (nr && nr.height >= 28 && nr.height <= 80 && nr.width >= r.width && nodeText === txt) break;
+              node = node.parentElement;
+            }
+          }
+
+          const cr = visibleRect(clickable || el) || r;
+          candidates.push({
+            x: cr.x + cr.width / 2,
+            y: cr.y + cr.height / 2,
+            text: txt,
+            score: Math.abs(cr.y - 175) + Math.abs(cr.x - 180) / 10,
+          });
         }
-      }
-      return false;
-    }, name);
-    if (!clicked) throw new Error(`Tab "${name}" not found`);
+
+        candidates.sort((a, b) => a.score - b.score);
+        return candidates[0] || null;
+      }, labels);
+      if (target) break;
+      await sleep(500);
+    }
+    if (!target) throw new Error(`Tab "${name}" not found`);
+    await this.page.mouse.click(target.x, target.y);
     await sleep(1500);
   }
 

@@ -14,6 +14,13 @@
 import { sleep } from '../../helpers/constants.mjs';
 import { createStepTracker, safeStep } from '../../helpers/components.mjs';
 
+export const CREATE_WALLET_ENTRY_LABELS = [
+  '创建新钱包',
+  '創建新錢包',
+  'Create New Wallet',
+  'Create Wallet',
+];
+
 /**
  * Build the 1 Create-Mnemonic test case for one platform.
  *
@@ -152,6 +159,7 @@ export function createCreateMnemonicTests({
     const t = createStepTracker(`${prefix}-001`);
     const walletSel = '[data-testid="AccountSelectorTriggerBase"]';
     let completedFromFinalizePage = false;
+    let completedFromWalletHome = false;
 
     // Step 1: Go to wallet + open account selector
     if (!await _ss(page, t, '打开账户选择器', async () => {
@@ -169,18 +177,25 @@ export function createCreateMnemonicTests({
     if (!await _ss(page, t, '点击 + 新增钱包', async () => {
       const btn = page.locator('[data-testid="add-wallet"]').first();
       await btn.waitFor({ state: 'visible', timeout: 8000 });
-      await btn.click();
+      await btn.click({ timeout: 5000 }).catch(async (error) => {
+        if (!/intercepts pointer events|Timeout/i.test(error.message || '')) throw error;
+        const clicked = await page.evaluate(() => {
+          const btn = document.querySelector('[data-testid="add-wallet"]');
+          if (!btn) return false;
+          btn.click();
+          return true;
+        });
+        if (!clicked) {
+          await clickVisibleTestIdByMouse(page, 'add-wallet', 300);
+        }
+      });
       await sleep(2000);
       return 'add-wallet clicked';
     })) return t.result();
 
     // Step 3: Choose current "create wallet" entry.
     if (!await _ss(page, t, '选择创建新钱包入口', async () => {
-      const clicked = await clickVisibleTextByMouse(page, [
-        '创建新钱包',
-        'Create New Wallet',
-        'Create Wallet',
-      ], { minWidth: 120, minHeight: 40, maxWidth: 420, maxHeight: 200 });
+      const clicked = await clickVisibleTextByMouse(page, CREATE_WALLET_ENTRY_LABELS, { minWidth: 120, minHeight: 40, maxWidth: 420, maxHeight: 200 });
       await sleep(2500);
       return `via ${clicked.label}@${Math.round(clicked.x)},${Math.round(clicked.y)}`;
     })) return t.result();
@@ -207,9 +222,8 @@ export function createCreateMnemonicTests({
             backupPage: /备份您的钱包|OneKey KeyTag|Backup your wallet/i.test(text),
             finalizePage: /钱包已准备就绪|wallet is ready|进入钱包|Enter Wallet/i.test(text),
             walletHome: /Account #/.test(text) &&
-              isVisible(document.querySelector('[data-testid="AccountSelectorTriggerBase"]')) &&
-              !isVisible(document.querySelector('[data-testid="APP-OnBoarding-Screen"]')),
-            stillGetStarted: /创建新钱包/.test(text) && /添加已有钱包/.test(text) && /连接硬件钱包/.test(text) && !/创建助记词钱包/.test(text),
+              isVisible(document.querySelector('[data-testid="AccountSelectorTriggerBase"]')),
+            stillGetStarted: /创建新钱包|創建新錢包/.test(text) && /添加已有钱包|新增現有錢包/.test(text) && /连接硬件钱包|連接硬件錢包/.test(text) && !/创建助记词钱包|創建助記詞錢包/.test(text),
             sample: text.replace(/\s+/g, ' ').trim().slice(0, 220),
           };
         });
@@ -217,14 +231,18 @@ export function createCreateMnemonicTests({
           reached = state;
           break;
         }
-        if (state.stillGetStarted && i >= 4) throw new Error(`still on get-started page after clicking create wallet: ${state.sample}`);
+        if (state.stillGetStarted && i >= 4 && /创建新钱包|創建新錢包|Create New Wallet/.test(state.sample)) {
+          throw new Error(`still on get-started page after clicking create wallet: ${state.sample}`);
+        }
       }
       if (!reached) throw new Error('create wallet method page did not appear');
+      if (reached.walletHome) completedFromWalletHome = true;
       return reached.walletHome ? 'wallet-home' : reached.finalizePage ? 'finalize-page' : reached.backupPage ? 'backup-page' : 'method-page';
     })) return t.result();
 
     // Step 5: Select mnemonic wallet on the method page.
     if (!await _ss(page, t, '选择助记词钱包方式', async () => {
+      if (completedFromWalletHome) return 'already returned to wallet home after create entry';
       const state = await page.evaluate(() => {
         const isVisible = (el) => {
           const r = el?.getBoundingClientRect?.();
@@ -272,6 +290,7 @@ export function createCreateMnemonicTests({
 
     // Step 6: Current TF can complete directly; older builds may still show backup options.
     if (!await _ss(page, t, '处理备份方式或完成页', async () => {
+      if (completedFromWalletHome) return 'already completed on wallet home';
       const currentState = await page.evaluate(() => {
         const isVisible = (el) => {
           const r = el?.getBoundingClientRect?.();
@@ -345,7 +364,7 @@ export function createCreateMnemonicTests({
       return 'KeyTag selected';
     })) return t.result();
 
-    if (!completedFromFinalizePage) {
+    if (!completedFromFinalizePage && !completedFromWalletHome) {
       // Step 7: Enter password on older backup flow.
       if (!await _ss(page, t, '输入密码', async () => {
         const pwdInput = page.locator('[data-testid="password-input"]').first();

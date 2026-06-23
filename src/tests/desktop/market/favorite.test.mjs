@@ -11,6 +11,7 @@ import {
 import { MarketPage } from '../../helpers/pages/index.mjs';
 import { openSearchModal } from '../../helpers/components.mjs';
 import { createMarketFavoriteTests } from '../../shared/market/favorite.mjs';
+import { marketTabLabels } from '../../shared/market/market-tabs.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'market-favorite');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -60,10 +61,11 @@ const triggerSearch = (page) => openSearchModal(page);
 
 /** Click a main tab (自选/热门/股票/合约) — Desktop layout: main tabs at y~130-195. */
 async function clickMainTab(page, name) {
-  const clicked = await page.evaluate((tabName) => {
+  const labels = marketTabLabels(name);
+  const clicked = await page.evaluate((tabNames) => {
     for (const el of document.querySelectorAll('span')) {
       if (el.children.length > 0) continue;
-      if (el.textContent?.trim() !== tabName) continue;
+      if (!tabNames.includes(el.textContent?.trim())) continue;
       const r = el.getBoundingClientRect();
       if (r.width > 0 && r.y > 130 && r.y < 195) {
         el.click();
@@ -71,19 +73,20 @@ async function clickMainTab(page, name) {
       }
     }
     return false;
-  }, name);
+  }, labels);
   if (!clicked) throw new Error(`Cannot click tab "${name}"`);
   await sleep(1500);
 }
 
 /** Click a sub-tab (全部/现货/合约 under 自选) — Desktop layout: y~195-350. */
 async function clickSubTab(page, name) {
+  const labels = marketTabLabels(name);
   for (let attempt = 0; attempt < 5; attempt++) {
-    const clicked = await page.evaluate((tabName) => {
+    const clicked = await page.evaluate((tabNames) => {
       const matches = [];
       for (const el of document.querySelectorAll('span')) {
         if (el.children.length > 0) continue;
-        if (el.textContent?.trim() !== tabName) continue;
+        if (!tabNames.includes(el.textContent?.trim())) continue;
         const r = el.getBoundingClientRect();
         if (r.width > 0 && r.height > 0 && r.y > 195 && r.y < 350) {
           matches.push({ el, y: r.y });
@@ -93,7 +96,7 @@ async function clickSubTab(page, name) {
       matches.sort((a, b) => a.y - b.y);
       matches[0].el.click();
       return true;
-    }, name);
+    }, labels);
     if (clicked) { await sleep(1500); return; }
     await sleep(500);
   }
