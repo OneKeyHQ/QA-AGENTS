@@ -27,13 +27,13 @@ export async function handlePasswordPromptIfPresent(page) {
 
 export async function goToWalletHome(page) {
   await _closeAllModals(page);
-  await clickSidebarTab(page, 'Home');
+  await clickSidebarTab(page, 'Wallet').catch(() => clickSidebarTab(page, 'Home'));
   await sleep(2000);
   const hasWalletSelector = await page.locator('[data-testid="AccountSelectorTriggerBase"]').isVisible({ timeout: 3000 }).catch(() => false);
   if (!hasWalletSelector) {
     await page.keyboard.press('Escape');
     await sleep(500);
-    await clickSidebarTab(page, 'Home');
+    await clickSidebarTab(page, 'Wallet').catch(() => clickSidebarTab(page, 'Home'));
     await sleep(2000);
   }
 }

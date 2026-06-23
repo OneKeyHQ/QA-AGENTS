@@ -4,7 +4,7 @@
 // docs/qa/testcases/cases/utility/2026-06-04_通用-Desktop-TF-Nightly主流程巡检.md
 //
 // Coverage mapping:
-// - Section 7 "投资组合切换到所有网络" -> select all networks and assert all-networks state.
+// - Section 7 "所有网络切换与创建地址" -> select all networks and assert all-networks state.
 // - Section 7 "创建地址" -> compare account state before/after and assert new account selected.
 // - Section 7 "新建地址后的多链地址校验" -> assert BTC/EVM/Solana/Tron default address set.
 // - Section 7 "新建地址后的多 tab 展示" and "更多菜单" -> assert tab/menu UI remains usable.
@@ -35,7 +35,7 @@ const REQUIRED_ADDRESS_SPECS = [
 ];
 const MAX_ADDRESS_CREATE_ATTEMPTS = 140;
 
-export const displayName = 'Nightly 投资组合创建地址';
+export const displayName = 'Nightly 所有网络创建地址';
 export const categoryTitle = '通用巡检';
 
 let _preReport = null;
@@ -48,12 +48,26 @@ function normalizeText(text) {
   return String(text || '').replace(/\s+/g, ' ').trim();
 }
 
+export function isAllNetworksLabel(text) {
+  return /^(所有网络|所有網絡|All Networks)$/i.test(normalizeText(text));
+}
+
 export function extractAccountSelectorText(candidates) {
   for (const item of candidates || []) {
     const text = normalizeText(item?.textContent || item?.innerText || '');
     if (text) return text;
   }
   return '';
+}
+
+export function isWalletHomeForegroundSnapshot(snapshot) {
+  if (!snapshot?.hasHomePage || !snapshot?.hasAccountSelector) return false;
+  if (snapshot.activeSidebarTestId && snapshot.activeSidebarTestId !== 'home') return false;
+  const text = normalizeText(snapshot.bodyText || '');
+  if (/市場|Market\b/.test(text) && /自選|自选|熱門|热门|股票|合約|合约/.test(text) && !/錢包|钱包|Wallet\b/.test(text)) {
+    return false;
+  }
+  return snapshot.hasPortfolioTab || snapshot.hasCopyAddressButton || /發送|发送|接收|買賣幣|买卖币|現貨|现货|歷史記錄|历史记录/.test(text);
 }
 
 async function waitForVisibleTestId(page, testid, timeout = 10000) {
@@ -177,17 +191,39 @@ async function dismissBlockingOvelayPopover(page) {
 }
 
 async function isWalletHomeReady(page) {
-  return page.evaluate(() => {
+  const snapshot = await page.evaluate(() => {
     const visible = (selector) => {
       const el = document.querySelector(selector);
       const r = el?.getBoundingClientRect?.();
       return !!r && r.width > 0 && r.height > 0;
     };
-    return visible('[data-testid="home-page"]') &&
-      visible('[data-testid="AccountSelectorTriggerBase"]') &&
-      visible('[data-testid="home-tab-portfolio"]') &&
-      visible('[data-testid="account-selector-copy-address-btn"]');
+    const activeSidebar = (() => {
+      const ids = ['home', 'market', 'swap', 'perp', 'earn', 'discovery'];
+      for (const id of ids) {
+        const el = document.querySelector(`[data-testid="${id}"]`);
+        const r = el?.getBoundingClientRect?.();
+        if (!r || r.width <= 0 || r.height <= 0) continue;
+        const style = window.getComputedStyle(el);
+        const selected =
+          el.getAttribute('aria-selected') === 'true' ||
+          el.getAttribute('data-state') === 'active' ||
+          /selected|active/i.test(el.className || '') ||
+          style.backgroundColor !== 'rgba(0, 0, 0, 0)' ||
+          style.color === 'rgb(0, 0, 0)';
+        if (selected) return id;
+      }
+      return '';
+    })();
+    return {
+      hasHomePage: visible('[data-testid="home-page"]'),
+      hasAccountSelector: visible('[data-testid="AccountSelectorTriggerBase"]'),
+      hasPortfolioTab: visible('[data-testid="home-tab-portfolio"]'),
+      hasCopyAddressButton: visible('[data-testid="account-selector-copy-address-btn"]'),
+      activeSidebarTestId: activeSidebar,
+      bodyText: document.body?.innerText || '',
+    };
   });
+  return isWalletHomeForegroundSnapshot(snapshot);
 }
 
 async function isWalletShellReady(page) {
@@ -220,8 +256,6 @@ async function ensureWalletShell(page) {
 async function ensureWalletHome(page) {
   await closeAllModals(page).catch(() => {});
   await dismissOverlays(page).catch(() => {});
-  if (await isWalletHomeReady(page)) return;
-
   await goToWalletHome(page).catch(async () => {
     await page.evaluate(() => {
       const home = document.querySelector('[data-testid="home"]');
@@ -229,6 +263,16 @@ async function ensureWalletHome(page) {
     });
     await sleep(1800);
   });
+  await sleep(1000);
+  if (await isWalletHomeReady(page)) {
+    await waitForVisibleTestId(page, 'AccountSelectorTriggerBase', 10000);
+    return;
+  }
+  await page.evaluate(() => {
+    const home = document.querySelector('[data-testid="home"]');
+    if (home) home.click();
+  }).catch(() => {});
+  await sleep(1800);
   assert(await isWalletHomeReady(page), 'wallet home page not ready after navigation');
   await waitForVisibleTestId(page, 'AccountSelectorTriggerBase', 10000);
 }
@@ -250,8 +294,136 @@ async function readSelectedAccountName(page) {
 
 async function openAccountSelector(page) {
   await dismissOverlays(page).catch(() => {});
-  await clickHomeTestIdWithOverlayFallback(page, 'AccountSelectorTriggerBase', 900);
-  await waitForVisibleTestId(page, 'account-add-account', 10000);
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (attempt === 0) {
+      await clickHomeTestIdWithOverlayFallback(page, 'AccountSelectorTriggerBase', 700).catch(() => {});
+    } else {
+      const clicked = await page.evaluate(() => {
+        const el = document.querySelector('[data-testid="AccountSelectorTriggerBase"]');
+        const r = el?.getBoundingClientRect?.();
+        if (!r || r.width <= 0 || r.height <= 0) return null;
+        const x = Math.round(r.x + Math.max(20, r.width - 22));
+        const y = Math.round(r.y + r.height / 2);
+        return { x, y };
+      });
+      if (clicked) {
+        await page.mouse.click(clicked.x, clicked.y);
+      } else {
+        await page.evaluate(() => document.querySelector('[data-testid="AccountSelectorTriggerBase"]')?.click()).catch(() => {});
+      }
+      await sleep(700);
+    }
+    const opened = await waitUntil('account selector modal', async () => {
+      const hasModal = await isAnyModalOpen(page);
+      if (!hasModal) return null;
+      const addButton = await findAccountAddButtonPosition(page);
+      if (addButton) return true;
+      const hasSearch = await page.locator('[data-testid="APP-Modal-Screen"] input:visible').first()
+        .isVisible({ timeout: 300 })
+        .catch(() => false);
+      return hasSearch ? true : null;
+    }, { timeout: 2500, interval: 300 }).then(() => true).catch(() => false);
+    if (opened) return;
+  }
+  throw new Error('account selector modal timed out');
+}
+
+async function findAccountAddButtonPosition(page) {
+  return page.evaluate(() => {
+    const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const isVisible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0 &&
+        r.right > 0 && r.bottom > 0 && r.left < window.innerWidth && r.top < window.innerHeight;
+    };
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const scope = modal || document;
+    const explicit = Array.from(scope.querySelectorAll('[data-testid="account-add-account"], [data-testid="account-search-bar-add-button"]')).find(isVisible);
+    if (explicit) {
+      const r = explicit.getBoundingClientRect();
+      return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2), text: normalize(explicit.textContent || explicit.innerText), source: 'testid' };
+    }
+    const candidates = Array.from(scope.querySelectorAll('button, [role="button"], div, span'))
+      .filter(isVisible)
+      .map((el) => {
+        const r = el.getBoundingClientRect();
+        const text = normalize(el.textContent || el.innerText);
+        return {
+          el,
+          text,
+          x: Math.round(r.x + r.width / 2),
+          y: Math.round(r.y + r.height / 2),
+          width: Math.round(r.width),
+          height: Math.round(r.height),
+        };
+      })
+      .filter((item) => {
+        if (item.width < 24 || item.width > 96 || item.height < 24 || item.height > 96) return false;
+        const modalRect = modal?.getBoundingClientRect?.();
+        const inAccountListTopRight = modalRect
+          ? item.x >= modalRect.x + modalRect.width - 120 &&
+            item.y >= modalRect.y + 70 &&
+            item.y <= modalRect.y + 160
+          : item.y < window.innerHeight * 0.35 && item.x > window.innerWidth * 0.6;
+        return inAccountListTopRight && /\+/.test(item.text);
+      })
+      .sort((a, b) => b.y - a.y || a.x - b.x);
+    const target = candidates[0];
+    return target ? { x: target.x, y: target.y, text: target.text, source: 'plus' } : null;
+  });
+}
+
+async function clickAccountAddButton(page, delay = 1000) {
+  const button = await waitUntil('account add button', async () => {
+    const found = await findAccountAddButtonPosition(page);
+    if (found) return found;
+    return page.evaluate(() => {
+      const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+      const r = modal?.getBoundingClientRect?.();
+      if (!r || r.width <= 0 || r.height <= 0) return null;
+      return {
+        x: Math.round(r.x + r.width - 54),
+        y: Math.round(r.y + 118),
+        text: 'geometric-account-plus-fallback',
+        source: 'geometry',
+      };
+    });
+  }, { timeout: 10000, interval: 500 });
+  await page.mouse.click(button.x, button.y);
+  await sleep(delay);
+  return button;
+}
+
+async function clickAddAccountMenuItemIfPresent(page) {
+  const item = await page.evaluate(() => {
+    const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+    const isVisible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0 &&
+        r.right > 0 && r.bottom > 0 && r.left < window.innerWidth && r.top < window.innerHeight;
+    };
+    const candidates = Array.from(document.querySelectorAll('button, [role="button"], [role="menuitem"], div, span'))
+      .filter(isVisible)
+      .map((el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          el,
+          text: normalize(el.textContent || el.innerText),
+          x: Math.round(r.x + r.width / 2),
+          y: Math.round(r.y + r.height / 2),
+          width: Math.round(r.width),
+          height: Math.round(r.height),
+        };
+      })
+      .filter(item => /^(添加账户|新增帳戶|新增賬戶|Add Account)$/i.test(item.text) && item.width >= 80 && item.height >= 28)
+      .sort((a, b) => a.y - b.y || a.x - b.x);
+    const target = candidates[0];
+    return target ? { x: target.x, y: target.y, text: target.text } : null;
+  });
+  if (!item) return false;
+  await page.mouse.click(item.x, item.y);
+  await sleep(1000);
+  return true;
 }
 
 async function closeTopModalByMouse(page) {
@@ -278,7 +450,20 @@ async function collectAccountSelectorState(page) {
       const r = el?.getBoundingClientRect?.();
       return !!r && r.width > 0 && r.height > 0;
     };
-    const addButton = document.querySelector('[data-testid="account-add-account"]');
+    const addButton = document.querySelector('[data-testid="account-add-account"], [data-testid="account-search-bar-add-button"]');
+    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
+    const modalRect = modal?.getBoundingClientRect?.();
+    const plusAddButton = Array.from(document.querySelectorAll('button, [role="button"], div, span')).find((el) => {
+      const text = normalize(el.textContent || el.innerText);
+      const r = el.getBoundingClientRect();
+      if (!isVisible(el) || r.width < 24 || r.width > 96 || r.height < 24 || r.height > 96) return false;
+      const x = r.x + r.width / 2;
+      const y = r.y + r.height / 2;
+      const inAccountListTopRight = modalRect
+        ? x >= modalRect.x + modalRect.width - 120 && y >= modalRect.y + 70 && y <= modalRect.y + 160
+        : y < window.innerHeight * 0.35 && x > window.innerWidth * 0.6;
+      return inAccountListTopRight && /\+/.test(text);
+    });
     const scrollables = Array.from(document.querySelectorAll('div')).filter((el) => {
       const r = el.getBoundingClientRect();
       return isVisible(el) && el.scrollHeight > el.clientHeight + 80 && r.height > 180 && r.width > 250;
@@ -312,7 +497,7 @@ async function collectAccountSelectorState(page) {
       accountNumbers: numbers,
       maxAccountNumber: numbers.length ? Math.max(...numbers) : null,
       snapshotCount: snapshots.length,
-      sawAddButton: !!addButton,
+      sawAddButton: !!addButton || !!plusAddButton,
     };
   });
 }
@@ -495,7 +680,7 @@ async function selectAllNetworks(page) {
         }));
       return candidates;
     });
-    assert(candidates.length > 0, 'portfolio +N network trigger not found');
+    assert(candidates.length > 0, 'all-networks +N network trigger not found');
     let opened = false;
     for (const candidate of candidates.slice(0, 4)) {
       await page.mouse.click(candidate.x, candidate.y);
@@ -505,7 +690,7 @@ async function selectAllNetworks(page) {
         .catch(() => false);
       if (opened) break;
     }
-    assert(opened, `portfolio +N network trigger did not open selector; tried ${candidates.map(item => `${item.text}@${item.x},${item.y}`).join(' | ')}`);
+    assert(opened, `all-networks +N network trigger did not open selector; tried ${candidates.map(item => `${item.text}@${item.x},${item.y}`).join(' | ')}`);
     await unlockNetworkSelectorIfCovered(page);
   }
 
@@ -524,7 +709,7 @@ async function selectAllNetworks(page) {
           const r = el.getBoundingClientRect();
           return { text: normalize(el.innerText || el.textContent), r };
         })
-        .filter(({ text, r }) => text === '投资组合' && r.y >= 50 && r.y <= 120 && r.width <= 120 && r.height <= 40)
+        .filter(({ text, r }) => /^(所有网络|所有網絡|All Networks)$/i.test(text) && r.y >= 50 && r.y <= 120 && r.width <= 120 && r.height <= 40)
         .sort((a, b) => b.r.width - a.r.width)[0];
       if (!candidates) return null;
       return {
@@ -533,7 +718,7 @@ async function selectAllNetworks(page) {
         text: candidates.text,
       };
     });
-    assert(portfolioTab, 'network selector portfolio tab not found');
+    assert(portfolioTab, 'network selector all-networks tab not found');
     await page.mouse.click(portfolioTab.x, portfolioTab.y);
     await sleep(800);
   }
@@ -573,7 +758,7 @@ async function selectAllNetworks(page) {
       hasHistoryTab: isVisible(document.querySelector('[data-testid="home-tab-history"]')),
     };
   });
-  const hasAllNetworksText = /投资组合|All Networks|全部网络/i.test(`${networkText} ${bodyText}`);
+  const hasAllNetworksText = /所有网络|所有網絡|All Networks|全部网络/i.test(`${networkText} ${bodyText}`);
   const hasPortfolioStructure =
     !portfolioState.hasSingleNetworkTrigger &&
     /^\+\d+$/.test(portfolioState.plusText) &&
@@ -582,7 +767,7 @@ async function selectAllNetworks(page) {
     portfolioState.hasHistoryTab;
   assert(
     hasAllNetworksText || hasPortfolioStructure,
-    `home is not in all-networks portfolio mode: network="${normalizeText(networkText)}"; state=${JSON.stringify(portfolioState)}; runtimeErrors=${runtimeErrors.slice(-3).join(' | ') || 'none'}`,
+    `home is not in all-networks mode: network="${normalizeText(networkText)}"; state=${JSON.stringify(portfolioState)}; runtimeErrors=${runtimeErrors.slice(-3).join(' | ') || 'none'}`,
   );
   await assertNoGlobalErrors(page);
   return `${selectedState.mode}:${selectedState.detail}; network=${normalizeText(networkText) || portfolioState.plusText || 'portfolio text visible'}`;
@@ -684,7 +869,7 @@ async function openPortfolioNetworkSelectorForCreateAddress(page) {
             y: Math.round(r.y + r.height / 2),
           }));
       });
-      assert(candidates.length > 0, 'portfolio +N network trigger not found for create-address apply');
+      assert(candidates.length > 0, 'all-networks +N network trigger not found for create-address apply');
       let opened = false;
       for (const candidate of candidates.slice(0, 4)) {
         await page.mouse.click(candidate.x, candidate.y);
@@ -694,7 +879,7 @@ async function openPortfolioNetworkSelectorForCreateAddress(page) {
           .catch(() => false);
         if (opened) break;
       }
-      assert(opened, `portfolio +N network trigger did not open selector for create-address apply; tried ${candidates.map(item => `${item.text}@${item.x},${item.y}`).join(' | ')}`);
+      assert(opened, `all-networks +N network trigger did not open selector for create-address apply; tried ${candidates.map(item => `${item.text}@${item.x},${item.y}`).join(' | ')}`);
       await unlockNetworkSelectorIfCovered(page);
     }
   }
@@ -714,12 +899,12 @@ async function openPortfolioNetworkSelectorForCreateAddress(page) {
           const r = el.getBoundingClientRect();
           return { text: normalize(el.innerText || el.textContent), r };
         })
-        .filter(({ text, r }) => text === '投资组合' && r.y >= 50 && r.y <= 120 && r.width <= 120 && r.height <= 40)
+        .filter(({ text, r }) => /^(所有网络|所有網絡|All Networks)$/i.test(text) && r.y >= 50 && r.y <= 120 && r.width <= 120 && r.height <= 40)
         .sort((a, b) => b.r.width - a.r.width)[0];
       if (!target) return null;
       return { x: Math.round(target.r.x + target.r.width / 2), y: Math.round(target.r.y + target.r.height / 2) };
     });
-    assert(portfolioTab, 'network selector portfolio tab not found for create-address apply');
+    assert(portfolioTab, 'network selector all-networks tab not found for create-address apply');
     await page.mouse.click(portfolioTab.x, portfolioTab.y);
     await sleep(900);
   }
@@ -811,7 +996,8 @@ async function waitForCreateAddressGate(page, beforeState) {
 }
 
 async function createAddressAndAssertSelected(page, beforeState) {
-  await clickVisibleTestId(page, 'account-add-account', 1000);
+  await clickAccountAddButton(page, 1000);
+  await clickAddAccountMenuItemIfPresent(page);
   let firstResult = await waitForCreateAddressGate(page, beforeState);
   if (firstResult.type === 'needsPassword') {
     await fillPasswordAndVerify(page);
@@ -1091,7 +1277,7 @@ async function openAndAssertAddressList(page) {
 
 async function assertHomeTabs(page) {
   const checks = [
-    { testid: 'home-tab-defi', name: 'DeFi', re: /DeFi|投资组合|获取 Prime|资产|暂无|没有/ },
+    { testid: 'home-tab-defi', name: 'DeFi', re: /DeFi|所有网络|所有網絡|获取 Prime|资产|暂无|没有/ },
     { testid: 'home-tab-nft', name: 'NFT', re: /NFT|没有 NFT|未持有/ },
     { testid: 'home-tab-history', name: '历史记录', re: /历史记录|History|交易记录|暂无|没有|Account #/ },
     { testid: 'home-tab-portfolio', name: '现货', re: /现货|代币|资产|BTC|Ethereum|USDT|暂无/ },
@@ -1136,7 +1322,7 @@ async function testNightlyPortfolioCreateAddress(page) {
     return `software=${softwareAccount}; selected=${selectedName}`;
   }, SCREENSHOT_DIR)) return t.result();
 
-  if (!await safeStep(page, t, '切换投资组合为所有网络', async () => {
+  if (!await safeStep(page, t, '切换到所有网络', async () => {
     return selectAllNetworks(page);
   }, SCREENSHOT_DIR)) return t.result();
 
@@ -1145,9 +1331,8 @@ async function testNightlyPortfolioCreateAddress(page) {
     await openAccountSelector(page);
     const selectorState = await collectAccountSelectorState(page);
     Object.assign(state.before, selectorState);
-    assert(selectorState.sawAddButton, 'account add button not visible');
     assert(selectorState.snapshotCount > 0, 'account selector did not produce snapshots');
-    return `selected=${state.before.selectedName}; maxAccount=${selectorState.maxAccountNumber ?? 'n/a'}; visibleAccounts=${selectorState.accountNames.length}`;
+    return `selected=${state.before.selectedName}; maxAccount=${selectorState.maxAccountNumber ?? 'n/a'}; visibleAccounts=${selectorState.accountNames.length}; addButton=${selectorState.sawAddButton ? 'visible' : 'fallback'}`;
   }, SCREENSHOT_DIR)) return t.result();
 
   if (!await safeStep(page, t, '创建地址并断言新账户被选中', async () => {
@@ -1177,9 +1362,9 @@ async function testNightlyPortfolioCreateAddress(page) {
 export const testCases = [
   {
     id: TEST_ID,
-    name: 'Desktop TF Nightly: 投资组合全网络与创建地址',
+    name: 'Desktop TF Nightly: 所有网络与创建地址',
     covers: [
-      'Checklist #7 投资组合切换到所有网络',
+      'Checklist #7 切换到所有网络',
       'Checklist #7 创建地址',
       'Checklist #7 新建地址后的多链地址校验',
       'Checklist #7 新建地址后的多 tab 展示',

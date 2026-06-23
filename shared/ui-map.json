@@ -760,35 +760,35 @@
       "notes": "Exists in both header and modal — use context:'page' for header trigger, context:'modal' for modal input"
     },
     "sidebarMarket": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=市场",
-      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Market", "text=市场", "text=Market"],
+      "primary": "[data-testid=\"market\"]",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=市场", "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Market", "text=市场", "text=Market"],
       "deep_search": {"enabled": true, "search_text": "市场", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar",
       "platform": ["desktop"],
       "success_rate": 0.9,
-      "last_verified": "2026-03-24T00:00:00Z",
-      "notes": "Multi-language: Market, 市场, マーケット, Mercado"
+      "last_verified": "2026-06-23T00:00:00Z",
+      "notes": "Primary uses sidebar icon testid for collapsed/icon-only Desktop sidebar; fallbacks preserve localized labels."
     },
     "sidebarPerps": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=合约",
-      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Perps", "text=合约", "text=Perps"],
+      "primary": "[data-testid=\"perp\"]",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=合约", "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Perps", "text=合约", "text=Perps"],
       "deep_search": {"enabled": true, "search_text": "合约", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar",
       "platform": ["desktop"],
       "success_rate": 0.9,
-      "last_verified": "2026-03-24T00:00:00Z"
+      "last_verified": "2026-06-23T00:00:00Z"
     },
     "sidebarWallet": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=钱包",
-      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Wallet", "text=钱包", "text=Wallet"],
+      "primary": "[data-testid=\"home\"]",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=钱包", "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=Wallet", "text=钱包", "text=Wallet"],
       "deep_search": {"enabled": true, "search_text": "钱包", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar",
       "platform": ["desktop"],
       "success_rate": 0.9,
-      "last_verified": "2026-03-24T00:00:00Z"
+      "last_verified": "2026-06-23T00:00:00Z"
     },
     "searchClearButton": {
       "primary": "[data-testid=\"-clear\"]",
@@ -878,40 +878,40 @@
       "notes": "Recording step 11 — 'Light' theme option"
     },
     "sidebarSwap": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=交易",
-      "quick_fallbacks": ["text=交易", "text=Swap"],
+      "primary": "[data-testid=\"swap\"]",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=交易", "text=交易", "text=Swap"],
       "deep_search": {"enabled": true, "search_text": "交易", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
-      "last_verified": "2026-03-24T10:00:00Z",
-      "notes": "Sidebar tab 3 — 交易/Swap"
+      "last_verified": "2026-06-23T00:00:00Z",
+      "notes": "Primary uses sidebar icon testid for collapsed/icon-only Desktop sidebar; fallbacks preserve 交易/Swap labels."
     },
     "sidebarDeFi": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=DeFi",
-      "quick_fallbacks": ["text=DeFi"],
+      "primary": "[data-testid=\"earn\"]",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=DeFi", "text=DeFi"],
       "deep_search": {"enabled": true, "search_text": "DeFi", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
-      "last_verified": "2026-03-24T10:00:00Z",
-      "notes": "Sidebar tab 5 — DeFi"
+      "last_verified": "2026-06-23T00:00:00Z",
+      "notes": "Primary uses earn testid for DeFi sidebar entry; fallbacks preserve DeFi label."
     },
     "sidebarDiscover": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=推荐",
-      "quick_fallbacks": ["text=推荐", "text=Discover"],
+      "primary": "[data-testid=\"discover\"]",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=推荐", "text=推荐", "text=Discover"],
       "deep_search": {"enabled": true, "search_text": "推荐", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
-      "last_verified": "2026-03-24T10:00:00Z",
-      "notes": "Sidebar tab 6 — 推荐/Discover"
+      "last_verified": "2026-06-23T00:00:00Z",
+      "notes": "Primary uses sidebar icon testid for collapsed/icon-only Desktop sidebar; fallbacks preserve 推荐/Discover labels."
     },
     "sidebarBrowser": {
-      "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=浏览器",
-      "quick_fallbacks": ["text=浏览器", "text=Browser"],
+      "primary": "[data-testid=\"discovery\"]",
+      "quick_fallbacks": ["[data-testid=\"Desktop-AppSideBar-Content-Container\"] >> text=浏览器", "text=浏览器", "text=Browser"],
       "deep_search": {"enabled": true, "search_text": "浏览器", "search_role": "tab", "search_scope": "page"},
       "tier_stats": {"primary_hits": 0, "quick_hits": 0, "deep_hits": 0, "total_attempts": 0},
       "page": "global-sidebar", "platform": ["desktop"], "success_rate": 0.9,
-      "last_verified": "2026-03-24T10:00:00Z",
-      "notes": "Sidebar tab 7 — 浏览器/Browser"
+      "last_verified": "2026-06-23T00:00:00Z",
+      "notes": "Primary uses discovery testid for Browser sidebar entry; fallbacks preserve 浏览器/Browser labels."
     },
     "sidebarDevice": {
       "primary": "[data-testid=\"Desktop-AppSideBar-Content-Container\"] svg[data-sentry-component=\"SvgPhone\"]",

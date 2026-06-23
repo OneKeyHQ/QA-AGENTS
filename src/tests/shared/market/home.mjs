@@ -25,6 +25,7 @@ import {
   MARKET_WATCHLIST_MAIN_TAB,
   MARKET_PERP_MAIN_TAB,
   MARKET_STOCK_MAIN_TAB,
+  marketTextIncludesLabel,
 } from './market-tabs.mjs';
 
 /**
@@ -109,7 +110,7 @@ export function createMarketHomeTests({
     const result = await page.evaluate(({ mainTabs }) => {
       const text = (document.body?.textContent || '').replace(/\s+/g, ' ');
 
-      const searchInput = document.querySelector('[data-testid="nav-header-search"], input[placeholder*="搜索"], input[placeholder*="Search"]');
+      const searchInput = document.querySelector('[data-testid="nav-header-search"], input[placeholder*="搜索"], input[placeholder*="搜尋"], input[placeholder*="Search"]');
       const placeholder = searchInput?.getAttribute('placeholder') || '';
 
       const mainBandTexts = [];
@@ -119,13 +120,21 @@ export function createMarketHomeTests({
         const r = sp.getBoundingClientRect();
         if (r.width > 0 && r.height > 0 && r.y > 135 && r.y < 210) mainBandTexts.push(label);
       }
-      const visibleMainTabs = mainTabs.filter((tab) => mainBandTexts.includes(tab));
+      const visibleMainTabs = mainTabs.filter((tab) => {
+        const aliases = {
+          '自选': ['自选', '自選'],
+          '热门': ['热门', '熱門'],
+          '股票': ['股票'],
+          '合约': ['合约', '合約'],
+        }[tab] || [tab];
+        return aliases.some(label => mainBandTexts.includes(label));
+      });
       const tabInfo = {
         visibleMainTabs,
         hasCurrentMainTabs: visibleMainTabs.length === mainTabs.length,
         hasLegacySpotMainTab: mainBandTexts.includes('现货'),
       };
-      const beforeTabs = text.split('自选')[0] || '';
+      const beforeTabs = text.split(/自选|自選/)[0] || '';
       const trendMatches = beforeTabs.match(/[+-]?\d+(?:\.\d+)?%/g) || [];
 
       const hasList = !!document.querySelector('[data-testid="list-column-price"], [data-testid="list-column-name"]')
@@ -142,7 +151,7 @@ export function createMarketHomeTests({
     }, { mainTabs: MARKET_MAIN_TABS });
 
     if (!result.hasSearch) throw new Error('Search input not visible');
-    if (!result.placeholder.includes('搜索') && !result.placeholder.toLowerCase().includes('search')) {
+    if (!result.placeholder.includes('搜索') && !result.placeholder.includes('搜尋') && !result.placeholder.toLowerCase().includes('search')) {
       throw new Error(`Unexpected search placeholder: ${result.placeholder || '<empty>'}`);
     }
     if (!result.tabInfo.hasCurrentMainTabs) {
@@ -160,14 +169,14 @@ export function createMarketHomeTests({
   async function assertPerpHeaderColumns(page) {
     const info = await page.evaluate(() => {
       const text = (document.body?.textContent || '').replace(/\s+/g, ' ');
-      const expected = ['名称', '价格', '涨跌', '交易额', '合约持仓量', '资金费率'];
-      const hit = expected.filter((k) => text.includes(k));
-      return { hit };
+      return { text };
     });
-    if (info.hit.length < 5) {
-      throw new Error(`Perp header incomplete: ${info.hit.join(', ')}`);
+    const expected = ['名称', '价格', '涨跌', '交易额', '合约持仓量', '资金费率'];
+    const hit = expected.filter((k) => marketTextIncludesLabel(info.text, k));
+    if (hit.length < 5) {
+      throw new Error(`Perp header incomplete: ${hit.join(', ')}`);
     }
-    return `columns=${info.hit.join('|')}`;
+    return `columns=${hit.join('|')}`;
   }
 
   async function assertPerpRowFormat(page) {
@@ -408,7 +417,7 @@ export function createMarketHomeTests({
 
       const ok = await page.evaluate(() => {
         const text = (document.body?.textContent || '').replace(/\s+/g, ' ');
-        return text.includes('热门') && (/\$[\d,.]+/.test(text) || text.includes('未找到') || text.includes('暂无'));
+        return /热门|熱門/.test(text) && (/\$[\d,.]+/.test(text) || /未找到|暂无|暫無|No results/i.test(text));
       });
       if (!ok) throw new Error('Trending list state not confirmed');
 
@@ -426,7 +435,7 @@ export function createMarketHomeTests({
     await assertAndTrack(page, t, '合约二级筛选项完整', async () => {
       const labels = await getFilterLabels(page);
       const required = ['加密货币', '股票', '贵金属', '指数', '大宗商品', '外汇', '预上市'];
-      const hit = required.filter((v) => labels.includes(v));
+      const hit = required.filter((v) => labels.some(label => marketTextIncludesLabel(label, v)));
       if (hit.length < 5) throw new Error(`Missing filters: ${required.filter((x) => !hit.includes(x)).join(', ')}`);
       return `filters=${hit.join('|')}`;
     });
@@ -463,7 +472,7 @@ export function createMarketHomeTests({
     await assertAndTrack(page, t, '热门代币表头字段校验', async () => {
       const text = await page.evaluate(() => (document.body?.textContent || '').replace(/\s+/g, ' '));
       const required = ['名称', '价格', '涨跌', '市值', '流动性', '交易额', '创建时间'];
-      const hit = required.filter((k) => text.includes(k));
+      const hit = required.filter((k) => marketTextIncludesLabel(text, k));
       if (hit.length < 6) throw new Error(`Trending token headers insufficient: ${hit.join(', ')}`);
       return `headers=${hit.join('|')}`;
     });
@@ -474,7 +483,7 @@ export function createMarketHomeTests({
         await backToMarket(page);
         await waitListVisible(page);
         const labels = await getFilterLabels(page);
-        if (!labels.includes('1h') && !labels.includes('全部')) throw new Error('Did not return to trending list context');
+        if (!labels.includes('1h') && !labels.some(label => marketTextIncludesLabel(label, '全部'))) throw new Error('Did not return to trending list context');
         return 'detail round-trip success';
       } catch (e) {
         return `detail open skipped: ${e.message}`;
@@ -500,7 +509,7 @@ export function createMarketHomeTests({
         await backToMarket(page);
         await waitListVisible(page);
         const labels = await getFilterLabels(page);
-        if (!labels.includes('1h') && !labels.includes('全部')) throw new Error('Trending context not preserved after back');
+        if (!labels.includes('1h') && !labels.some(label => marketTextIncludesLabel(label, '全部'))) throw new Error('Trending context not preserved after back');
         return 'trending context preserved';
       } catch (e) {
         return `detail-open-not-observable: ${e.message}`;

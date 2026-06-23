@@ -11,6 +11,7 @@ import {
 import { MarketPage } from '../../helpers/pages/index.mjs';
 import { openSearchModal } from '../../helpers/components.mjs';
 import { createMarketHomeTests } from '../../shared/market/home.mjs';
+import { marketLabelAliases, marketTabLabels } from '../../shared/market/market-tabs.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'market-home');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
@@ -34,9 +35,10 @@ const triggerSearch = (page) => openSearchModal(page);
 
 /** Click a main tab — Desktop layout: main tabs are at y~155-180. */
 async function clickMainTab(page, tab) {
-  const ok = await page.evaluate((name) => {
+  const labels = marketTabLabels(tab);
+  const ok = await page.evaluate((names) => {
     for (const sp of document.querySelectorAll('span')) {
-      if ((sp.textContent || '').trim() !== name) continue;
+      if (!names.includes((sp.textContent || '').trim())) continue;
       const r = sp.getBoundingClientRect();
       if (r.width > 0 && r.height > 0 && r.y > 135 && r.y < 210) {
         sp.click();
@@ -44,18 +46,19 @@ async function clickMainTab(page, tab) {
       }
     }
     return false;
-  }, tab);
+  }, labels);
   if (!ok) throw new Error(`Cannot click main tab: ${tab}`);
   await sleep(1500);
 }
 
 /** Click a filter chip — Desktop layout: chips can sit beside or below main tabs. */
 async function clickFilterChip(page, label) {
-  const ok = await page.evaluate((name) => {
+  const labels = marketLabelAliases(label);
+  const ok = await page.evaluate((names) => {
     const nodes = document.querySelectorAll('span, div, button');
     for (const el of nodes) {
       const text = (el.textContent || '').trim();
-      if (text !== name) continue;
+      if (!names.includes(text)) continue;
       const r = el.getBoundingClientRect();
       if (r.width > 0 && r.height > 0 && r.y > 155 && r.y < 290) {
         el.scrollIntoView({ inline: 'center', block: 'nearest' });
@@ -64,7 +67,7 @@ async function clickFilterChip(page, label) {
       }
     }
     return false;
-  }, label);
+  }, labels);
   if (!ok) throw new Error(`Cannot click filter chip: ${label}`);
   await sleep(1200);
 }

@@ -1,5 +1,12 @@
 {
-  "timestamp": "2026-06-18T16:06:33Z",
+  "timestamp": "2026-06-23T10:25:00+08:00",
+  "runId": "onekey-desktop-tf-checklist-nightly-2026-06-23",
+  "summary": {
+    "total": 33,
+    "passed": 21,
+    "failed": 12,
+    "blocked": 0
+  },
   "diagnoses": [
     {
       "testId": "EXT-ADA-006",
@@ -110,6 +117,55 @@
         "file": "src/tests/extension/transfer/ada/transfer.test.mjs, src/tests/helpers/transfer.mjs",
         "action": "收紧 `extractPreviewPrimaryAmountFromText()` 的 DOM/文本范围，避免账户名数字被当作转账金额；同时在 legacy `normalizeHistoryExpectations()` 中保留 `previewAmount`。"
       }
+    },
+    {
+      "testId": "MARKET-CHART-002, MARKET-CHART-005, MARKET-CHART-006, MARKET-CHART-008",
+      "rootCause": "environment",
+      "confidence": "high",
+      "evidence": "All four chart cases repeatedly fail inside page.evaluate with Electron GUEST_VIEW_MANAGER_CALL script execution errors. The same run also shows chart canvas loaded in adjacent checks: MARKET-CHART-005 reports 20 canvases loaded and zoom hash changed; MARKET-CHART-006 sees EMA/MACD/CRSI labels and multi-indicator state before persistence checks fail.",
+      "recommendation": "Treat as TradingView guest-view automation bridge instability, not as a proven product blank-screen failure. Prefer visible DOM/canvas assertions and user-like clicks; reserve guest-view script calls for diagnostics only."
+    },
+    {
+      "testId": "MARKET-CHART-003",
+      "rootCause": "assertion_logic",
+      "confidence": "medium",
+      "evidence": "The step 'K线类型按钮存在' fails with 'K线图 button not found', but the next step opens the K-line type panel and canvas render validation passes with a canvas hash.",
+      "recommendation": "Relax or localize the button-presence assertion; verify the panel/canvas behavior instead of one exact label."
+    },
+    {
+      "testId": "MARKET-CHART-007",
+      "rootCause": "assertion_logic",
+      "confidence": "medium",
+      "evidence": "Failure is 'Cannot click main tab: 热门'. This sits in the Market tab-click helper path and matches the Traditional Chinese UI drift already observed in screenshots and UI probes.",
+      "recommendation": "Use the Market tab alias map consistently after lock/unlock or page recovery paths."
+    },
+    {
+      "testId": "MARKET-FAV-001",
+      "rootCause": "data_missing",
+      "confidence": "high",
+      "evidence": "The run fails with 'Cannot click recommended token \"ChainLink Token\"'. Execution evidence from the same suite shows the watchlist path is non-empty and mutable in other cases, so this case is depending on a recommendation row that is not guaranteed to be present.",
+      "recommendation": "Make the case data-independent: select any visible recommendation/token row, or skip the empty-watchlist recommendation branch when the account already has watchlist data."
+    },
+    {
+      "testId": "MARKET-HOME-001, MARKET-HOME-004, MARKET-HOME-005, WALLET-001",
+      "rootCause": "assertion_logic",
+      "confidence": "high",
+      "evidence": "Failures are exact text assertions against Simplified Chinese/English while the app is in Traditional Chinese: search placeholder is '搜尋任何內容'; wallet create entry is '創建新錢包'; Market headers and filters are Traditional Chinese.",
+      "recommendation": "Add Traditional Chinese aliases for placeholders, wallet onboarding entries, Market filters and headers."
+    },
+    {
+      "testId": "MARKET-HOME-003",
+      "rootCause": "timing",
+      "confidence": "medium",
+      "evidence": "The case confirms chips '1h|全部' are visible, then fails after clicking a filter with 'Trending list state not confirmed'. UI probe for Market in the same run has populated rows and is not blank.",
+      "recommendation": "After filter changes, accept either populated rows or a valid empty state and wait for the list to settle before asserting."
+    },
+    {
+      "testId": "NIGHTLY-PORTFOLIO-001",
+      "rootCause": "selector_stale",
+      "confidence": "high",
+      "evidence": "The fresh failure screenshot for '切换投资组合为所有网络' is actually on the Market page, so the +N/all-networks trigger cannot exist there. Step 0 reports selected piggy, but the later screenshot proves page context drift before the all-networks action.",
+      "recommendation": "Strengthen the precondition to assert Wallet page context after account selection, close account/network modals, then find the current '所有网络' trigger by wallet-header structure instead of only +N text."
     }
   ]
 }
