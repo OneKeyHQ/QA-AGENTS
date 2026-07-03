@@ -1,4 +1,4 @@
-// Universal Search Tests (Extension) — EXT-SEARCH-UTIL-001 ~ EXT-SEARCH-UTIL-007
+// Universal Search Tests (Extension) — EXT-SEARCH-UTIL-001,002,004~007 (003 代币 tab removed)
 // Thin wrapper: test logic lives in src/tests/shared/utility/universal-search.mjs
 // Extension search tabs are dynamic; token coverage verifies token-type results
 // instead of requiring a standalone "代币/Tokens" tab.

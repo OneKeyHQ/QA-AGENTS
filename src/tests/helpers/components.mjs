@@ -680,60 +680,212 @@ export async function clickSidebarTab(page, name) {
 
 // ── Password / Unlock ───────────────────────────────────────
 
-export async function unlockIfNeeded(page) {
-  // Re-use existing logic from navigation.mjs but via registry
-  try {
-    await sleep(3000);
-    const isLocked = await page.evaluate(() => {
-      const bodyText = document.body?.textContent || '';
-      if (bodyText.includes('欢迎回来') || bodyText.includes('输入密码') || bodyText.includes('忘记密码')) return true;
-      const lockEl = document.querySelector('[data-sentry-source-file*="AppStateLock"]');
-      if (lockEl && lockEl.getBoundingClientRect().width > 0) return true;
-      const pwdInput = document.querySelector('input[placeholder*="密码"]');
-      if (pwdInput && pwdInput.getBoundingClientRect().width > 0) return true;
-      return false;
-    });
-    if (!isLocked) return false;
-    console.log('  Wallet locked, unlocking...');
+function rectCenter(rect) {
+  return {
+    x: Math.round(rect.x + (rect.w ?? rect.width) / 2),
+    y: Math.round(rect.y + (rect.h ?? rect.height) / 2),
+  };
+}
 
-    const pwdInput = await registry.resolveOrNull(page, 'passwordInput', { context: 'page', timeout: 5000 });
-    if (pwdInput) {
-      await pwdInput.click();
-      await sleep(300);
-      await pwdInput.fill(getWalletPassword());
-      await sleep(500);
-      const submitBtn = await registry.resolveOrNull(page, 'verifyingPassword', { context: 'page', timeout: 1000 });
-      if (submitBtn) {
-        await submitBtn.click();
-      } else {
-        await page.keyboard.press('Enter');
-      }
-    } else {
-      // Last resort fallback
-      const fallback = page.locator('input[type="password"]').first();
-      await fallback.fill(getWalletPassword());
-      await sleep(500);
-      await fallback.press('Enter');
-    }
+function hasUsableRect(rect) {
+  return !!rect && rect.x >= 0 && rect.y >= 0 && (rect.w ?? rect.width) > 0 && (rect.h ?? rect.height) > 0;
+}
 
-    console.log('  Waiting for wallet to load...');
-    for (let i = 0; i < 20; i++) {
-      await sleep(1000);
-      const stillLocked = await page.evaluate(() => {
-        const bodyText = document.body?.textContent || '';
-        return bodyText.includes('欢迎回来') || bodyText.includes('输入密码');
-      });
-      if (!stillLocked) break;
-    }
-    await sleep(3000);
+export function findVisiblePasswordInputSnapshot(inputs = []) {
+  return inputs.find(item => item?.visible && hasUsableRect(item.rect)) || null;
+}
 
-    const hasWallet = await page.locator('[data-testid="AccountSelectorTriggerBase"]').isVisible({ timeout: 10000 }).catch(() => false);
-    console.log(hasWallet ? '  Unlocked successfully.' : '  Unlock: wallet selector not visible, but lock screen cleared.');
-    return true;
-  } catch (e) {
-    console.log(`  Unlock error: ${e.message}`);
-    return false;
+export function choosePasswordSubmitPoint(input, controls = []) {
+  const inputRect = input?.rect;
+  if (!hasUsableRect(inputRect)) return null;
+
+  const inputRight = inputRect.x + (inputRect.w ?? inputRect.width);
+  const inputMidY = inputRect.y + (inputRect.h ?? inputRect.height) / 2;
+  const candidates = controls
+    .filter(item => item?.visible && item.testid === 'verifying-password' && hasUsableRect(item.rect))
+    .map(item => {
+      const center = rectCenter(item.rect);
+      return { item, center, distance: Math.abs(center.y - inputMidY) + Math.max(0, center.x - inputRight) };
+    })
+    .filter(({ center }) => center.x >= inputRight - 4 && Math.abs(center.y - inputMidY) <= Math.max(36, (inputRect.h ?? inputRect.height)))
+    .sort((a, b) => a.distance - b.distance);
+
+  if (candidates[0]) {
+    return { ...candidates[0].center, reason: 'visible verifying-password' };
   }
+
+  return {
+    x: Math.round(inputRect.x + (inputRect.w ?? inputRect.width) - 28),
+    y: Math.round(inputMidY),
+    reason: 'input arrow fallback',
+  };
+}
+
+export function isLockScreenState(state = {}) {
+  return Boolean(state.hasWelcome || state.visiblePasswordInputs > 0);
+}
+
+async function readPasswordDomState(page) {
+  return page.evaluate(() => {
+    const visible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      const style = el ? getComputedStyle(el) : null;
+      return !!r && r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 &&
+        style?.display !== 'none' && style?.visibility !== 'hidden';
+    };
+    const rectOf = (el) => {
+      const r = el.getBoundingClientRect();
+      return { x: r.x, y: r.y, w: r.width, h: r.height };
+    };
+    const bodyText = document.body?.innerText || document.body?.textContent || '';
+    const inputs = Array.from(document.querySelectorAll('[data-testid="password-input"], input[type="password"], input[placeholder*="密码"]'))
+      .map((el, i) => ({
+        i,
+        visible: visible(el),
+        testid: el.getAttribute('data-testid'),
+        type: el.getAttribute('type'),
+        placeholder: el.getAttribute('placeholder'),
+        valueLength: el.value?.length ?? null,
+        rect: rectOf(el),
+      }));
+    const controls = Array.from(document.querySelectorAll('button, [role="button"], [data-testid="verifying-password"], [data-testid="page-footer-confirm"]'))
+      .map((el, i) => ({
+        i,
+        visible: visible(el),
+        tag: el.tagName,
+        testid: el.getAttribute('data-testid'),
+        role: el.getAttribute('role'),
+        text: (el.textContent || '').trim().slice(0, 80),
+        disabled: Boolean(el.disabled || el.getAttribute('aria-disabled') === 'true'),
+        rect: rectOf(el),
+      }));
+    const visiblePasswordInputs = inputs.filter(item => item.visible).length;
+    return {
+      hasWelcome: /欢迎回来|歡迎回來|Welcome back|忘记密码|忘記密碼/.test(bodyText),
+      hasPasswordError: /密码错误|密碼錯誤|Incorrect password|Wrong password/i.test(bodyText),
+      visiblePasswordInputs,
+      textSample: bodyText.replace(/\s+/g, ' ').slice(0, 500),
+      inputs,
+      controls,
+    };
+  });
+}
+
+export async function waitForPasswordStateToClear(page, { timeout = 12000, interval = 500 } = {}) {
+  const start = Date.now();
+  let lastState = null;
+  while (Date.now() - start <= timeout) {
+    lastState = await readPasswordDomState(page);
+    if (!isLockScreenState(lastState) || lastState.hasPasswordError) return lastState;
+    await sleep(interval);
+  }
+  return lastState;
+}
+
+async function typePasswordIntoVisibleInput(page, password) {
+  const state = await readPasswordDomState(page);
+  const input = findVisiblePasswordInputSnapshot(state.inputs);
+  if (!input) throw new Error(`No visible password input found; state=${JSON.stringify(state)}`);
+
+  const center = rectCenter(input.rect);
+  await page.mouse.click(center.x, center.y);
+  await sleep(100);
+  await page.keyboard.press('Meta+A').catch(() => {});
+  await page.keyboard.press('Backspace').catch(() => {});
+  await page.keyboard.type(password, { delay: 35 });
+  await sleep(250);
+
+  const typedLength = await page.evaluate(() => {
+    const visible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      const style = el ? getComputedStyle(el) : null;
+      return !!r && r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 &&
+        style?.display !== 'none' && style?.visibility !== 'hidden';
+    };
+    const input = Array.from(document.querySelectorAll('[data-testid="password-input"], input[type="password"], input[placeholder*="密码"]'))
+      .find(visible);
+    return input?.value?.length ?? null;
+  });
+  if (typedLength !== password.length) {
+    throw new Error(`Password input length mismatch: expected ${password.length}, got ${typedLength}`);
+  }
+
+  return { input, state };
+}
+
+async function clickPasswordSubmitControl(page, input) {
+  const clickedByDom = await page.evaluate(() => {
+    const visible = (el) => {
+      const r = el?.getBoundingClientRect?.();
+      const style = el ? getComputedStyle(el) : null;
+      return !!r && r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 &&
+        style?.display !== 'none' && style?.visibility !== 'hidden';
+    };
+    const target = Array.from(document.querySelectorAll('[data-testid="verifying-password"]'))
+      .find(visible);
+    if (!target || typeof target.click !== 'function') return false;
+    target.click();
+    return true;
+  }).catch(() => false);
+  if (clickedByDom) return 'verifying-password-dom';
+
+  const state = await readPasswordDomState(page);
+  const point = choosePasswordSubmitPoint(input, state.controls);
+  if (point) {
+    await page.mouse.click(point.x, point.y);
+    return point.reason;
+  }
+
+  await page.keyboard.press('Enter');
+  return 'enter-key';
+}
+
+async function submitVisiblePassword(page, input) {
+  await clickPasswordSubmitControl(page, input);
+
+  let after = await waitForPasswordStateToClear(page);
+  if (isLockScreenState(after) && !after.hasPasswordError) {
+    await page.keyboard.press('Enter');
+    after = await waitForPasswordStateToClear(page);
+  }
+  return after;
+}
+
+async function enterVisiblePasswordAndVerify(page, { reason = 'password prompt' } = {}) {
+  const password = getWalletPassword();
+  let lastState = null;
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const { input } = await typePasswordIntoVisibleInput(page, password);
+    lastState = await submitVisiblePassword(page, input);
+    if (!isLockScreenState(lastState)) return { unlocked: true, attempts: attempt };
+    if (lastState.hasPasswordError) break;
+    await sleep(500);
+  }
+  throw new Error(`${reason} remains locked after password submit: ${JSON.stringify({
+    hasWelcome: lastState?.hasWelcome,
+    hasPasswordError: lastState?.hasPasswordError,
+    visiblePasswordInputs: lastState?.visiblePasswordInputs,
+    textSample: lastState?.textSample,
+  })}`);
+}
+
+export async function unlockIfNeeded(page) {
+  await sleep(1000);
+  const state = await readPasswordDomState(page);
+  if (!isLockScreenState(state)) return false;
+
+  console.log('  Wallet locked, unlocking...');
+  await enterVisiblePasswordAndVerify(page, { reason: 'wallet lock screen' });
+  await sleep(1500);
+
+  const finalState = await readPasswordDomState(page);
+  if (isLockScreenState(finalState)) {
+    throw new Error(`Unlock verification failed: ${JSON.stringify(finalState)}`);
+  }
+
+  const hasWallet = await page.locator('[data-testid="AccountSelectorTriggerBase"]').isVisible({ timeout: 5000 }).catch(() => false);
+  console.log(hasWallet ? '  Unlocked successfully.' : '  Unlock: lock screen cleared.');
+  return true;
 }
 
 export async function handlePasswordPrompt(page) {
@@ -769,76 +921,13 @@ export async function handlePasswordPrompt(page) {
   // Password dialog (may be in modal OR fixed-position form for tx signing)
   console.log('    [adaptive] Password re-verification dialog detected...');
 
-  // Try registry first (modal context)
-  let pwdInput = await registry.resolveOrNull(page, 'passwordInput', { context: 'modal', timeout: 1000 });
-
-  // Fallback: find password input in fixed form or anywhere visible
-  if (!pwdInput) {
-    const fixedInput = page.locator('input[type="password"]').first();
-    const visible = await fixedInput.isVisible({ timeout: 1000 }).catch(() => false);
-    if (visible) pwdInput = fixedInput;
-  }
-  if (!pwdInput) {
-    const anyPwdInput = page.locator('[data-testid="password-input"]').first();
-    const visible = await anyPwdInput.isVisible({ timeout: 1000 }).catch(() => false);
-    if (visible) pwdInput = anyPwdInput;
-  }
-
-  if (pwdInput) {
-    await pwdInput.click({ force: true }).catch(() => {});
-    await sleep(200);
-    await pwdInput.fill(getWalletPassword());
-    await sleep(300);
-
-    // Try submit button, then Enter key
-    const submitBtn = await registry.resolveOrNull(page, 'verifyingPassword', { context: 'modal', timeout: 1000 });
-    if (submitBtn) {
-      await submitBtn.click();
-    } else {
-      // Try "确认" button in the form
-      await page.evaluate(() => {
-        const btns = document.querySelectorAll('button');
-        for (const btn of btns) {
-          const t = btn.textContent?.trim();
-          if ((t === '确认' || t === 'OK' || t === 'Confirm') && btn.getBoundingClientRect().width > 0) {
-            btn.click();
-            return;
-          }
-        }
-      });
-      await sleep(300);
-      await page.keyboard.press('Enter');
-    }
-
-    for (let i = 0; i < 10; i++) {
-      await sleep(500);
-      const stillVisible = await page.evaluate(() => {
-        const inputs = [
-          document.querySelector('[data-testid="password-input"]'),
-          ...document.querySelectorAll('input[type="password"]'),
-        ].filter(Boolean);
-        return inputs.some(input => {
-          const r = input.getBoundingClientRect();
-          return r.width > 0 && r.height > 0;
-        });
-      });
-      if (!stillVisible) break;
-    }
-    console.log('    [adaptive] Password dialog handled');
-    return { handled: true, type: 'password_dialog' };
-  }
-
-  return { handled: false, type: null };
+  await enterVisiblePasswordAndVerify(page, { reason: 'password dialog' });
+  console.log('    [adaptive] Password dialog handled');
+  return { handled: true, type: 'password_dialog' };
 }
 
 export async function enterPassword(page) {
-  const pwdInput = await registry.resolve(page, 'passwordInput', { context: 'modal' });
-  await pwdInput.click();
-  await sleep(200);
-  await pwdInput.fill(getWalletPassword());
-  await sleep(300);
-  const submitBtn = await registry.resolveOrNull(page, 'verifyingPassword', { context: 'modal', timeout: 1000 });
-  if (submitBtn) { await submitBtn.click(); } else { await page.keyboard.press('Enter'); }
+  await enterVisiblePasswordAndVerify(page, { reason: 'enterPassword' });
   await sleep(1000);
 }
 

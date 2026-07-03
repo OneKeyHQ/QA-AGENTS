@@ -69,23 +69,41 @@ export async function openSearchModal(page, triggerFn) {
 
 export async function setSearchValueStrict(page, value, triggerFn) {
   await openSearchModal(page, triggerFn);
-  await page.evaluate((nextValue) => {
+  const input = getModalSearchInput(page);
+  await input.click().catch(() => {});
+  await sleep(150);
+
+  // Clear existing content with REAL key events.
+  // OneKey 的搜索框是 React 受控组件：nativeInputValueSetter + dispatchEvent
+  // 注入的值会被忽略（input.value 保持空串），查询不生效、弹窗停在「最近搜索」
+  // 默认态，所有分类 Tab 假隐藏导致全 skip 假绿。Meta+a 又会触发 Electron 全局
+  // 快捷键。所以先用 JS select 选中、再用真实 Backspace 删除。详见 K-194。
+  await page.evaluate(() => {
     const inputs = [...document.querySelectorAll('input[data-testid="nav-header-search"]')]
-      .filter(input => {
-        const r = input.getBoundingClientRect();
-        return r.width > 0 && r.height > 0;
-      });
-    const input = inputs[inputs.length - 1];
-    if (!input) throw new Error('Visible search input not found');
-    input.focus();
-    input.select?.();
-    const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-    nativeSet?.call(input, nextValue);
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-    input.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
-  }, value || '');
+      .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
+    const el = inputs[inputs.length - 1];
+    if (el) { el.focus(); el.select?.(); }
+  });
+  await page.keyboard.press('Backspace');
+  for (let i = 0; i < 50; i++) {
+    const len = await page.evaluate(() => {
+      const inputs = [...document.querySelectorAll('input[data-testid="nav-header-search"]')]
+        .filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
+      const el = inputs[inputs.length - 1];
+      return el ? el.value.length : 0;
+    });
+    if (len === 0) break;
+    await page.keyboard.press('Backspace');
+  }
+
+  // Type with real keystrokes so React onChange fires the search filter.
+  if (value) {
+    try {
+      await input.pressSequentially(value, { delay: 50 });
+    } catch {
+      await input.type(value, { delay: 50 });
+    }
+  }
   await sleep(1500);
 }
 
