@@ -81,6 +81,12 @@ curl -s http://127.0.0.1:9222/json/version
 - **CDP 无响应时必须重启指定的 OneKey app**：如果 `curl http://127.0.0.1:9222/json/version` 无响应，必须 `pkill -f "OneKey"` 后用上面的唯一路径重新启动，**严禁**连接其他浏览器或 app 实例，**严禁** spawn 第二个 OneKey 进程。
 - **NEVER** use `open` command to open URLs — 不要用 `open` 打开浏览器页面，用户会自己刷新已有的标签页。
 
+### 密码输入处理规则（强制）
+- **只要遇到任何密码输入位置，都必须主动用钱包密码解锁/确认**：包括启动锁屏页、页面残留 lock layer、签名/授权/交易确认 modal、网络选择器、创建地址流程、以及任意执行中出现的 password prompt。
+- 钱包密码读取优先级：`shared/runtime-config.json` 的 `walletPassword` > 环境变量 `WALLET_PASSWORD` > 默认 `1234567890-=`
+- 不能只在脚本开头解锁一次；每次关键点击、打开 modal、进入新流程前后，只要检测到可见 `password-input` / `欢迎回来` / `忘记密码？`，必须先填密码并提交。
+- 提交密码后必须确认可见密码框/锁屏层消失，才能继续后续操作；若仍可见，应重试或将当前用例标记为环境/解锁阻塞，**严禁**继续点击底层页面并把后续失败归因给产品或选择器。
+
 ## Architecture (Three Layers)
 
 ### Decision Layer

@@ -1,14 +1,14 @@
 {
   "version": "2.4.2",
-  "lastUpdated": "2026-06-23",
+  "lastUpdated": "2026-07-02",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164,K-170,K-183,K-186 — DOM定位/选择器/testid陷阱",
-    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165,K-169,K-171,K-172,K-173,K-188,K-189 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167,K-168,K-175,K-187 — 工作流/前置条件/状态恢复",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161,K-177,K-178,K-180,K-181,K-182,K-184,K-185 — 断言策略/校验方法",
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164,K-170,K-183,K-186,K-190,K-191 — DOM定位/选择器/testid陷阱",
+    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165,K-169,K-171,K-172,K-173,K-188,K-189,K-195 — OneKey/Electron/React行为异常",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167,K-168,K-175,K-187,K-192,K-197,K-198,K-199,K-200,K-202 — 工作流/前置条件/状态恢复",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161,K-177,K-178,K-180,K-181,K-182,K-184,K-185,K-193,K-196 — 断言策略/校验方法",
     "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109,K-116,K-117,K-118 — 录制器相关",
-    "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166,K-174,K-176,K-179 — 时序/异步/页面状态切换"
+    "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166,K-174,K-176,K-179,K-201 — 时序/异步/页面状态切换"
   },
   "patterns": [
     {
@@ -1264,7 +1264,7 @@
       "category": "assertion",
       "platform": "desktop",
       "pattern": "通用搜索 Tab 按命中类型动态展示，代币 Tab 已移除，自动化不能固定断言 Tab 存在",
-      "details": "2026-06-17 用户确认：通用搜索现在是动态显示 Tab，且已经移除 `代币/Tokens` 独立 Tab。修复口径：用例先读取当前搜索弹窗可见 Tab；目标类型 Tab 存在时再做结果、点击、跳转断言；目标类型未展示但弹窗仍处于有效搜索态（有其它结果或明确空态）时，记录为动态隐藏/未暴露并跳过该类型点击断言，不判失败。`SEARCH-UTIL-001~007` 已按此口径调整，`SEARCH-UTIL-003` 的代币搜索覆盖改为“代币类型结果”，不再要求 Tokens Tab 存在。",
+      "details": "2026-06-25 CDP 实探 Desktop TF 确认当前通用搜索 Tab 集合：空态/USDC/ETH = `全部 / 账户 / 市场 / 合约 / 我的资产 / dApps`，btc = `全部 / 市场 / 合约 / 我的资产 / dApps / 设置`；`代币/Tokens` 独立 Tab 在任何状态都不再出现（彻底移除），且代币类型结果也不再在通用搜索中展示（不迁移、不保留覆盖）；`市场` 是本来就有的独立 Tab，与被删的代币结果无关；`账户` Tab 是动态的（按命中出现）。修复口径：用例先读当前搜索弹窗可见 Tab；目标类型 Tab 存在时再做结果/点击/跳转断言；目标类型未展示但弹窗仍处于有效搜索态时记录为动态隐藏并 skip，不判失败。最终实现：`test003`（代币类型搜索）整条已从 `src/tests/shared/utility/universal-search.mjs` 删除，`CONFIG.tabs.tokens`/token* 配置/test007 轮询中的 tokens 一并移除；desktop 暴露 `SEARCH-UTIL-001,002,004,005,006,007`（与 shared/checklists.json 一致），web 的 `WEB-SEARCH-UTIL-001` 代币测试删除、原 006 perps 重编号为 001。原 line 478 把 `getTabState` 误写成未定义的 `getSearchContentState`，导致 SEARCH-UTIL-001 硬崩，已修正。关键区分：『代币 Tab 永久移除』要删用例，不能与『账户/dApps 等条件隐藏』混为长期 skip 假绿。",
       "confidence": 0.99
     },
     {
@@ -1506,6 +1506,110 @@
       "pattern": "TradingView guest-view 桥接调用失败不等于图表白屏，应保留画布/视觉断言",
       "details": "2026-06-23 修复 Market Chart 用例：Electron guest view 中 `executeJavaScriptInGuestView` 可能抛 `GUEST_VIEW_MANAGER_CALL`，但同一页面截图和 canvas 像素检查显示 K 线图表已经渲染。修复口径：这类错误按 automation bridge 限制记录为 `SKIP:` detail，不应直接判产品失败；仍必须验证页面不白屏、canvas 非空、价格/指标等可见元素，只有视觉/DOM 断言也失败时才判图表流程失败。",
       "confidence": 0.98
+    },
+    {
+      "id": "K-190",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "Market 列表行点击可能落到价格列而不是打开详情页",
+      "details": "2026-06-24 Desktop TF Nightly：MARKET-CHART-001~008 全部在进入 token 详情前失败，命中元素均为 `list-column-price`，错误形如 `Detail page did not open after clicking ARX...; hit={tag:DIV,testid:list-column-price}`。Market 首页列表非空，Market Home 001/002/003/004/005/006 通过，说明不是白屏或无数据，而是列表行详情点击 hit target/可点击区域漂移。修复口径：Market 详情入口不要用行中心或价格列坐标推断；应优先定位可点击整行/名称列/详情链接，点击后必须等待 `nav-header-back` 或详情页标识。若只能点击价格/涨跌列，应作为定位失败而非产品详情页失败。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-191",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "Market 热门列表星标控件可能不可见，搜索收藏路径仍可用",
+      "details": "2026-06-24 Desktop TF Nightly：MARKET-FAV-002 失败 `热门列表没有可见星标`，MARKET-FAV-006 失败 `visibleStars=0`，但 MARKET-FAV-004/007 通过搜索结果收藏/取消收藏，MARKET-FAV-001 在非空自选列表 count=102 分支通过。说明当前失败集中在热门列表星标控件可见性/定位，而不是收藏能力整体不可用。修复口径：列表收藏用例应先 CDP 验证 `list-column-star` 里的真实按钮/icon 是否存在、是否被隐藏或改成 hover 展示；必要时 hover 行后再找星标，不要把搜索结果收藏路径的通过等同于热门列表星标通过。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-192",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "账户选择器里添加钱包与添加账户入口容易混淆，导入钱包探针必须先确认进入钱包添加页",
+      "details": "2026-06-24 Desktop TF Nightly import probe：打开 `AccountSelectorTriggerBase` 后，当前 modal 左下有 `+ 钱包` 视觉入口，右侧搜索栏有加号/账户列表底部有 `添加账户`，并且账户行三点菜单会打开“交易/复制地址/授权/批量转账/签名与验证消息”。探针先找 `account-add-account`/`account-search-bar-add-button` 会误入添加账户或找不到添加钱包；按截图坐标点到 modal 内部小图标后也未进入添加钱包页，仍停留 Wallet Home/账户选择器。稳定做法：导入钱包/私钥探针必须在每一步断言页面文本已进入 `创建新钱包 / 添加已有钱包 / 连接硬件钱包` 添加钱包页；若仍在 Wallet Home 或账户选择器，不得继续把已有钱包名“导入私钥”等文本误判为私钥导入页。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-193",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Market token 详情页可能不暴露 nav-header-back/market-detail-page，但 webview/canvas 已加载",
+      "details": "2026-06-24 修复 MARKET-CHART-001 与 MARKET-FAV-003：点击热门 token 名称后，当前 TF 详情页会加载 TradingView `webview` 和 12 个 canvas，但未稳定暴露 `nav-header-back` 或 `market-detail-page`。旧脚本只用这两个标识判断详情页，导致 `TV 图表加载` 和 `K 线非白屏` 都通过，点击详情步骤仍失败。稳定做法：Market 详情页进入断言应接受可见 `webview`/图表 canvas 作为详情页成功信号；点击入口优先用 `list-column-name` 名称单元格坐标，不要点击价格/涨跌列。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-194",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "通用搜索 setSearchValueStrict 用 nativeInputValueSetter+dispatchEvent 在新版 React 搜索框失效，查询不生效→全 tab 假隐藏→skip 假绿",
+      "details": "2026-06-25 排查 SEARCH-UTIL-002 全 skip：`src/tests/helpers/market-search.mjs` 的 `setSearchValueStrict()` 通过 `page.evaluate` 用 `Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set` 注入值 + 派发 input/change/Enter 事件。CDP 实探证明：注入后 `input.value` 仍为空字符串（''），React 受控搜索框忽略合成赋值，弹窗停在『最近搜索』默认态，`getVisibleSearchTabs` 只返回 `['最近搜索']`，于是 `账户/市场/合约/我的资产/dApps` 全部被判动态隐藏→skip，整条用例 PASSED 但零真实断言。对照实探：用真实按键 `locator.pressSequentially('USDC',{delay:50})` 或 `page.keyboard.type` 逐字符输入，弹窗立即出现 `全部/账户/市场/合约/我的资产/dApps` 6 个 tab 且有结果。这正是 CLAUDE.md 明文规则（『不要用 nativeInputValueSetter + dispatchEvent；唯一可靠方式 locator.pressSequentially()』）。修复方向：把 `setSearchValueStrict` 改为 pressSequentially 真实按键输入（清空用 select()+Backspace，禁用 Meta+a），影响通用搜索 + Market 搜索全部用例。触发场景：任何用 setSearchValueStrict 的搜索类用例在新版动态-tab 搜索 UI 上跑出『只暴露 最近搜索/热门』+ 大面积 skip。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-195",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Market 页面可能已加载数据但仍残留可见锁屏密码层，导致图表/详情点击被判阻塞",
+      "details": "2026-06-27 Desktop TF Nightly：Market Home/Search/Favorites 多数页面数据非空且可操作，但 Market Chart 001~008 全部失败，错误为 `Wallet lock layer is still covering Market: {topText:\"欢迎回来\",hasPasswordInput:true}`。CDP 实探同时看到 `market-page`、行情列表和 `AccountSelectorTriggerBase` 可见，但页面中央仍有可见 `password-input`；重复 unlock 和手动填密码后输入框仍残留。处理口径：Market 失败报告需区分“页面白屏/无数据”和“锁屏层覆盖交互”；脚本应在 Market 前台额外验证可见 password input 是否真正消失，若未消失应归类为环境/锁层阻塞，不要误报为 Market 数据为空。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-196",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Market 搜索收藏联动不能只看自选数量 0->0，需确认收藏目标是否已存在或当前筛选是否隐藏结果",
+      "details": "2026-06-27 Desktop TF Nightly：MARKET-SEARCH-004 失败 `收藏后自选列表有变化（+1 或出现条目） — 0 → 0` 和 `取消收藏后自选列表有变化（-1 或消失） — 0 → 0`，但同轮 MARKET-FAV-004/007 的搜索结果收藏/取消收藏通过，说明收藏能力不一定整体失效。修复口径：搜索收藏联动断言应记录收藏前目标 token 是否已在自选、当前自选 tab 是否被筛选/搜索词清空、以及星标状态变化；不能只用列表 count 变化作为唯一判断。",
+      "confidence": 0.93
+    },
+    {
+      "id": "K-197",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "NIGHTLY-PORTFOLIO-001 强依赖指定账户存在，缺失时无法覆盖所有网络创建地址和复制地址列表残留检查",
+      "details": "2026-06-27 Desktop TF Nightly：NIGHTLY-PORTFOLIO-001 在 Step 0 失败 `Account piggy🐷 not found in selected wallet`，未进入全选网络、创建地址 & 应用、复制地址列表残留“创建地址”校验。修复口径：执行 Desktop TF Nightly 前应把目标钱包/账户作为显式前置条件检查并在缺失时先创建/切换到可用账户，或让用例自动选择当前软件钱包下任一稳定账户；报告中必须说明复制地址列表断言未到达，而不是误判通过或失败网络列表为空。 2026-06-29 用户纠正：`piggy🐷` 明确属于钱包 `ran`，钱包和账户是关联关系；再次遇到 `Account piggy🐷 not found in selected wallet` 时，不能写成当前钱包缺账户或账户不存在，而应诊断为没有先成功切换到 `ran` 钱包、或切换后未在该钱包上下文内查找账户。执行/报告口径必须写 `ran / piggy🐷` 组合前置条件。 2026-06-29 用户进一步纠正：`shared/runtime-config.json` 已记录 `ran / piggy🐷`，Nightly 不应只“尝试切换”后继续，而必须在执行主体前把该钱包/账户组合作为 hard gate 验证；未验证成功应 BLOCKED，不应继续运行并把后续失败归因给产品。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-198",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "unlock helper 可能误判解锁成功，必须用可见 password input 二次确认",
+      "details": "2026-06-28 Desktop TF Nightly UI 巡检：`unlockWalletIfNeeded()` 日志多次输出 `Unlocked successfully`，但截图仍是中央 `欢迎回来 / 输入密码` 锁屏，CDP 也显示可见 `[data-testid=\"password-input\"]`。原因是锁屏背后的 Wallet DOM（如 `AccountSelectorTriggerBase`、market-page 列表）仍在文档中可见，旧 helper 用这些隐藏/底层业务元素判断已解锁会产生假阳性。稳定做法：每次 unlock 后必须额外检查可见 password input/锁屏容器是否消失；若仍可见，应将后续页面巡检/Market 图表交互归类为锁层阻塞，不要继续点击侧边栏或把底层 DOM 文本当作页面已可操作。 2026-06-29 用户纠正：解锁密码明确为 `1234567890-=`，不能把锁屏层残留描述成缺少密码或未配置密码；正确诊断是脚本虽然调用 unlock 并输入密码，但没有把可见 `password-input` / `欢迎回来` 消失作为硬断言，导致锁屏仍可见时继续执行。后续执行必须在每个模块/关键点击前强制验证锁屏层不可见；若仍可见，应再次输入密码并等待，失败则立即标记 unlock 环境阻塞，不继续跑 Market/Portfolio 交互。 2026-06-29 用户进一步纠正：密码 `1234567890-=` 已是既定前置条件，Nightly 不应只调用 unlock helper，而必须在 preflight 中确认可见锁屏层已消失；未消失应重试或 BLOCKED，不应继续跑 checklist。 2026-06-29 用户纠正：只要自动化过程中遇到任何密码输入位置，都应该主动使用已记录的钱包密码 `1234567890-=` 解锁/确认；范围包括启动锁屏、页面内 lock layer、签名/授权/交易确认 modal、网络选择器或创建地址流程中弹出的 password prompt。不能只在脚本开头解锁一次，也不能看到密码框后继续执行后续点击；必须先填密码提交并确认密码框/锁屏层消失。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-199",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Desktop CDP 测试模块可能已打印 SUMMARY 但 Node 进程不退出，需按日志判定并继续剩余模块",
+      "details": "2026-06-29 Desktop TF Nightly：`src/tests/desktop/market/home.test.mjs` 已输出 `SUMMARY: 6 passed, 0 failed, 6 total`，但 Node 进程继续持有 CDP/Playwright 句柄不退出，导致串行 wrapper 停在该模块，后续 Market Search、Portfolio、Wallet Create 未自动执行。处理口径：Nightly 串行执行时若模块已打印完整 SUMMARY 且超过约 90 秒无新日志，应记录为执行器清理/未关闭句柄问题，终止该模块 Node 子进程后从下一个模块继续；不要把已汇总通过的 case 标成失败，也不要重跑已完成模块混淆结果。后续可在模块 run() 中显式断开 CDP 连接或让 wrapper 加模块级超时。",
+      "confidence": 0.97
+    },
+    {
+      "id": "K-200",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Nightly 解锁 preflight 必须使用可见密码框真实输入并硬断言锁屏消失",
+      "details": "2026-06-30 Desktop TF Nightly preflight 首轮误判：CDP 连接到已加载的 OneKey 页面后，可见锁屏层仍存在；旧 helper 用 registry locator + fill()/submit，底层 Wallet DOM 可见导致状态混淆，报告一度写成提交后出现「密码错误」。用户确认密码就是 `1234567890-=` 后，按可见 password input 坐标真实键盘输入并提交，检测到 inputValueLength=12，最终 hasWelcome=false、visiblePasswordInputs=0，解锁成功。根因不是密码错误，而是自动化定位/提交/状态判断不可靠。修复口径：unlock helper 必须只选可见 password input，真实按键输入，验证输入长度，点击同一锁屏区域的可见提交点/必要时 Enter，并把 `欢迎回来` 或 visible password input 消失作为硬断言；若仍存在锁屏，立即 BLOCKED，不继续执行 Market/Portfolio/checklist 主体，也不要把底层 DOM 非空当作页面可操作。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-201",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "Desktop unlock 提交后可能慢清锁屏，helper 必须轮询到 password layer 消失",
+      "details": "2026-07-01 修复 Desktop TF Nightly 解锁 preflight：证据显示 password-input 已接受 12 字符且提交后没有最终密码错误，但脚本在固定短 sleep 后立即采样，仍看到 欢迎回来/password-input 就判 BLOCKED；稍后 CDP 页面实际已解锁。修复口径：提交密码优先用可见 [data-testid=\"verifying-password\"] 的 DOM click，失败再坐标/Enter fallback；提交后不要只 sleep 一次，必须轮询 readPasswordDomState，直到 visible password input/欢迎回来 消失或出现明确 password error，超时后才 BLOCKED。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-202",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Desktop TF 钱包导入必须覆盖真实助记词导入和导出私钥再导入两条独立流程",
+      "details": "2026-07-02 修复 Desktop TF Nightly 钱包导入覆盖：旧 import probe 只点击入口并卡在添加已有钱包页，没有执行固定助记词导入，也没有完成导出私钥后再导入。TF 6.5.0 上 get-started 页可能没有稳定暴露 onboarding-import-wallet-button，需用可见文本 添加已有钱包/Add Existing Wallet 进入；add-wallet、导入确认、进入钱包等关键按钮应使用可见元素中心点点击并等待页面状态变化。导出私钥点击显示后会弹出 password-input，必须先用钱包密码确认并等待 account-key-input 露出内容；私钥只允许保存在当前流程内存中，日志/结果只记录长度脱敏值。",
+      "confidence": 0.99
     }
   ]
 }

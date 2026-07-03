@@ -53,6 +53,13 @@
           "caseIds": [
             "NIGHTLY-PORTFOLIO-001"
           ]
+        },
+        {
+          "label": "Nightly 钱包导入主流程",
+          "caseIds": [
+            "WALLET-IMPORT-001",
+            "WALLET-IMPORT-002"
+          ]
         }
       ],
       "createdAt": "2026-05-08T10:49:27.720Z",

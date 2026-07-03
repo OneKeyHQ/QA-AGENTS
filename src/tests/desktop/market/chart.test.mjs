@@ -169,7 +169,7 @@ async function clickFirstToken(page) {
     await openMarketSpotList(page);
   }
   await assertNoLockLayer(page);
-  const pos = await page.evaluate(() => {
+  const target = await page.evaluate(() => {
     const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
     const isVisible = (el) => {
       const r = el?.getBoundingClientRect?.();
@@ -180,30 +180,62 @@ async function clickFirstToken(page) {
       if (text === '名称' || text === '#') continue;
       const r = el.getBoundingClientRect();
       if (!isVisible(el) || r.x < 100 || r.x > 500 || r.width <= 0 || r.y < 250) continue;
-      let row = el.parentElement;
-      while (row && row.parentElement) {
-        const rr = row.getBoundingClientRect();
-        const rowText = normalize(row.innerText || row.textContent);
-        if (rr.width > 500 && rr.height >= 40 && rr.height <= 80 && rowText.includes(text)) break;
-        row = row.parentElement;
-      }
-      const rr = row?.getBoundingClientRect?.();
-      const clickX = rr && rr.width > 0 ? rr.x + Math.min(340, rr.width / 2) : r.x + r.width / 2;
-      const clickY = rr && rr.height > 0 ? rr.y + rr.height / 2 : r.y + r.height / 2;
-      return { x: clickX, y: clickY, text: text.slice(0, 30) };
+      const clickX = Math.min(r.left + Math.max(24, Math.min(r.width / 2, 120)), window.innerWidth - 8);
+      const clickY = r.top + r.height / 2;
+      const hit = document.elementFromPoint(clickX, clickY);
+      return {
+        x: clickX,
+        y: clickY,
+        text: text.slice(0, 30),
+        hitTestId: hit?.getAttribute?.('data-testid') || '',
+        hitText: normalize(hit?.textContent || '').slice(0, 80),
+      };
     }
     return null;
   });
-  if (!pos) throw new Error('No visible token name cell');
-  await page.mouse.click(pos.x, pos.y);
-  const opened = await page.waitForFunction(() => {
+  if (!target) throw new Error('No visible token name cell');
+
+  const detailOpened = async () => page.evaluate(() => {
     const visible = (selector) => {
       const el = document.querySelector(selector);
       const r = el?.getBoundingClientRect?.();
       return !!r && r.width > 0 && r.height > 0;
     };
-    return visible('[data-testid="nav-header-back"]') || visible('[data-testid="market-detail-page"]');
+    return visible('[data-testid="nav-header-back"]')
+      || visible('[data-testid="market-detail-page"]')
+      || visible('webview');
+  });
+
+  await page.mouse.click(target.x, target.y);
+  let opened = await page.waitForFunction(() => {
+    const visible = (selector) => {
+      const el = document.querySelector(selector);
+      const r = el?.getBoundingClientRect?.();
+      return !!r && r.width > 0 && r.height > 0;
+    };
+    return visible('[data-testid="nav-header-back"]')
+      || visible('[data-testid="market-detail-page"]')
+      || visible('webview');
   }, { timeout: 8000 }).then(() => true).catch(() => false);
+
+  if (!opened) {
+    opened = await page.evaluate((needle) => {
+      const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
+      for (const el of document.querySelectorAll('[data-testid="list-column-name"]')) {
+        const text = normalize(el.textContent || el.innerText);
+        const r = el.getBoundingClientRect();
+        if (!text.includes(needle) || r.width <= 0 || r.height <= 0 || r.y < 250) continue;
+        el.click();
+        return true;
+      }
+      return false;
+    }, target.text);
+    if (opened) {
+      await sleep(2500);
+      opened = await detailOpened();
+    }
+  }
+
   if (!opened) {
     const topHit = await page.evaluate(({ x, y }) => {
       const normalize = (value) => String(value || '').replace(/\s+/g, ' ').trim();
@@ -214,11 +246,11 @@ async function clickFirstToken(page) {
         text: normalize(el?.textContent || '').slice(0, 120),
         body: normalize(document.body?.innerText || '').slice(0, 300),
       };
-    }, pos);
-    throw new Error(`Detail page did not open after clicking ${pos.text}; hit=${JSON.stringify(topHit)}`);
+    }, target);
+    throw new Error(`Detail page did not open after clicking ${target.text}; clickHit=${target.hitTestId || target.hitText}; finalHit=${JSON.stringify(topHit)}`);
   }
   await sleep(3000);
-  return { text: pos.text };
+  return { text: target.text };
 }
 
 /**

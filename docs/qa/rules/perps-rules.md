@@ -262,6 +262,43 @@
 - 「重置布局」后指标恢复为默认集合，仅保留成交量（Volume）指标
 - 「重置布局」结果本地持久化，刷新后保持默认布局与默认指标
 
+#### 3.7 图表画线下单规则（Chart Draw-Line Order）
+
+> 来源：app-monorepo PR #12100（OK-53873）、PR #12175（OK-56723/56739/56748 等）。
+> 下单能力从内嵌 TradingView 图表内**移出**，改为 App 原生渲染的下单面板，由图表 `+` / 右键菜单意图触发。
+
+**平台与版本 gating（关键边界）**：
+- 仅在 **大屏非原生端**（`gtMd && !platformEnv.isNative`，即 Desktop / Web / Extension 大屏）显示图表下单菜单；**移动端 / native 端不显示**（画线工具本身仍可用，但无「交易 …」下单项）。
+- 受 `enablePerpsTradingUi` 控制：老版本 chart bundle 未携带该能力时发送 `0`，App 不显示下单菜单（version skew 安全）。部署顺序：先发 chart bundle，再发 App。
+- 该开关同时（重新）启用图表已有的挂单线拖拽改价 / 取消能力。
+
+**图表菜单意图（intent）**：
+- 点图表 `+`（或右键）打开菜单，菜单项文案含**当前画线点位价格**：
+  - 「交易 <SYMBOL> @ <price> 限价」→ intent = `limitEntry`
+  - 「交易 <SYMBOL> @ <price> 止盈」→ intent = `positionTpSl`（**仅当前有持仓时**才显示）
+  - 「绘制水平线点位：<price>」→ 仅画线，不下单
+- 菜单价格 = 当前画线水平线点位，作为下单面板的预填价格（seededPrice / presetTriggerPrice）。
+
+**限价下单面板（LimitOrderForm，intent=limitEntry）**：
+- 标题「限价单 · <SYMBOL>」，标题右侧有订单类型 **info 图标**（悬停 desktop / 点击 mobile 展示限价单说明，复用 `OrderTypeInfoButton`）。
+- 顶部摘要卡：**可用余额 / 当前持仓**（perps 显示可用保证金 + 持仓量；spot 显示可用余额 + 基础持仓）。
+- 字段：价格（预填画线价格，带 `Mid` 标签）、「最优价」BBO 按钮、数量、百分比 slider、「只减仓」(Reduce Only) checkbox（**perps only**）、「止盈/止损」checkbox、`TIF GTC`、「买入/做多」「卖出/做空」按钮、成本、预估强平价。
+- **状态隔离**：该面板使用独立本地 state，**绝不写入全局 `tradingFormAtom`**，不影响主下单面板。
+- 提交仍走 `canTrade` 门禁（`TradingGuardWrapper`）+ 订单确认弹窗（`OrderConfirmModal`）。
+- 「只减仓」勾选 → 订单以 reduce-only 语义提交（SDK `r=true`）。
+- 边界：选择 slider 百分比但可用保证金为 0 → 显示「保证金不足 / 余额不足」提示，**不得**显示误导性的「输入金额」占位（OK-56739）。
+- 边界：未连接外部钱包 → 显示「连接钱包 / 创建地址」，**不是**「启用交易」（OK-56723）。
+
+**仓位止盈/止损面板（SetTpslModal，intent=positionTpSl）**：
+- 仅在**当前有持仓**时可从图表菜单触发；无持仓不显示「止盈」菜单项。
+- 标题「仓位止盈/止损」，副标题「设置触发止盈或止损订单的价格」。
+- 展示：资产、仓位（数量）、开仓价格、标记价格。
+- 止盈价格输入（预填画线价格 presetTriggerPrice）+ 百分比联动（如 `+65.1%`）+ 预期利润；止损价格输入 + 亏损%；「部分仓位」checkbox；「确认订单」按钮。
+- 触发方向随持仓方向（long/short）自动匹配。
+
+**持久化 / 回归**：
+- 账户选择器在 web/desktop 刷新后保留用户选中的账户 index（优先持久化 indexed account，OK 回归修复）。
+
 ---
 
 ## 📋 Perps 模块通用规则
@@ -802,6 +839,15 @@ Hyperliquid 采用 **Agent Wallet** 模式：
 ---
 
 ## 📅 变更记录
+
+### 2026-07-01
+- 3.7：新增图表画线下单规则（Chart Draw-Line Order）：
+  - 平台 / 版本 gating（仅大屏非原生端，`enablePerpsTradingUi`）
+  - 图表 `+` 菜单意图（`limitEntry` / `positionTpSl`）与画线价格预填
+  - 限价下单面板字段、state 隔离、reduce-only、canTrade 门禁
+  - 仓位止盈/止损面板字段与方向匹配
+  - 零余额 / 无钱包提示与账户 index 刷新保留边界
+  - 来源 PR #12100（OK-53873）、#12175（OK-56739 / OK-56748 / OK-56723）
 
 ### 2026-03-24
 - 3.6：新增「重置布局」按钮规则：

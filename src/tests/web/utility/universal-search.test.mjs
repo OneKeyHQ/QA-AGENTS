@@ -1,7 +1,7 @@
-// Universal Search Tests (Web) — WEB-SEARCH-UTIL-001 ~ WEB-SEARCH-UTIL-002
+// Universal Search Tests (Web) — WEB-SEARCH-UTIL-001
 // Thin wrapper: test logic lives in src/tests/shared/utility/universal-search.mjs
-// Web search tabs are dynamic; token coverage verifies token-type results
-// instead of requiring a standalone "代币/Tokens" tab.
+// Web search tabs are dynamic. The standalone "代币/Tokens" tab no longer exists,
+// so token-type coverage was removed; only Perps-type search remains here.
 // Connects via CDP port 9223 (Chrome) instead of 9222 (OneKey Electron).
 
 import { writeFileSync, mkdirSync } from 'node:fs';
@@ -189,11 +189,11 @@ const WEB_CONFIG = {
   tabs: {
     market: '市场',
     perps: '合约',
-    tokens: '代币',
   },
 };
 
-// Web renumbers tests: 003 → WEB-SEARCH-UTIL-001, 006 → WEB-SEARCH-UTIL-002
+// Web renumbers tests: 006 → WEB-SEARCH-UTIL-001
+// (former WEB-SEARCH-UTIL-001 "代币类型搜索" removed — 代币/Tokens tab no longer exists)
 const { testCases, setup } = createUniversalSearchTests({
   prefix: 'WEB-SEARCH-UTIL',
   namePrefix: 'Web-',
@@ -201,8 +201,7 @@ const { testCases, setup } = createUniversalSearchTests({
   resetToHome,
   config: WEB_CONFIG,
   customTests: [
-    { id: 'WEB-SEARCH-UTIL-001', name: 'Web-代币类型搜索（USDC/btc/详情/null价格Token）', testFn: '003' },
-    { id: 'WEB-SEARCH-UTIL-002', name: 'Web-合约类型搜索（中文/英文/详情/不支持Token）', testFn: '006' },
+    { id: 'WEB-SEARCH-UTIL-001', name: 'Web-合约类型搜索（中文/英文/详情/不支持Token）', testFn: '006' },
   ],
 });
 

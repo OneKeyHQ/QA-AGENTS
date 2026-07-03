@@ -1,4 +1,4 @@
-// Universal Search Tests (Desktop) — SEARCH-UTIL-001 ~ SEARCH-UTIL-007
+// Universal Search Tests (Desktop) — SEARCH-UTIL-001,002,004~007 (003 代币 tab removed)
 // Thin wrapper: test logic lives in src/tests/shared/utility/universal-search.mjs
 // Connects via CDP port 9222 (OneKey Electron app).
 
