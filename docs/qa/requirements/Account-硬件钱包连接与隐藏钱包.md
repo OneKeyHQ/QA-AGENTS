@@ -85,6 +85,7 @@
 
 - 规则文档：`docs/qa/rules/account-rules.md` 第 `6` 节
 - 参考需求：`docs/qa/requirements/Hardware-Onboarding强制固件更新.md`
+- 第三方设备专项：`docs/qa/requirements/Account-Trezor连接与设备交互.md`、`docs/qa/requirements/Account-Ledger设备识别与匹配规则.md`
 - 用例目录：`docs/qa/testcases/cases/account/`
 
 ---
@@ -93,5 +94,6 @@
 
 | 日期 | 版本 | 变更内容 |
 |------|------|---------|
+| 2026-07-13 | v1.2 | 补充第三方硬件专项需求索引；Trezor 连接、DeviceID、PIN/安全码和 Passphrase 规则由独立需求文档维护 |
 | 2026-04-14 | v1.1 | 根据 OK-51595 补充硬件钱包 Onboarding 固件升级规则，明确系统固件 / BLE 固件的 major、minor、patch 强制更新阈值、可跳过条件与异常兜底口径 |
 | 2026-04-14 | v1.0 | 基于 `account-rules` 首次整理硬件钱包连接、验真、PIN、Passphrase、隐藏钱包和重复创建口径 |
