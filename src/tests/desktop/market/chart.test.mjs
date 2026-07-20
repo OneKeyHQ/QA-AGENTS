@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
-  dismissOverlays, unlockWalletIfNeeded,
+  unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { clickSidebarTab, ensureOnListPage } from '../../helpers/components.mjs';
 import { createDesktopMarketChartTests } from '../../shared/market/chart.mjs';
@@ -287,7 +287,6 @@ export { testCases };
 
 export async function setup(page) {
   await unlockWalletIfNeeded(page);
-  await dismissOverlays(page);
   // If app is on a token detail page, go back to Market list first
   await ensureOnListPage(page);
 }
@@ -353,7 +352,6 @@ export async function run() {
       results.push(r);
     }
 
-    try { if (page && !page?.isClosed?.()) await dismissOverlays(page); } catch {}
     await sleep(800);
   }
 

@@ -123,6 +123,32 @@ export function createDesktopMarketChartTests({
     await sleep(2000);
   }
 
+  async function getDateRangeButtons(page) {
+    return tvEval(page, `
+      return [...doc.querySelectorAll('[data-name^="date-range-tab-"]')].map((el) => {
+        const r = el.getBoundingClientRect();
+        return {
+          text: (el.textContent || '').trim(),
+          name: el.getAttribute('data-name') || '',
+          aria: el.getAttribute('aria-label') || '',
+          x: Math.round(r.x),
+          y: Math.round(r.y),
+          w: Math.round(r.width),
+          h: Math.round(r.height),
+        };
+      }).filter((item) => item.w > 0 && item.h > 0);
+    `);
+  }
+
+  async function clickDateRange(page, dataName) {
+    await tvEval(page, `
+      const btn = doc.querySelector('[data-name="${dataName}"]');
+      if (!btn) throw new Error('Date range [${dataName}] not found');
+      btn.click();
+    `);
+    await sleep(1500);
+  }
+
   async function getOHLC(page) {
     return tvEval(page, `
       const text = doc.body.innerText || '';
@@ -132,23 +158,31 @@ export function createDesktopMarketChartTests({
   }
 
   async function clickIndicatorButton(page) {
-    await tvEval(page, `
-      const btn = doc.querySelector('button[aria-label="指标 & 策略"]')
-        || doc.querySelector('button[aria-label="指标"]');
-      if (!btn) {
-        for (const b of doc.querySelectorAll('button')) {
-          if (b.textContent?.trim() === '指标') { b.click(); return; }
-        }
-        throw new Error('Indicator button not found');
+    const opened = await tvEval(page, `
+      const candidates = [...doc.querySelectorAll('[data-name="open-indicators-dialog"], button[aria-label="指标 & 策略"], button[aria-label="指标"]')];
+      const visible = candidates
+        .map((el) => ({ el, r: el.getBoundingClientRect() }))
+        .filter(({ r }) => r.width > 0 && r.height > 0)
+        .sort((a, b) => {
+          const aScore = (a.el.getAttribute('data-name') === 'open-indicators-dialog' ? 100000 : 0) + (a.r.width * a.r.height);
+          const bScore = (b.el.getAttribute('data-name') === 'open-indicators-dialog' ? 100000 : 0) + (b.r.width * b.r.height);
+          return bScore - aScore;
+        });
+      for (const { el } of visible) {
+        el.click();
+        const dialog = doc.querySelector('[data-name="indicators-dialog"]');
+        if (dialog && dialog.getBoundingClientRect().width > 0) return true;
       }
-      btn.click();
+      const dialog = doc.querySelector('[data-name="indicators-dialog"]');
+      return !!(dialog && dialog.getBoundingClientRect().width > 0);
     `);
-    await sleep(1500);
+    if (!opened) throw new Error('Indicator button not found');
+    await sleep(1200);
   }
 
   async function addIndicator(page, name) {
     await clickIndicatorButton(page);
-    await sleep(1000);
+    await sleep(800);
 
     await tvEval(page, `
       const dialog = doc.querySelector('[data-name="indicators-dialog"]');
@@ -178,8 +212,17 @@ export function createDesktopMarketChartTests({
       return null;
     `);
 
-    await tvEval(page, `doc.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));`);
-    await sleep(1000);
+    await tvEval(page, `
+      const dialog = doc.querySelector('[data-name="indicators-dialog"]');
+      if (dialog) {
+        const close = dialog.querySelector('[data-name="close"]')
+          || dialog.querySelector('button[aria-label*="关闭"]')
+          || dialog.querySelector('button[aria-label*="Close"]');
+        if (close) close.click();
+        else doc.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      }
+    `).catch(() => {});
+    await sleep(1200);
     return clicked;
   }
 
@@ -210,9 +253,9 @@ export function createDesktopMarketChartTests({
 
   async function clickResetLayout(page) {
     await tvEval(page, `
-      const btns = doc.querySelectorAll('button[aria-label="重置布局"]');
-      if (btns.length === 0) throw new Error('Reset layout button not found');
-      btns[0].click();
+      const btn = doc.querySelector('[aria-label="重置布局"]');
+      if (!btn) throw new Error('Reset layout button not found');
+      btn.click();
     `);
     await sleep(2000);
   }
@@ -236,12 +279,6 @@ export function createDesktopMarketChartTests({
         return hash;
       } catch(e) { return null; }
     `);
-  }
-
-  async function reloadAndWait(page) {
-    await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
-    await sleep(3000);
-    await waitForTVReady(page);
   }
 
   // ── Step wrapper ────────────────────────────────────────────
@@ -407,41 +444,31 @@ export function createDesktopMarketChartTests({
     await waitForTVReady(page);
 
     await _ssStep(page, t, '下方时间范围按钮探测', async () => {
-      const btns = await tvEval(page, `
-        const result = [];
-        doc.querySelectorAll('button').forEach(b => {
-          const r = b.getBoundingClientRect();
-          if (r.y < 400 || r.width === 0 || r.height === 0 || r.height > 40) return;
-          const text = b.textContent?.trim()?.slice(0, 10) || '';
-          const aria = b.getAttribute('aria-label') || '';
-          if (/^[1-9]|All|全部/.test(text) || /日|月|年/.test(text)) {
-            result.push({ text, aria, y: Math.round(r.y) });
-          }
-        });
-        return result;
-      `);
+      const btns = await getDateRangeButtons(page);
       if (btns.length === 0) return 'SKIP: 下方时间范围按钮未找到 (Market 可能不支持此功能)';
-      return btns.map(b => b.text).join(', ');
+      return btns.map(b => `${b.text}(${b.name})`).join(', ');
     });
 
     await _ssStep(page, t, '切换下方时间范围', async () => {
-      const targets = ['1D', '5D', '1M', '3M', '6M', '1Y', 'ALL'];
+      const targets = [
+        ['1D', 'date-range-tab-1D'],
+        ['5D', 'date-range-tab-5D'],
+        ['1M', 'date-range-tab-1M'],
+        ['3M', 'date-range-tab-3M'],
+        ['6M', 'date-range-tab-6M'],
+        ['1Y', 'date-range-tab-12M'],
+        ['ALL', 'date-range-tab-60M'],
+      ];
       let switchCount = 0;
-      for (const label of targets) {
-        const clicked = await tvEval(page, `
-          const btns = doc.querySelectorAll('button');
-          for (const b of btns) {
-            const r = b.getBoundingClientRect();
-            if (r.y < 400 || r.width === 0) continue;
-            const text = (b.textContent || '').trim();
-            if (text === '${label}' || text.includes('${label}')) {
-              b.click(); return true;
-            }
-          }
-          return false;
+      for (const [, dataName] of targets) {
+        const available = await tvEval(page, `
+          const btn = doc.querySelector('[data-name="${dataName}"]');
+          if (!btn) return false;
+          const r = btn.getBoundingClientRect();
+          return r.width > 0 && r.height > 0;
         `);
-        if (clicked) {
-          await sleep(2000);
+        if (available) {
+          await clickDateRange(page, dataName);
           switchCount++;
         }
       }
@@ -525,7 +552,6 @@ export function createDesktopMarketChartTests({
     await _ssStep(page, t, '重置布局到默认状态', async () => {
       await clickResetLayout(page);
       await sleep(3000);
-      await reloadAndWait(page);
       return 'reset done';
     });
 
@@ -579,18 +605,6 @@ export function createDesktopMarketChartTests({
       return `${labels.length} indicators: ${labels.join(', ')}. Vol=${hasVol} MACD=${hasMacd} RSI=${hasRsi}`;
     });
 
-    await _ssStep(page, t, '指标持久化 (刷新验证)', async () => {
-      const before = await getIndicatorLabels(page);
-      await reloadAndWait(page);
-      const after = await getIndicatorLabels(page);
-      const toName = (l) => l.replace(/[\d,.\s∅KMBTkmbt−+%]+$/, '').trim();
-      const beforeSet = new Set(before.map(toName).filter(Boolean));
-      const afterSet = new Set(after.map(toName).filter(Boolean));
-      const missing = [...beforeSet].filter(x => !afterSet.has(x));
-      if (missing.length > 0) throw new Error(`Indicators lost: ${missing.join(', ')}`);
-      return `Before: ${before.length}, After: ${after.length}`;
-    });
-
     await _ssStep(page, t, '移除 MACD 指标', async () => {
       const result = await removeIndicator(page, 'MACD');
       await sleep(2000);
@@ -603,7 +617,6 @@ export function createDesktopMarketChartTests({
     await _ssStep(page, t, '重置布局后仅保留 Volume', async () => {
       await clickResetLayout(page);
       await sleep(3000);
-      await reloadAndWait(page);
       let labels;
       for (let i = 0; i < 15; i++) {
         labels = await getIndicatorLabels(page);

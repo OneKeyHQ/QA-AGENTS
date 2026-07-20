@@ -1,4 +1,4 @@
-// Market Home Tests (Web) — WEB-MARKET-HOME-001 ~ WEB-MARKET-HOME-006
+// Market Home Tests (Web) — WEB-MARKET-HOME-001 ~ WEB-MARKET-HOME-005
 // Thin wrapper: test logic lives in src/tests/shared/market/home.mjs
 // Connects via CDP port 9223 (Chrome) instead of 9222 (OneKey Electron).
 

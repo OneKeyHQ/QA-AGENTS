@@ -112,6 +112,8 @@ docs/testcases/api/
 
 > **Swap 渠道最低金额前置确认**：生成或维护 Swap Apifox 用例前，必须先询问用户该渠道是否存在最低金额限制；已确认的最低金额必须写入 `docs/qa/rules/swap-rules.md` 并同步到 collection，不允许直接继承旧渠道金额表。
 
+> **Swap 渠道 quote 跳过口径**：生成或维护任意 `Swap-*-Apifox-TestCases.json` 时，quote 阶段遇到 `HTTP 502 / 503 / 504`、请求超时、provider 条目 `errorMessage=Provider error / 渠道商异常 / 报价不可用`、或偶发 `data=[]`，应在结果中显式输出 `[\u7528\u4f8b\u540d] SKIP <provider> <reason>` 并停止当前 case 的 build；不要把这类上游瞬态问题直接记成硬失败。
+
 **测试用例结构**：
 ```json
 {
