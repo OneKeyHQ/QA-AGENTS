@@ -11,16 +11,34 @@ import {
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { clickSidebarTab, importWatchAddress } from '../../helpers/components.mjs';
+import { PerpsPage } from '../../helpers/pages/index.mjs';
 import { createPortfolioTests, WATCH_ADDRESSES } from '../../shared/perps/portfolio.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'perps-portfolio');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
+const CASE_TIMEOUT_MS = 240_000;
+
+async function withCaseTimeout(promise, testId) {
+  let timer;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error(`${testId} timed out after ${Math.round(CASE_TIMEOUT_MS / 1000)}s`)),
+          CASE_TIMEOUT_MS,
+        );
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 // ── Platform-specific Navigation ─────────────────────────────
 
 async function goToPerps(page) {
-  await clickSidebarTab(page, 'Perps');
-  await sleep(2000);
+  await new PerpsPage(page).navigate();
 }
 
 // ── Account Switching (Desktop) ──────────────────────────────
@@ -141,7 +159,7 @@ export async function run() {
   console.log(`  Perps Portfolio & PnL Tests — ${toRun.length} case(s)`);
   console.log(`${'='.repeat(60)}\n`);
 
-  const { browser, page } = await connectCDP();
+  let { browser, page } = await connectCDP();
   await unlockWalletIfNeeded(page);
   await dismissOverlays(page);
 
@@ -154,7 +172,7 @@ export async function run() {
 
     const start = Date.now();
     try {
-      const result = await tc.fn(page);
+      const result = await withCaseTimeout(tc.fn(page), tc.id);
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
       results[tc.id] = result;
       const summary = result.summary || {};
@@ -172,10 +190,20 @@ export async function run() {
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
       results[tc.id] = { status: 'failed', steps: [], errors: [e.message] };
       console.log(`>> ${tc.id}: FAILED (${elapsed}s) — ${e.message}`);
+      try {
+        await page.screenshot({ path: resolve(SCREENSHOT_DIR, `${tc.id}-fatal-or-timeout.png`) });
+      } catch {}
       writeFileSync(resolve(RESULTS_DIR, `${tc.id}.json`), JSON.stringify({
         testId: tc.id, status: 'failed', duration: Date.now() - start,
         error: e.message, timestamp: new Date().toISOString(),
       }, null, 2));
+      if (/timed out|Target page|context or browser has been closed/i.test(e.message || '')) {
+        try { await browser?.close?.(); } catch {}
+        ({ browser, page } = await connectCDP());
+        await unlockWalletIfNeeded(page).catch(() => {});
+        await dismissOverlays(page).catch(() => {});
+        await setup(page).catch(() => {});
+      }
     }
     console.log();
   }

@@ -44,17 +44,22 @@ export { testCases, setup };
 // ── Main (CLI Runner) ────────────────────────────────────────
 
 export async function run() {
+  const selectedIds = process.argv.slice(2).filter(a => /^PERPS-\d+$/u.test(a));
+  const toRun = selectedIds.length > 0
+    ? testCases.filter(tc => selectedIds.includes(tc.id))
+    : testCases;
+
   const { page } = await connectCDP();
 
   console.log('\n' + '='.repeat(60));
-  console.log('  Perps Favorites Tests — 5 cases');
+  console.log(`  Perps Favorites Tests — ${toRun.length} case(s)`);
   console.log('='.repeat(60));
 
   await unlockWalletIfNeeded(page);
   await setup(page);
 
   const results = [];
-  for (const test of testCases) {
+  for (const test of toRun) {
     const startTime = Date.now();
     console.log(`\n${'─'.repeat(60)}`);
     console.log(`[${test.id}] ${test.name}`);

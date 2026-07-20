@@ -300,7 +300,7 @@
 | 备份模式说明 | 开启 Recovery Phrase 模式时备份页显示「Recovery phrase verification is enabled. Change it in Backup Settings.」 |
 | 设备 PIN 前置 | 进入识卡前必须 App 端输入 **设备 PIN**；3 次错误后按设备策略锁定（沿用钱包通用规则） |
 | 识卡阶段 | 文案顺序：Looking for SeedCard → Keep Holding SeedCard → 显示 SeedCard ID 检查页（Model / ID / Version） |
-| SeedCard PIN | 必填，4~9 位数字；Set + Confirm 两次输入；不一致显示「PINs don't match」 |
+| SeedCard PIN | 必填，**固定 6 位数字**（最长最短均为 6 位）；Set + Confirm 两次输入；不一致显示「PIN 不一致（PINs don't match）」 |
 | 命名步骤 | 备份完成后弹出「Give Your SeedCard a Name」，按钮：Not Now / Continue；Continue 进入命名输入页 |
 | 命名再识卡 | 命名输入完成后再次贴卡写入名称，结束页显示「This Is {CardName}」 |
 | 末尾配置 | 完成后弹出 Backup Settings 选项：**PIN Only**（默认）/ **Recovery Phrase**；可点 Not Now 跳过 |
@@ -316,7 +316,6 @@
 | SeedCard Reset | 连续 10 次错误 PIN（默认 Erase Backup 模式） | 显示「Too many wrong PIN attempts. This SeedCard has been erased to protect your backup」+ Got It |
 | Wrong PIN | PIN 错误且未到上限 | 显示「N PIN attempts left before this SeedCard is erased」（红字）+ Got It；N = 10 - 已错次数 |
 | No Backup Found | 恢复时贴入空卡 | 显示「Use another SeedCard and try again」+ Go Back |
-| Unsupported Recovery Phrase | 卡内助记词位数非 12/18/24 | 显示「Device supports only 12, 18, 24-word recovery phrases. This SeedCard cannot be restored here」+ Got It |
 | SeedCard Unavailable | 卡处于永久禁用状态 | 显示「You can recover using another method or another SeedCard」+ Got It |
 
 ### 11.3 PIN 防护与自毁机制规则
@@ -359,10 +358,10 @@
 |--------|---------|
 | 入口 | App 端「钱包 → 备份 → OneKey SeedCard → Manage」；首屏先贴卡识别 ID |
 | Unlock to Manage | 若卡片处于错误 PIN 次数已耗损状态，先显示「N PIN attempts left」红色提示 + 「Unlock to Manage」 |
-| 管理项 | Set Name / Title 开关 / Protection Mode / Reset SeedCard（顺序固定） |
+| 管理项 | Set Name / Change PIN / Protection Mode / Reset（顺序固定）；Title 开关位于备份页顶部，不在管理页内 |
 | Set Name | 任意 Unicode，长度上限按设备硬限制（默认建议 ≤ 32 字符）；命名后再贴卡写入；写入完成显示「This Is {CardName}」 |
 | Title 开关 | 与备份页 Title 同义，控制卡片正面印章；切换时弹出贴卡写入 |
-| Change SeedCard PIN | 「Choose a new PIN between 4 and 9 digits」→ Enter New PIN → Enter PIN Again → 识卡写入 → 「PIN Changed」 |
+| Change SeedCard PIN | 「请设置新的 6 位数字 PIN」→ 输入新 PIN → 再次输入 PIN → 识卡写入 → 「PIN 已更改」 |
 | Reset SeedCard | 二次确认文案：「All data on this SeedCard will be erased and cannot be recovered.」→ Reset → 识卡 → 「Reset complete. This card has been erased」 |
 
 ### 11.7 恢复流程（Restore use SeedCard）规则
@@ -670,6 +669,9 @@
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-07-13 | 按实机截图更正 Manage Your Card 管理项：Set Name / Change PIN / Protection Mode / Reset（原误写含 Title 开关）；Title 开关实际位于备份页顶部；同步更新 Pro2-SeedCard-管理与防护 用例文档。Keytag 备份用例删除「粘贴整段助记词」场景 —— 设备端输入无法粘贴，场景不可构造；用例界面文案中文化 |
+| 2026-07-11 | SeedCard PIN 长度更正为**固定 6 位**（最长最短均为 6 位）；删除「Unsupported Recovery Phrase」错误状态规则 —— SeedCard 只能写入 12/18/24 位助记词，25 位卡场景不可构造；同步更新 Pro2-SeedCard备份 用例文档 |
+| 2026-07-10 | 修正 SeedCard PIN 长度上限：4~9 位 → 4~6 位（已由 2026-07-11 进一步更正为固定 6 位）；同步更新 Pro2-SeedCard备份 三个用例文档（PIN 上限 + 界面提示文案中文化） |
 | 2026-05-14 | 新增「Pro2 我的地址（My Address）」章节：入口与「选择网络」页布局、网络清单（27 个）、账户选择器（每页 5 个 / 翻页置灰 / 退出回归默认）、Go To Account 数字键盘（有效范围 1 ~ 1,000,000,000）、地址详情页字段（派生路径 / EVM 多链提示 / QR Code）、派生路径矩阵、二维码规则、BTC 新鲜地址、Passphrase 会话保持 / 锁屏重置 / 空值等价 / 切换入口、助记词 12/18/24 位、多语言地址一致性 |
 | 2026-05-14 | 新增「Pro2 指纹（Fingerprint）」章节：录入入口（Onboarding / Settings）、分步流程（中心 / 尖端 / 左 / 右）、异常文案（Timeout / Failed / 移动太快 / 覆盖不足 / 重复区域 / 按压过重等）、列表上限 2 个、unlock device 开关、连续 5 次失败计数与 PIN 计数互通、重启 loading 时间（1指纹≤2s/2指纹≤4s）、必须 PIN 安全场景、双击解锁键、USB 锁兼容、录入/删除中断断电恢复 |
 | 2026-05-11 | 新增「Keytag（金属抄写卡）备份测试规则」章节：入口与 SeedCard 并列、Recovery Phrase 始终必走、Invalid / Phrase Doesn't Match 文案、12/18/24 位点阵图分页规则、App 端核对一致性 |

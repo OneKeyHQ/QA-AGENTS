@@ -35,7 +35,11 @@ export async function ensureOneKeyRunning() {
 
   if (!existsSync(ONEKEY_BIN)) throw new Error(`OneKey not found at ${ONEKEY_BIN}`);
   console.log('  Launching OneKey with CDP...');
-  const child = spawn(ONEKEY_BIN, ['--remote-debugging-port=9222'], { detached: true, stdio: 'ignore' });
+  let cdpPort = '9222';
+  try {
+    cdpPort = new URL(CDP_URL).port || cdpPort;
+  } catch {}
+  const child = spawn(ONEKEY_BIN, [`--remote-debugging-port=${cdpPort}`], { detached: true, stdio: 'ignore' });
   child.unref();
 
   for (let i = 0; i < 60; i++) {
