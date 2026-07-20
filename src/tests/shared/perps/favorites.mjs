@@ -33,9 +33,29 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
   async function clickText(page, text) {
     const clicked = await page.evaluate((txt) => {
+      const visiblePopover = () => {
+        for (const p of document.querySelectorAll('[data-testid="TMPopover-ScrollView"]')) {
+          const text = p.textContent || '';
+          if (
+            p.getBoundingClientRect().width > 0
+            && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]')
+              || (text.includes('自选') && text.includes('永续合约')))
+          ) return p;
+        }
+        return null;
+      };
+      if (txt === '添加到自选') {
+        const addBtn = visiblePopover()?.querySelector('[data-testid="perp-btn"]');
+        const br = addBtn?.getBoundingClientRect();
+        if (addBtn && br && br.width > 0 && br.height > 0) {
+          addBtn.click();
+          return true;
+        }
+      }
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       for (const p of pops) {
-        if (p.getBoundingClientRect().width === 0) continue;
+        const popText = p.textContent || '';
+        if (p.getBoundingClientRect().width === 0 || !(p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
         for (const sp of p.querySelectorAll('span')) {
           if (sp.textContent?.trim() === txt && sp.getBoundingClientRect().width > 0) {
             sp.click(); return true;
@@ -54,11 +74,35 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   }
 
   async function dismissPopover(page) {
+    await page.keyboard.press('Escape').catch(() => {});
+    await sleep(500);
     await page.evaluate(() => {
-      const overlay = document.querySelector('[data-testid="ovelay-popover"]');
-      if (overlay) overlay.click();
+      const selectors = [
+        '[data-testid="overlayPopover"]',
+        '[data-testid="ovelay-popover"]',
+        '[data-testid="modalBackdrop"]',
+      ];
+      for (const selector of selectors) {
+        const el = document.querySelector(selector);
+        const r = el?.getBoundingClientRect();
+        if (el && r && r.width > 0 && r.height > 0) {
+          el.click();
+          return;
+        }
+      }
     });
-    await sleep(1500);
+    const deadline = Date.now() + 3000;
+    while (Date.now() < deadline) {
+      const isOpen = await page.evaluate(() => {
+        for (const p of document.querySelectorAll('[data-testid="TMPopover-ScrollView"]')) {
+          if (p.getBoundingClientRect().width > 0) return true;
+        }
+        return false;
+      });
+      if (!isOpen) return;
+      await page.keyboard.press('Escape').catch(() => {});
+      await sleep(300);
+    }
   }
 
   async function getCurrentPair(page) {
@@ -75,6 +119,19 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   }
 
   async function openPairSelector(page) {
+    const alreadyOpen = await page.evaluate(() => {
+      for (const p of document.querySelectorAll('[data-testid="TMPopover-ScrollView"]')) {
+        const text = p.textContent || '';
+        if (
+          p.getBoundingClientRect().width > 0
+          && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]')
+            || (text.includes('自选') && text.includes('永续合约')))
+        ) return true;
+      }
+      return false;
+    });
+    if (alreadyOpen) return;
+    await dismissPopover(page);
     const pair = await getCurrentPair(page);
     if (!pair) throw new Error('Cannot detect current pair');
     await page.evaluate((p) => {
@@ -91,11 +148,15 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     return page.evaluate(() => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       let pop = null;
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
+      for (const p of pops) {
+        const text = p.textContent || '';
+        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+      }
       if (!pop) return [];
       const tokens = [];
       const ignore = new Set(['自选','永续合约','加密货币','股票','贵金属','指数','大宗商品','外汇','预上线',
-        '资产','最新价格','24小时涨跌','资金费率','成交量','合约持仓量','搜索资产']);
+        '现货','全部','热门','新上架','Pre-IPO',
+        '资产','最新价格','24小时涨跌','资金费率','成交量','成交额','合约持仓量','市值','搜索资产','PERPS']);
       for (const sp of pop.querySelectorAll('span')) {
         const t = sp.textContent?.trim();
         if (!t || sp.children.length !== 0 || sp.getBoundingClientRect().width === 0) continue;
@@ -106,14 +167,46 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     });
   }
 
+  async function waitForFavoritesListTokens(page, { min = 1, timeoutMs = 8000 } = {}) {
+    const deadline = Date.now() + timeoutMs;
+    let tokens = [];
+    while (Date.now() < deadline) {
+      tokens = await getFavoritesListTokens(page);
+      const recVisible = await isRecommendationVisible(page);
+      if (!recVisible && tokens.length >= min) return tokens;
+      await sleep(500);
+    }
+    return tokens;
+  }
+
+  async function waitForRecommendationVisible(page, timeoutMs = 8000) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (await isRecommendationVisible(page)) return true;
+      await sleep(500);
+    }
+    return false;
+  }
+
   async function clearAllFavorites(page) {
     let total = 0;
     for (let i = 0; i < 20; i++) {
       const btnPos = await page.evaluate(() => {
         const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
         let pop = null;
-        for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
+        for (const p of pops) {
+          const text = p.textContent || '';
+          if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+        }
         if (!pop) return null;
+        const testIdButtons = [];
+        for (const btn of pop.querySelectorAll('[data-testid="perp-already-favorite-icon-btn"]')) {
+          const r = btn.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) {
+            testIdButtons.push({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
+          }
+        }
+        if (testIdButtons.length > 0) return testIdButtons[0];
         for (const btn of pop.querySelectorAll('button')) {
           const r = btn.getBoundingClientRect();
           if (r.width >= 18 && r.width <= 28 && r.height >= 18 && r.height <= 28
@@ -146,7 +239,8 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     return page.evaluate(() => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
+        const popText = pop.textContent || '';
+        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
         for (const sp of pop.querySelectorAll('span')) {
           if (sp.textContent?.trim() === '添加到自选' && sp.getBoundingClientRect().width > 0) return true;
         }
@@ -159,12 +253,15 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     return page.evaluate(() => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       let pop = null;
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
+      for (const p of pops) {
+        const text = p.textContent || '';
+        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+      }
       if (!pop) return [];
       const tokens = [];
-      for (const div of pop.querySelectorAll('div')) {
-        const t = div.textContent?.trim();
-        if (t && /^[A-Z]{2,10}USDCPERPS$/.test(t) && div.getBoundingClientRect().width > 0) {
+      for (const el of pop.querySelectorAll('span, div')) {
+        const t = (el.textContent || '').replace(/\s+/g, '').trim();
+        if (t && /^[A-Z]{2,10}USDCPERPS$/.test(t) && el.getBoundingClientRect().width > 0) {
           tokens.push(t.replace('PERPS', ''));
         }
       }
@@ -172,28 +269,115 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     });
   }
 
-  async function toggleRecommendationToken(page, token) {
-    const result = await page.evaluate((tok) => {
+  async function waitForRecommendationTokens(page, { min = 1, timeoutMs = 8000 } = {}) {
+    const deadline = Date.now() + timeoutMs;
+    let tokens = [];
+    while (Date.now() < deadline) {
+      tokens = await getRecommendationTokens(page);
+      if (tokens.length >= min) return tokens;
+      await sleep(500);
+    }
+    return tokens;
+  }
+
+  async function getRecommendationTokenState(page, token) {
+    return page.evaluate((tok) => {
+      const wanted = String(tok || '').toUpperCase();
+      const wantedLabel = wanted.endsWith('USDC') ? wanted : `${wanted}USDC`;
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       let pop = null;
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
+      for (const p of pops) {
+        const text = p.textContent || '';
+        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+      }
+      if (!pop) return { found: false, selected: false, pos: null, available: [] };
+      const available = [];
+      let best = null;
+      for (const el of pop.querySelectorAll('div')) {
+        const t = (el.textContent || '').replace(/\s+/g, '').trim();
+        const r = el.getBoundingClientRect();
+        if (/^[A-Z]{2,10}USDCPERPS$/.test(t) && !available.includes(t)) available.push(t);
+        if (t !== `${wantedLabel}PERPS` || r.width < 120 || r.height < 35 || r.height > 110) continue;
+        const area = r.width * r.height;
+        if (!best || area > best.area) {
+          const selected = !![...el.querySelectorAll('svg')].find((svg) => {
+            const sr = svg.getBoundingClientRect();
+            return sr.width > 0 && sr.width <= 16 && sr.height > 0 && sr.height <= 16;
+          });
+          best = {
+            area,
+            selected,
+            pos: { x: r.x + r.width - 20, y: r.y + r.height / 2 },
+          };
+        }
+      }
+      if (!best) return { found: false, selected: false, pos: null, available };
+      return { found: true, selected: best.selected, pos: best.pos, available };
+    }, token);
+  }
+
+  async function setRecommendationTokenSelected(page, token, desiredSelected) {
+    let state = await getRecommendationTokenState(page, token);
+    if (!state.found) throw new Error(`Recommendation token "${token}" not found. Available: ${state.available.join(', ')}`);
+    for (let i = 0; i < 3 && state.selected !== desiredSelected; i++) {
+      await page.mouse.click(state.pos.x, state.pos.y);
+      await sleep(500);
+      state = await getRecommendationTokenState(page, token);
+    }
+    if (state.selected !== desiredSelected) {
+      throw new Error(`Recommendation token "${token}" selected=${state.selected}, expected ${desiredSelected}`);
+    }
+  }
+
+  async function toggleRecommendationToken(page, token) {
+    const result = await page.evaluate((tok) => {
+      const wanted = String(tok || '').toUpperCase();
+      const wantedLabel = wanted.endsWith('USDC') ? wanted : `${wanted}USDC`;
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      let pop = null;
+      for (const p of pops) {
+        const text = p.textContent || '';
+        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+      }
       if (!pop) return { clicked: false, available: [] };
       const available = [];
-      for (const div of pop.querySelectorAll('div')) {
-        const t = div.textContent?.trim();
-        const r = div.getBoundingClientRect();
-        if (!t || r.width < 50 || r.height < 30 || r.height > 70) continue;
-        if (t.includes('PERPS')) {
-          available.push(t);
-          if (t.includes(tok)) {
-            div.click(); return { clicked: true, available };
+      const findCardPoint = (el) => {
+        let cur = el;
+        for (let i = 0; i < 6 && cur && cur !== pop; i++, cur = cur.parentElement) {
+          const r = cur.getBoundingClientRect();
+          const text = (cur.textContent || '').replace(/\s+/g, '').trim();
+          if (r.width >= 120 && r.height >= 35 && r.height <= 110 && text.includes(wantedLabel) && text.includes('PERPS')) {
+            return { x: r.x + r.width - 20, y: r.y + r.height / 2, text };
           }
+        }
+        const r = el.getBoundingClientRect();
+        return { x: r.x + r.width / 2, y: r.y + r.height / 2, text: (el.textContent || '').replace(/\s+/g, '').trim() };
+      };
+      for (const el of pop.querySelectorAll('span, div')) {
+        const t = (el.textContent || '').replace(/\s+/g, '').trim();
+        const r = el.getBoundingClientRect();
+        if (!t || r.width === 0 || r.height === 0) continue;
+        if (/^[A-Z]{2,10}USDCPERPS$/.test(t) && !available.includes(t)) available.push(t);
+        if (t.includes(wantedLabel) && t.includes('PERPS')) {
+          return { clicked: true, available, pos: findCardPoint(el) };
+        }
+        if (t === wantedLabel) {
+          return { clicked: true, available, pos: findCardPoint(el) };
         }
       }
       return { clicked: false, available };
     }, token);
     if (!result.clicked) throw new Error(`Recommendation token "${token}" not found. Available: ${result.available.join(', ')}`);
+    await page.mouse.click(result.pos.x, result.pos.y);
     await sleep(500);
+  }
+
+  async function setDefaultRecommendationSelection(page, excluded = []) {
+    const excludedSet = new Set(excluded.map((token) => token.replace(/USDC$/u, '')));
+    for (const token of DEFAULT_TOKENS) {
+      const base = token.replace(/USDC$/u, '');
+      await setRecommendationTokenSelected(page, token, !excludedSet.has(base));
+    }
   }
 
   async function searchAsset(page, query) {
@@ -201,7 +385,8 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       let input = null;
       for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
+        const popText = pop.textContent || '';
+        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
         const inp = pop.querySelector('input[data-testid="nav-header-search"]')
           || pop.querySelector('input[placeholder*="搜索"]');
         if (inp && inp.getBoundingClientRect().width > 0) { input = inp; break; }
@@ -241,7 +426,8 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     await page.evaluate(() => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
+        const popText = pop.textContent || '';
+        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
         const input = pop.querySelector('input');
         if (input) {
           const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
@@ -257,7 +443,8 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     return page.evaluate(() => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
+        const popText = pop.textContent || '';
+        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
         const text = pop.textContent || '';
         if (text.includes('未找到') || text.includes('No results')) return true;
       }
@@ -266,12 +453,24 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   }
 
   async function clickStarAtIndex(page, index = 0) {
-    const result = await page.evaluate((idx) => {
+    const deadline = Date.now() + 8000;
+    let result = null;
+    while (Date.now() < deadline) {
+      result = await page.evaluate((idx) => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       let pop = null;
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
+      for (const p of pops) {
+        const text = p.textContent || '';
+        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+      }
       if (!pop) return { pos: null, error: 'no popover' };
       const buttons = [];
+      for (const btn of pop.querySelectorAll('[data-testid="perp-already-favorite-icon-btn"]')) {
+        const r = btn.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) {
+          buttons.push({ x: r.x + r.width / 2, y: r.y + r.height / 2, text: btn.textContent?.trim() || 'star' });
+        }
+      }
       for (const btn of pop.querySelectorAll('button')) {
         const r = btn.getBoundingClientRect();
         if (r.width >= 18 && r.width <= 28 && r.height >= 18 && r.height <= 28
@@ -279,12 +478,48 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
           buttons.push({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
         }
       }
-      if (idx >= buttons.length) return { pos: null, error: `only ${buttons.length} star buttons, want index ${idx}` };
+      if (idx >= buttons.length) {
+        const input = pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]');
+        const text = (pop.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 500);
+        return {
+          pos: null,
+          error: `only ${buttons.length} star buttons, want index ${idx}`,
+          inputValue: input?.value || '',
+          text,
+        };
+      }
       return { pos: buttons[idx] };
-    }, index);
-    if (!result.pos) throw new Error(`Cannot click star at index ${index}: ${result.error}`);
+      }, index);
+      if (result.pos) break;
+      await sleep(500);
+    }
+    if (!result?.pos) {
+      const detail = [result?.error, result?.inputValue ? `input=${result.inputValue}` : '', result?.text ? `text=${result.text}` : '']
+        .filter(Boolean)
+        .join('; ');
+      throw new Error(`Cannot click star at index ${index}: ${detail || 'unknown state'}`);
+    }
     await page.mouse.click(result.pos.x, result.pos.y);
     await sleep(1000);
+  }
+
+  async function setFavoriteBySearch(page, symbol, desiredFavorite) {
+    const base = symbol.replace(/USDC$/u, '');
+    let lastFavorites = [];
+    for (let attempt = 0; attempt < 2; attempt++) {
+      await clickText(page, '永续合约');
+      await sleep(500);
+      await searchAsset(page, base);
+      await sleep(1000);
+      await clickStarAtIndex(page, 0);
+      await sleep(1500);
+      await clearSearch(page);
+      await clickText(page, '自选');
+      await sleep(1500);
+      lastFavorites = await getFavoritesListTokens(page);
+      if (lastFavorites.includes(base) === desiredFavorite) return lastFavorites;
+    }
+    return lastFavorites;
   }
 
   async function getTopBarTokens(page) {
@@ -327,11 +562,11 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
   async function clickToggle(page, mode) {
     const clicked = await page.evaluate((target) => {
-      for (const el of document.querySelectorAll('span, div')) {
+      for (const el of document.querySelectorAll('button, span, div')) {
         const text = el.textContent?.trim();
         if (text !== target || el.children.length !== 0) continue;
         const r = el.getBoundingClientRect();
-        if (r.width > 0 && r.width < 30 && r.height > 0 && r.height < 30) {
+        if (r.width > 0 && r.width < 42 && r.height > 0 && r.height < 42 && r.y < 180) {
           el.click(); return true;
         }
       }
@@ -339,6 +574,19 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     }, mode);
     if (!clicked) throw new Error(`Toggle "${mode}" not found`);
     await sleep(1000);
+  }
+
+  async function getTopBarText(page) {
+    return page.evaluate(() => {
+      const chunks = [];
+      for (const el of document.querySelectorAll('span, div, button')) {
+        const text = el.textContent?.trim();
+        if (!text || text.length > 80) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0 && r.y >= 80 && r.y <= 170) chunks.push(text);
+      }
+      return [...new Set(chunks)].join(' ');
+    });
   }
 
   async function clickTopBarToken(page, symbol) {
@@ -389,19 +637,22 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       return t.result();
     }
 
-    const recTokens = await getRecommendationTokens(page);
+    const recTokens = await waitForRecommendationTokens(page, { min: 6, timeoutMs: 10_000 });
     t.add('显示 6 个默认代币', recTokens.length === 6 ? 'passed' : 'failed',
       `found ${recTokens.length}: ${recTokens.join(', ')}`);
+    if (recTokens.length < 6) {
+      await dismissPopover(page);
+      return t.result();
+    }
 
     console.log('  Step 5: Deselect BTCUSDC and ETHUSDC');
-    await toggleRecommendationToken(page, 'ETHUSDC');
-    await toggleRecommendationToken(page, 'BTCUSDC');
+    await setDefaultRecommendationSelection(page, ['BTC', 'ETH']);
 
     console.log('  Step 6: Click 添加到自选');
     await clickText(page, '添加到自选');
-    await sleep(2000);
+    await sleep(1000);
 
-    const favTokens = await getFavoritesListTokens(page);
+    const favTokens = await waitForFavoritesListTokens(page, { min: 4, timeoutMs: 10_000 });
     t.add('自选列表显示 4 个代币', favTokens.length === 4 ? 'passed' : 'failed',
       `found: ${favTokens.join(', ')}`);
     t.add('BTC/ETH 不在自选中',
@@ -423,30 +674,12 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
     console.log('\n  Step 1: Search BTC -> favorite');
     await openPairSelector(page);
-    await searchAsset(page, 'BTC');
-    await clickText(page, '永续合约');
-    await sleep(1000);
-
-    await clickStarAtIndex(page, 0);
-
-    await clearSearch(page);
-    await clickText(page, '自选');
-    await sleep(1000);
-    const favsAfterAdd = await getFavoritesListTokens(page);
+    const favsAfterAdd = await setFavoriteBySearch(page, 'BTC', true);
     t.add('搜索 BTC 并收藏', favsAfterAdd.includes('BTC') ? 'passed' : 'failed',
       `favorites: ${favsAfterAdd.join(', ')}`);
 
     console.log('  Step 2: Search XRP -> unfavorite');
-    await clickText(page, '永续合约');
-    await sleep(500);
-    await searchAsset(page, 'XRP');
-    await sleep(1000);
-    await clickStarAtIndex(page, 0);
-
-    await clearSearch(page);
-    await clickText(page, '自选');
-    await sleep(1000);
-    const favsAfterRemove = await getFavoritesListTokens(page);
+    const favsAfterRemove = await setFavoriteBySearch(page, 'XRP', false);
     t.add('搜索 XRP 并取消收藏', !favsAfterRemove.includes('XRP') ? 'passed' : 'failed',
       `favorites: ${favsAfterRemove.join(', ')}`);
 
@@ -521,6 +754,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     t.add('清空后显示推荐列表', recVisible ? 'passed' : 'failed');
 
     if (recVisible) {
+      await setDefaultRecommendationSelection(page);
       await clickText(page, '添加到自选');
       await sleep(2000);
     }
@@ -544,8 +778,9 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       await sleep(1000);
       const recVisible = await isRecommendationVisible(page);
       if (recVisible) {
+        await setDefaultRecommendationSelection(page);
         await clickText(page, '添加到自选');
-        await sleep(2000);
+        await waitForFavoritesListTokens(page, { min: 1, timeoutMs: 10_000 });
       }
       await dismissPopover(page);
       await sleep(1000);
@@ -573,8 +808,11 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
     const dollarTexts = dollarValues.map(d => d.text).join(' ');
     const percentTexts = percentValues.map(d => d.text).join(' ');
+    const percentTopBarText = await getTopBarText(page);
     t.add('$/% 显示不同数据', dollarTexts !== percentTexts ? 'passed' : 'failed');
-    t.add('切回 % 显示百分比', percentValues.some(v => v.text.includes('%')) ? 'passed' : 'failed');
+    t.add('切回 % 显示百分比',
+      percentValues.some(v => v.text.includes('%')) || percentTopBarText.includes('%') ? 'passed' : 'failed',
+      percentTopBarText.slice(0, 180));
 
     console.log('  Step 4: Click token -> navigate');
     const pairBefore = await getCurrentPair(page);
@@ -605,12 +843,12 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
     if (!(await isRecommendationVisible(page))) {
       await clearAndTriggerRecommendation(page);
-      await sleep(1000);
+      await waitForRecommendationVisible(page, 8000);
     }
 
-    await toggleRecommendationToken(page, 'SOL');
+    await setDefaultRecommendationSelection(page, ['SOL']);
     await clickText(page, '添加到自选');
-    await sleep(2000);
+    await waitForFavoritesListTokens(page, { min: 1, timeoutMs: 10_000 });
 
     console.log('  Step 2: Verify 永续合约 tab');
     await clickText(page, '永续合约');

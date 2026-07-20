@@ -13,7 +13,6 @@ import {
   connectCDP, sleep, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
-import { clickSidebarTab } from '../../helpers/components.mjs';
 import { PerpsPage } from '../../helpers/pages/index.mjs';
 import { createChartTests } from '../../shared/perps/chart.mjs';
 
@@ -44,8 +43,7 @@ async function tvEval(page, jsCode) {
 // ── Platform-specific Navigation ─────────────────────────────────
 
 async function goToPerps(page) {
-  await clickSidebarTab(page, 'Perps');
-  await sleep(2000);
+  await new PerpsPage(page).navigate();
 }
 
 // ── Platform-specific PerpsPage (uses helpers/pages/perps.mjs) ───

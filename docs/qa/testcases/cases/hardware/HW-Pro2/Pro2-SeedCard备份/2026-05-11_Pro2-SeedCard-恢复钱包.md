@@ -2,7 +2,9 @@
 
 > 规则文档：`docs/qa/rules/hardware-rules.md`（§10.2 / §10.3 / §10.7）
 > 测试端：Pro2 设备端 + App（Desktop / Mobile / Extension）
-> 变更说明：覆盖恢复入口选择、SeedCard ID 检查、PIN 输入与错误次数显示、备份未找到、不支持的助记词、卡片自毁与永久禁用、跨设备/App 恢复验证
+> 变更说明：覆盖恢复入口选择、SeedCard ID 检查、PIN 输入与错误次数显示、备份未找到、卡片自毁与永久禁用、跨设备/App 恢复验证
+> 2026-07-10 修订：界面提示文案统一中文化
+> 2026-07-11 修订：删除「25 位助记词卡 / 不支持的助记词」前置条件与用例 —— SeedCard 只能写入 12/18/24 位助记词，该场景不可构造
 
 ---
 
@@ -10,9 +12,8 @@
 
 1. 准备已写入合法备份的 SeedCard：12 / 18 / 24 位各一张，且各卡 SeedCard PIN 已知
 2. 准备空 SeedCard 一张（无任何备份）
-3. 准备写入 25 位（非 12/18/24）助记词的 SeedCard 一张，用于 Unsupported Recovery Phrase 场景
-4. Pro2 待恢复设备处于「重置后未导入钱包」状态；额外准备 App 端用于验证导入一致性
-5. 用例 §5 自毁场景需要单独准备一张测试卡，避免污染其他备份卡
+3. Pro2 待恢复设备处于「重置后未导入钱包」状态；额外准备 App 端用于验证导入一致性
+4. 用例 §5 自毁场景需要单独准备一张测试卡，避免污染其他备份卡
 
 ---
 
@@ -20,11 +21,11 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 | --- | --- | --- | --- |
-| ❗️❗️P0❗️❗️ | Restore Wallet 入口 | 1. App 端进入「恢复钱包」<br>2. 查看恢复方式选项 | 1. 显示「Recovery Phrase」与「OneKey SeedCard」两个入口<br>2. 文案「Select the way you want to restore.」 |
-| ❗️❗️P0❗️❗️ | 选择 OneKey SeedCard 后识卡 | 1. 选择 OneKey SeedCard<br>2. 显示「Looking for SeedCard」<br>3. 贴卡 | 1. 文案切换为「Keep Holding SeedCard」<br>2. 读取完成跳转 SeedCard ID 检查页 |
-| ❗️❗️P0❗️❗️ | ID 检查页字段 | 1. 识卡完成进入 ID 检查页 | 1. 显示 Name（卡名称）<br>2. 显示 Model = `OneKey SeedCard`<br>3. 显示 ID（如 `OKLCD1B0000X`）<br>4. 显示 Version<br>5. 显示 Restore Wallet 按钮 |
-| ❗️❗️P0❗️❗️ | ID 检查页可继续 | 1. ID 检查页点击 Restore Wallet | 跳转「Enter SeedCard PIN」页 |
-| P1 | 识卡过程松动 | 1. 识卡过程中卡片移开 | 显示「Connection Failed」+「Hold the SeedCard firmly against the back of the device, then try again」+ Back / Try Again |
+| ❗️❗️P0❗️❗️ | 恢复钱包入口 | 1. App 端进入「恢复钱包」<br>2. 查看恢复方式选项 | 1. 显示「助记词」与「OneKey SeedCard」两个入口<br>2. 文案「选择你想使用的恢复方式」 |
+| ❗️❗️P0❗️❗️ | 选择 OneKey SeedCard 后识卡 | 1. 选择 OneKey SeedCard<br>2. 显示「正在寻找 SeedCard」<br>3. 贴卡 | 1. 文案切换为「请保持贴住 SeedCard」<br>2. 读取完成跳转 SeedCard ID 检查页 |
+| ❗️❗️P0❗️❗️ | ID 检查页字段 | 1. 识卡完成进入 ID 检查页 | 1. 显示名称（卡名称）<br>2. 显示型号 = `OneKey SeedCard`<br>3. 显示 ID（如 `OKLCD1B0000X`）<br>4. 显示版本<br>5. 显示「恢复钱包」按钮 |
+| ❗️❗️P0❗️❗️ | ID 检查页可继续 | 1. ID 检查页点击「恢复钱包」 | 跳转「输入 SeedCard PIN」页 |
+| P1 | 识卡过程松动 | 1. 识卡过程中卡片移开 | 显示「连接失败」+「请将 SeedCard 紧贴设备背面，然后重试」+「返回」/「重试」按钮 |
 
 ---
 
@@ -32,7 +33,7 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 | --- | --- | --- | --- |
-| ❗️❗️P0❗️❗️ | 输入正确 PIN 恢复 12 位钱包 | 1. 贴入 12 位备份的卡<br>2. Enter SeedCard PIN 输入正确 PIN<br>3. 再次贴卡读取 | 1. 显示「Keep Holding SeedCard」<br>2. 读取完成跳转「Wallet Ready」<br>3. 文案「Your wallet has been recovered」<br>4. 点 Continue 进入 App 钱包页<br>5. 钱包列表新增导入钱包，账户地址与原钱包一致 |
+| ❗️❗️P0❗️❗️ | 输入正确 PIN 恢复 12 位钱包 | 1. 贴入 12 位备份的卡<br>2. 「输入 SeedCard PIN」输入正确 PIN<br>3. 再次贴卡读取 | 1. 显示「请保持贴住 SeedCard」<br>2. 读取完成跳转「钱包已就绪」<br>3. 文案「你的钱包已恢复」<br>4. 点「继续」进入 App 钱包页<br>5. 钱包列表新增导入钱包，账户地址与原钱包一致 |
 | ❗️❗️P0❗️❗️ | 输入正确 PIN 恢复 18 位钱包 | 1. 贴入 18 位备份的卡<br>2. 输入正确 PIN<br>3. 完成读取 | 同上；新增的钱包对应 18 位助记词原钱包 |
 | ❗️❗️P0❗️❗️ | 输入正确 PIN 恢复 24 位钱包 | 1. 贴入 24 位备份的卡<br>2. 输入正确 PIN<br>3. 完成读取 | 同上；新增的钱包对应 24 位助记词原钱包 |
 
@@ -40,14 +41,14 @@
 
 ## 3. PIN 错误与剩余次数
 
-> 默认 Protection Mode = Erase Backup。10 次错误后仅擦除备份数据，卡片硬件仍可重置后重新写入。
+> 默认防护模式 = 抹除备份。10 次错误后仅擦除备份数据，卡片硬件仍可重置后重新写入。
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 | --- | --- | --- | --- |
-| ❗️❗️P0❗️❗️ | 第 1 次 PIN 错误 | 1. Enter SeedCard PIN 输入错误 PIN<br>2. 点击对勾 | 1. 显示「Wrong PIN」红色叉<br>2. 文案「9 PIN attempts left before this SeedCard is erased」（红字）<br>3. 显示 Got It |
-| ❗️❗️P0❗️❗️ | ID 检查页同步显示剩余次数 | 1. 错误 1 次后点 Got It 重试<br>2. 重新识卡进入 ID 检查页 | ID 检查页顶部显示「N PIN attempts left before this SeedCard is erased」红色提示 |
-| ❗️❗️P0❗️❗️ | 错误次数累计（4 次后） | 1. 累计错误 6 次<br>2. 再次进入 ID 检查页 | 剩余次数文案显示「4 PIN attempts left before this SeedCard is erased」 |
-| ❗️❗️P0❗️❗️ | 第 10 次错误触发自毁（Erase Backup 模式） | 1. 已累计错误 9 次<br>2. 第 10 次仍输入错误 PIN | 1. 显示「SeedCard Reset」红色叉<br>2. 文案「Too many wrong PIN attempts. This SeedCard has been erased to protect your backup」<br>3. 显示 Got It<br>4. 后续贴卡识别为空卡（可重新备份） |
+| ❗️❗️P0❗️❗️ | 第 1 次 PIN 错误 | 1. 「输入 SeedCard PIN」输入错误 PIN<br>2. 点击对勾 | 1. 显示「PIN 错误」红色叉<br>2. 文案「剩余 9 次 PIN 尝试机会，超出后此 SeedCard 将被抹除」（红字）<br>3. 显示「知道了」 |
+| ❗️❗️P0❗️❗️ | ID 检查页同步显示剩余次数 | 1. 错误 1 次后点「知道了」重试<br>2. 重新识卡进入 ID 检查页 | ID 检查页顶部显示「剩余 N 次 PIN 尝试机会，超出后此 SeedCard 将被抹除」红色提示 |
+| ❗️❗️P0❗️❗️ | 错误次数累计（6 次后） | 1. 累计错误 6 次<br>2. 再次进入 ID 检查页 | 剩余次数文案显示「剩余 4 次 PIN 尝试机会，超出后此 SeedCard 将被抹除」 |
+| ❗️❗️P0❗️❗️ | 第 10 次错误触发自毁（抹除备份模式） | 1. 已累计错误 9 次<br>2. 第 10 次仍输入错误 PIN | 1. 显示「SeedCard 已重置」红色叉<br>2. 文案「PIN 错误次数过多，为保护你的备份，此 SeedCard 已被抹除」<br>3. 显示「知道了」<br>4. 后续贴卡识别为空卡（可重新备份） |
 
 ---
 
@@ -55,11 +56,10 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 | --- | --- | --- | --- |
-| ❗️❗️P0❗️❗️ | 贴入空卡 | 1. 恢复流程贴入未写入备份的空卡 | 1. 显示「No Backup Found」红色叉<br>2. 文案「Use another SeedCard and try again」<br>3. 显示 Go Back 按钮 |
-| ❗️❗️P0❗️❗️ | 贴入不支持位数的卡 | 1. 恢复流程贴入写入 25 位助记词的卡 | 1. 显示「Unsupported Recovery Phrase」红色叉<br>2. 文案「Device supports only 12, 18, 24-word recovery phrases. This SeedCard cannot be restored here」<br>3. 显示 Got It 按钮 |
-| ❗️❗️P0❗️❗️ | 永久禁用卡恢复尝试 | 1. 贴入 Protection Mode = Disable Permanently 模式下已自毁的卡 | 1. 显示「SeedCard Unavailable」<br>2. 文案「You can recover using another method or another SeedCard」<br>3. 显示 Got It；卡片不可重置不可恢复 |
-| P1 | Connection Failed 重试 | 1. 识卡过程卡片移开导致失败<br>2. 点击 Try Again<br>3. 稳定贴卡 | 重新识卡成功，继续后续流程 |
-| P1 | No Backup Found 返回 | 1. No Backup Found 页点击 Go Back | 回到「恢复方式」选择页 |
+| ❗️❗️P0❗️❗️ | 贴入空卡 | 1. 恢复流程贴入未写入备份的空卡 | 1. 显示「未找到备份」红色叉<br>2. 文案「请换一张 SeedCard 后重试」<br>3. 显示「返回」按钮 |
+| ❗️❗️P0❗️❗️ | 永久禁用卡恢复尝试 | 1. 贴入防护模式 = 永久禁用下已自毁的卡 | 1. 显示「SeedCard 不可用」<br>2. 文案「你可以使用其他方式或另一张 SeedCard 进行恢复」<br>3. 显示「知道了」；卡片不可重置不可恢复 |
+| P1 | 连接失败重试 | 1. 识卡过程卡片移开导致失败<br>2. 点击「重试」<br>3. 稳定贴卡 | 重新识卡成功，继续后续流程 |
+| P1 | 未找到备份返回 | 1. 「未找到备份」页点击「返回」 | 回到「恢复方式」选择页 |
 
 ---
 
@@ -78,7 +78,7 @@
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 | --- | --- | --- | --- |
-| P1 | Looking for SeedCard 取消 | 1. 识卡阶段点击 Cancel | 回到「恢复方式」选择页 |
+| P1 | 「正在寻找 SeedCard」取消 | 1. 识卡阶段点击「取消」 | 回到「恢复方式」选择页 |
 | P1 | ID 检查页返回 | 1. ID 检查页点击左上角返回 | 回到「恢复方式」选择页 |
-| P1 | Enter SeedCard PIN 取消 | 1. PIN 输入页点击 ×（取消） | 回到「恢复方式」选择页；本次错误计数不变 |
-| P1 | Keep Holding SeedCard 取消 | 1. 识卡读取页点击 Cancel | 回到 Enter SeedCard PIN 页，可重新读取 |
+| P1 | 「输入 SeedCard PIN」取消 | 1. PIN 输入页点击 ×（取消） | 回到「恢复方式」选择页；本次错误计数不变 |
+| P1 | 「请保持贴住 SeedCard」取消 | 1. 识卡读取页点击「取消」 | 回到「输入 SeedCard PIN」页，可重新读取 |

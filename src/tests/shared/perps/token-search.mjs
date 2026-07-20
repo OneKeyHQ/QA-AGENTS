@@ -163,6 +163,37 @@ export function createPerpsTokenSearchTests({
     await sleep(500);
   }
 
+  async function getPopoverTabRows(page) {
+    return page.evaluate(() => {
+      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
+      let pop = null;
+      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
+      if (!pop) return [];
+      const pr = pop.getBoundingClientRect();
+      const known = ['自选','永续合约','现货','全部','热门','新上架','加密货币','股票','贵金属','指数','大宗商品','外汇','Pre-IPO','预上线'];
+      const items = [];
+      for (const sp of pop.querySelectorAll('span')) {
+        const text = sp.textContent?.trim();
+        if (!text || !known.includes(text)) continue;
+        const r = sp.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) continue;
+        items.push({ text, x: Math.round(r.x), y: Math.round(r.y), dy: Math.round(r.y - pr.y) });
+      }
+      const rowYs = [];
+      for (const item of items.sort((a, b) => a.dy - b.dy || a.x - b.x)) {
+        if (!rowYs.some(y => Math.abs(y - item.dy) <= 12)) rowYs.push(item.dy);
+      }
+      return rowYs.map((rowY, index) => ({
+        index,
+        y: rowY,
+        tabs: items
+          .filter(item => Math.abs(item.dy - rowY) <= 12)
+          .sort((a, b) => a.x - b.x)
+          .map(item => item.text),
+      }));
+    });
+  }
+
   /**
    * 点击顶级 tab（自选 / 永续合约 / 现货）。
    * 顶级 tab 通常在弹窗顶部第一行（相对 y < 100px）。
@@ -173,14 +204,17 @@ export function createPerpsTokenSearchTests({
       for (const pop of pops) {
         const pr = pop.getBoundingClientRect();
         if (pr.width === 0) continue;
+        const candidates = [];
         for (const sp of pop.querySelectorAll('span')) {
           if (sp.textContent?.trim() !== txt) continue;
           const sr = sp.getBoundingClientRect();
-          if (sr.width === 0) continue;
-          if (sr.y - pr.y < 100) {
-            sp.click(); return true;
-          }
+          if (sr.width === 0 || sr.height === 0) continue;
+          candidates.push({ el: sp, dy: sr.y - pr.y, x: sr.x });
         }
+        if (candidates.length === 0) continue;
+        candidates.sort((a, b) => a.dy - b.dy || a.x - b.x);
+        candidates[0].el.click();
+        return true;
       }
       return false;
     }, tabName);
@@ -198,15 +232,21 @@ export function createPerpsTokenSearchTests({
       for (const pop of pops) {
         const pr = pop.getBoundingClientRect();
         if (pr.width === 0) continue;
+        const candidates = [];
         for (const sp of pop.querySelectorAll('span')) {
           if (sp.textContent?.trim() !== txt) continue;
           const sr = sp.getBoundingClientRect();
-          if (sr.width === 0) continue;
-          const dy = sr.y - pr.y;
-          if (dy >= 100 && dy < 200) {
-            sp.click(); return true;
-          }
+          if (sr.width === 0 || sr.height === 0) continue;
+          candidates.push({ el: sp, dy: sr.y - pr.y, x: sr.x });
         }
+        if (candidates.length === 0) continue;
+        candidates.sort((a, b) => {
+          const aPreferred = a.dy > 60 ? 0 : 1;
+          const bPreferred = b.dy > 60 ? 0 : 1;
+          return aPreferred - bPreferred || a.dy - b.dy || a.x - b.x;
+        });
+        candidates[0].el.click();
+        return true;
       }
       return false;
     }, tabName);
@@ -220,7 +260,15 @@ export function createPerpsTokenSearchTests({
       for (const pop of pops) {
         if (pop.getBoundingClientRect().width === 0) continue;
         const text = pop.textContent || '';
-        if (text.includes('未找到') || text.includes('No results')) return true;
+        if (
+          text.includes('未找到') ||
+          text.includes('暂无数据') ||
+          text.includes('暂无代币') ||
+          text.includes('暂无资产') ||
+          text.includes('No results') ||
+          text.includes('No data') ||
+          text.includes('No tokens')
+        ) return true;
       }
       return false;
     });
@@ -241,9 +289,9 @@ export function createPerpsTokenSearchTests({
       const tokens = [];
       const ignore = new Set([
         '自选','永续合约','现货','全部',
-        '加密货币','股票','贵金属','指数','大宗商品','外汇','预上线',
+        '热门','新上架','加密货币','股票','贵金属','指数','大宗商品','外汇','Pre-IPO','预上线',
         '资产','最新价格','24小时涨跌','资金费率','成交量','成交额','合约持仓量','市值',
-        '搜索资产','未找到匹配的代币','添加到自选',
+        '搜索资产','未找到匹配的代币','暂无数据','暂无代币','添加到自选',
       ]);
       const tickerRe = /^[A-Z][A-Z0-9]{1,9}$/;
       const pairRe = /^[A-Z][A-Z0-9]{1,9}\/[A-Z]{2,6}$/;
@@ -270,7 +318,7 @@ export function createPerpsTokenSearchTests({
       for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
       if (!pop) return [];
       const tabs = [];
-      const known = ['自选','永续合约','加密货币','股票','贵金属','指数','大宗商品','外汇','预上线'];
+      const known = ['自选','永续合约','加密货币','股票','贵金属','指数','大宗商品','外汇','Pre-IPO','预上线'];
       for (const sp of pop.querySelectorAll('span')) {
         const t = sp.textContent?.trim();
         if (t && known.includes(t) && sp.getBoundingClientRect().width > 0 && !tabs.includes(t)) tabs.push(t);
@@ -288,14 +336,14 @@ export function createPerpsTokenSearchTests({
       if (!pop) return [];
       const pr = pop.getBoundingClientRect();
       const tabs = [];
-      const known = ['全部','加密货币','股票','贵金属','指数','大宗商品','外汇','预上线'];
+      const known = ['全部','热门','新上架','加密货币','股票','贵金属','指数','大宗商品','外汇','Pre-IPO','预上线'];
       for (const sp of pop.querySelectorAll('span')) {
         const t = sp.textContent?.trim();
         if (!t || !known.includes(t)) continue;
         const sr = sp.getBoundingClientRect();
         if (sr.width === 0) continue;
         const dy = sr.y - pr.y;
-        if (dy >= 100 && dy < 200 && !tabs.includes(t)) tabs.push(t);
+        if (dy > 60 && dy < 240 && !tabs.includes(t)) tabs.push(t);
       }
       return tabs;
     });
@@ -428,6 +476,9 @@ export function createPerpsTokenSearchTests({
     const t = createTracker(`${prefix}-001`, _preReport);
 
     await clickTopTab(page, '永续合约');
+    const tabRows = await getPopoverTabRows(page);
+    t.add('两级 tab 布局可识别', tabRows.length >= 2 ? 'passed' : 'failed',
+      tabRows.map(r => `[${r.index}] ${r.tabs.join('/')}`).join(' | '));
     await clickSubTab(page, '全部');
 
     await searchAsset(page, 'BT');

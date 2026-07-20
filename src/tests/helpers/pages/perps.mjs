@@ -17,7 +17,7 @@ export class PerpsPage {
   setPage(page) { this.page = page; }
 
   async navigate() {
-    await clickSidebarTab(this.page, 'Perps');
+    await navigateToPerps(this.page);
   }
 
   /** Get current trading pair (e.g., "ETHUSDC" or "BTCUSDC"). */
@@ -214,4 +214,95 @@ export class PerpsPage {
     if (!clicked) throw new Error(`Tab "${tabName}" not found`);
     await sleep(1000);
   }
+}
+
+export async function getPerpsLandingState(page) {
+  return page.evaluate(() => {
+    const visible = (el) => {
+      if (!el) return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    };
+    const text = (document.body.textContent || '').replace(/\s+/g, ' ').trim();
+    const currentPair = [...document.querySelectorAll('span')]
+      .map((sp) => {
+        const r = sp.getBoundingClientRect();
+        return {
+          text: sp.textContent?.trim() || '',
+          visible: r.width > 40 && r.height > 10 && sp.children.length === 0,
+        };
+      })
+      .find((item) => item.visible && /^[A-Z]{2,12}USDC$/.test(item.text))?.text || null;
+    const visibleTestIds = [
+      'perp-token-selector',
+      'perp-portfolio-button',
+      'perp-btn',
+      'perp-deposit-button',
+      'perp-holdings-empty-deposit-button',
+    ].filter((id) => visible(document.querySelector(`[data-testid="${id}"]`)));
+    const hasPerpsText = /图表|持有币种|统一|开仓|平仓|杠杆|永续合约/.test(text);
+    return {
+      currentPair,
+      visibleTestIds,
+      hasPerpsText,
+      isPerps: !!currentPair || visibleTestIds.length > 0 || hasPerpsText,
+      text: text.slice(0, 500),
+    };
+  });
+}
+
+async function waitForPerpsLanding(page, timeoutMs = 8000) {
+  const deadline = Date.now() + timeoutMs;
+  let lastState = null;
+  while (Date.now() < deadline) {
+    lastState = await getPerpsLandingState(page).catch(() => null);
+    if (lastState?.isPerps) return lastState;
+    await sleep(500);
+  }
+  return lastState;
+}
+
+async function clickPerpsSidebarTestId(page) {
+  return page.evaluate(() => {
+    const candidates = [
+      '[data-testid="perp"]',
+      '[data-testid="perps"]',
+      '[data-testid="sidebarPerps"]',
+    ];
+    for (const selector of candidates) {
+      const el = document.querySelector(selector);
+      const r = el?.getBoundingClientRect();
+      if (el && r && r.width > 0 && r.height > 0) {
+        el.click();
+        return { clicked: true, selector };
+      }
+    }
+    const sidebar = document.querySelector('[data-testid="Desktop-AppSideBar-Content-Container"]');
+    if (sidebar) {
+      for (const el of sidebar.querySelectorAll('span, div, button')) {
+        const txt = el.textContent?.trim();
+        const r = el.getBoundingClientRect();
+        if ((txt === 'Perps' || txt === '合约' || txt === '永续') && r.width > 0 && r.height > 0) {
+          el.click();
+          return { clicked: true, selector: `sidebar text ${txt}` };
+        }
+      }
+    }
+    return { clicked: false, selector: null };
+  });
+}
+
+export async function navigateToPerps(page) {
+  await clickSidebarTab(page, 'Perps').catch(() => {});
+  let state = await waitForPerpsLanding(page, 6000);
+  if (state?.isPerps) return state;
+
+  const direct = await clickPerpsSidebarTestId(page);
+  if (direct.clicked) {
+    await sleep(1000);
+    state = await waitForPerpsLanding(page, 8000);
+    if (state?.isPerps) return state;
+  }
+
+  throw new Error(`Cannot navigate to Perps page: ${state?.text || 'no page text'}${direct.clicked ? ` (fallback=${direct.selector})` : ' (fallback not found)'}`);
 }
