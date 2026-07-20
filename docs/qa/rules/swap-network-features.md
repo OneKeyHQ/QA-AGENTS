@@ -30,13 +30,29 @@ Swap 模块支持的网络按技术架构分为三类：
 | Ethereum | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
 | BSC | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
 | Avalanche | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
+| Fantom | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
 | Base | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
 | Polygon | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
 | Arbitrum | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
 | Optimism | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护 |
+| zkSync Era | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
+| Linea | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
+| Mantle | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
+| Scroll | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
+| Blast | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
+| Sonic | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
+| X Layer | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
+| HyperEVM | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（EOA 复用，USDC / USDT 已补齐） |
 | Solana | `5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52` | ✅ 已维护 |
-| Tron | `TPJkcqRHFfuE2xfgVzs6AA6tbJowz9pmH1` | ✅ 已维护 |
+| TON | `UQADRchuTBUsiEEtGow4z9Uc33l4dz0nhuNz-7S_8jwCE7oP` | ⚠️ 有效样例地址，执行前建议替换为当前测试钱包地址 |
+| Near | `d7be27229b157122eae4e1329fabe67272dcb4ba186378f5f788f245cc1c10d2` | ⚠️ 有效样例地址，执行前建议替换为当前测试钱包地址 |
+| Tron | `TTZMu9v3cxs3dGhoUABBmE672MN8hsNfb8` | ✅ 已维护（2026-06-03 已用于 Changelly Tron build 成功验证） |
+| XRP Ledger | `r9D1JTDPkWTZ9qfezpALSi2aiTytQ58Zy6` | ⚠️ 有效样例地址，执行前建议替换为当前测试钱包地址 |
+| Dogecoin | `D5UJ81u33vJBco3fMZxpaHrSrbwCyMejcY` | ⚠️ 有效样例地址，执行前建议替换为当前测试钱包地址 |
+| Litecoin | `MBoxoVnga39ghJfLRQEXewjCWxLE6LemMX` | ⚠️ 有效样例地址，执行前建议替换为当前测试钱包地址 |
+| Bitcoin Cash | `bitcoincash:qzlelz2un33x98kda026zt882msk3xz9sq0e778p7z` | ⚠️ 有效样例地址，执行前建议替换为当前测试钱包地址 |
 | SUI | `0xe9f30f8341a465e854063ea7ae4d94ad1403164d37b0c72839e952b313d3db29` | ✅ 已维护 |
+| Aptos | `0x1b8e3ea235b70deb8317fa5a81b9908873c19619598895291e557564eb71b6cc` | ⚠️ 当前已用于 Panora 同链 `quote/events + build` 成功验证；执行前建议替换为当前测试钱包地址 |
 | Bitcoin | 当前钱包派生的新鲜地址（BTC 作为目标链）/ 当前钱包找零地址（BTC 作为源链），不维护固定地址 | ✅ 动态派生 |
 
 ### 代币合约地址（USDC / USDT）
@@ -46,13 +62,30 @@ Swap 模块支持的网络按技术架构分为三类：
 | Ethereum | `evm--1` | `0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48` | `0xdac17f958d2ee523a2206206994597c13d831ec7` |
 | BSC | `evm--56` | `0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d` | `0x55d398326f99059ff775485246999027b3197955` |
 | Avalanche | `evm--43114` | `0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e` | `0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7` |
+| Fantom | `evm--250` | `0x04068da6c83afcfa0e13ba15a6696662335d5b75` | `0x049d68029688eabf473097a2fc38ef61633a3c7a` |
 | Base | `evm--8453` | `0x833589fcd6edb6e08f4c7c32d4f71b54bda02913` | `0xfde4c96c8593536e31f229ea8f37b2ada2699bb2` |
 | Polygon | `evm--137` | `0x3c499c542cef5e3811e1192ce70d8cc03d5c3359` | `0xc2132d05d31c914a87c6611c10748aeb04b58e8f` |
-| Arbitrum | `evm--42161` | `0xaf88d065e77c8cC2239327C5EDb3A432268e5831` | `0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9` |
-| Optimism | `evm--10` | `0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85` | `0x94b008aA00579c1307B0EF2c499aD98a8ce58e58` |
+| Arbitrum | `evm--42161` | `0xaf88d065e77c8cc2239327c5edb3a432268e5831` | `0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9` |
+| Optimism | `evm--10` | `0x0b2c639c533813f4aa9d7837caf62653d097ff85` | `0x94b008aa00579c1307b0ef2c499ad98a8ce58e58` |
+| zkSync Era | `evm--324` | `0x1d17cbcf0d6d143135ae902365d2e5e2a16538d4` | `0x493257fd37edb34451f62edf8d2a0c418852ba4c` |
+| Linea | `evm--59144` | `0x176211869ca2b568f2a7d4ee941e073a821ee1ff` | `0xa219439258ca9da29e9cc4ce5596924745e12b93` |
+| Mantle | `evm--5000` | `0x09bc4e0d864854c6afb6eb9a9cdf58ac190d0df9` | `0x201eba5cc46d216ce6dc03f6a759e8e766e956ae` |
+| Scroll | `evm--534352` | `0x06efdbff2a14a7c8e15944d1f4a48f9f95f663a4` | `0xf55bec9cafdbe8730f096aa55dad6d22d44099df` |
+| Blast | `evm--81457` | `-` | `-` |
+| Sonic | `evm--146` | `0x29219dd400f2bf60e5a23d13be72b486d4038894` | `0x6047828dc181963ba44974801ff68e538da5eaf9` |
+| X Layer | `evm--196` | `0x74b7f16337b8972027f6196a17a631ac6de26d22` | `-` |
+| HyperEVM | `evm--999` | `0xb88339cb7199b77e23db6e890353e22632ba630f` | `0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb` |
 | Solana | `sol--101` | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB` |
+| TON | `ton--mainnet` | `-` | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
 | Tron | `tron--0x2b6653dc` | `TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8` | `TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t` |
 | SUI | `sui--0` | `0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC` | `0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT` |
+| Aptos | `aptos--1` | `0xbae207659db88bea0cbead6da0ed00aac12edcdda169e591cd41c94180b46f3b` | `0x357b0b74bc833e95a115ad22604854d6b0fca151cecd94111770e5d6ffc9dc2b` |
+
+> LiFi 当前对 EVM token 地址大小写敏感。生成或执行 LiFi Apifox 集合时，EVM 网络的 `USDC / USDT` 地址统一使用**全小写**；已验证最容易出问题的是 Arbitrum / Optimism / Mantle / HyperEVM，若写成 mixed-case，可能出现 `provider=SwapLifi` 但条目携带 `errorMessage: "Provider error"`、且没有 `quoteResultCtx` 的假失败。
+
+> OKX 当前有两条同链特殊资产基线：
+> - `Blast (evm--81457)` 已验证成功的稳定币基线不是 `USDC / USDT`，而是 `USDB = 0x4300000000000000000000000000000000000003`
+> - `X Layer (evm--196)` 当前已验证稳定币基线为 `0x74b7f16337b8972027f6196a17a631ac6de26d22`，quote 返回符号为 `USDC`
 
 ---
 
@@ -73,6 +106,7 @@ Swap 模块支持的网络按技术架构分为三类：
 | Mantle | MNT | 18 | wei | ✅ 是（ERC20 代币） | - | Layer 2 |
 | Scroll | ETH | 18 | wei | ✅ 是（ERC20 代币） | - | Layer 2 |
 | Blast | ETH | 18 | wei | ✅ 是（ERC20 代币） | - | Layer 2 |
+| X Layer | OKB | 18 | wei | ✅ 是（ERC20 代币） | - | Layer 2 |
 | Sonic | SONIC | 18 | wei | ✅ 是（ERC20 代币） | - | EVM 兼容 |
 
 **EVM 网络通用特性**：
@@ -259,6 +293,14 @@ Swap 模块支持的网络按技术架构分为三类：
 
 ### 2026-05-15
 - 新增 BTC 网络渠道专项规则：支持 BTC 的 Swap 渠道必须覆盖 BTC 目标链新鲜地址与 BTC 源链找零地址，校验接收地址未复用、找零地址归属当前钱包、UTXO 输入/输出/矿工费对账一致。
+
+### 2026-06-03
+- 为 LiFi 渠道补齐多链地址基线：新增 zkSync Era、Mantle、Scroll、Sonic、HyperEVM 的账户地址行；补充 zkSync Era / Mantle / Scroll / Sonic / HyperEVM 的 USDC / USDT 合约地址与 networkId。
+- 根据用户提供的 HyperEVM 实际地址，回填 `USDC=0xb88339cb7199b77e23db6e890353e22632ba630f`、`USDT=0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb`；并将 Arbitrum / Optimism / Mantle 的稳定币地址统一改为小写，避免 LiFi 询价命中 `Provider error`。
+
+### 2026-06-04
+- 为 OKX 同链渠道补齐地址基线：新增 `Fantom / Linea / Blast / X Layer` 的账户地址行与 `Fantom / Linea / X Layer` 的稳定币地址行。
+- 补充 OKX 同链特殊资产备注：`Blast` 当前成功集使用 `USDB=0x4300000000000000000000000000000000000003`，`X Layer` 当前成功集使用 `0x74b7f16337b8972027f6196a17a631ac6de26d22 (quote symbol=USDC)`；`X Layer` 主币为 `OKB`。
 
 ### 2026-03-27
 - 新增「账户地址与代币合约地址（维护基线）」章节，作为 Swap 用例生成的地址唯一来源

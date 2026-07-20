@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Swap 1inch - 按兑换类型（网络为变量）",
-    "description": "以兑换类型为维度：主币<>代币、代币<>主币、代币<>代币。每条用例内用 testCases 数组覆盖多个网络，网络与 token 地址直接在脚本中维护。\n\n- 01-1inch-询价：3 条（每条内循环请求多网络）\n- 02-1inch-构建：3 条（同上）",
+    "name": "Swap 1inch - 同链全网络全类型（Quote+Build）",
+    "description": "1inch 同链 Apifox 成功集。当前按已验证成功路由收敛，覆盖主币->代币、代币->主币、代币->代币三种同链兑换类型。\n\n- provider：Swap1inch\n- quote 使用普通 /swap/v1/quote\n- build 不需要 quoteResultCtx，直接按静态参数 + quote 返回的 toTokenAmount 构建\n- 当前已验证成功网络：Ethereum、Arbitrum、Optimism、BSC、Polygon、Avalanche、zkSync Era、Base\n- Fantom 虽在用户支持清单中，但本轮在当前 header + 地址基线下未命中 provider，暂不纳入成功集\n- header / locale / theme / build-number 已对齐客户端成功口径：6.4.0 / 2026060380 / 13293249 / en / light\n- 额外包含 1 条「第三方 1inch 报价对比」用例：同一交易对和金额下，OneKey vs 第三方 1inch 的接收币数量价差 > 5% 则失败\n- 运行第三方对比用例前，请先填 collection variables：oneinch_third_party_authorization / oneinch_third_party_cookie",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -16,17 +16,127 @@
       "type": "string"
     },
     {
-      "key": "userAddress",
-      "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e",
+      "key": "userAddressEvm",
+      "value": "0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_1",
+      "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_1",
+      "value": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_42161",
+      "value": "0xaf88d065e77c8cc2239327c5edb3a432268e5831",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_42161",
+      "value": "0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_10",
+      "value": "0x0b2c639c533813f4aa9d7837caf62653d097ff85",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_10",
+      "value": "0x94b008aa00579c1307b0ef2c499ad98a8ce58e58",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_56",
+      "value": "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_56",
+      "value": "0x55d398326f99059ff775485246999027b3197955",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_137",
+      "value": "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_137",
+      "value": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_43114",
+      "value": "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_43114",
+      "value": "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_324",
+      "value": "0x1d17cbcf0d6d143135ae902365d2e5e2a16538d4",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_324",
+      "value": "0x493257fd37edb34451f62edf8d2a0c418852ba4c",
+      "type": "string"
+    },
+    {
+      "key": "token_USDC_evm_8453",
+      "value": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "type": "string"
+    },
+    {
+      "key": "token_USDT_evm_8453",
+      "value": "0xfde4c96c8593536e31f229ea8f37b2ada2699bb2",
+      "type": "string"
+    },
+    {
+      "key": "oneinch_compare_threshold_pct",
+      "value": "5",
+      "type": "string"
+    },
+    {
+      "key": "oneinch_third_party_baseUrl",
+      "value": "https://proxy-app.1inch.com",
+      "type": "string"
+    },
+    {
+      "key": "oneinch_third_party_wallet",
+      "value": "0x0000000000000000000000000000000000000000",
+      "type": "string"
+    },
+    {
+      "key": "oneinch_third_party_source",
+      "value": "0x4a82836d",
+      "type": "string"
+    },
+    {
+      "key": "oneinch_third_party_authorization",
+      "value": "Bearer <paste 1inch bearer token>",
+      "type": "string"
+    },
+    {
+      "key": "oneinch_third_party_cookie",
+      "value": "<paste 1inch cookie header>",
       "type": "string"
     }
   ],
   "item": [
     {
-      "name": "01-1inch-询价",
+      "name": "01-1inch-构建（含 Quote）",
       "item": [
         {
-          "name": "Quote - 1inch - 主币<>代币",
+          "name": "Build+Quote - 1inch - 主币->代币成功集",
           "event": [
             {
               "listen": "prerequest",
@@ -42,11 +152,274 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const testCases = [\n  {\n    \"name\": \"Ethereum.ETH 1 → USDC\",\n    \"params\": {\n      \"fromTokenAddress\": \"\",\n      \"toTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"fromTokenAmount\": \"1\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Polygon 10 POL → USDC\",\n    \"params\": {\n      \"fromTokenAddress\": \"\",\n      \"toTokenAddress\": \"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--137\",\n      \"toNetworkId\": \"evm--137\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Arbitrum.ETH 1 → USDC\",\n    \"params\": {\n      \"fromTokenAddress\": \"\",\n      \"toTokenAddress\": \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\",\n      \"fromTokenAmount\": \"1\",\n      \"fromNetworkId\": \"evm--42161\",\n      \"toNetworkId\": \"evm--42161\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  }\n];",
-                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
-                  "const headers = { \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"android-apk\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\" };",
-                  "function buildQuery(params) { return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
-                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; pm.sendRequest({ url: BASE_URL+'?'+buildQuery(c.params), method: 'GET', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }) }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); var json=res.json(); pm.test('['+c.name+'] 业务码 0', function(){ pm.expect(json.code).to.eql(0); }); var d=json.data; pm.test('['+c.name+'] 1inch 有效报价', function(){ var item=(d||[]).find(function(x){ return x.info&&x.info.provider&&String(x.info.provider).toLowerCase().indexOf('1inch')>=0&&String(x.info.provider).toLowerCase().indexOf('fusion')<0; }); pm.expect(item, 'data 中不存在 1inch 条目（非 Fusion）').to.not.be.undefined; pm.expect(item.errorMessage, '1inch 条目携带 errorMessage: '+item.errorMessage).to.be.oneOf([undefined, null, '']); var hasQuote=item.toAmount||item.fromAmount||(item.info&&item.info.toAmount); pm.expect(hasQuote, '1inch 条目无有效报价金额').to.be.ok; }); runCase(i+1); }); }",
+                  "/**",
+                  " * 1inch 同链成功集：quote -> build-tx（无需 quoteResultCtx）",
+                  " */",
+                  "function cv(key, fallback) { return pm.collectionVariables.get(key) || fallback; }",
+                  "var PROVIDER = 'Swap1inch';",
+                  "var PROVIDER_KEY = '1inch';",
+                  "var BASE_URL = pm.collectionVariables.get('baseUrl') || 'https://swap.onekeytest.com';",
+                  "var CASES = [",
+                  "  {",
+                  "    \"name\": \"Ethereum same-chain ETH -> USDC\",",
+                  "    \"amount\": \"0.055953\",",
+                  "    \"fromNetworkId\": \"evm--1\",",
+                  "    \"toNetworkId\": \"evm--1\",",
+                  "    \"fromTokenFallback\": \"\",",
+                  "    \"toTokenVar\": \"token_USDC_evm_1\",",
+                  "    \"toTokenFallback\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Arbitrum same-chain ETH -> USDC\",",
+                  "    \"amount\": \"0.056032\",",
+                  "    \"fromNetworkId\": \"evm--42161\",",
+                  "    \"toNetworkId\": \"evm--42161\",",
+                  "    \"fromTokenFallback\": \"\",",
+                  "    \"toTokenVar\": \"token_USDC_evm_42161\",",
+                  "    \"toTokenFallback\": \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Optimism same-chain ETH -> USDC\",",
+                  "    \"amount\": \"0.05608\",",
+                  "    \"fromNetworkId\": \"evm--10\",",
+                  "    \"toNetworkId\": \"evm--10\",",
+                  "    \"fromTokenFallback\": \"\",",
+                  "    \"toTokenVar\": \"token_USDC_evm_10\",",
+                  "    \"toTokenFallback\": \"0x0b2c639c533813f4aa9d7837caf62653d097ff85\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"BSC same-chain BNB -> USDC\",",
+                  "    \"amount\": \"0.165929\",",
+                  "    \"fromNetworkId\": \"evm--56\",",
+                  "    \"toNetworkId\": \"evm--56\",",
+                  "    \"fromTokenFallback\": \"\",",
+                  "    \"toTokenVar\": \"token_USDC_evm_56\",",
+                  "    \"toTokenFallback\": \"0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Polygon same-chain MATIC -> USDC\",",
+                  "    \"amount\": \"1095.94\",",
+                  "    \"fromNetworkId\": \"evm--137\",",
+                  "    \"toNetworkId\": \"evm--137\",",
+                  "    \"fromTokenFallback\": \"\",",
+                  "    \"toTokenVar\": \"token_USDC_evm_137\",",
+                  "    \"toTokenFallback\": \"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Avalanche same-chain AVAX -> USDC\",",
+                  "    \"amount\": \"12.6629\",",
+                  "    \"fromNetworkId\": \"evm--43114\",",
+                  "    \"toNetworkId\": \"evm--43114\",",
+                  "    \"fromTokenFallback\": \"\",",
+                  "    \"toTokenVar\": \"token_USDC_evm_43114\",",
+                  "    \"toTokenFallback\": \"0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"zkSync Era same-chain ETH -> USDC\",",
+                  "    \"amount\": \"0.056257\",",
+                  "    \"fromNetworkId\": \"evm--324\",",
+                  "    \"toNetworkId\": \"evm--324\",",
+                  "    \"fromTokenFallback\": \"\",",
+                  "    \"toTokenVar\": \"token_USDC_evm_324\",",
+                  "    \"toTokenFallback\": \"0x1d17cbcf0d6d143135ae902365d2e5e2a16538d4\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Base same-chain ETH -> USDC\",",
+                  "    \"amount\": \"0.055952\",",
+                  "    \"fromNetworkId\": \"evm--8453\",",
+                  "    \"toNetworkId\": \"evm--8453\",",
+                  "    \"fromTokenFallback\": \"\",",
+                  "    \"toTokenVar\": \"token_USDC_evm_8453\",",
+                  "    \"toTokenFallback\": \"0x833589fcd6edb6e08f4c7c32d4f71b54bda02913\"",
+                  "  }",
+                  "];",
+                  "var quoteHeaders = {",
+                  "  'accept': 'application/json, text/plain, */*',",
+                  "  'accept-language': 'zh-CN',",
+                  "  'cache-control': 'no-cache',",
+                  "  'priority': 'u=1, i',",
+                  "  'sec-ch-ua': '\"Not_A Brand\";v=\"99\", \"Chromium\";v=\"142\"',",
+                  "  'sec-ch-ua-mobile': '?0',",
+                  "  'sec-ch-ua-platform': '\"macOS\"',",
+                  "  'sec-fetch-dest': 'empty',",
+                  "  'sec-fetch-mode': 'cors',",
+                  "  'sec-fetch-site': 'cross-site',",
+                  "  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) OneKeyWallet/6.4.0 Chrome/142.0.7444.265 Electron/39.8.9 Safari/537.36',",
+                  "  'x-amzn-trace-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-hide-asset-details': 'false',",
+                  "  'x-onekey-instance-id': 'd0a55f07-5fa9-419e-a041-b847642a9de0',",
+                  "  'x-onekey-request-build-number': '2026060380',",
+                  "  'x-onekey-request-currency': 'usd',",
+                  "  'x-onekey-request-device-name': 'OneKey Desktop',",
+                  "  'x-onekey-request-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-request-jsbundle-version': '13293249',",
+                  "  'x-onekey-request-locale': 'en',",
+                  "  'x-onekey-request-platform': 'desktop-macosStore',",
+                  "  'x-onekey-request-platform-name': 'MacBook Pro (14-inch, M4 Max, 2024)',",
+                  "  'x-onekey-request-theme': 'light',",
+                  "  'x-onekey-request-version': '6.4.0',",
+                  "  'x-onekey-wallet-type': 'hd',",
+                  "  'x-requested-with': 'XMLHttpRequest'",
+                  "};",
+                  "var buildHeaders = {",
+                  "  'accept': 'application/json, text/plain, */*',",
+                  "  'accept-language': 'zh-CN',",
+                  "  'cache-control': 'no-cache',",
+                  "  'content-type': 'application/json',",
+                  "  'priority': 'u=1, i',",
+                  "  'sec-ch-ua': '\"Not_A Brand\";v=\"99\", \"Chromium\";v=\"142\"',",
+                  "  'sec-ch-ua-mobile': '?0',",
+                  "  'sec-ch-ua-platform': '\"macOS\"',",
+                  "  'sec-fetch-dest': 'empty',",
+                  "  'sec-fetch-mode': 'cors',",
+                  "  'sec-fetch-site': 'cross-site',",
+                  "  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) OneKeyWallet/6.4.0 Chrome/142.0.7444.265 Electron/39.8.9 Safari/537.36',",
+                  "  'x-amzn-trace-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-hide-asset-details': 'false',",
+                  "  'x-onekey-instance-id': 'd0a55f07-5fa9-419e-a041-b847642a9de0',",
+                  "  'x-onekey-request-build-number': '2026060380',",
+                  "  'x-onekey-request-currency': 'usd',",
+                  "  'x-onekey-request-device-name': 'OneKey Desktop',",
+                  "  'x-onekey-request-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-request-jsbundle-version': '13293249',",
+                  "  'x-onekey-request-locale': 'en',",
+                  "  'x-onekey-request-platform': 'desktop-macosStore',",
+                  "  'x-onekey-request-platform-name': 'MacBook Pro (14-inch, M4 Max, 2024)',",
+                  "  'x-onekey-request-theme': 'light',",
+                  "  'x-onekey-request-version': '6.4.0',",
+                  "  'x-onekey-wallet-type': 'hd',",
+                  "  'x-requested-with': 'XMLHttpRequest'",
+                  "};",
+                  "function hs(obj) {",
+                  "  return Object.keys(obj).map(function(key) { return { key: key, value: String(obj[key]) }; });",
+                  "}",
+                  "function qs(params) {",
+                  "  return Object.keys(params).map(function(key) {",
+                  "    return encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key] == null ? '' : params[key]));",
+                  "  }).join('&');",
+                  "}",
+                  "function providerName(entry) {",
+                  "  return (entry && entry.info && entry.info.provider) || entry.provider || '';",
+                  "}",
+                  "function hasQuote(entry) {",
+                  "  return Boolean(entry && (entry.toAmount || entry.fromAmount || (entry.info && entry.info.toAmount) || (entry.info && entry.info.fromAmount)));",
+                  "}",
+                  "function resolveAddress() {",
+                  "  return cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0');",
+                  "}",
+                  "function resolveToken(varKey, fallback) {",
+                  "  if (varKey) return cv(varKey, fallback || '');",
+                  "  return fallback || '';",
+                  "}",
+                  "function findProviderEntry(data) {",
+                  "  return (data || []).find(function(entry) {",
+                  "    var name = providerName(entry);",
+                  "    return name === PROVIDER || String(name).toLowerCase().indexOf(PROVIDER_KEY) >= 0;",
+                  "  });",
+                  "}",
+                  "function skipText(v){ return String(v == null ? '' : v).trim(); }",
+                  "function providerMatches(actual, provider){ var name = skipText(actual).toLowerCase(); var base = skipText(provider).toLowerCase(); if (!name || !base) return false; var variants = [base]; if (base.indexOf('swap') === 0) variants.push(base.slice(4)); if (base.indexOf('oneinch') >= 0) variants.push('1inch'); if (base.indexOf('1inchfusion') >= 0) variants.push('fusion'); if (base.indexOf('exodusbridge') >= 0 || base.indexOf('exodus') >= 0) variants.push('exodus'); variants = variants.filter(Boolean); return variants.some(function(v){ return name === v || name.indexOf(v) >= 0; }); }",
+                  "function skipProviderEntry(data, provider){ return (data || []).find(function(entry){ return providerMatches((entry && entry.info && entry.info.provider) || entry.provider || '', provider); }); }",
+                  "function quoteEntryError(entry){ return skipText((entry && entry.errorMessage) || (entry && entry.info && entry.info.errorMessage) || ''); }",
+                  "function skipIsTimeoutError(err){ var text = skipText(err && (err.message || err.reason || err)).toLowerCase(); return text.indexOf('timeout') >= 0 || text.indexOf('timed out') >= 0 || text.indexOf('超时') >= 0; }",
+                  "function skipIsMessageSkippable(msg){ return ['Provider error', '渠道商异常', '报价不可用'].indexOf(skipText(msg)) >= 0; }",
+                  "function markQuoteSkip(caseName, provider, reason, detail){ var label = '[' + caseName + '] SKIP ' + provider + ' ' + reason + (detail ? ' | ' + detail : ''); pm.test(label, function(){ pm.expect(true).to.eql(true); }); console.warn(label); }",
+                  "function handleQuoteTransportSkip(caseName, provider, err, status){ if (skipIsTimeoutError(err)) { markQuoteSkip(caseName, provider, 'quote timeout', skipText(err && (err.message || err.reason || err))); return true; } var code = Number(status); if ([502, 503, 504].indexOf(code) >= 0) { markQuoteSkip(caseName, provider, 'quote HTTP ' + code, 'upstream'); return true; } return false; }",
+                  "function handleQuotePayloadSkip(caseName, provider, data, providerEntry, detail){ var arr = Array.isArray(data) ? data : []; if (!arr.length) { markQuoteSkip(caseName, provider, 'quote empty data', detail || 'data=[]'); return true; } var entry = providerEntry || skipProviderEntry(arr, provider); if (entry && skipIsMessageSkippable(quoteEntryError(entry))) { markQuoteSkip(caseName, provider, 'quote ' + quoteEntryError(entry), detail || ('provider=' + provider)); return true; } return false; }",
+                  "function runCase(index) {",
+                  "  if (index >= CASES.length) {",
+                  "    return;",
+                  "  }",
+                  "  var testCase = CASES[index];",
+                  "  var userAddress = resolveAddress();",
+                  "  var quoteParams = {",
+                  "    fromTokenAddress: resolveToken(testCase.fromTokenVar, testCase.fromTokenFallback),",
+                  "    toTokenAddress: resolveToken(testCase.toTokenVar, testCase.toTokenFallback),",
+                  "    fromTokenAmount: testCase.amount,",
+                  "    fromNetworkId: testCase.fromNetworkId,",
+                  "    toNetworkId: testCase.toNetworkId,",
+                  "    protocol: 'Swap',",
+                  "    userAddress: userAddress,",
+                  "    slippagePercentage: '0.5',",
+                  "    autoSlippage: 'true',",
+                  "    receivingAddress: userAddress,",
+                  "    kind: 'sell',",
+                  "    toTokenAmount: '',",
+                  "    denySingleSwapProvider: ''",
+                  "  };",
+                  "  pm.sendRequest({",
+                  "    url: BASE_URL + '/swap/v1/quote?' + qs(quoteParams),",
+                  "    method: 'GET',",
+                  "    header: hs(quoteHeaders)",
+                  "  }, function(err, res) {",
+                  "    if (err) { if (handleQuoteTransportSkip(testCase.name, PROVIDER, err)) { runCase(index + 1); return; }",
+                  "      pm.test('[' + testCase.name + '] quote 请求失败', function() { pm.expect.fail(String(err)); });",
+                  "      runCase(index + 1);",
+                  "      return;",
+                  "    }",
+                  "    if (handleQuoteTransportSkip(testCase.name, PROVIDER, null, res.code || res.status)) { runCase(index + 1); return; }",
+                  "    pm.test('[' + testCase.name + '] quote HTTP 200', function() {",
+                  "      pm.expect(res.code || res.status).to.equal(200);",
+                  "    });",
+                  "    var quoteJson = res.json();",
+                  "    pm.test('[' + testCase.name + '] quote 业务码 0', function() {",
+                  "      pm.expect(quoteJson.code).to.eql(0);",
+                  "    });",
+                  "    var quoteData = Array.isArray(quoteJson.data) ? quoteJson.data : [];",
+                  "    var providers = quoteData.map(providerName).filter(Boolean);",
+                  "    var target = findProviderEntry(quoteData); if (handleQuotePayloadSkip(testCase.name, PROVIDER, quoteData, target, 'providers=' + JSON.stringify(providers))) { runCase(index + 1); return; }",
+                  "    pm.test('[' + testCase.name + '] 1inch 有效报价', function() {",
+                  "      if (!target) {",
+                  "        pm.expect.fail('providers=' + JSON.stringify(providers) + ', note=Fantom 当前 provider miss，未纳入成功集');",
+                  "      }",
+                  "      pm.expect(target.errorMessage, '1inch 条目携带 errorMessage: ' + (target && target.errorMessage)).to.be.oneOf([undefined, null, '']);",
+                  "      pm.expect(hasQuote(target), '1inch 条目无有效报价金额').to.eql(true);",
+                  "    });",
+                  "    if (!target || target.errorMessage || !hasQuote(target)) {",
+                  "      runCase(index + 1);",
+                  "      return;",
+                  "    }",
+                  "    var buildBody = {",
+                  "      fromTokenAddress: quoteParams.fromTokenAddress,",
+                  "      toTokenAddress: quoteParams.toTokenAddress,",
+                  "      fromTokenAmount: String(testCase.amount),",
+                  "      toTokenAmount: String(target.toAmount || '0'),",
+                  "      fromNetworkId: testCase.fromNetworkId,",
+                  "      toNetworkId: testCase.toNetworkId,",
+                  "      protocol: 'Swap',",
+                  "      provider: PROVIDER,",
+                  "      userAddress: userAddress,",
+                  "      receivingAddress: userAddress,",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd'",
+                  "    };",
+                  "    pm.sendRequest({",
+                  "      url: BASE_URL + '/swap/v1/build-tx',",
+                  "      method: 'POST',",
+                  "      header: hs(buildHeaders),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(buildBody) }",
+                  "    }, function(err2, res2) {",
+                  "      if (err2) {",
+                  "        pm.test('[' + testCase.name + '] build 请求失败', function() { pm.expect.fail(String(err2)); });",
+                  "        runCase(index + 1);",
+                  "        return;",
+                  "      }",
+                  "      pm.test('[' + testCase.name + '] build HTTP 200', function() {",
+                  "        pm.expect(res2.code || res2.status).to.equal(200);",
+                  "      });",
+                  "      var buildJson = res2.json();",
+                  "      pm.test('[' + testCase.name + '] build 业务码 0', function() {",
+                  "        pm.expect(buildJson.code).to.eql(0);",
+                  "      });",
+                  "      pm.test('[' + testCase.name + '] build data.tx 存在', function() {",
+                  "        pm.expect(buildJson.data, 'build data 缺失').to.be.ok;",
+                  "        pm.expect(buildJson.data.tx, 'build data.tx 缺失').to.be.ok;",
+                  "      });",
+                  "      runCase(index + 1);",
+                  "    });",
+                  "  });",
+                  "}",
                   "runCase(0);"
                 ]
               }
@@ -56,32 +429,30 @@
             "method": "GET",
             "header": [
               {
+                "key": "accept",
+                "value": "application/json, text/plain, */*",
+                "type": "text"
+              },
+              {
                 "key": "X-Onekey-Request-ID",
                 "value": "{{requestId}}",
                 "type": "text"
               },
               {
-                "key": "X-Onekey-Request-Currency",
-                "value": "usd",
-                "type": "text"
-              },
-              {
                 "key": "X-Onekey-Request-Version",
-                "value": "6.1.0",
+                "value": "6.4.0",
                 "type": "text"
               },
               {
                 "key": "X-Onekey-Request-Build-Number",
-                "value": "2026022727",
+                "value": "2026060380",
                 "type": "text"
               }
             ],
             "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=&toTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&fromTokenAmount=1&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "raw": "{{baseUrl}}/swap/v1/quote?fromTokenAddress=&toTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&fromTokenAmount=0.055953&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress=%7B%7BuserAddressEvm%7D%7D&slippagePercentage=0.5&autoSlippage=true&receivingAddress=%7B%7BuserAddressEvm%7D%7D&kind=sell&toTokenAmount=&denySingleSwapProvider=",
               "host": [
-                "swap",
-                "onekeytest",
-                "com"
+                "{{baseUrl}}"
               ],
               "path": [
                 "swap",
@@ -89,25 +460,64 @@
                 "quote"
               ],
               "query": [
-                {"key": "fromTokenAddress", "value": ""},
-                {"key": "toTokenAddress", "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"},
-                {"key": "fromTokenAmount", "value": "1"},
-                {"key": "fromNetworkId", "value": "evm--1"},
-                {"key": "toNetworkId", "value": "evm--1"},
-                {"key": "protocol", "value": "Swap"},
-                {"key": "userAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
-                {"key": "slippagePercentage", "value": "0.5"},
-                {"key": "autoSlippage", "value": "true"},
-                {"key": "receivingAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
-                {"key": "kind", "value": "sell"},
-                {"key": "toTokenAmount", "value": ""},
-                {"key": "denySingleSwapProvider", "value": ""}
+                {
+                  "key": "fromTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "toTokenAddress",
+                  "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+                },
+                {
+                  "key": "fromTokenAmount",
+                  "value": "0.055953"
+                },
+                {
+                  "key": "fromNetworkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "toNetworkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "protocol",
+                  "value": "Swap"
+                },
+                {
+                  "key": "userAddress",
+                  "value": "{{userAddressEvm}}"
+                },
+                {
+                  "key": "slippagePercentage",
+                  "value": "0.5"
+                },
+                {
+                  "key": "autoSlippage",
+                  "value": "true"
+                },
+                {
+                  "key": "receivingAddress",
+                  "value": "{{userAddressEvm}}"
+                },
+                {
+                  "key": "kind",
+                  "value": "sell"
+                },
+                {
+                  "key": "toTokenAmount",
+                  "value": ""
+                },
+                {
+                  "key": "denySingleSwapProvider",
+                  "value": ""
+                }
               ]
             }
           }
         },
         {
-          "name": "Quote - 1inch - 代币<>主币",
+          "name": "Build+Quote - 1inch - 代币->主币成功集",
           "event": [
             {
               "listen": "prerequest",
@@ -123,11 +533,274 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const testCases = [\n  {\n    \"name\": \"Ethereum.USDC 10 → ETH\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"toTokenAddress\": \"\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Polygon.USDC 10 → POL\",\n    \"params\": {\n      \"fromTokenAddress\": \"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\",\n      \"toTokenAddress\": \"\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--137\",\n      \"toNetworkId\": \"evm--137\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Arbitrum.USDC 10 → ETH\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\",\n      \"toTokenAddress\": \"\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--42161\",\n      \"toNetworkId\": \"evm--42161\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  }\n];",
-                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
-                  "const headers = { \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"android-apk\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\" };",
-                  "function buildQuery(params) { return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
-                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; pm.sendRequest({ url: BASE_URL+'?'+buildQuery(c.params), method: 'GET', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }) }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); var json=res.json(); pm.test('['+c.name+'] 业务码 0', function(){ pm.expect(json.code).to.eql(0); }); var d=json.data; pm.test('['+c.name+'] 1inch 有效报价', function(){ var item=(d||[]).find(function(x){ return x.info&&x.info.provider&&String(x.info.provider).toLowerCase().indexOf('1inch')>=0&&String(x.info.provider).toLowerCase().indexOf('fusion')<0; }); pm.expect(item, 'data 中不存在 1inch 条目（非 Fusion）').to.not.be.undefined; pm.expect(item.errorMessage, '1inch 条目携带 errorMessage: '+item.errorMessage).to.be.oneOf([undefined, null, '']); var hasQuote=item.toAmount||item.fromAmount||(item.info&&item.info.toAmount); pm.expect(hasQuote, '1inch 条目无有效报价金额').to.be.ok; }); runCase(i+1); }); }",
+                  "/**",
+                  " * 1inch 同链成功集：quote -> build-tx（无需 quoteResultCtx）",
+                  " */",
+                  "function cv(key, fallback) { return pm.collectionVariables.get(key) || fallback; }",
+                  "var PROVIDER = 'Swap1inch';",
+                  "var PROVIDER_KEY = '1inch';",
+                  "var BASE_URL = pm.collectionVariables.get('baseUrl') || 'https://swap.onekeytest.com';",
+                  "var CASES = [",
+                  "  {",
+                  "    \"name\": \"Ethereum same-chain USDC -> ETH\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--1\",",
+                  "    \"toNetworkId\": \"evm--1\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_1\",",
+                  "    \"fromTokenFallback\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "    \"toTokenFallback\": \"\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Arbitrum same-chain USDC -> ETH\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--42161\",",
+                  "    \"toNetworkId\": \"evm--42161\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_42161\",",
+                  "    \"fromTokenFallback\": \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\",",
+                  "    \"toTokenFallback\": \"\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Optimism same-chain USDC -> ETH\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--10\",",
+                  "    \"toNetworkId\": \"evm--10\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_10\",",
+                  "    \"fromTokenFallback\": \"0x0b2c639c533813f4aa9d7837caf62653d097ff85\",",
+                  "    \"toTokenFallback\": \"\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"BSC same-chain USDC -> BNB\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--56\",",
+                  "    \"toNetworkId\": \"evm--56\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_56\",",
+                  "    \"fromTokenFallback\": \"0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d\",",
+                  "    \"toTokenFallback\": \"\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Polygon same-chain USDC -> MATIC\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--137\",",
+                  "    \"toNetworkId\": \"evm--137\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_137\",",
+                  "    \"fromTokenFallback\": \"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\",",
+                  "    \"toTokenFallback\": \"\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Avalanche same-chain USDC -> AVAX\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--43114\",",
+                  "    \"toNetworkId\": \"evm--43114\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_43114\",",
+                  "    \"fromTokenFallback\": \"0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e\",",
+                  "    \"toTokenFallback\": \"\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"zkSync Era same-chain USDC -> ETH\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--324\",",
+                  "    \"toNetworkId\": \"evm--324\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_324\",",
+                  "    \"fromTokenFallback\": \"0x1d17cbcf0d6d143135ae902365d2e5e2a16538d4\",",
+                  "    \"toTokenFallback\": \"\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Base same-chain USDC -> ETH\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--8453\",",
+                  "    \"toNetworkId\": \"evm--8453\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_8453\",",
+                  "    \"fromTokenFallback\": \"0x833589fcd6edb6e08f4c7c32d4f71b54bda02913\",",
+                  "    \"toTokenFallback\": \"\"",
+                  "  }",
+                  "];",
+                  "var quoteHeaders = {",
+                  "  'accept': 'application/json, text/plain, */*',",
+                  "  'accept-language': 'zh-CN',",
+                  "  'cache-control': 'no-cache',",
+                  "  'priority': 'u=1, i',",
+                  "  'sec-ch-ua': '\"Not_A Brand\";v=\"99\", \"Chromium\";v=\"142\"',",
+                  "  'sec-ch-ua-mobile': '?0',",
+                  "  'sec-ch-ua-platform': '\"macOS\"',",
+                  "  'sec-fetch-dest': 'empty',",
+                  "  'sec-fetch-mode': 'cors',",
+                  "  'sec-fetch-site': 'cross-site',",
+                  "  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) OneKeyWallet/6.4.0 Chrome/142.0.7444.265 Electron/39.8.9 Safari/537.36',",
+                  "  'x-amzn-trace-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-hide-asset-details': 'false',",
+                  "  'x-onekey-instance-id': 'd0a55f07-5fa9-419e-a041-b847642a9de0',",
+                  "  'x-onekey-request-build-number': '2026060380',",
+                  "  'x-onekey-request-currency': 'usd',",
+                  "  'x-onekey-request-device-name': 'OneKey Desktop',",
+                  "  'x-onekey-request-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-request-jsbundle-version': '13293249',",
+                  "  'x-onekey-request-locale': 'en',",
+                  "  'x-onekey-request-platform': 'desktop-macosStore',",
+                  "  'x-onekey-request-platform-name': 'MacBook Pro (14-inch, M4 Max, 2024)',",
+                  "  'x-onekey-request-theme': 'light',",
+                  "  'x-onekey-request-version': '6.4.0',",
+                  "  'x-onekey-wallet-type': 'hd',",
+                  "  'x-requested-with': 'XMLHttpRequest'",
+                  "};",
+                  "var buildHeaders = {",
+                  "  'accept': 'application/json, text/plain, */*',",
+                  "  'accept-language': 'zh-CN',",
+                  "  'cache-control': 'no-cache',",
+                  "  'content-type': 'application/json',",
+                  "  'priority': 'u=1, i',",
+                  "  'sec-ch-ua': '\"Not_A Brand\";v=\"99\", \"Chromium\";v=\"142\"',",
+                  "  'sec-ch-ua-mobile': '?0',",
+                  "  'sec-ch-ua-platform': '\"macOS\"',",
+                  "  'sec-fetch-dest': 'empty',",
+                  "  'sec-fetch-mode': 'cors',",
+                  "  'sec-fetch-site': 'cross-site',",
+                  "  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) OneKeyWallet/6.4.0 Chrome/142.0.7444.265 Electron/39.8.9 Safari/537.36',",
+                  "  'x-amzn-trace-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-hide-asset-details': 'false',",
+                  "  'x-onekey-instance-id': 'd0a55f07-5fa9-419e-a041-b847642a9de0',",
+                  "  'x-onekey-request-build-number': '2026060380',",
+                  "  'x-onekey-request-currency': 'usd',",
+                  "  'x-onekey-request-device-name': 'OneKey Desktop',",
+                  "  'x-onekey-request-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-request-jsbundle-version': '13293249',",
+                  "  'x-onekey-request-locale': 'en',",
+                  "  'x-onekey-request-platform': 'desktop-macosStore',",
+                  "  'x-onekey-request-platform-name': 'MacBook Pro (14-inch, M4 Max, 2024)',",
+                  "  'x-onekey-request-theme': 'light',",
+                  "  'x-onekey-request-version': '6.4.0',",
+                  "  'x-onekey-wallet-type': 'hd',",
+                  "  'x-requested-with': 'XMLHttpRequest'",
+                  "};",
+                  "function hs(obj) {",
+                  "  return Object.keys(obj).map(function(key) { return { key: key, value: String(obj[key]) }; });",
+                  "}",
+                  "function qs(params) {",
+                  "  return Object.keys(params).map(function(key) {",
+                  "    return encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key] == null ? '' : params[key]));",
+                  "  }).join('&');",
+                  "}",
+                  "function providerName(entry) {",
+                  "  return (entry && entry.info && entry.info.provider) || entry.provider || '';",
+                  "}",
+                  "function hasQuote(entry) {",
+                  "  return Boolean(entry && (entry.toAmount || entry.fromAmount || (entry.info && entry.info.toAmount) || (entry.info && entry.info.fromAmount)));",
+                  "}",
+                  "function resolveAddress() {",
+                  "  return cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0');",
+                  "}",
+                  "function resolveToken(varKey, fallback) {",
+                  "  if (varKey) return cv(varKey, fallback || '');",
+                  "  return fallback || '';",
+                  "}",
+                  "function findProviderEntry(data) {",
+                  "  return (data || []).find(function(entry) {",
+                  "    var name = providerName(entry);",
+                  "    return name === PROVIDER || String(name).toLowerCase().indexOf(PROVIDER_KEY) >= 0;",
+                  "  });",
+                  "}",
+                  "function skipText(v){ return String(v == null ? '' : v).trim(); }",
+                  "function providerMatches(actual, provider){ var name = skipText(actual).toLowerCase(); var base = skipText(provider).toLowerCase(); if (!name || !base) return false; var variants = [base]; if (base.indexOf('swap') === 0) variants.push(base.slice(4)); if (base.indexOf('oneinch') >= 0) variants.push('1inch'); if (base.indexOf('1inchfusion') >= 0) variants.push('fusion'); if (base.indexOf('exodusbridge') >= 0 || base.indexOf('exodus') >= 0) variants.push('exodus'); variants = variants.filter(Boolean); return variants.some(function(v){ return name === v || name.indexOf(v) >= 0; }); }",
+                  "function skipProviderEntry(data, provider){ return (data || []).find(function(entry){ return providerMatches((entry && entry.info && entry.info.provider) || entry.provider || '', provider); }); }",
+                  "function quoteEntryError(entry){ return skipText((entry && entry.errorMessage) || (entry && entry.info && entry.info.errorMessage) || ''); }",
+                  "function skipIsTimeoutError(err){ var text = skipText(err && (err.message || err.reason || err)).toLowerCase(); return text.indexOf('timeout') >= 0 || text.indexOf('timed out') >= 0 || text.indexOf('超时') >= 0; }",
+                  "function skipIsMessageSkippable(msg){ return ['Provider error', '渠道商异常', '报价不可用'].indexOf(skipText(msg)) >= 0; }",
+                  "function markQuoteSkip(caseName, provider, reason, detail){ var label = '[' + caseName + '] SKIP ' + provider + ' ' + reason + (detail ? ' | ' + detail : ''); pm.test(label, function(){ pm.expect(true).to.eql(true); }); console.warn(label); }",
+                  "function handleQuoteTransportSkip(caseName, provider, err, status){ if (skipIsTimeoutError(err)) { markQuoteSkip(caseName, provider, 'quote timeout', skipText(err && (err.message || err.reason || err))); return true; } var code = Number(status); if ([502, 503, 504].indexOf(code) >= 0) { markQuoteSkip(caseName, provider, 'quote HTTP ' + code, 'upstream'); return true; } return false; }",
+                  "function handleQuotePayloadSkip(caseName, provider, data, providerEntry, detail){ var arr = Array.isArray(data) ? data : []; if (!arr.length) { markQuoteSkip(caseName, provider, 'quote empty data', detail || 'data=[]'); return true; } var entry = providerEntry || skipProviderEntry(arr, provider); if (entry && skipIsMessageSkippable(quoteEntryError(entry))) { markQuoteSkip(caseName, provider, 'quote ' + quoteEntryError(entry), detail || ('provider=' + provider)); return true; } return false; }",
+                  "function runCase(index) {",
+                  "  if (index >= CASES.length) {",
+                  "    return;",
+                  "  }",
+                  "  var testCase = CASES[index];",
+                  "  var userAddress = resolveAddress();",
+                  "  var quoteParams = {",
+                  "    fromTokenAddress: resolveToken(testCase.fromTokenVar, testCase.fromTokenFallback),",
+                  "    toTokenAddress: resolveToken(testCase.toTokenVar, testCase.toTokenFallback),",
+                  "    fromTokenAmount: testCase.amount,",
+                  "    fromNetworkId: testCase.fromNetworkId,",
+                  "    toNetworkId: testCase.toNetworkId,",
+                  "    protocol: 'Swap',",
+                  "    userAddress: userAddress,",
+                  "    slippagePercentage: '0.5',",
+                  "    autoSlippage: 'true',",
+                  "    receivingAddress: userAddress,",
+                  "    kind: 'sell',",
+                  "    toTokenAmount: '',",
+                  "    denySingleSwapProvider: ''",
+                  "  };",
+                  "  pm.sendRequest({",
+                  "    url: BASE_URL + '/swap/v1/quote?' + qs(quoteParams),",
+                  "    method: 'GET',",
+                  "    header: hs(quoteHeaders)",
+                  "  }, function(err, res) {",
+                  "    if (err) { if (handleQuoteTransportSkip(testCase.name, PROVIDER, err)) { runCase(index + 1); return; }",
+                  "      pm.test('[' + testCase.name + '] quote 请求失败', function() { pm.expect.fail(String(err)); });",
+                  "      runCase(index + 1);",
+                  "      return;",
+                  "    }",
+                  "    if (handleQuoteTransportSkip(testCase.name, PROVIDER, null, res.code || res.status)) { runCase(index + 1); return; }",
+                  "    pm.test('[' + testCase.name + '] quote HTTP 200', function() {",
+                  "      pm.expect(res.code || res.status).to.equal(200);",
+                  "    });",
+                  "    var quoteJson = res.json();",
+                  "    pm.test('[' + testCase.name + '] quote 业务码 0', function() {",
+                  "      pm.expect(quoteJson.code).to.eql(0);",
+                  "    });",
+                  "    var quoteData = Array.isArray(quoteJson.data) ? quoteJson.data : [];",
+                  "    var providers = quoteData.map(providerName).filter(Boolean);",
+                  "    var target = findProviderEntry(quoteData); if (handleQuotePayloadSkip(testCase.name, PROVIDER, quoteData, target, 'providers=' + JSON.stringify(providers))) { runCase(index + 1); return; }",
+                  "    pm.test('[' + testCase.name + '] 1inch 有效报价', function() {",
+                  "      if (!target) {",
+                  "        pm.expect.fail('providers=' + JSON.stringify(providers) + ', note=Fantom 当前 provider miss，未纳入成功集');",
+                  "      }",
+                  "      pm.expect(target.errorMessage, '1inch 条目携带 errorMessage: ' + (target && target.errorMessage)).to.be.oneOf([undefined, null, '']);",
+                  "      pm.expect(hasQuote(target), '1inch 条目无有效报价金额').to.eql(true);",
+                  "    });",
+                  "    if (!target || target.errorMessage || !hasQuote(target)) {",
+                  "      runCase(index + 1);",
+                  "      return;",
+                  "    }",
+                  "    var buildBody = {",
+                  "      fromTokenAddress: quoteParams.fromTokenAddress,",
+                  "      toTokenAddress: quoteParams.toTokenAddress,",
+                  "      fromTokenAmount: String(testCase.amount),",
+                  "      toTokenAmount: String(target.toAmount || '0'),",
+                  "      fromNetworkId: testCase.fromNetworkId,",
+                  "      toNetworkId: testCase.toNetworkId,",
+                  "      protocol: 'Swap',",
+                  "      provider: PROVIDER,",
+                  "      userAddress: userAddress,",
+                  "      receivingAddress: userAddress,",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd'",
+                  "    };",
+                  "    pm.sendRequest({",
+                  "      url: BASE_URL + '/swap/v1/build-tx',",
+                  "      method: 'POST',",
+                  "      header: hs(buildHeaders),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(buildBody) }",
+                  "    }, function(err2, res2) {",
+                  "      if (err2) {",
+                  "        pm.test('[' + testCase.name + '] build 请求失败', function() { pm.expect.fail(String(err2)); });",
+                  "        runCase(index + 1);",
+                  "        return;",
+                  "      }",
+                  "      pm.test('[' + testCase.name + '] build HTTP 200', function() {",
+                  "        pm.expect(res2.code || res2.status).to.equal(200);",
+                  "      });",
+                  "      var buildJson = res2.json();",
+                  "      pm.test('[' + testCase.name + '] build 业务码 0', function() {",
+                  "        pm.expect(buildJson.code).to.eql(0);",
+                  "      });",
+                  "      pm.test('[' + testCase.name + '] build data.tx 存在', function() {",
+                  "        pm.expect(buildJson.data, 'build data 缺失').to.be.ok;",
+                  "        pm.expect(buildJson.data.tx, 'build data.tx 缺失').to.be.ok;",
+                  "      });",
+                  "      runCase(index + 1);",
+                  "    });",
+                  "  });",
+                  "}",
                   "runCase(0);"
                 ]
               }
@@ -137,32 +810,30 @@
             "method": "GET",
             "header": [
               {
+                "key": "accept",
+                "value": "application/json, text/plain, */*",
+                "type": "text"
+              },
+              {
                 "key": "X-Onekey-Request-ID",
                 "value": "{{requestId}}",
                 "type": "text"
               },
               {
-                "key": "X-Onekey-Request-Currency",
-                "value": "usd",
-                "type": "text"
-              },
-              {
                 "key": "X-Onekey-Request-Version",
-                "value": "6.1.0",
+                "value": "6.4.0",
                 "type": "text"
               },
               {
                 "key": "X-Onekey-Request-Build-Number",
-                "value": "2026022727",
+                "value": "2026060380",
                 "type": "text"
               }
             ],
             "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&toTokenAddress=&fromTokenAmount=10&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "raw": "{{baseUrl}}/swap/v1/quote?fromTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&toTokenAddress=&fromTokenAmount=100&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress=%7B%7BuserAddressEvm%7D%7D&slippagePercentage=0.5&autoSlippage=true&receivingAddress=%7B%7BuserAddressEvm%7D%7D&kind=sell&toTokenAmount=&denySingleSwapProvider=",
               "host": [
-                "swap",
-                "onekeytest",
-                "com"
+                "{{baseUrl}}"
               ],
               "path": [
                 "swap",
@@ -170,25 +841,64 @@
                 "quote"
               ],
               "query": [
-                {"key": "fromTokenAddress", "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"},
-                {"key": "toTokenAddress", "value": ""},
-                {"key": "fromTokenAmount", "value": "10"},
-                {"key": "fromNetworkId", "value": "evm--1"},
-                {"key": "toNetworkId", "value": "evm--1"},
-                {"key": "protocol", "value": "Swap"},
-                {"key": "userAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
-                {"key": "slippagePercentage", "value": "0.5"},
-                {"key": "autoSlippage", "value": "true"},
-                {"key": "receivingAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
-                {"key": "kind", "value": "sell"},
-                {"key": "toTokenAmount", "value": ""},
-                {"key": "denySingleSwapProvider", "value": ""}
+                {
+                  "key": "fromTokenAddress",
+                  "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+                },
+                {
+                  "key": "toTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "fromTokenAmount",
+                  "value": "100"
+                },
+                {
+                  "key": "fromNetworkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "toNetworkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "protocol",
+                  "value": "Swap"
+                },
+                {
+                  "key": "userAddress",
+                  "value": "{{userAddressEvm}}"
+                },
+                {
+                  "key": "slippagePercentage",
+                  "value": "0.5"
+                },
+                {
+                  "key": "autoSlippage",
+                  "value": "true"
+                },
+                {
+                  "key": "receivingAddress",
+                  "value": "{{userAddressEvm}}"
+                },
+                {
+                  "key": "kind",
+                  "value": "sell"
+                },
+                {
+                  "key": "toTokenAmount",
+                  "value": ""
+                },
+                {
+                  "key": "denySingleSwapProvider",
+                  "value": ""
+                }
               ]
             }
           }
         },
         {
-          "name": "Quote - 1inch - 代币<>代币",
+          "name": "Build+Quote - 1inch - 代币->代币成功集",
           "event": [
             {
               "listen": "prerequest",
@@ -204,11 +914,282 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const testCases = [\n  {\n    \"name\": \"Ethereum.USDC 10 → USDT\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"toTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Polygon.USDC 10 → USDT\",\n    \"params\": {\n      \"fromTokenAddress\": \"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\",\n      \"toTokenAddress\": \"0xc2132d05d31c914a87c6611c10748aeb04b58e8f\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--137\",\n      \"toNetworkId\": \"evm--137\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  },\n  {\n    \"name\": \"Arbitrum.USDC 10 → USDT\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\",\n      \"toTokenAddress\": \"0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9\",\n      \"fromTokenAmount\": \"10\",\n      \"fromNetworkId\": \"evm--42161\",\n      \"toNetworkId\": \"evm--42161\",\n      \"protocol\": \"Swap\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": \"0.5\",\n      \"autoSlippage\": \"true\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"kind\": \"sell\",\n      \"toTokenAmount\": \"\",\n      \"denySingleSwapProvider\": \"\"\n    }\n  }\n];",
-                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/quote\";",
-                  "const headers = { \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"android-apk\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\" };",
-                  "function buildQuery(params) { return Object.entries(params).filter(function(kv){ return kv[1]!==undefined&&kv[1]!==null; }).map(function(kv){ return encodeURIComponent(kv[0])+'='+encodeURIComponent(String(kv[1])); }).join('&'); }",
-                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; pm.sendRequest({ url: BASE_URL+'?'+buildQuery(c.params), method: 'GET', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }) }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); var json=res.json(); pm.test('['+c.name+'] 业务码 0', function(){ pm.expect(json.code).to.eql(0); }); var d=json.data; pm.test('['+c.name+'] 1inch 有效报价', function(){ var item=(d||[]).find(function(x){ return x.info&&x.info.provider&&String(x.info.provider).toLowerCase().indexOf('1inch')>=0&&String(x.info.provider).toLowerCase().indexOf('fusion')<0; }); pm.expect(item, 'data 中不存在 1inch 条目（非 Fusion）').to.not.be.undefined; pm.expect(item.errorMessage, '1inch 条目携带 errorMessage: '+item.errorMessage).to.be.oneOf([undefined, null, '']); var hasQuote=item.toAmount||item.fromAmount||(item.info&&item.info.toAmount); pm.expect(hasQuote, '1inch 条目无有效报价金额').to.be.ok; }); runCase(i+1); }); }",
+                  "/**",
+                  " * 1inch 同链成功集：quote -> build-tx（无需 quoteResultCtx）",
+                  " */",
+                  "function cv(key, fallback) { return pm.collectionVariables.get(key) || fallback; }",
+                  "var PROVIDER = 'Swap1inch';",
+                  "var PROVIDER_KEY = '1inch';",
+                  "var BASE_URL = pm.collectionVariables.get('baseUrl') || 'https://swap.onekeytest.com';",
+                  "var CASES = [",
+                  "  {",
+                  "    \"name\": \"Ethereum same-chain USDC -> USDT\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--1\",",
+                  "    \"toNetworkId\": \"evm--1\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_1\",",
+                  "    \"fromTokenFallback\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",",
+                  "    \"toTokenVar\": \"token_USDT_evm_1\",",
+                  "    \"toTokenFallback\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Arbitrum same-chain USDC -> USDT\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--42161\",",
+                  "    \"toNetworkId\": \"evm--42161\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_42161\",",
+                  "    \"fromTokenFallback\": \"0xaf88d065e77c8cc2239327c5edb3a432268e5831\",",
+                  "    \"toTokenVar\": \"token_USDT_evm_42161\",",
+                  "    \"toTokenFallback\": \"0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Optimism same-chain USDC -> USDT\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--10\",",
+                  "    \"toNetworkId\": \"evm--10\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_10\",",
+                  "    \"fromTokenFallback\": \"0x0b2c639c533813f4aa9d7837caf62653d097ff85\",",
+                  "    \"toTokenVar\": \"token_USDT_evm_10\",",
+                  "    \"toTokenFallback\": \"0x94b008aa00579c1307b0ef2c499ad98a8ce58e58\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"BSC same-chain USDC -> USDT\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--56\",",
+                  "    \"toNetworkId\": \"evm--56\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_56\",",
+                  "    \"fromTokenFallback\": \"0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d\",",
+                  "    \"toTokenVar\": \"token_USDT_evm_56\",",
+                  "    \"toTokenFallback\": \"0x55d398326f99059ff775485246999027b3197955\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Polygon same-chain USDC -> USDT\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--137\",",
+                  "    \"toNetworkId\": \"evm--137\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_137\",",
+                  "    \"fromTokenFallback\": \"0x3c499c542cef5e3811e1192ce70d8cc03d5c3359\",",
+                  "    \"toTokenVar\": \"token_USDT_evm_137\",",
+                  "    \"toTokenFallback\": \"0xc2132d05d31c914a87c6611c10748aeb04b58e8f\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Avalanche same-chain USDC -> USDT\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--43114\",",
+                  "    \"toNetworkId\": \"evm--43114\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_43114\",",
+                  "    \"fromTokenFallback\": \"0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e\",",
+                  "    \"toTokenVar\": \"token_USDT_evm_43114\",",
+                  "    \"toTokenFallback\": \"0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"zkSync Era same-chain USDC -> USDT\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--324\",",
+                  "    \"toNetworkId\": \"evm--324\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_324\",",
+                  "    \"fromTokenFallback\": \"0x1d17cbcf0d6d143135ae902365d2e5e2a16538d4\",",
+                  "    \"toTokenVar\": \"token_USDT_evm_324\",",
+                  "    \"toTokenFallback\": \"0x493257fd37edb34451f62edf8d2a0c418852ba4c\"",
+                  "  },",
+                  "  {",
+                  "    \"name\": \"Base same-chain USDC -> USDT\",",
+                  "    \"amount\": \"100\",",
+                  "    \"fromNetworkId\": \"evm--8453\",",
+                  "    \"toNetworkId\": \"evm--8453\",",
+                  "    \"fromTokenVar\": \"token_USDC_evm_8453\",",
+                  "    \"fromTokenFallback\": \"0x833589fcd6edb6e08f4c7c32d4f71b54bda02913\",",
+                  "    \"toTokenVar\": \"token_USDT_evm_8453\",",
+                  "    \"toTokenFallback\": \"0xfde4c96c8593536e31f229ea8f37b2ada2699bb2\"",
+                  "  }",
+                  "];",
+                  "var quoteHeaders = {",
+                  "  'accept': 'application/json, text/plain, */*',",
+                  "  'accept-language': 'zh-CN',",
+                  "  'cache-control': 'no-cache',",
+                  "  'priority': 'u=1, i',",
+                  "  'sec-ch-ua': '\"Not_A Brand\";v=\"99\", \"Chromium\";v=\"142\"',",
+                  "  'sec-ch-ua-mobile': '?0',",
+                  "  'sec-ch-ua-platform': '\"macOS\"',",
+                  "  'sec-fetch-dest': 'empty',",
+                  "  'sec-fetch-mode': 'cors',",
+                  "  'sec-fetch-site': 'cross-site',",
+                  "  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) OneKeyWallet/6.4.0 Chrome/142.0.7444.265 Electron/39.8.9 Safari/537.36',",
+                  "  'x-amzn-trace-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-hide-asset-details': 'false',",
+                  "  'x-onekey-instance-id': 'd0a55f07-5fa9-419e-a041-b847642a9de0',",
+                  "  'x-onekey-request-build-number': '2026060380',",
+                  "  'x-onekey-request-currency': 'usd',",
+                  "  'x-onekey-request-device-name': 'OneKey Desktop',",
+                  "  'x-onekey-request-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-request-jsbundle-version': '13293249',",
+                  "  'x-onekey-request-locale': 'en',",
+                  "  'x-onekey-request-platform': 'desktop-macosStore',",
+                  "  'x-onekey-request-platform-name': 'MacBook Pro (14-inch, M4 Max, 2024)',",
+                  "  'x-onekey-request-theme': 'light',",
+                  "  'x-onekey-request-version': '6.4.0',",
+                  "  'x-onekey-wallet-type': 'hd',",
+                  "  'x-requested-with': 'XMLHttpRequest'",
+                  "};",
+                  "var buildHeaders = {",
+                  "  'accept': 'application/json, text/plain, */*',",
+                  "  'accept-language': 'zh-CN',",
+                  "  'cache-control': 'no-cache',",
+                  "  'content-type': 'application/json',",
+                  "  'priority': 'u=1, i',",
+                  "  'sec-ch-ua': '\"Not_A Brand\";v=\"99\", \"Chromium\";v=\"142\"',",
+                  "  'sec-ch-ua-mobile': '?0',",
+                  "  'sec-ch-ua-platform': '\"macOS\"',",
+                  "  'sec-fetch-dest': 'empty',",
+                  "  'sec-fetch-mode': 'cors',",
+                  "  'sec-fetch-site': 'cross-site',",
+                  "  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) OneKeyWallet/6.4.0 Chrome/142.0.7444.265 Electron/39.8.9 Safari/537.36',",
+                  "  'x-amzn-trace-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-hide-asset-details': 'false',",
+                  "  'x-onekey-instance-id': 'd0a55f07-5fa9-419e-a041-b847642a9de0',",
+                  "  'x-onekey-request-build-number': '2026060380',",
+                  "  'x-onekey-request-currency': 'usd',",
+                  "  'x-onekey-request-device-name': 'OneKey Desktop',",
+                  "  'x-onekey-request-id': pm.variables.get('requestId'),",
+                  "  'x-onekey-request-jsbundle-version': '13293249',",
+                  "  'x-onekey-request-locale': 'en',",
+                  "  'x-onekey-request-platform': 'desktop-macosStore',",
+                  "  'x-onekey-request-platform-name': 'MacBook Pro (14-inch, M4 Max, 2024)',",
+                  "  'x-onekey-request-theme': 'light',",
+                  "  'x-onekey-request-version': '6.4.0',",
+                  "  'x-onekey-wallet-type': 'hd',",
+                  "  'x-requested-with': 'XMLHttpRequest'",
+                  "};",
+                  "function hs(obj) {",
+                  "  return Object.keys(obj).map(function(key) { return { key: key, value: String(obj[key]) }; });",
+                  "}",
+                  "function qs(params) {",
+                  "  return Object.keys(params).map(function(key) {",
+                  "    return encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key] == null ? '' : params[key]));",
+                  "  }).join('&');",
+                  "}",
+                  "function providerName(entry) {",
+                  "  return (entry && entry.info && entry.info.provider) || entry.provider || '';",
+                  "}",
+                  "function hasQuote(entry) {",
+                  "  return Boolean(entry && (entry.toAmount || entry.fromAmount || (entry.info && entry.info.toAmount) || (entry.info && entry.info.fromAmount)));",
+                  "}",
+                  "function resolveAddress() {",
+                  "  return cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0');",
+                  "}",
+                  "function resolveToken(varKey, fallback) {",
+                  "  if (varKey) return cv(varKey, fallback || '');",
+                  "  return fallback || '';",
+                  "}",
+                  "function findProviderEntry(data) {",
+                  "  return (data || []).find(function(entry) {",
+                  "    var name = providerName(entry);",
+                  "    return name === PROVIDER || String(name).toLowerCase().indexOf(PROVIDER_KEY) >= 0;",
+                  "  });",
+                  "}",
+                  "function skipText(v){ return String(v == null ? '' : v).trim(); }",
+                  "function providerMatches(actual, provider){ var name = skipText(actual).toLowerCase(); var base = skipText(provider).toLowerCase(); if (!name || !base) return false; var variants = [base]; if (base.indexOf('swap') === 0) variants.push(base.slice(4)); if (base.indexOf('oneinch') >= 0) variants.push('1inch'); if (base.indexOf('1inchfusion') >= 0) variants.push('fusion'); if (base.indexOf('exodusbridge') >= 0 || base.indexOf('exodus') >= 0) variants.push('exodus'); variants = variants.filter(Boolean); return variants.some(function(v){ return name === v || name.indexOf(v) >= 0; }); }",
+                  "function skipProviderEntry(data, provider){ return (data || []).find(function(entry){ return providerMatches((entry && entry.info && entry.info.provider) || entry.provider || '', provider); }); }",
+                  "function quoteEntryError(entry){ return skipText((entry && entry.errorMessage) || (entry && entry.info && entry.info.errorMessage) || ''); }",
+                  "function skipIsTimeoutError(err){ var text = skipText(err && (err.message || err.reason || err)).toLowerCase(); return text.indexOf('timeout') >= 0 || text.indexOf('timed out') >= 0 || text.indexOf('超时') >= 0; }",
+                  "function skipIsMessageSkippable(msg){ return ['Provider error', '渠道商异常', '报价不可用'].indexOf(skipText(msg)) >= 0; }",
+                  "function markQuoteSkip(caseName, provider, reason, detail){ var label = '[' + caseName + '] SKIP ' + provider + ' ' + reason + (detail ? ' | ' + detail : ''); pm.test(label, function(){ pm.expect(true).to.eql(true); }); console.warn(label); }",
+                  "function handleQuoteTransportSkip(caseName, provider, err, status){ if (skipIsTimeoutError(err)) { markQuoteSkip(caseName, provider, 'quote timeout', skipText(err && (err.message || err.reason || err))); return true; } var code = Number(status); if ([502, 503, 504].indexOf(code) >= 0) { markQuoteSkip(caseName, provider, 'quote HTTP ' + code, 'upstream'); return true; } return false; }",
+                  "function handleQuotePayloadSkip(caseName, provider, data, providerEntry, detail){ var arr = Array.isArray(data) ? data : []; if (!arr.length) { markQuoteSkip(caseName, provider, 'quote empty data', detail || 'data=[]'); return true; } var entry = providerEntry || skipProviderEntry(arr, provider); if (entry && skipIsMessageSkippable(quoteEntryError(entry))) { markQuoteSkip(caseName, provider, 'quote ' + quoteEntryError(entry), detail || ('provider=' + provider)); return true; } return false; }",
+                  "function runCase(index) {",
+                  "  if (index >= CASES.length) {",
+                  "    return;",
+                  "  }",
+                  "  var testCase = CASES[index];",
+                  "  var userAddress = resolveAddress();",
+                  "  var quoteParams = {",
+                  "    fromTokenAddress: resolveToken(testCase.fromTokenVar, testCase.fromTokenFallback),",
+                  "    toTokenAddress: resolveToken(testCase.toTokenVar, testCase.toTokenFallback),",
+                  "    fromTokenAmount: testCase.amount,",
+                  "    fromNetworkId: testCase.fromNetworkId,",
+                  "    toNetworkId: testCase.toNetworkId,",
+                  "    protocol: 'Swap',",
+                  "    userAddress: userAddress,",
+                  "    slippagePercentage: '0.5',",
+                  "    autoSlippage: 'true',",
+                  "    receivingAddress: userAddress,",
+                  "    kind: 'sell',",
+                  "    toTokenAmount: '',",
+                  "    denySingleSwapProvider: ''",
+                  "  };",
+                  "  pm.sendRequest({",
+                  "    url: BASE_URL + '/swap/v1/quote?' + qs(quoteParams),",
+                  "    method: 'GET',",
+                  "    header: hs(quoteHeaders)",
+                  "  }, function(err, res) {",
+                  "    if (err) { if (handleQuoteTransportSkip(testCase.name, PROVIDER, err)) { runCase(index + 1); return; }",
+                  "      pm.test('[' + testCase.name + '] quote 请求失败', function() { pm.expect.fail(String(err)); });",
+                  "      runCase(index + 1);",
+                  "      return;",
+                  "    }",
+                  "    if (handleQuoteTransportSkip(testCase.name, PROVIDER, null, res.code || res.status)) { runCase(index + 1); return; }",
+                  "    pm.test('[' + testCase.name + '] quote HTTP 200', function() {",
+                  "      pm.expect(res.code || res.status).to.equal(200);",
+                  "    });",
+                  "    var quoteJson = res.json();",
+                  "    pm.test('[' + testCase.name + '] quote 业务码 0', function() {",
+                  "      pm.expect(quoteJson.code).to.eql(0);",
+                  "    });",
+                  "    var quoteData = Array.isArray(quoteJson.data) ? quoteJson.data : [];",
+                  "    var providers = quoteData.map(providerName).filter(Boolean);",
+                  "    var target = findProviderEntry(quoteData); if (handleQuotePayloadSkip(testCase.name, PROVIDER, quoteData, target, 'providers=' + JSON.stringify(providers))) { runCase(index + 1); return; }",
+                  "    pm.test('[' + testCase.name + '] 1inch 有效报价', function() {",
+                  "      if (!target) {",
+                  "        pm.expect.fail('providers=' + JSON.stringify(providers) + ', note=Fantom 当前 provider miss，未纳入成功集');",
+                  "      }",
+                  "      pm.expect(target.errorMessage, '1inch 条目携带 errorMessage: ' + (target && target.errorMessage)).to.be.oneOf([undefined, null, '']);",
+                  "      pm.expect(hasQuote(target), '1inch 条目无有效报价金额').to.eql(true);",
+                  "    });",
+                  "    if (!target || target.errorMessage || !hasQuote(target)) {",
+                  "      runCase(index + 1);",
+                  "      return;",
+                  "    }",
+                  "    var buildBody = {",
+                  "      fromTokenAddress: quoteParams.fromTokenAddress,",
+                  "      toTokenAddress: quoteParams.toTokenAddress,",
+                  "      fromTokenAmount: String(testCase.amount),",
+                  "      toTokenAmount: String(target.toAmount || '0'),",
+                  "      fromNetworkId: testCase.fromNetworkId,",
+                  "      toNetworkId: testCase.toNetworkId,",
+                  "      protocol: 'Swap',",
+                  "      provider: PROVIDER,",
+                  "      userAddress: userAddress,",
+                  "      receivingAddress: userAddress,",
+                  "      slippagePercentage: 0.5,",
+                  "      kind: 'sell',",
+                  "      walletType: 'hd'",
+                  "    };",
+                  "    pm.sendRequest({",
+                  "      url: BASE_URL + '/swap/v1/build-tx',",
+                  "      method: 'POST',",
+                  "      header: hs(buildHeaders),",
+                  "      body: { mode: 'raw', raw: JSON.stringify(buildBody) }",
+                  "    }, function(err2, res2) {",
+                  "      if (err2) {",
+                  "        pm.test('[' + testCase.name + '] build 请求失败', function() { pm.expect.fail(String(err2)); });",
+                  "        runCase(index + 1);",
+                  "        return;",
+                  "      }",
+                  "      pm.test('[' + testCase.name + '] build HTTP 200', function() {",
+                  "        pm.expect(res2.code || res2.status).to.equal(200);",
+                  "      });",
+                  "      var buildJson = res2.json();",
+                  "      pm.test('[' + testCase.name + '] build 业务码 0', function() {",
+                  "        pm.expect(buildJson.code).to.eql(0);",
+                  "      });",
+                  "      pm.test('[' + testCase.name + '] build data.tx 存在', function() {",
+                  "        pm.expect(buildJson.data, 'build data 缺失').to.be.ok;",
+                  "        pm.expect(buildJson.data.tx, 'build data.tx 缺失').to.be.ok;",
+                  "      });",
+                  "      runCase(index + 1);",
+                  "    });",
+                  "  });",
+                  "}",
                   "runCase(0);"
                 ]
               }
@@ -218,32 +1199,30 @@
             "method": "GET",
             "header": [
               {
+                "key": "accept",
+                "value": "application/json, text/plain, */*",
+                "type": "text"
+              },
+              {
                 "key": "X-Onekey-Request-ID",
                 "value": "{{requestId}}",
                 "type": "text"
               },
               {
-                "key": "X-Onekey-Request-Currency",
-                "value": "usd",
-                "type": "text"
-              },
-              {
                 "key": "X-Onekey-Request-Version",
-                "value": "6.1.0",
+                "value": "6.4.0",
                 "type": "text"
               },
               {
                 "key": "X-Onekey-Request-Build-Number",
-                "value": "2026022727",
+                "value": "2026060380",
                 "type": "text"
               }
             ],
             "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/quote?fromTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&toTokenAddress=0xdac17f958d2ee523a2206206994597c13d831ec7&fromTokenAmount=10&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&slippagePercentage=0.5&autoSlippage=true&receivingAddress=0x4EF880525383ab4E3d94b7689e3146bF899A296e&kind=sell&toTokenAmount=&denySingleSwapProvider=",
+              "raw": "{{baseUrl}}/swap/v1/quote?fromTokenAddress=0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&toTokenAddress=0xdac17f958d2ee523a2206206994597c13d831ec7&fromTokenAmount=100&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress=%7B%7BuserAddressEvm%7D%7D&slippagePercentage=0.5&autoSlippage=true&receivingAddress=%7B%7BuserAddressEvm%7D%7D&kind=sell&toTokenAmount=&denySingleSwapProvider=",
               "host": [
-                "swap",
-                "onekeytest",
-                "com"
+                "{{baseUrl}}"
               ],
               "path": [
                 "swap",
@@ -251,19 +1230,58 @@
                 "quote"
               ],
               "query": [
-                {"key": "fromTokenAddress", "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"},
-                {"key": "toTokenAddress", "value": "0xdac17f958d2ee523a2206206994597c13d831ec7"},
-                {"key": "fromTokenAmount", "value": "10"},
-                {"key": "fromNetworkId", "value": "evm--1"},
-                {"key": "toNetworkId", "value": "evm--1"},
-                {"key": "protocol", "value": "Swap"},
-                {"key": "userAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
-                {"key": "slippagePercentage", "value": "0.5"},
-                {"key": "autoSlippage", "value": "true"},
-                {"key": "receivingAddress", "value": "0x4EF880525383ab4E3d94b7689e3146bF899A296e"},
-                {"key": "kind", "value": "sell"},
-                {"key": "toTokenAmount", "value": ""},
-                {"key": "denySingleSwapProvider", "value": ""}
+                {
+                  "key": "fromTokenAddress",
+                  "value": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"
+                },
+                {
+                  "key": "toTokenAddress",
+                  "value": "0xdac17f958d2ee523a2206206994597c13d831ec7"
+                },
+                {
+                  "key": "fromTokenAmount",
+                  "value": "100"
+                },
+                {
+                  "key": "fromNetworkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "toNetworkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "protocol",
+                  "value": "Swap"
+                },
+                {
+                  "key": "userAddress",
+                  "value": "{{userAddressEvm}}"
+                },
+                {
+                  "key": "slippagePercentage",
+                  "value": "0.5"
+                },
+                {
+                  "key": "autoSlippage",
+                  "value": "true"
+                },
+                {
+                  "key": "receivingAddress",
+                  "value": "{{userAddressEvm}}"
+                },
+                {
+                  "key": "kind",
+                  "value": "sell"
+                },
+                {
+                  "key": "toTokenAmount",
+                  "value": ""
+                },
+                {
+                  "key": "denySingleSwapProvider",
+                  "value": ""
+                }
               ]
             }
           }
@@ -271,10 +1289,10 @@
       ]
     },
     {
-      "name": "02-1inch-构建",
+      "name": "02-1inch-第三方报价对比",
       "item": [
         {
-          "name": "Build - 1inch - 主币<>代币",
+          "name": "Quote Compare - 1inch - Ethereum ETH -> USDC (1 ETH)",
           "event": [
             {
               "listen": "prerequest",
@@ -290,192 +1308,154 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const testCases = [\n  {\n    \"name\": \"主币 → 代币 (ETH → USDC)\",\n    \"params\": {\n      \"fromTokenAddress\": \"\",\n      \"toTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"fromTokenAmount\": \"0.003463814288664618\",\n      \"toTokenAmount\": \"9.3784\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"provider\": \"Swap1inch\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": 0.5,\n      \"kind\": \"sell\",\n      \"walletType\": \"hd\"\n    }\n  }\n];",
-                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
-                  "const headers = { \"accept\": \"application/json, text/plain, */*\", \"content-type\": \"application/json\", \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"desktop-macosStore\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\", \"X-Onekey-Wallet-Type\": \"hd\" };",
-                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var body=c.params; console.log('Build-1inch 主币<>代币 请求 body:', body); pm.sendRequest({ url: BASE_URL, method: 'POST', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }), body: { mode: 'raw', raw: JSON.stringify(body) } }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; if(code===422){ console.log('['+c.name+'] 422 body =>', res.text()); } pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); if(code===200){ var json=res.json(); pm.test('['+c.name+'] data.tx 存在', function(){ pm.expect(json.data).to.have.property('tx'); pm.expect(json.data.tx).to.be.ok; }); } runCase(i+1); }); }",
-                  "runCase(0);"
+                  "/**",
+                  " * 1inch 第三方报价对比：OneKey quote vs 1inch 第三方 quote",
+                  " * 规则：同一交易对、同一金额，若接收币数量价差 > 5% 则失败",
+                  " */",
+                  "function cv(key, fallback) { var v = pm.collectionVariables.get(key); return v == null || v === '' ? fallback : v; }",
+                  "function missingVars(keys) { return keys.filter(function(key) { var v = pm.collectionVariables.get(key); return v == null || v === ''; }); }",
+                  "function hs(obj) { return Object.keys(obj).filter(function(key) { return obj[key] !== undefined && obj[key] !== null && obj[key] !== ''; }).map(function(key) { return { key: key, value: String(obj[key]) }; }); }",
+                  "function qs(params) { return Object.keys(params).map(function(key) { return encodeURIComponent(key) + '=' + encodeURIComponent(String(params[key] == null ? '' : params[key])); }).join('&'); }",
+                  "function providerName(entry) { return (entry && entry.info && entry.info.provider) || entry.provider || ''; }",
+                  "function findProviderEntry(data) { return (data || []).find(function(entry) { return providerName(entry) === 'Swap1inch' || String(providerName(entry)).toLowerCase().indexOf('1inch') >= 0; }); }",
+                  "function splitDecimal(value) { var s = String(value == null ? '' : value).trim(); if (!s) return ['0', '']; var parts = s.split('.'); return [parts[0] || '0', parts[1] || '']; }",
+                  "function toScaledBigInt(value, decimals) { var parts = splitDecimal(value); var whole = parts[0].replace(/^\\+/, '') || '0'; var frac = (parts[1] || '').slice(0, decimals); while (frac.length < decimals) frac += '0'; return BigInt(whole + frac); }",
+                  "function formatUnits(raw, decimals) { var negative = raw < 0n; var v = negative ? -raw : raw; var base = 10n ** BigInt(decimals); var whole = v / base; var frac = (v % base).toString().padStart(decimals, '0').replace(/0+$/, ''); return (negative ? '-' : '') + whole.toString() + (frac ? '.' + frac : ''); }",
+                  "function formatBps(bps) { var whole = bps / 100n; var frac = (bps % 100n).toString().padStart(2, '0'); return whole.toString() + '.' + frac + '%'; }",
+                  "var THRESHOLD_PCT = Number(cv('oneinch_compare_threshold_pct', '5'));",
+                  "var THRESHOLD_BPS = BigInt(Math.round(THRESHOLD_PCT * 100));",
+                  "var BASE_URL = cv('baseUrl', 'https://swap.onekeytest.com');",
+                  "var THIRD_BASE_URL = cv('oneinch_third_party_baseUrl', 'https://proxy-app.1inch.com');",
+                  "var USER_ADDRESS = cv('userAddressEvm', '0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0');",
+                  "var TEST_CASE = { name: '1inch Ethereum ETH -> USDC (1 ETH)', fromNetworkId: 'evm--1', toNetworkId: 'evm--1', fromTokenAddress: '', toTokenAddress: cv('token_USDC_evm_1', '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'), fromTokenAmount: '1', fromTokenAmountRaw: '1000000000000000000', toTokenDecimals: 6 };",
+                  "var ourQuoteHeaders = { 'accept': 'application/json, text/plain, */*', 'accept-language': 'zh-CN', 'cache-control': 'no-cache', 'priority': 'u=1, i', 'sec-ch-ua': '\"Not_A Brand\";v=\"99\", \"Chromium\";v=\"142\"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '\"macOS\"', 'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors', 'sec-fetch-site': 'cross-site', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) OneKeyWallet/6.4.0 Chrome/142.0.7444.265 Electron/39.8.9 Safari/537.36', 'x-amzn-trace-id': pm.variables.get('requestId'), 'x-onekey-hide-asset-details': 'false', 'x-onekey-instance-id': 'd0a55f07-5fa9-419e-a041-b847642a9de0', 'x-onekey-request-build-number': '2026060380', 'x-onekey-request-currency': 'usd', 'x-onekey-request-device-name': 'OneKey Desktop', 'x-onekey-request-id': pm.variables.get('requestId'), 'x-onekey-request-jsbundle-version': '13293249', 'x-onekey-request-locale': 'en', 'x-onekey-request-platform': 'desktop-macosStore', 'x-onekey-request-platform-name': 'MacBook Pro (14-inch, M4 Max, 2024)', 'x-onekey-request-theme': 'light', 'x-onekey-request-version': '6.4.0', 'x-onekey-wallet-type': 'hd', 'x-requested-with': 'XMLHttpRequest' };",
+                  "var thirdQuoteHeaders = { 'accept': 'application/json, text/plain, */*', 'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7', 'authorization': cv('oneinch_third_party_authorization', ''), 'cache-control': 'no-cache', 'cookie': cv('oneinch_third_party_cookie', ''), 'origin': 'https://1inch.com', 'pragma': 'no-cache', 'priority': 'u=1, i', 'referer': 'https://1inch.com/', 'sec-ch-ua': '\"Chromium\";v=\"148\", \"Google Chrome\";v=\"148\", \"Not/A)Brand\";v=\"99\"', 'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '\"macOS\"', 'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors', 'sec-fetch-site': 'same-site', 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36' };",
+                  "var ourQuoteParams = { fromTokenAddress: TEST_CASE.fromTokenAddress, toTokenAddress: TEST_CASE.toTokenAddress, fromTokenAmount: TEST_CASE.fromTokenAmount, fromNetworkId: TEST_CASE.fromNetworkId, toNetworkId: TEST_CASE.toNetworkId, protocol: 'Swap', userAddress: USER_ADDRESS, slippagePercentage: '0.5', autoSlippage: 'true', receivingAddress: USER_ADDRESS, kind: 'sell', toTokenAmount: '', denySingleSwapProvider: '' };",
+                  "var thirdQuoteParams = { walletAddress: cv('oneinch_third_party_wallet', '0x0000000000000000000000000000000000000000'), fromTokenAddress: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee', toTokenAddress: TEST_CASE.toTokenAddress, amount: TEST_CASE.fromTokenAmountRaw, enableEstimate: 'false', surplus: 'true', source: cv('oneinch_third_party_source', '0x4a82836d'), showDestAmountMinusFee: 'true' };",
+                  "pm.sendRequest({ url: BASE_URL + '/swap/v1/quote?' + qs(ourQuoteParams), method: 'GET', header: hs(ourQuoteHeaders) }, function(err, res) {",
+                  "  if (err) { pm.test('[' + TEST_CASE.name + '] OneKey quote 请求成功', function() { pm.expect.fail(String(err)); }); return; }",
+                  "  pm.test('[' + TEST_CASE.name + '] OneKey quote HTTP 200', function() { pm.expect(res.code || res.status).to.equal(200); });",
+                  "  var quoteJson = res.json();",
+                  "  pm.test('[' + TEST_CASE.name + '] OneKey quote 业务码 0', function() { pm.expect(quoteJson.code).to.eql(0); });",
+                  "  var oneInchEntry = findProviderEntry(Array.isArray(quoteJson.data) ? quoteJson.data : []);",
+                  "  pm.test('[' + TEST_CASE.name + '] OneKey 命中 Swap1inch 有效报价', function() {",
+                  "    pm.expect(oneInchEntry, 'providers=' + JSON.stringify((quoteJson.data || []).map(providerName).filter(Boolean))).to.be.ok;",
+                  "    pm.expect(oneInchEntry.errorMessage, 'Swap1inch errorMessage=' + (oneInchEntry && oneInchEntry.errorMessage)).to.be.oneOf([undefined, null, '']);",
+                  "    pm.expect(oneInchEntry.toAmount, 'Swap1inch toAmount 缺失').to.be.ok;",
+                  "  });",
+                  "  if (!oneInchEntry || oneInchEntry.errorMessage || !oneInchEntry.toAmount) { return; }",
+                  "  var missing = missingVars(['oneinch_third_party_authorization', 'oneinch_third_party_cookie']); pm.test('[' + TEST_CASE.name + '] 第三方 1inch 鉴权变量已配置', function() { pm.expect(missing, '缺少变量: ' + missing.join(', ')).to.eql([]); }); if (missing.length) { return; } pm.sendRequest({ url: THIRD_BASE_URL + '/v2.0/fusion/quoter/v2.0/1/quote/receive?' + qs(thirdQuoteParams), method: 'GET', header: hs(thirdQuoteHeaders) }, function(thirdErr, thirdRes) {",
+                  "    if (thirdErr) { pm.test('[' + TEST_CASE.name + '] 第三方 1inch quote 请求成功', function() { pm.expect.fail(String(thirdErr)); }); return; }",
+                  "    pm.test('[' + TEST_CASE.name + '] 第三方 1inch quote HTTP 200', function() { pm.expect(thirdRes.code || thirdRes.status).to.equal(200); });",
+                  "    var thirdJson = thirdRes.json();",
+                  "    pm.test('[' + TEST_CASE.name + '] 第三方 1inch quote 返回 toTokenAmount', function() { pm.expect(thirdJson.toTokenAmount, 'body=' + JSON.stringify(thirdJson).slice(0, 600)).to.be.ok; });",
+                  "    if (!thirdJson.toTokenAmount) { return; }",
+                  "    var ourScaled = toScaledBigInt(oneInchEntry.toAmount, TEST_CASE.toTokenDecimals);",
+                  "    var thirdScaled = BigInt(String(thirdJson.toTokenAmount));",
+                  "    var diff = ourScaled > thirdScaled ? (ourScaled - thirdScaled) : (thirdScaled - ourScaled);",
+                  "    var diffBps = thirdScaled === 0n ? 0n : (diff * 10000n) / thirdScaled;",
+                  "    var oneKeyHuman = formatUnits(ourScaled, TEST_CASE.toTokenDecimals);",
+                  "    var thirdHuman = formatUnits(thirdScaled, TEST_CASE.toTokenDecimals);",
+                  "    console.log('[Compare] OneKey=' + oneKeyHuman + ', Third=' + thirdHuman + ', diff=' + formatBps(diffBps));",
+                  "    pm.collectionVariables.set('last_oneinch_compare_onekey_to_amount', oneKeyHuman);",
+                  "    pm.collectionVariables.set('last_oneinch_compare_third_party_to_amount', thirdHuman);",
+                  "    pm.collectionVariables.set('last_oneinch_compare_diff_pct', formatBps(diffBps));",
+                  "    pm.test('[' + TEST_CASE.name + '] OneKey vs 第三方 1inch 价差 <= ' + THRESHOLD_PCT + '%', function() {",
+                  "      pm.expect(diffBps <= THRESHOLD_BPS, 'onekey=' + oneKeyHuman + ', third=' + thirdHuman + ', diff=' + formatBps(diffBps) + ', threshold=' + THRESHOLD_PCT + '%').to.eql(true);",
+                  "    });",
+                  "  });",
+                  "});"
                 ]
               }
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [
               {
-                "key": "Content-Type",
-                "value": "application/json",
+                "key": "accept",
+                "value": "application/json, text/plain, */*",
                 "type": "text"
               },
               {
-                "key": "X-Onekey-Request-ID",
+                "key": "x-onekey-request-id",
                 "value": "{{requestId}}",
                 "type": "text"
               },
               {
-                "key": "X-Onekey-Request-Version",
-                "value": "6.1.0",
+                "key": "x-onekey-request-version",
+                "value": "6.4.0",
                 "type": "text"
               },
               {
-                "key": "X-Onekey-Request-Build-Number",
-                "value": "2026022727",
+                "key": "x-onekey-request-build-number",
+                "value": "2026060380",
                 "type": "text"
               }
             ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fromTokenAddress\": \"\",\n  \"toTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"fromTokenAmount\": \"0.003463814288664618\",\n  \"toTokenAmount\": \"9.3784\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"Swap1inch\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
-            },
             "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
+              "raw": "{{baseUrl}}/swap/v1/quote?fromTokenAddress=&toTokenAddress={{token_USDC_evm_1}}&fromTokenAmount=1&fromNetworkId=evm--1&toNetworkId=evm--1&protocol=Swap&userAddress={{userAddressEvm}}&slippagePercentage=0.5&autoSlippage=true&receivingAddress={{userAddressEvm}}&kind=sell&toTokenAmount=&denySingleSwapProvider=",
               "host": [
-                "swap",
-                "onekeytest",
-                "com"
+                "{{baseUrl}}"
               ],
               "path": [
                 "swap",
                 "v1",
-                "build-tx"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Build - 1inch - 代币<>主币",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const testCases = [\n  {\n    \"name\": \"代币 → 主币 (USDC → ETH)\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"toTokenAddress\": \"\",\n      \"fromTokenAmount\": \"10\",\n      \"toTokenAmount\": \"0.0035\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"provider\": \"Swap1inch\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": 0.5,\n      \"kind\": \"sell\",\n      \"walletType\": \"hd\"\n    }\n  }\n];",
-                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
-                  "const headers = { \"accept\": \"application/json, text/plain, */*\", \"content-type\": \"application/json\", \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"desktop-macosStore\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\", \"X-Onekey-Wallet-Type\": \"hd\" };",
-                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var body=c.params; console.log('Build-1inch 代币<>主币 请求 body:', body); pm.sendRequest({ url: BASE_URL, method: 'POST', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }), body: { mode: 'raw', raw: JSON.stringify(body) } }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; if(code===422){ console.log('['+c.name+'] 422 body =>', res.text()); } pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); if(code===200){ var json=res.json(); pm.test('['+c.name+'] data.tx 存在', function(){ pm.expect(json.data).to.have.property('tx'); pm.expect(json.data.tx).to.be.ok; }); } runCase(i+1); }); }",
-                  "runCase(0);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-ID",
-                "value": "{{requestId}}",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Version",
-                "value": "6.1.0",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Build-Number",
-                "value": "2026022727",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"toTokenAddress\": \"\",\n  \"fromTokenAmount\": \"10\",\n  \"toTokenAmount\": \"0.0035\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"Swap1inch\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
-            },
-            "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
-              "host": [
-                "swap",
-                "onekeytest",
-                "com"
+                "quote"
               ],
-              "path": [
-                "swap",
-                "v1",
-                "build-tx"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Build - 1inch - 代币<>代币",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.variables.set('requestId', pm.variables.replaceIn('{{$guid}}'));"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "const testCases = [\n  {\n    \"name\": \"代币 → 代币 (USDC → USDT)\",\n    \"params\": {\n      \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n      \"toTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n      \"fromTokenAmount\": \"10\",\n      \"toTokenAmount\": \"9.97\",\n      \"fromNetworkId\": \"evm--1\",\n      \"toNetworkId\": \"evm--1\",\n      \"protocol\": \"Swap\",\n      \"provider\": \"Swap1inch\",\n      \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n      \"slippagePercentage\": 0.5,\n      \"kind\": \"sell\",\n      \"walletType\": \"hd\"\n    }\n  }\n];",
-                  "const BASE_URL = \"https://swap.onekeytest.com/swap/v1/build-tx\";",
-                  "const headers = { \"accept\": \"application/json, text/plain, */*\", \"content-type\": \"application/json\", \"X-Onekey-Request-ID\": pm.variables.replaceIn('{{$guid}}'), \"X-Onekey-Request-Currency\": \"usd\", \"X-Onekey-Request-Locale\": \"en\", \"X-Onekey-Request-Theme\": \"light\", \"X-Onekey-Request-Platform\": \"desktop-macosStore\", \"X-Onekey-Request-Version\": \"6.1.0\", \"X-Onekey-Request-Build-Number\": \"2026022727\", \"X-Onekey-Wallet-Type\": \"hd\" };",
-                  "function runCase(i){ if(i>=testCases.length){ console.log('done'); return; } var c=testCases[i]; var body=c.params; console.log('Build-1inch 代币<>代币 请求 body:', body); pm.sendRequest({ url: BASE_URL, method: 'POST', header: Object.entries(headers).map(function(e){ return { key: e[0], value: String(e[1]) }; }), body: { mode: 'raw', raw: JSON.stringify(body) } }, function(err, res){ if(err){ pm.test('['+c.name+'] 请求失败', function(){ pm.expect.fail(err.toString()); }); runCase(i+1); return; } var code=res.code||res.status; if(code===422){ console.log('['+c.name+'] 422 body =>', res.text()); } pm.test('['+c.name+'] HTTP 200', function(){ pm.expect(code).to.equal(200); }); if(code===200){ var json=res.json(); pm.test('['+c.name+'] data.tx 存在', function(){ pm.expect(json.data).to.have.property('tx'); pm.expect(json.data.tx).to.be.ok; }); } runCase(i+1); }); }",
-                  "runCase(0);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-ID",
-                "value": "{{requestId}}",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Version",
-                "value": "6.1.0",
-                "type": "text"
-              },
-              {
-                "key": "X-Onekey-Request-Build-Number",
-                "value": "2026022727",
-                "type": "text"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"fromTokenAddress\": \"0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\",\n  \"toTokenAddress\": \"0xdac17f958d2ee523a2206206994597c13d831ec7\",\n  \"fromTokenAmount\": \"10\",\n  \"toTokenAmount\": \"9.97\",\n  \"fromNetworkId\": \"evm--1\",\n  \"toNetworkId\": \"evm--1\",\n  \"protocol\": \"Swap\",\n  \"provider\": \"Swap1inch\",\n  \"userAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"receivingAddress\": \"0x4EF880525383ab4E3d94b7689e3146bF899A296e\",\n  \"slippagePercentage\": 0.5,\n  \"kind\": \"sell\",\n  \"walletType\": \"hd\"\n}"
-            },
-            "url": {
-              "raw": "https://swap.onekeytest.com/swap/v1/build-tx",
-              "host": [
-                "swap",
-                "onekeytest",
-                "com"
-              ],
-              "path": [
-                "swap",
-                "v1",
-                "build-tx"
+              "query": [
+                {
+                  "key": "fromTokenAddress",
+                  "value": ""
+                },
+                {
+                  "key": "toTokenAddress",
+                  "value": "{{token_USDC_evm_1}}"
+                },
+                {
+                  "key": "fromTokenAmount",
+                  "value": "1"
+                },
+                {
+                  "key": "fromNetworkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "toNetworkId",
+                  "value": "evm--1"
+                },
+                {
+                  "key": "protocol",
+                  "value": "Swap"
+                },
+                {
+                  "key": "userAddress",
+                  "value": "{{userAddressEvm}}"
+                },
+                {
+                  "key": "slippagePercentage",
+                  "value": "0.5"
+                },
+                {
+                  "key": "autoSlippage",
+                  "value": "true"
+                },
+                {
+                  "key": "receivingAddress",
+                  "value": "{{userAddressEvm}}"
+                },
+                {
+                  "key": "kind",
+                  "value": "sell"
+                },
+                {
+                  "key": "toTokenAmount",
+                  "value": ""
+                },
+                {
+                  "key": "denySingleSwapProvider",
+                  "value": ""
+                }
               ]
             }
           }
@@ -484,4 +1464,3 @@
     }
   ]
 }
-

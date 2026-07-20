@@ -6,7 +6,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   connectCDP, sleep, screenshot, RESULTS_DIR,
-  dismissOverlays, unlockWalletIfNeeded,
+  unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { MarketPage } from '../../helpers/pages/index.mjs';
 import { openSearchModal } from '../../helpers/components.mjs';
@@ -48,7 +48,6 @@ export { testCases };
 
 export async function setup(page) {
   await unlockWalletIfNeeded(page);
-  await dismissOverlays(page);
   await sharedSetup(page);
 }
 
@@ -113,7 +112,6 @@ export async function run() {
       results.push(r);
     }
 
-    try { if (page && !page?.isClosed?.()) await dismissOverlays(page); } catch {}
     await sleep(800);
   }
 

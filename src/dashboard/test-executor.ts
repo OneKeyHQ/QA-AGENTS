@@ -141,6 +141,8 @@ export function restartRun() {
     item.status = 'pending';
     item.duration = undefined;
     item.error = undefined;
+    item.steps = undefined;
+    item.summary = undefined;
   }
   currentIndex = 0;
   running = true;
@@ -249,6 +251,9 @@ async function executeQueue() {
 
     const item = queue[currentIndex];
     item.status = 'running';
+    item.error = undefined;
+    item.steps = [];
+    item.summary = undefined;
     emit({ event: 'start', id: item.id, name: item.name, timestamp: new Date().toISOString() });
 
     const startTime = Date.now();

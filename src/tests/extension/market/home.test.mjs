@@ -1,4 +1,4 @@
-// Market Home Tests (Extension) — EXT-MARKET-HOME-001 ~ EXT-MARKET-HOME-006
+// Market Home Tests (Extension) — EXT-MARKET-HOME-001 ~ EXT-MARKET-HOME-005
 // Thin wrapper: test logic lives in src/tests/shared/market/home.mjs
 // Connects via CDP using connectExtensionCDP (Chrome with extension loaded).
 
