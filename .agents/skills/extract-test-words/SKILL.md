@@ -1,0 +1,1 @@
+../../../.claude/skills/extract-test-words/SKILL.md
