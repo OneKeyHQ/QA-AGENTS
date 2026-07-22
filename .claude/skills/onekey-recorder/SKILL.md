@@ -90,17 +90,14 @@ cat /Users/chole/onekey-agent-test/shared/results/recording/steps.json
 - **要求调整顺序** → "3 和 4 对调" → 更新清单，重新展示
 - **要求补充** → "在 5 后面加个验证" → 记录补充需求
 
-## Android 录制
+## 移动端（Android / iOS）
 
-Android 设备录制使用独立的录制器：
+移动端不走录制器，直接编写 Appium 用例：
 
-```bash
-cd /Users/chole/onekey-agent-test && npx tsx src/tests/android/recorder.mjs
-```
-
-- 需要 ADB 连接（`adb devices` 可见设备）
-- 通过 AI 视觉识别元素
-- 输出到 `midscene_run/recordings/session-<timestamp>/`
+- 旧的 Midscene Android 录制线（`src/tests/android/recorder.mjs`、`midscene_run/`）已下线移除，不要引用
+- 用例位于 `src/tests/mobile/`，会话入口 `src/tests/mobile/_appium.mjs`（按需自启 Appium server，返回 WDIO driver）
+- 前置：Android 需 `adb devices` 可见设备；`.env` 配置 `APPIUM_*` 变量
+- 运行：`node src/tests/mobile/<module>/<name>.test.mjs`，`MOBILE_TARGET_PLATFORM` 决定平台
 
 ## 绝不做
 
@@ -113,7 +110,7 @@ cd /Users/chole/onekey-agent-test && npx tsx src/tests/android/recorder.mjs
 ## 关键路径
 
 - Desktop Recorder: `src/recorder/listen.mjs` (port 3210)
-- Android Recorder: `src/tests/android/recorder.mjs`
+- Mobile 会话入口: `src/tests/mobile/_appium.mjs`（Appium/WDIO，无录制器）
 - Recording output: `shared/results/recording/steps.json`
 - Screenshots: `shared/results/recording/*.png`
 - OneKey: `$ONEKEY_BIN`（env 可配，默认 TF 包路径）

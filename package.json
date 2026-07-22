@@ -41,7 +41,13 @@
   },
   "pnpm": {
     "overrides": {
-      "basic-ftp": ">=5.3.1"
+      "basic-ftp": ">=5.3.1",
+      "undici@6": "^6.27.0",
+      "undici@7": "^7.28.0",
+      "ws@8": "^8.21.0",
+      "glob@10": "^10.5.0",
+      "brace-expansion@2": "^2.0.3",
+      "ip-address": "^10.2.0"
     }
   }
 }

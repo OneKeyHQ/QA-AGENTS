@@ -128,7 +128,7 @@ curl -s http://127.0.0.1:9222/json/version
 - `src/tests/run.mjs` — CLI Runner（**正式入口**）
 - `src/tests/helpers/{index,navigation,accounts,network,transfer,preconditions,components,runtime-config}.mjs`
   - `runtime-config.mjs` 暴露 `loadAccounts()` / `requireAccounts()` / `resolveTransferDirection()`，读取 `shared/runtime-config.json` 中 Dashboard 配置的钱包账户，转账脚本默认 primary→secondary，余额不足自动反向
-- `src/tests/android/recorder.mjs` — Android 录制器
+- `src/tests/mobile/_appium.mjs` — 移动端 Appium server + WDIO 会话生命周期（Android/iOS 共用入口，`MOBILE_TARGET_PLATFORM` 决定平台）
 - `src/schemas/*.schema.json` — JSON Schema for all shared state files
 - `src/dashboard/server.ts` — 测试执行面板（http://localhost:5050）
 - `src/dashboard/test-executor.ts` — Dashboard executor
@@ -644,28 +644,20 @@ NODE
 3. 趋势分析：对比多次运行，关注通过率下降 / 耗时增加 / 新增跳过
 4. **只读结果，不改测试代码**
 
-### 10. `录制测试` / `record and test` / `录制到测试`（Android）
+### 10. 移动端测试（Appium / WDIO）
 
-**前置条件**：Android 设备已 USB 连接（`adb devices` 可见），`.env` 已配置 AI 视觉模型。
+> ⚠️ 旧的 Midscene Android 录制线（`src/tests/android/recorder.mjs`、`@midscene/android`、`midscene_run/` 输出目录）已随 mobile test framework（PR #68）下线移除，不要再引用。
 
-1. 启动 Android 录制器：
-   ```bash
-   cd /Users/chole/workspace/QA-AGENTS && npx tsx src/tests/android/recorder.mjs 2>&1 &
-   ```
-   监控 UI: http://localhost:3210
-2. 用户操作手机，说「录完了」后 → 停止录制
-3. 读取 `midscene_run/recordings/session-<timestamp>/session.json`
-4. 列出操作清单（强制确认，格式同桌面录制）
-5. 确认后生成 Hybrid 测试脚本（UIAutomator 优先 + AI Vision fallback）
-6. 执行验证：`npx tsx src/tests/android/<category>/<name>.test.mjs`
+**前置条件**：
+- Android：设备已 USB 连接（`adb devices` 可见）；`ANDROID_HOME` 未设置时自动回退到 `~/Library/Android/sdk`
+- iOS：模拟器/真机可用，`.env` 配置对应 `IOS_*` 变量
+- `.env` 配置 Appium 参数：`APPIUM_PLATFORMNAME` / `APPIUM_DEVICENAME` / `APPIUM_APP` / `APPIUM_PORT`（默认 4728）
 
-**Hybrid 代码生成规则**：
-- 有 text/contentDesc 的元素 → `hybridTap(device, agent, { text, aiAction })`
-- 无 text 的元素 → `agent.aiAction('...')`
-- slider/拖拽 → `agent.aiAction('drag ...')`（AI only）
-- 验证 → `hasText(agent, '...')` 优先
-- 每步后 `sleep(1000)`，开头加 dismiss modal
-- AI action 描述必须用页面实际可见文字，不要推测
+**执行方式**：
+1. 用例位于 `src/tests/mobile/`（两端共用 `MOBILE-*`；平台特有的在 `mobile/android/`、`mobile/ios/`，见「移动端 ID 前缀规范」）
+2. 会话入口 `src/tests/mobile/_appium.mjs` 按需自启 Appium server 并返回 WDIO driver，测试结束自动回收
+3. 运行：单文件直跑 `node src/tests/mobile/<module>/<name>.test.mjs`（`src/tests/run.mjs` 只扫描 desktop CDP 用例，不含 mobile）
+4. `MOBILE_TARGET_PLATFORM` 环境变量决定当前会话跑 Android 还是 iOS，同一份 `MOBILE-*` 用例两端复用
 
 ## 参数化覆盖规则（生成测试脚本时强制）
 
