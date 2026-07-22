@@ -24,7 +24,7 @@
     "chokidar": "^5.0.0",
     "commander": "^13.0.0",
     "openai": "^6.25.0",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.0",
     "uuid": "^14.0.0",
     "webdriverio": "^9.0.0",
     "yaml": "^2.8.3"
