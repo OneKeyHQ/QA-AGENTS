@@ -14,6 +14,7 @@ OneKey 钱包的 QA 工程仓库，包含两大核心能力：
 | **E2E Playwright 脚本生成** | Checklist → Playwright spec | `docs/skills/playwright-generator/` |
 | **公共定位语义层** | 默认从 `app-monorepo` 的 `origin/x` / `x` 同步 testID，供测试生成/知识维护默认引用 | `shared/ui-semantic-map.json` + `shared/generated/` |
 | **Agent 协作** | 12 个专职 Agent 覆盖设计、录制、执行、诊断、修复、审查、报告 | `.claude/skills/` |
+| **Pro2 固件 UI 模拟器** | firmware-pro2 dev 分支的 LVGL 页面模拟器（SDL2），支持逐页截图回归 | `simulators/pro2-sim/`，构建入口 `simulators/pro2-sim-bootstrap.sh` |
 
 ## 快速开始
 
