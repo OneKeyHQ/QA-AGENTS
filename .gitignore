@@ -42,3 +42,9 @@ shared/runtime-config.json
 # Playwright MCP 调试时生成的截图/快照，不入库
 .playwright-mcp/
 *.png
+# pro2 模拟器：构建产物 + 固件外部依赖（不入库，跑 simulators/pro2-sim-bootstrap.sh 获取）
+.deps/
+simulators/pro2-sim/build/
+simulators/pro2-sim/out/
+# 模拟器资产图片豁免（上面全局 *.png 忽略规则的例外）
+!simulators/pro2-sim/**/*.png
