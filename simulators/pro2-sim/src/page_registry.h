@@ -23,3 +23,6 @@ const sim_page_t* sim_page_find(const char* id);
 // 打开指定页面（page_manager_init → push(page_id, NULL) → run → 5ms 导航泵）。
 // main.c / snapshot.c 统一经此入口，避免 160 页各写一个 wrapper。
 void sim_page_open(const sim_page_t* p);
+
+// 带 arg 打开（needs_arg 页面配合 sim_demo_args.h 的演示参数用）
+void sim_page_open_with_arg(const sim_page_t* p, void* arg);

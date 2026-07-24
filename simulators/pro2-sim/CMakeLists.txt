@@ -36,7 +36,23 @@ foreach(_d ${_res_img_dirs})
     file(CREATE_LINK ${RES_OUT}/images/${_d} ${RESROOT}/resource/${_d} SYMBOLIC)
 endforeach()
 file(CREATE_LINK ${RES_OUT}/i18n ${RESROOT}/resource/i18n SYMBOLIC)
-file(CREATE_LINK ${RES_OUT}/fonts/roobert ${RESROOT}/resource/font SYMBOLIC)
+# font/ 不能整目录软链 roobert：非拉丁语言的 noto 字体在 output/fonts/noto，
+# 真机打包到 resource/font/noto（pack_config.json fonts_noto bundle）。
+# 故 font/ 做成真目录：roobert 逐文件软链 + noto 目录软链（未生成 noto 时跳过，
+# 仅拉丁语言可用；生成后重新 cmake 即接入）。
+file(MAKE_DIRECTORY ${RESROOT}/resource/font)
+file(GLOB _res_font_files RELATIVE ${RES_OUT}/fonts/roobert ${RES_OUT}/fonts/roobert/*)
+foreach(_f ${_res_font_files})
+    file(REMOVE ${RESROOT}/resource/font/${_f})
+    file(CREATE_LINK ${RES_OUT}/fonts/roobert/${_f} ${RESROOT}/resource/font/${_f} SYMBOLIC)
+endforeach()
+file(REMOVE ${RESROOT}/resource/font/noto)
+if(EXISTS ${RES_OUT}/fonts/noto)
+    file(CREATE_LINK ${RES_OUT}/fonts/noto ${RESROOT}/resource/font/noto SYMBOLIC)
+else()
+    message(WARNING "output/fonts/noto 未生成 — 非拉丁语言（zh/ja/ko/ru/uk）字形将缺失；"
+                    "在固件目录跑 python3 utils/resource/resource_pkg.py font --only noto 后重新 cmake")
+endif()
 
 find_package(SDL2 REQUIRED CONFIG)
 
@@ -175,7 +191,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
 
 # ── 模拟器可执行 ──
 add_executable(onekey-sim
-    src/main.c src/demo_catalog.c src/sim_stubs.c src/sim_stubs_pages.c src/page_registry.c src/snapshot.c
+    src/main.c src/demo_catalog.c src/sim_stubs.c src/sim_stubs_pages.c src/page_registry.c src/snapshot.c src/sim_demo_args.c
     ${SHADOW_DIR}/page_manager/page_manager.c
 )
 target_include_directories(onekey-sim PRIVATE src ${CMAKE_BINARY_DIR}/generated)

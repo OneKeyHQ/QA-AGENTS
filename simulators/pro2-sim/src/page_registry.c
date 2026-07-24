@@ -33,20 +33,25 @@ static void sim_back_pop_cb(lv_event_t* e)
 }
 
 // 通用入口：page_manager 初始化 + push 指定页面 + 启动导航泵
-static void open_page(PageId_t id)
+static void open_page(PageId_t id, void* arg)
 {
     page_manager_init();
     // 注册默认返回回调（菜单页返回按钮 + 滑动返回手势），对齐固件 task_foreground 行为。
     ui_menu_page_set_default_back_cb(sim_back_pop_cb);
     ui_page_template_set_swipe_back_cb(sim_back_pop_cb);
-    page_manager_push(id, NULL);
+    page_manager_push(id, arg);
     page_manager_run(); // 立即执行排队的 push（不等 timer 首跳）
     lv_timer_create(pm_pump_cb, 5, NULL);
 }
 
 void sim_page_open(const sim_page_t* p)
 {
-    open_page((PageId_t)p->page_id);
+    open_page((PageId_t)p->page_id, NULL);
+}
+
+void sim_page_open_with_arg(const sim_page_t* p, void* arg)
+{
+    open_page((PageId_t)p->page_id, arg);
 }
 
 // 表体：CMake configure 时由 tools/gen_page_list.py 生成。

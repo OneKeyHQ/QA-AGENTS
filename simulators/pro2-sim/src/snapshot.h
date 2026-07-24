@@ -27,3 +27,6 @@ int sim_snapshot_current(const char* path);
 // --click-test：单页进程内枚举可点击控件并注入点击，测 handler 耗时与点击后帧耗时，
 // stdout 机器可读行（CLICK|...）。shots_dir 非 NULL 时点击结束后落一张 PNG。
 int sim_click_test_page(const char* page_id, const char* shots_dir);
+
+// --click-test-all 编排器：逐页子进程点击测试 + 交互态截图，返回失败页数
+int sim_click_test_all(const char* out_dir, const char* argv0);

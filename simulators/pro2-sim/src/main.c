@@ -11,6 +11,12 @@
 //   ./onekey-sim --snapshot-page <id> <dir>
 //                                       内部模式（--snapshot 的子进程）：初始化后只渲染一页，
 //                                       落盘 <dir>/<id>.png 后退出（0=成功）。也可手动单页截图用
+//   ./onekey-sim --click-test-all <dir> 全页点击测试编排器：逐页子进程点每个可点控件，
+//                                       点击引发弹层/结构变化时截交互态 PNG（--clickNN.png）
+//   ./onekey-sim --lang <code>          启动即切到指定语言（BCP-47 码 = resroot/resource/i18n/ 的
+//                                       文件名，如 zh-Hans-CN / ja-Jpan-JP）。对所有模式生效；
+//                                       --snapshot 经 SIM_LANG 环境变量透传给逐页子进程，
+//                                       可直接做「指定语言全量截图」多语言回归。传错码列出可用语言。
 #include <lvgl.h>
 #include <ui_font_manager.h>
 #include <ui_language_translations.h>   // i18n 初始化（文案来自 A:/resource/i18n）
@@ -25,6 +31,7 @@
 #include "page_manager/page_manager.h"  // shadow 拷贝
 #include <ctype.h>
 #include <stdio.h>
+#include <dirent.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -950,6 +957,8 @@ int main(int argc, char** argv)
     const char* demo_catalog  = NULL;  // 非 NULL = 按签名页目录 id 渲染（--demo-catalog）
     const char* click_test_id = NULL;  // 非 NULL = 单页点击测试（--click-test）
     const char* click_shots   = NULL;  // --click-test 的落图目录（可选）
+    const char* click_all_dir = NULL;  // 非 NULL = 全页点击测试编排器（--click-test-all）
+    const char* lang_code     = NULL;  // 非 NULL = 启动即切语言（--lang，BCP-47 码）
 
     for ( int i = 1; i < argc; i++ )
     {
@@ -995,6 +1004,15 @@ int main(int argc, char** argv)
             }
             snap_page_id  = argv[++i];
             snap_page_dir = argv[++i];
+        }
+        else if ( strcmp(argv[i], "--click-test-all") == 0 )
+        {
+            if ( i + 1 >= argc )
+            {
+                fprintf(stderr, "sim: --click-test-all 缺少输出目录\n");
+                return 2;
+            }
+            click_all_dir = argv[++i];
         }
         else if ( strcmp(argv[i], "--click-test") == 0 )
         {
@@ -1057,11 +1075,29 @@ int main(int argc, char** argv)
         {
             demo_myaddress = true;
         }
+        else if ( strcmp(argv[i], "--lang") == 0 )
+        {
+            if ( i + 1 >= argc )
+            {
+                fprintf(stderr, "sim: --lang 缺少语言码（如 zh-Hans-CN）\n");
+                return 2;
+            }
+            lang_code = argv[++i];
+        }
     }
+
+    // --lang 经环境变量透传：--snapshot 编排器 fork+exec 的逐页子进程继承 SIM_LANG，
+    // 每个子进程在 i18n 初始化后自行切换 → 全量截图整批出指定语言。
+    if ( lang_code != NULL )
+        setenv("SIM_LANG", lang_code, 1);
+    else
+        lang_code = getenv("SIM_LANG"); // 子进程路径（argv 里没有 --lang）
 
     // 编排器模式：本进程不碰 LVGL/SDL，只 fork+exec 子进程逐页截图（见 snapshot.h 进程模型）
     if ( snapshot_dir != NULL )
         return sim_snapshot_all(snapshot_dir, argv[0]);
+    if ( click_all_dir != NULL )
+        return sim_click_test_all(click_all_dir, argv[0]);
 
     lv_init();
     lv_tick_set_cb(sim_tick_ms);
@@ -1092,6 +1128,55 @@ int main(int argc, char** argv)
     // （A:/resource/i18n/en-Latn-US.json，缺文件时容忍降级为空串文案）
     if ( !ui_language_translations_init() )
         fprintf(stderr, "sim: i18n 初始化失败 — 检查 resroot/resource/i18n/，页面文案将为空\n");
+
+    // --lang / SIM_LANG：init 加载默认英文后按真机语言切换链路换语言，顺序对齐
+    // ui_language.c：字体 prepare → 逐步加载 noto（仅非拉丁语言）→ 文案 prepare/apply
+    // → 字体 apply。英文 fallback 表保留（缺译 tag 回退英文，同真机）。
+    if ( lang_code != NULL && strcmp(lang_code, "en-Latn-US") != 0 )
+    {
+        bool lang_ok = true;
+        ui_font_manager_prepare(lang_code);
+        if ( strstr(lang_code, "Latn") == NULL ) // 同固件 lang_needs_ext_font()
+        {
+            uint32_t steps = ui_font_manager_noto_step_count();
+            for ( uint32_t s = 0; lang_ok && s < steps; s++ )
+            {
+                if ( !ui_font_manager_prepare_step(lang_code, s) )
+                {
+                    fprintf(stderr,
+                            "sim: noto 字体加载失败（lang=%s step=%u）— 检查 "
+                            "resroot/resource/font/noto/；未生成时在固件目录跑 "
+                            "python3 utils/resource/resource_pkg.py font --only noto 后重新 cmake\n",
+                            lang_code, s);
+                    lang_ok = false;
+                }
+            }
+        }
+        if ( lang_ok )
+            lang_ok = ui_language_translations_prepare(lang_code) && ui_language_translations_apply();
+        if ( lang_ok )
+            lang_ok = ui_font_manager_apply();
+        else
+            ui_font_manager_cancel();
+        if ( !lang_ok )
+        {
+            fprintf(stderr, "sim: 语言 '%s' 切换失败，可用语言码（resroot/resource/i18n/）:\n",
+                    lang_code);
+            DIR* d = opendir("resroot/resource/i18n");
+            if ( d != NULL )
+            {
+                struct dirent* de;
+                while ( (de = readdir(d)) != NULL )
+                {
+                    const char* dot = strrchr(de->d_name, '.');
+                    if ( dot != NULL && strcmp(dot, ".json") == 0 )
+                        fprintf(stderr, "  %.*s\n", (int)(dot - de->d_name), de->d_name);
+                }
+                closedir(d);
+            }
+            return 2;
+        }
+    }
 
     // 单页截图模式（--snapshot 编排器的子进程入口；也可手动调用）
     if ( snap_page_id != NULL )

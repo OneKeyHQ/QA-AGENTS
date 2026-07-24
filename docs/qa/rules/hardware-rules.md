@@ -558,21 +558,20 @@
 | 网络列表 | 横向滚动展示所有支持网络 |
 | Title 开关 | 列表底部存在 Title 开关，控制账户标题展示 |
 
-### 14.2 网络列表清单（一期支持，共 27 个）
+### 14.2 网络列表清单（一期支持，共 20 个）
 
 | 序号 | 网络名 | 序号 | 网络名 | 序号 | 网络名 |
 |------|--------|------|--------|------|--------|
-| 1 | Bitcoin | 10 | Ripple | 19 | NEAR |
-| 2 | Ethereum | 11 | Aptos | 20 | Nervos |
-| 3 | Solana | 12 | Alephium | 21 | Neo N3 |
-| 4 | Tron | 13 | Algorand | 22 | Neurai |
-| 5 | TON | 14 | Benfen | 23 | Nexa |
-| 6 | Kaspa | 15 | Bitcoin Cash | 24 | Nostr |
-| 7 | Sui | 16 | Conflux | 25 | Polkadot |
-| 8 | Dogecoin | 17 | Cosmos | 26 | SCDO |
-| 9 | Cardano | 18 | Filecoin | 27 | Litecoin |
+| 1 | Bitcoin | 8 | Dogecoin | 15 | Cosmos |
+| 2 | Ethereum | 9 | Cardano | 16 | Filecoin |
+| 3 | Solana | 10 | Ripple | 17 | NEAR |
+| 4 | Tron | 11 | Aptos | 18 | Nostr |
+| 5 | TON | 12 | Algorand | 19 | Polkadot |
+| 6 | Kaspa | 13 | Bitcoin Cash | 20 | Litecoin |
+| 7 | Sui | 14 | Conflux | | |
 
 > 一期暂不支持 Cosmos / Polkadot 的子链。
+> 2026-07-24 确认移除 7 个网络：Alephium / Benfen / Nervos / Neo N3 / Neurai / Nexa / SCDO（原清单 27 个 → 20 个），列表中出现上述网络视为 bug。
 
 ### 14.3 账户选择器规则
 
@@ -636,16 +635,18 @@
 | 派生路径覆盖 | 四种 BTC 路径（Nested Segwit / Taproot / Native Segwit / Legacy）均支持新鲜地址 |
 | 跨工具核对 | 与 `https://bip39.onekey.so/index.html` 输入相同助记词 + 编号 + 路径生成的地址一致；Taproot 额外用 App 端导入助记词后核对 |
 
-### 14.9 Passphrase 规则
+### 14.9 Passphrase 规则（Extra PIN 联动，2026-07-24 逻辑变更）
 
 | 规则项 | 规则描述 |
 |--------|---------|
-| 启用后入口 | 进入「我的地址」点击网络前弹出 Passphrase 输入框 |
-| 会话保持 | 同一会话内切换网络不再弹出输入框 |
-| 锁屏重置 | 锁屏后再次解锁进入会话状态重置，需重新输入 Passphrase |
-| 切换 Passphrase | 启用状态下「选择网络」页右上角显示「切换 Passphrase」按钮，可输入新 Passphrase 重置当前钱包 |
-| 关闭后入口 | 关闭开关后「我的地址」直接进入「选择网络」页（无弹窗），右上角「切换 Passphrase」按钮不显示 |
-| 空值等价 | Passphrase 输入为空时等价标准钱包，地址与关闭 Passphrase 时同 Account 标准钱包一致 |
+| 无输入弹窗 | 「我的地址」全流程**不再弹出** Passphrase 输入框；主 PIN 解锁时出现该弹窗视为 bug（需禁止） |
+| 主 PIN 解锁 | 无论 Passphrase 开关开启或关闭，主 PIN 解锁后进入「我的地址」都只能看到主（标准）钱包地址 |
+| Extra PIN 解锁 | 仅当使用「Attach to PIN」绑定了 Passphrase 的 Extra PIN 解锁设备时，「我的地址」显示该 Passphrase 对应隐藏（密语）钱包的地址 |
+| 钱包切换方式 | 唯一切换方式为锁屏后改用其他 PIN 解锁：主 PIN → 主钱包，不同 Extra PIN → 各自密语钱包；「选择网络」页不再提供「切换 Passphrase」按钮 |
+| 会话一致性 | 同一解锁会话内切换网络 / 账户，钱包身份保持不变（由解锁所用 PIN 决定） |
+| 关闭后行为 | 关闭 Passphrase 开关后，主 PIN 解锁进入「我的地址」显示主钱包地址，与开启状态下主 PIN 所见地址一致 |
+
+> 历史规则（已废弃，2026-07-24 前）：进入网络前弹 Passphrase 输入框、右上角「切换 Passphrase」按钮、锁屏重置后重新输入、空值等价标准钱包 —— 因输入弹窗整体移除，上述场景均不再存在。
 
 ### 14.10 助记词位数支持规则
 
@@ -669,6 +670,7 @@
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-07-24 | 「我的地址」Passphrase 逻辑变更（§14.9）：Passphrase 输入弹窗整体移除；无论 Passphrase 开关开启或关闭，主 PIN 解锁只显示主钱包地址且禁止弹出输入框；隐藏（密语）钱包仅可通过「Attach to PIN」绑定的 Extra PIN 解锁进入；「切换 Passphrase」按钮、锁屏重置重输、空值等价等旧规则废弃。网络清单变更（§14.2）：确认移除 Alephium / Benfen / Nervos / Neo N3 / Neurai / Nexa / SCDO 共 7 个网络，27 个 → 20 个。用例重组：撤销《Pro2-我的地址-Passphrase与助记词位数》独立用例——主 PIN 负向验证并入《入口与账户选择》§6，Extra PIN 隐藏钱包与助记词位数矩阵并入《地址展示与派生路径》§8/§9；需求文档 Hardware-Pro2我的地址.md 同步更新 |
 | 2026-07-13 | 按实机截图更正 Manage Your Card 管理项：Set Name / Change PIN / Protection Mode / Reset（原误写含 Title 开关）；Title 开关实际位于备份页顶部；同步更新 Pro2-SeedCard-管理与防护 用例文档。Keytag 备份用例删除「粘贴整段助记词」场景 —— 设备端输入无法粘贴，场景不可构造；用例界面文案中文化 |
 | 2026-07-11 | SeedCard PIN 长度更正为**固定 6 位**（最长最短均为 6 位）；删除「Unsupported Recovery Phrase」错误状态规则 —— SeedCard 只能写入 12/18/24 位助记词，25 位卡场景不可构造；同步更新 Pro2-SeedCard备份 用例文档 |
 | 2026-07-10 | 修正 SeedCard PIN 长度上限：4~9 位 → 4~6 位（已由 2026-07-11 进一步更正为固定 6 位）；同步更新 Pro2-SeedCard备份 三个用例文档（PIN 上限 + 界面提示文案中文化） |
