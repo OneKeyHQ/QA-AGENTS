@@ -1,0 +1,22 @@
+[
+  {"rank": 1, "ticker": "NVDA", "bsc_contract": "0xa9ee28c80f960b889dfbd1902055218cba016f75"},
+  {"rank": 2, "ticker": "GOOG", "bsc_contract": "0x091fc7778e6932d4009b087b191d1ee3bac5729a"},
+  {"rank": 3, "ticker": "AAPL", "bsc_contract": "0x390a684ef9cade28a7ad0dfa61ab1eb3842618c4"},
+  {"rank": 4, "ticker": "MSFT", "bsc_contract": "0x6bfe75d1ad432050ea973c3a3dcd88f02e2444c3"},
+  {"rank": 5, "ticker": "AMZN", "bsc_contract": "0x4553cfe1c09f37f38b12dc509f676964e392f8fc"},
+  {"rank": 6, "ticker": "TSM", "bsc_contract": "0xc37042a7a4fa510d8884a433762ab87257b91965"},
+  {"rank": 7, "ticker": "SPCX", "bsc_contract": "0xd0a58bc9d88d3ff48c0294cb7e45937d0e41a928"},
+  {"rank": 8, "ticker": "AVGO", "bsc_contract": "0x0ed2e3180edf393e6bf8db124bd15ddd54de150a"},
+  {"rank": 9, "ticker": "TSLA", "bsc_contract": "0x2494b603319d4d9f9715c9f4496d9e0364b59d93"},
+  {"rank": 10, "ticker": "META", "bsc_contract": "0xd7df5863a3e742f0c767768cdfcb63f09e0422f6"},
+  {"rank": 11, "ticker": "MU", "bsc_contract": "0x8b6acf6041a81567f012ff6a4c6d96d5818d74bf"},
+  {"rank": 12, "ticker": "LLY", "bsc_contract": "0x341d31b2be1fee9c00e395a62ba41837f4322eed"},
+  {"rank": 13, "ticker": "WMT", "bsc_contract": "0xa7d1e886acf66ec0656df2decb4b7c893a3bab4c"},
+  {"rank": 14, "ticker": "JPM", "bsc_contract": "0x317bf42b43a394860718266dec445dcc9fd9da49"},
+  {"rank": 15, "ticker": "AMD", "bsc_contract": "0x9f16e46c73b43bdb70861247d537bee4ea18f639"},
+  {"rank": 16, "ticker": "ASML", "bsc_contract": "0xb034f6cb52b7f2fd5a7eeeffca6b9adcd6b9a6f6"},
+  {"rank": 17, "ticker": "INTC", "bsc_contract": "0xa528caaa2f96090e379d43f90834c75df54d6e74"},
+  {"rank": 18, "ticker": "V", "bsc_contract": "0x1cde419fae0ef7f7931ae3e29e5f411c8c5e5fa1"},
+  {"rank": 19, "ticker": "XOM", "bsc_contract": "0x4d209d275e3492ac08497a7a42915899c4dd5e86"},
+  {"rank": 20, "ticker": "JNJ", "bsc_contract": "0xd1f799cb9f5d0a02951b0755beced6c43882712f"}
+]

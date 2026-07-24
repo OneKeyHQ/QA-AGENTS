@@ -10,6 +10,7 @@
 // SDL_VIDEODRIVER 等环境变量由子进程自然继承，无需特殊处理。
 #include "snapshot.h"
 #include "page_registry.h"
+#include "sim_demo_args.h"
 
 #include <lvgl.h>
 #include <lodepng.h>
@@ -112,6 +113,41 @@ int sim_snapshot_current(const char* path)
     return rc;
 }
 
+// needs_arg 页面：查演示参数表，有则带 arg 打开；supported 页面按原样 NULL 打开。
+// 返回 0=已打开，非 0=无法打开（无演示参数）。
+static int open_page_maybe_demo_arg(const sim_page_t* p)
+{
+    if ( p->supported )
+    {
+        sim_page_open(p);
+        return 0;
+    }
+    const void* arg = sim_demo_arg_for(p->id);
+    if ( arg == NULL )
+        return -1;
+    sim_page_open_with_arg(p, arg == SIM_DEMO_ARG_NULL_OK ? NULL : (void*)(uintptr_t)arg);
+    return 0;
+}
+
+// 找页面内可滚动余量最大的对象（滚动变体截图用）。跳过隐藏对象。
+static void find_scrollable(lv_obj_t* obj, lv_obj_t** best, int32_t* best_bottom)
+{
+    if ( lv_obj_has_flag(obj, LV_OBJ_FLAG_HIDDEN) )
+        return;
+    if ( lv_obj_has_flag(obj, LV_OBJ_FLAG_SCROLLABLE) )
+    {
+        int32_t b = lv_obj_get_scroll_bottom(obj);
+        if ( b > *best_bottom )
+        {
+            *best        = obj;
+            *best_bottom = b;
+        }
+    }
+    uint32_t cnt = lv_obj_get_child_count(obj);
+    for ( uint32_t i = 0; i < cnt; i++ )
+        find_scrollable(lv_obj_get_child(obj, i), best, best_bottom);
+}
+
 int sim_snapshot_page(const char* page_id, const char* out_dir)
 {
     const sim_page_t* p = sim_page_find(page_id);
@@ -128,11 +164,30 @@ int sim_snapshot_page(const char* page_id, const char* out_dir)
     // 看门狗：单页渲染若意外进入无限自旋（历史上 lv_obj_invalidate 自旋 6min+），
     // SIGALRM 终止本进程，编排器把该页记为 FAIL，整批不挂死。
     alarm(60);
-    sim_page_open(p);
+    if ( open_page_maybe_demo_arg(p) != 0 )
+    {
+        fprintf(stderr, "sim: 页面 '%s' 是 needs_arg 且无演示参数（见 sim_demo_args.c）\n", page_id);
+        return 2;
+    }
     pump_frames(10);
     char path[512];
     snprintf(path, sizeof(path), "%s/%s.png", out_dir, p->id);
-    return sim_snapshot_current(path) == 0 ? 0 : 1;
+    if ( sim_snapshot_current(path) != 0 )
+        return 1;
+    // 滚动变体：首屏以下还有内容（>16px）时，滚到底再截一张 <id>--scrolled.png，
+    // 覆盖长列表/长文案页折叠区（翻译走查需要看全量文案）。
+    lv_obj_t* sc     = NULL;
+    int32_t   bottom = 0;
+    find_scrollable(lv_screen_active(), &sc, &bottom);
+    if ( sc != NULL && bottom > 16 )
+    {
+        lv_obj_scroll_to_y(sc, lv_obj_get_scroll_y(sc) + bottom, LV_ANIM_OFF);
+        pump_frames(5);
+        snprintf(path, sizeof(path), "%s/%s--scrolled.png", out_dir, p->id);
+        if ( sim_snapshot_current(path) != 0 )
+            return 1;
+    }
+    return 0;
 }
 
 // exec 自身的可执行路径：macOS 优先 _NSGetExecutablePath（不依赖 argv[0] 形态），
@@ -164,7 +219,7 @@ int sim_snapshot_all(const char* out_dir, const char* argv0)
     for ( int i = 0; i < SIM_PAGE_COUNT; i++ )
     {
         const sim_page_t* p = &SIM_PAGES[i];
-        if ( !p->supported )
+        if ( !p->supported && sim_demo_arg_for(p->id) == NULL )
         {
             printf("SKIP  %-16s %s\n", p->id, p->name_zh);
             continue;
@@ -252,7 +307,13 @@ int sim_click_test_page(const char* page_id, const char* shots_dir)
         return 2;
     }
     alarm(90); // 看门狗：点击若触发无限自旋，SIGALRM 终止，编排器记 TIMEOUT
-    sim_page_open(p);
+    if ( open_page_maybe_demo_arg(p) != 0 )
+    {
+        fprintf(stderr, "sim: 页面 '%s' 是 needs_arg 且无演示参数（见 sim_demo_args.c）\n", page_id);
+        return 2;
+    }
+    if ( shots_dir != NULL && mkdir(shots_dir, 0755) != 0 && errno != EEXIST )
+        perror(shots_dir);
     pump_frames(30);
 
     lv_obj_t* objs[CLICK_MAX];
@@ -270,6 +331,9 @@ int sim_click_test_page(const char* page_id, const char* shots_dir)
             page_changed = true;
             continue;
         }
+        // 记录点击前的对象结构，用于判断这次点击是否弹出了新层/toast/弹窗
+        uint32_t scr_cnt_before = lv_obj_get_child_count(lv_screen_active());
+        uint32_t top_cnt_before = lv_obj_get_child_count(lv_layer_top());
         lv_area_t a;
         lv_obj_get_coords(objs[i], &a);
         uint64_t t0 = now_us();
@@ -293,16 +357,81 @@ int sim_click_test_page(const char* page_id, const char* shots_dir)
                (int)a.x1, (int)a.y1, (int)(a.x2 - a.x1 + 1), (int)(a.y2 - a.y1 + 1),
                (unsigned long long)handler_us, max_frame_ms, valid_after ? 1 : 0);
         clicked++;
+        // 交互态截图：点击引起了对象结构变化（新弹层/toast/内容增删）才落图，
+        // 控制产物数量——纯高亮/无响应点击不截。
+        if ( shots_dir != NULL )
+        {
+            uint32_t scr_cnt_after = lv_obj_get_child_count(lv_screen_active());
+            uint32_t top_cnt_after = lv_obj_get_child_count(lv_layer_top());
+            if ( scr_cnt_after != scr_cnt_before || top_cnt_after != top_cnt_before || !valid_after )
+            {
+                char path[512];
+                snprintf(path, sizeof(path), "%s/%s--click%02d.png", shots_dir, page_id, i);
+                sim_snapshot_current(path);
+            }
+        }
     }
     printf("CLICKDONE|%s|clicked=%d|page_changed=%d\n", page_id, clicked, page_changed ? 1 : 0);
     if ( shots_dir != NULL )
     {
-        if ( mkdir(shots_dir, 0755) != 0 && errno != EEXIST )
-            perror(shots_dir);
         char path[512];
         snprintf(path, sizeof(path), "%s/%s--after-clicks.png", shots_dir, page_id);
         sim_snapshot_current(path);
     }
     fflush(stdout);
     return 0;
+}
+
+// --click-test-all：编排器，逐页 fork+exec `--click-test <id> <dir>`（进程模型同 --snapshot）。
+// 覆盖 supported + 有演示参数的 needs_arg 页；产物为各页 --clickNN.png / --after-clicks.png。
+int sim_click_test_all(const char* out_dir, const char* argv0)
+{
+    if ( mkdir(out_dir, 0755) != 0 && errno != EEXIST )
+    {
+        perror(out_dir);
+        return -1;
+    }
+    char        exe_buf[1024];
+    const char* exe    = resolve_self_exe(argv0, exe_buf, sizeof(exe_buf));
+    int         failed = 0;
+    for ( int i = 0; i < SIM_PAGE_COUNT; i++ )
+    {
+        const sim_page_t* p = &SIM_PAGES[i];
+        if ( !p->supported && sim_demo_arg_for(p->id) == NULL )
+        {
+            printf("SKIP  %-16s %s\n", p->id, p->name_zh);
+            continue;
+        }
+        fflush(stdout);
+        pid_t pid = fork();
+        if ( pid < 0 )
+        {
+            perror("fork");
+            failed++;
+            continue;
+        }
+        if ( pid == 0 )
+        {
+            execl(exe, exe, "--click-test", p->id, out_dir, (char*)NULL);
+            perror("execl");
+            _exit(127);
+        }
+        int status = 0;
+        if ( waitpid(pid, &status, 0) < 0 )
+        {
+            perror("waitpid");
+            failed++;
+            continue;
+        }
+        if ( !(WIFEXITED(status) && WEXITSTATUS(status) == 0) )
+        {
+            printf("FAIL  %-16s %s (%s %d)\n", p->id, p->name_zh,
+                   WIFSIGNALED(status) ? "signal" : "exit",
+                   WIFSIGNALED(status) ? WTERMSIG(status) : WEXITSTATUS(status));
+            failed++;
+        }
+        fflush(stdout);
+    }
+    printf("click-test 完成: %d 页失败\n", failed);
+    return failed;
 }
