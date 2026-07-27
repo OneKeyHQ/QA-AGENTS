@@ -666,10 +666,94 @@
 
 ---
 
+## 15. Pro2 Apple Find My 测试规则
+
+> 适用范围：Pro2。需求来源：Apple Find My 自认证 R1.7（`FindMy_测试执行手册.docx`）+ Find My 设计稿（2026-07 正式方案）。
+
+### 15.1 入口规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 入口数量 | **2 个**，行为完全一致 |
+| 入口 1 | 设备根目录（应用菜单）→ `Find My` 独立桌面图标 |
+| 入口 2 | Settings → `Apple Find My`（列表项位于 Genuine Check 与 About Device 之间） |
+| 页面标题 | `Apple Find My` |
+| 返回行为 | 从哪个入口进入就返回哪里（桌面图标 → 根目录；Settings 项 → Settings 页） |
+| 快捷入口 | 关机页（Slide to power off）与开机 Hello 页显示 `Apple Find My` 入口（仅 Find My 开关开启时），跳转交互两处一致；快捷页含 `View Serial Number` / `Disable Find My` 两个按钮；Find My 禁用后关机页不再显示该入口 |
+
+### 15.2 开关与状态页规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 开关默认状态 | **关闭**（已产品确认 2026-07-27） |
+| 开启行为 | 开启后展示「配对状态」区块，**直接进入配对流程**（可被 iPhone 查找 App 发现） |
+| 未绑定自动关闭 | 开关开启后 **10 分钟内未完成绑定 → 开关自动关闭，无任何提示**（无弹窗 / toast）；10 分钟内完成绑定则不触发自动关闭（已产品确认 2026-07-27） |
+| 关闭状态页面 | 仅展示「Apple Find My」开关一项 + 文案 `Turn on Find My to pair your device and locate it with Apple Find My.` |
+| 快捷禁用 | 关机页 Apple Find My 页点击 `Disable Find My` → 跳转「Find My Disabled」提示页（`Find My is turned off. You can enable it again in Settings.`）→ `Got it` 返回关机页且入口消失；Settings 开关同步为关闭，配对关系保持，重新开启后恢复 |
+| 低电量关机提示 | 电量 <20% 时关机页显示文案 `Low battery (<20%). To keep the battery healthy, please ensure the device is fully charged before long-term storage.` |
+| 未配对状态页 | `Status: Not Paired` + 文案 `Open Apple Find My on your iPhone or iPad to add this device.` + `How to Pair or Unpair?` 链接（跳转 Tips 提示页） |
+| 已配对状态页 | `Status: Paired` + 文案 `Your OneKey Pro 2 is paired with Apple Find My.` + `How to Pair or Unpair?` 链接 + `View Serial Number` / `Reset Find My` 两个操作项 |
+| 关闭行为 | 已配对状态下关闭开关 = 物理禁用广播，iPhone 端不可定位、不可播声；重新开启后恢复 |
+| 开关持久化 | 开关状态断电重启后保持 |
+
+### 15.3 View Serial Number 规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 触发弹窗 | 标题 `View Serial Number`，文案 `Open the Find My app on your Apple device to view your serial number. Expires in 5 minutes`，按钮 `Got it` |
+| 有效期 | 进入序列号读取状态后 **5 分钟**内 iPhone 查找 App 可读取序列号；过期后不可读，需重新触发 |
+| 点击反馈 | 点击查看 SN 按钮后当前页面 toast 提示 |
+| 一致性 | iPhone 端 / 找回网页显示的序列号必须与设备 About Device 序列号及机身印刷序列号一致 |
+
+### 15.4 Reset Find My（设备端解绑）规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 二次确认弹窗 | 标题 `Reset Apple Find My?`，文案 `This device will no longer be locatable with Apple Find My.`，按钮 `Cancel` / `Reset` |
+| Cancel 行为 | 弹窗消失，配对状态不变 |
+| Reset 成功 | 提示 `Removed from Find My.`，页面跳转「Find My 未配对状态页」，开关保持**开启** |
+| 排他保护 | 设备端 Reset / 恢复出厂设置**不解除 iCloud 账户绑定**；原所有者未在 iPhone「查找」App「移除物品」前，其他 Apple ID 无法重新配对（防转卖 / 防盗，Apple 规范 TCP004）。**已产品确认（2026-07-27）** |
+
+### 15.5 声音与时序规则
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 播放声音表现 | **蜂鸣**（buzzer） |
+| 被定位提示页 | 设备被 iPhone 定位 / 搜索时，设备端全屏显示「查找我的设备」提示页（文案见 §15.6「被定位提示页」），点击 `OK` 或右滑返回可关闭；搜索期间设备保持唤醒（wake lock） |
+| 配对超时行为 | 已产品确认：开启后 10 分钟未绑定 → **Find My 开关自动关闭、无提示**（见 §15.2）；计时器实现在蓝牙子模块固件（主固件 firmware-pro2 中无此逻辑，仅同步开关状态） |
+| 开关默认值（代码疑点） | 产品确认默认**关闭**；但 dev 分支 `storage_manager.c` 中 `findmy_enabled` 存储默认值为 `true`，与产品定义不符——**疑似固件缺陷，建议向固件侧报缺陷核实**（回归时重点验证恢复出厂后首次进入页面的开关状态） |
+| Nearby → Separated | 与所有者设备蓝牙断开约 15 分钟后进入「分离」状态，可被 Find My 网络中继定位 |
+| 关机行为 | 关机后停止 Find My 广播，iPhone 端提示物品无法访问；位置停留在最后已知位置 |
+
+### 15.6 界面文案中英对照
+
+> 中文列为**固件真源译文**（firmware-pro2 dev 分支 `utils/resource/input/translations/zh_CN.json`，2026-07-27 校准）。固件译文更新后需回改本表及用例文档。
+
+| 位置 | 英文原文 | 固件中文译文（zh_CN） |
+|------|---------|---------------------|
+| 开关关闭状态说明 | `Turn on Find My to pair your device and locate it with Apple Find My.` | 开启“查找”以配对您的设备，并通过 Apple “查找”进行定位。 |
+| 未配对状态 | `Status` / `Not Paired` | 状态 / 未配对 |
+| 未配对引导文案 | `Open Apple Find My on your iPhone or iPad to add this device.` | 在您的 iPhone 或 iPad 上打开 Apple “查找”以添加此设备。 |
+| 配对/解绑帮助链接 | `How to Pair or Unpair?` | 如何配对或取消配对？ |
+| 已配对状态 | `Status` / `Paired` | 状态 / 已配对 |
+| 已配对说明文案 | `Your OneKey Pro 2 is paired with Apple Find My.` | 您的 OneKey Pro 2 已与 Apple “查找”配对。 |
+| 查看序列号弹窗 | `View Serial Number` / `Open the Find My app on your Apple device to view your serial number. Expires in 5 minutes` / `Got it` | 在“查找” App 中查看序列号 / 在您的 Apple 设备上打开“查找” App 以查看序列号。5 分钟后过期 |
+| 重置二次确认弹窗 | `Reset Apple Find My?` / `This device will no longer be locatable with Apple Find My.` / `Cancel` / `Reset` | 重置 Apple “查找”？/ 此设备将无法再通过 Apple “查找”进行定位。 |
+| 解绑完成提示 | `Removed from Find My.` / `Find My reset.` | 已从“查找”中移除。/ Apple “查找”已重置。 |
+| 快捷禁用完成页 | `Find My Disabled` / `Find My is turned off. You can enable it again in Settings.` / `Disable Find My` | Apple “查找”已禁用 / Apple “查找”已关闭。您可以在设置中重新启用它。/ 禁用 Apple “查找” |
+| 低电量关机提示 | `Low battery (<20%). To keep the battery healthy, please ensure the device is fully charged before long-term storage.` | 电量偏低（<20%）。为保持电池健康，长期存放前请确保设备已充满电。 |
+| 被定位提示页 | `Find My Device` / `Searching for your device. Please keep it nearby until the search completes.` | 查找我的设备 / 正在搜索您的设备。请将其保持在附近，直到搜索完成。 |
+| 绑定状态系统提示 | `Find My Device Bound` / `Find My Device Unbound` / `Responding to a Find My request.` | 查找我的设备已绑定 / 查找我的设备未绑定 / 正在响应“查找”请求。 |
+
+---
+
 ## 变更记录
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-07-27 | 产品三项确认：①Reset Find My 不解除 iCloud 绑定（§15.4）②开关默认关闭（§15.2/15.5，dev 代码默认值 true 与定义不符，疑似固件缺陷待报）③开启后 10 分钟未绑定开关自动关闭且无提示、已绑定不触发（§15.2 新增「未绑定自动关闭」规则，用例 §2 超时用例升 P1 并新增已绑定不超时 P2） |
+| 2026-07-27 | 确认 Find My 开关**默认关闭**（一度按用户口述改为默认开启，复核设计稿后回改）；按「Disable Find My」设计稿补充：关机页 / 开机 Hello 页 `Apple Find My` 快捷入口（§15.1）、`Disable Find My` 快捷禁用与「Find My Disabled」提示页、低电量长期存放提示（§15.2、§15.6）；用例新增 §8 关机页快捷入口与禁用，原 §8~§10 顺延为 §9~§11 |
+| 2026-07-27 | 新增「Pro2 Apple Find My」章节（§15）：双入口（桌面 Find My 图标 + Settings → Apple Find My）、开关默认开启 / 未配对时直接处于配对流程、未配对 / 已配对状态页文案、View Serial Number 5 分钟有效期、Reset Find My 二次确认与解绑成功提示、设备端 Reset 不解除 iCloud 绑定（排他保护）、播放声音为蜂鸣、配对模式 10 分钟超时、Nearby→Separated 约 15 分钟。配套日常回归用例：`Pro2-FindMy/2026-07-27_Pro2-FindMy-日常回归.md`。同日 review 修订：用例移除认证映射附录、预期结果按允许词表改写、前置条件压缩至 5 行；新增 §15.6 界面文案中英对照表，用例提示文案改用中文译文 |
 | 2026-07-24 | 「我的地址」Passphrase 逻辑变更（§14.9）：Passphrase 输入弹窗整体移除；无论 Passphrase 开关开启或关闭，主 PIN 解锁只显示主钱包地址且禁止弹出输入框；隐藏（密语）钱包仅可通过「Attach to PIN」绑定的 Extra PIN 解锁进入；「切换 Passphrase」按钮、锁屏重置重输、空值等价等旧规则废弃。网络清单变更（§14.2）：确认移除 Alephium / Benfen / Nervos / Neo N3 / Neurai / Nexa / SCDO 共 7 个网络，27 个 → 20 个。用例重组：撤销《Pro2-我的地址-Passphrase与助记词位数》独立用例——主 PIN 负向验证并入《入口与账户选择》§6，Extra PIN 隐藏钱包与助记词位数矩阵并入《地址展示与派生路径》§8/§9；需求文档 Hardware-Pro2我的地址.md 同步更新 |
 | 2026-07-13 | 按实机截图更正 Manage Your Card 管理项：Set Name / Change PIN / Protection Mode / Reset（原误写含 Title 开关）；Title 开关实际位于备份页顶部；同步更新 Pro2-SeedCard-管理与防护 用例文档。Keytag 备份用例删除「粘贴整段助记词」场景 —— 设备端输入无法粘贴，场景不可构造；用例界面文案中文化 |
 | 2026-07-11 | SeedCard PIN 长度更正为**固定 6 位**（最长最短均为 6 位）；删除「Unsupported Recovery Phrase」错误状态规则 —— SeedCard 只能写入 12/18/24 位助记词，25 位卡场景不可构造；同步更新 Pro2-SeedCard备份 用例文档 |

@@ -49,6 +49,9 @@ const void* sim_demo_arg_for(const char* page_id)
     // keytag_backup.c:242 kt_chart_on_create —— uintptr = 助记词单词数
     if ( strcmp(page_id, "settings_keytag_backup_chart") == 0 )
         return (const void*)(uintptr_t)12;
+    // settings_enter_recovery_phrase.c:43 —— uintptr = 单词数（arg ? : 12，NULL 也安全）
+    if ( strcmp(page_id, "settings_enter_recovery_phrase") == 0 )
+        return (const void*)(uintptr_t)12;
     if ( strcmp(page_id, "fingerprint_enroll") == 0 || strcmp(page_id, "fingerprint_timeout") == 0 ||
          strcmp(page_id, "fingerprint_failed") == 0 )
         return &s_fp_enroll_arg;
@@ -57,5 +60,23 @@ const void* sim_demo_arg_for(const char* page_id)
     // slide_unlock：arg 仅存入 user_data（slide_unlock.c:85/104），NULL 安全
     if ( strcmp(page_id, "slide_unlock") == 0 )
         return SIM_DEMO_ARG_NULL_OK;
+    // device_rename_confirm.c:36 —— (const char*)arg = 新设备名（NULL 时空串）
+    if ( strcmp(page_id, "device_rename_confirm") == 0 )
+        return "OneKey Pro 2";
+    // nft_gallery.c:292 detail_on_create —— intptr = 列表索引，越界回落 0 → NULL 安全
+    if ( strcmp(page_id, "nft_detail") == 0 )
+        return SIM_DEMO_ARG_NULL_OK;
+    // settings_fingerprint.c:398 —— arg 仅当 bool（back_to_security 标志）→ NULL 安全
+    if ( strcmp(page_id, "settings_fingerprint") == 0 )
+        return SIM_DEMO_ARG_NULL_OK;
+    // settings_findmy.c:494 —— intptr mode，0 = 默认模式 → NULL 安全
+    if ( strcmp(page_id, "settings_findmy") == 0 )
+        return SIM_DEMO_ARG_NULL_OK;
+    // seedcard_check_rp.c:41 on_create —— UNUSED(arg)（启发式误判）→ NULL 安全
+    if ( strcmp(page_id, "settings_seedcard_check_rp") == 0 )
+        return SIM_DEMO_ARG_NULL_OK;
+    // keytag_backup.c:142 kt_intro_on_create —— arg 非 NULL 时覆盖单词数；给 12 展示真实点阵
+    if ( strcmp(page_id, "settings_keytag_backup_intro") == 0 )
+        return (const void*)(uintptr_t)12;
     return NULL;
 }
