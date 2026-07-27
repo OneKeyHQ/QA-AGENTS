@@ -548,3 +548,7 @@ void foreground_device_control_page_show_failed(DeviceSettingsPage page, DeviceE
 // ── 561be533 批次新增缺符号 ──
 void auth_manager_on_fingerprint_attempts_exhausted(void) {}
 bool passkey_discoverable_credential_take_added_notification(void) { return false; }
+
+// ── dev daad16c4 批次：device_rename_confirm 页（dfff5b4a）确认/取消回调 ──
+bool foreground_device_control_rename_confirmed(void) { return false; }
+bool foreground_device_control_rename_cancelled(void) { return false; }

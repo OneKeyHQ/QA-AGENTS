@@ -36,23 +36,36 @@ with open(PAGE_ID_H, encoding="utf-8") as f:
 m = re.search(r"\benum\b[^{]*\{(.*?)\}\s*PageId_t", txt, re.S)
 body = m.group(1) if m else txt
 idx = 0
+cond_depth = 0  # #if/#ifdef 块内的 id（如 DEBUG_PRINT 才有的开发者页）sim 编译不到，跳过
 for line in body.splitlines():
     line = re.sub(r"//.*", "", line)
     line = re.sub(r"/\*.*?\*/", "", line)
+    if re.match(r"\s*#\s*(if|ifdef|ifndef)\b", line):
+        cond_depth += 1
+        continue
+    if re.match(r"\s*#\s*endif\b", line):
+        cond_depth = max(0, cond_depth - 1)
+        continue
     mm = re.match(r"\s*(PAGE_ID_[A-Z0-9_]+)\s*(=\s*([0-9]+))?\s*,?", line)
     if not mm:
         continue
     name = mm.group(1)
     if mm.group(3) is not None:
         idx = int(mm.group(3))
-    enum_order[name] = idx
+    if cond_depth == 0:
+        enum_order[name] = idx
     idx += 1
 
 # ── 2. 扫描所有 page .c 的 PAGE_REGISTER*，记录 (page_id_enum, create_cb, src_path) ──
+# dev 2026-07 起新增 _NAV/_MENU/_WITH_FLAGS_AND_BACK 变体（page_manager.h），一并匹配
 register_re = re.compile(
-    r"PAGE_REGISTER(?:_WITH_FLAGS|_WITH_REFRESH)?\s*\(\s*"
+    r"PAGE_REGISTER(?:_WITH_FLAGS(?:_AND_BACK)?|_WITH_REFRESH|_NAV(?:_WITH_BACK)?|_MENU(?:_WITH_BACK)?)?\s*\(\s*"
     r"(PAGE_ID_[A-Z0-9_]+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)"
 )
+# tips_tutorials.c 的 X-macro：DEFINE_TIP_TUTORIAL_PAGE(suffix, PAGE_ID_X) 展开成
+# PAGE_REGISTER(page_enum, on_create_##suffix, ...)——字面量在实例化处，单独匹配。
+# create 回调固定 UNUSED(arg) → 直接记 supported。
+tip_tutorial_re = re.compile(r"DEFINE_TIP_TUTORIAL_PAGE\s*\(\s*\w+\s*,\s*(PAGE_ID_[A-Z0-9_]+)\s*\)")
 
 def is_unsupported_path(relpath):
     norm = relpath.replace(os.sep, "/")
@@ -108,8 +121,10 @@ for root, _dirs, files in os.walk(PAGES_DIR):
             if enum_name in seen:
                 continue
             if enum_name not in enum_order:
-                # 注册了一个 page_id.h 里没有的枚举（如 PAGE_ID_NFT_GALLERY_EMPTY）→ 仍收录，排到末尾
-                pass
+                # 不在（无条件编译的）enum 里：要么 page_id.h 没有，要么在 #if 块内
+                # （如 DEBUG_PRINT 下的 PAGE_ID_SETTINGS_DEVELOPER_OPTIONS）——sim 编译
+                # 引用该枚举会直接报 undeclared，跳过
+                continue
             uses = create_uses_arg(src, create_cb)
             if uses is True:
                 supported, note = False, "arg deref"
@@ -119,6 +134,12 @@ for root, _dirs, files in os.walk(PAGES_DIR):
                 supported, note = True, ""
             id_str = enum_name[len("PAGE_ID_") :].lower()
             entries.append((enum_name, id_str, supported, note))
+            seen.add(enum_name)
+        for mtip in tip_tutorial_re.finditer(src):
+            enum_name = mtip.group(1)
+            if enum_name in seen or enum_name not in enum_order:
+                continue
+            entries.append((enum_name, enum_name[len("PAGE_ID_") :].lower(), True, ""))
             seen.add(enum_name)
 
 entries.sort(key=lambda e: enum_order.get(e[0], 1 << 30))

@@ -308,4 +308,6 @@ target_compile_definitions(onekey-sim PRIVATE
     MODULE_HAL_TYPE_PRO2_V2=22
     MODULE_HAL_TYPE_PRO2_V3=23
     MODULE_HAL_TYPE=22
+    # sys_config.h（经 src/sys.h shim 引入）要求指定 per-model 配置头
+    MODULE_SYS_CONFIG_H="sys_config_pro2.h"
 )
