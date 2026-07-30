@@ -23,7 +23,7 @@
 - 测试用例以手工执行为主
 
 **表格格式调整**：
-- 表头使用：`| 优先级 | 输入数据 | 操作步骤 | 预期结果 |`
+- 表头使用：`| 优先级 | 场景 | 操作步骤 | 预期结果 |`（与 `docs/qa/qa-rules.md` §7.3 固定 4 列一致）
 - 移除「自动化层级」列
 - 预期结果中不包含断言语句
 
@@ -36,7 +36,7 @@
 | 规则项 | 规则描述 |
 |--------|---------|
 | 设备排序 | 与钱包账户选择器排序一致 |
-| 设备图片 | 6 款设备图片需正确显示：Pure、Mini、Classic/1S、Touch、Pro 黑款、Pro 白款 |
+| 设备图片 | 7 款设备图片需正确显示：Pure、Mini、Classic/1S、Touch、Pro 黑款、Pro 白款、Pro2 |
 | 设备信息 | 显示设备备注、设备蓝牙名称（无蓝牙设备不显示） |
 | 验证状态 | Badge 显示已验证/未验证状态 |
 | 固件版本 | 显示当前固件版本，有更新时显示更新提示 |
@@ -60,7 +60,16 @@
 | 异常兜底 | 固件检查异常（如设备断开连接）时，显示错误状态，并保留「重试」与「跳过」 |
 | 适用设备 | Pro / Touch / Classic / Classic 1S / Classic Pure / Mini |
 
-### 1.4 QR 钱包限制规则
+### 1.4 危险区域规则（清除设备数据 / 切换比特币专用固件）
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 入口 | 设备详情页「危险区域」区块 |
+| 适用设备 | Pro2 / Pro / Classic 1S / Pure（Touch / Mini 不显示入口） |
+| 清除设备数据 | 重置设备，需在设备上确认；确认后设备数据清除、恢复未初始化状态，App 侧按「同设备重置后再创建钱包规则」处理 |
+| 切换到比特币专用固件 | 点击后引导进入固件升级切换流程（BTC only 固件） |
+
+### 1.5 QR 钱包限制规则
 
 - QR 钱包**无法修改**硬件设置
 - QR 钱包**可以修改**设备名称
@@ -76,11 +85,13 @@
 
 | 设置项 | 需要硬件确认 | 确认文案模板 |
 |--------|-------------|-------------|
-| Language | ✓ | "Do you want to change language to [语言]?" |
+| Language | ✓（Pro2 ✗） | "Do you want to change language to [语言]?" |
 | Auto Lock | ✓ | "Do you want to change Auto-Lock time to [时长]?" |
 | Auto Shutdown | ✓ | "Do you want to change Auto Shutdown time to [时长]?" |
 | Brightness | ✗ | 直接滑动调节 |
-| Vibration & Haptic | ✓ | "Do you want to open/close Haptic?" |
+| Vibration & Haptic | ✓（Pro2 ✗） | "Do you want to open/close Haptic?" |
+
+> **Pro2 例外**：Language / Brightness / Vibration & Haptic 在 App 直接修改，无硬件确认，修改后硬件显示修改成功页面；Auto Lock / Auto Shutdown 仍需硬件确认。
 
 ### 2.2 设置值范围规则
 
@@ -93,13 +104,15 @@
 
 ### 2.3 设备型号支持规则
 
-| 设置项 | Pro | Touch | Classic/1S | Mini | Pure |
-|--------|-----|-------|------------|------|------|
-| Language | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Brightness | ✓ | ✓ | ✗ | ✗ | ✗ |
-| Auto Lock | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Auto Shutdown | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Vibration & Haptic | ✓ | ✓ | ✗ | ✗ | ✗ |
+> Pro2 功能支持与 Pro 一致；Language / Brightness / Vibration & Haptic 的修改方式不同（见 2.1 Pro2 例外）。
+
+| 设置项 | Pro2 | Pro | Touch | Classic/1S | Mini | Pure |
+|--------|------|-----|-------|------------|------|------|
+| Language | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Brightness | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
+| Auto Lock | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Auto Shutdown | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Vibration & Haptic | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
 
 ---
 
@@ -120,6 +133,25 @@
   - Need to turn passphrase back on to access them
   - If you forget the passphrase, the funds are permanently lost.
 
+### 3.3 Attach to PIN（关联 PIN）规则
+
+> 需求文档：`docs/qa/requirements/Hardware-Pro2关联PIN.md`
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 入口 | Passphrase 开关开启后，Passphrase 页面显示「关联PIN」入口；开关关闭不显示 |
+| 主 PIN 前置校验 | 进入设置流程时**任何会话均需输入主 PIN**（主 PIN / Passphrase PIN 解锁均不豁免）。**Passphrase PIN 会话**下需要主 PIN 的场景（含关联流程、核对助记词 / Lite / Keytag / 指纹等验证页）均显示「标准钱包 PIN」副标题，**主 PIN 会话**无副标题。输错主 PIN 提示剩余次数，连续 5 次错误设备重置 |
+| PIN 长度 | 最少 6 位；最长 Pro / Pro2 50 位、Classic 1S 9 位 |
+| Passphrase 长度 | 1 ~ 50 位字符，空内容不可确认 |
+| 新增 / 更新 / 删除分流 | 设置的 PIN 未被使用 → 显示「绑定」；已被使用 → 显示「删除」与「更新」（更新流程与绑定一致）。删除：二次确认页 →「我明白了」→ 删除成功提示页 →「完成」返回 Passphrase 页面 |
+| 设备交互差异 | 勾选二次确认页：Pro2 点击「继续」进入 / 右上角关闭按钮取消；1S / Pro 滑动确认进入 /「取消」返回。确认 Passphrase 后：Pro2 弹窗提示（此时已绑定成功，无独立提示页）→「我已了解」→ 成功页；1S / Pro 独立提示页 →「我明白」→ loading → 成功页 |
+| 组数上限 | Pro / Pro2 30 组、1S 3 组；达上限新增提示「移除 / 关闭」（Pro2 为「管理 / 关闭」），点击后需输入正确的 Passphrase PIN（主 PIN、错误 PIN 均提示不正确）方可进入删除流程 |
+| PIN 唯一性 | 设置 / 修改的 Passphrase PIN 与主 PIN 或其他已存在 PIN 相同 → 提示 PIN 已被使用（设置流程）或提示覆盖（修改 PIN 码流程，可取消） |
+| 修改 PIN 覆盖 | 修改 PIN 码时改为已占用值 → 提示覆盖；覆盖后钱包身份跟随发起修改的会话不变，被覆盖 PIN 的原绑定失效 |
+| 锁定规则 | 主 PIN 会话删除 / 修改任意 Passphrase PIN 不锁定；Passphrase PIN 会话操作**非当前** PIN 不锁定、操作**当前** PIN 锁定；Passphrase PIN 会话关闭 Passphrase 开关 → 锁定且全部 Passphrase PIN 失效 |
+| 安全验证页 | 核对助记词 / Lite / Keytag / 指纹 / 设置 Passphrase PIN 等验证页仅接受主（标准钱包）PIN，Passphrase PIN 无法通过 |
+| 防时序侧信道 | 满上限后锁定，主 PIN / 各组 Passphrase PIN / 错误 PIN 解锁耗时无明显区别 |
+
 ---
 
 ## 4. Enter PIN on App 测试规则
@@ -139,6 +171,7 @@
 
 | 操作类型 | 规则描述 |
 |---------|---------|
+| UI 入口 | 设备详情页「设备连接」区块，中文名「移除设备」（英文 Forget this device） |
 | 删除范围 | 仅删除 App 内记录 |
 | 不影响项 | 硬件设备数据、Recovery phrase、资金 |
 | 可恢复性 | 可随时重新配对连接 |
@@ -172,7 +205,7 @@
 | Bluetooth | 蓝牙名称（Mini 显示 "--"） |
 | Bluetooth firmware | 蓝牙固件版本（Mini 显示 "--"） |
 | Bootloader | 引导程序版本 |
-| Certifications | 认证信息（仅 Pro/1S/Pure 有） |
+| Certifications | 认证信息（仅 Pro2/Pro/1S/Pure 有） |
 
 ### 6.2 序列号复制规则
 
@@ -751,6 +784,11 @@
 
 | 日期 | 变更内容 |
 |------|---------|
+| 2026-07-30 | 设备管理 5.20.0 用例改版同步：§1.1 设备图片增至 7 款（新增 Pro2）；§2.1/§2.3 新增 Pro2 列与「Pro2 例外」（语言 / 亮度 / 振动反馈 App 直接修改、硬件显示「修改成功」页面，无硬件确认）；新增 §1.4 危险区域规则（清除设备数据 / 切换比特币专用固件，仅 Pro2 / Pro / 1S / Pure），原 QR 钱包限制顺延为 §1.5；§5.1 补 Forget Device UI 入口「设备连接 > 移除设备」；§6.1 Certifications 适用型号补 Pro2；§0.1 表头对齐 qa-rules §7.3 固定 4 列（场景列） |
+| 2026-07-29 | §3.3 组数上限行修订（产品确认）：达上限提示按钮为设备差异——Pro2「管理 / 关闭」，1S / Pro「移除 / 关闭」；用例与需求文档同步 |
+| 2026-07-29 | §3.3 补充设备差异（需求更新）：PIN 最长位数与组数上限明确 Pro / Pro2 与 1S 取值；新增「设备交互差异」行（Pro2 点击继续 / 关闭按钮 / 弹窗提示替代独立提示页）；删除流程补全二次确认页与成功提示页。需求文档新增 §2.8 设备差异对照表，用例同步 |
+| 2026-07-29 | §3.3 主 PIN 前置校验修订（产品确认）：任何会话进入关联流程均需主 PIN 校验，删除「主 PIN 会话免输」描述；副标题规则明确为——Passphrase PIN 会话下需要主 PIN 的场景显示「标准钱包 PIN」，主 PIN 会话无副标题；用例与需求文档同步更新 |
+| 2026-07-29 | 新增 §3.3「Attach to PIN（关联 PIN）」规则：主 PIN 前置校验（Passphrase PIN 会话需验主 PIN / 输错 5 次重置）、PIN 长度（6 ~ Pro 50 / Classic 9 位）、新增/更新/删除分流、组数上限（Pro 30 / 1S 3）、修改 PIN 覆盖与钱包身份、锁定规则（当前 PIN 操作锁定 / 非当前不锁定 / Passphrase PIN 会话关开关锁定）、安全验证页仅主 PIN、防时序侧信道。配套需求文档 `Hardware-Pro2关联PIN.md` 与用例 `Pro2-钱包/2026-07-29_Pro2-钱包-AttachToPIN.md` |
 | 2026-07-27 | 产品三项确认：①Reset Find My 不解除 iCloud 绑定（§15.4）②开关默认关闭（§15.2/15.5，dev 代码默认值 true 与定义不符，疑似固件缺陷待报）③开启后 10 分钟未绑定开关自动关闭且无提示、已绑定不触发（§15.2 新增「未绑定自动关闭」规则，用例 §2 超时用例升 P1 并新增已绑定不超时 P2） |
 | 2026-07-27 | 确认 Find My 开关**默认关闭**（一度按用户口述改为默认开启，复核设计稿后回改）；按「Disable Find My」设计稿补充：关机页 / 开机 Hello 页 `Apple Find My` 快捷入口（§15.1）、`Disable Find My` 快捷禁用与「Find My Disabled」提示页、低电量长期存放提示（§15.2、§15.6）；用例新增 §8 关机页快捷入口与禁用，原 §8~§10 顺延为 §9~§11 |
 | 2026-07-27 | 新增「Pro2 Apple Find My」章节（§15）：双入口（桌面 Find My 图标 + Settings → Apple Find My）、开关默认开启 / 未配对时直接处于配对流程、未配对 / 已配对状态页文案、View Serial Number 5 分钟有效期、Reset Find My 二次确认与解绑成功提示、设备端 Reset 不解除 iCloud 绑定（排他保护）、播放声音为蜂鸣、配对模式 10 分钟超时、Nearby→Separated 约 15 分钟。配套日常回归用例：`Pro2-FindMy/2026-07-27_Pro2-FindMy-日常回归.md`。同日 review 修订：用例移除认证映射附录、预期结果按允许词表改写、前置条件压缩至 5 行；新增 §15.6 界面文案中英对照表，用例提示文案改用中文译文 |
