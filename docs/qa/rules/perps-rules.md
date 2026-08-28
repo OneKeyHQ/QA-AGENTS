@@ -955,6 +955,50 @@ Hyperliquid 采用 **Agent Wallet** 模式：
 
 ---
 
+### 10. K 线布局规则（移动端 K 线位置 / 桌面端面板高度）
+
+> 来源：产品需求（2026-08-28）+ 源码推导项已经产品确认（2026-08-28）。需求：`docs/qa/requirements/Perps-K线布局设置.md`；用例：`docs/qa/testcases/cases/perps/2026-08-28_Perps-K线布局设置.md`。
+> 10.1–10.4 为规则（用例断言依据，含已确认的源码推导项）；10.5 为源码定位参考（文件 / atom / testID）。
+
+#### 10.1 适用端
+- **K 线位置设置**：移动端与小屏 Web（窗口宽度 < md）；桌面端 / 大屏 Web 不显示
+- **面板高度拖动与重置**：Desktop / Web；移动端不显示「重置为默认布局」
+
+#### 10.2 移动端 K 线位置
+- 入口：「更多」→「布局设置」→「交易页 K 线」，三选一：顶部 / 底部 / 不展示
+- 默认 **底部**（2026-08-28 产品确认）；选择即时生效并持久化，跨会话保留；升级前已保存的偏好不受默认值影响
+  - ⚠️ 源码 x 分支当前默认 `top`（#13022 由 bottom 改为 top），与产品口径不一致，**已确认 bug，2026-08-28 已上报，待修复**；未修复前用例 §1「首次安装默认底部」预期 failed，修复后回归
+- **顶部**：K 线显示在行情栏下方，通过行情栏图表按钮展开或收起
+- **底部**：页面底部显示当前交易对的 K 线入口，点击展开浮层图表，可收起
+- **不展示**：交易页不显示 K 线面板
+- 顶部与底部 K 线均可展开、收起及切换周期；展开状态为会话态（切位置、离开页面后重置为收起）；顶部图表内无关闭按钮
+- 底部入口条文案「<交易对>USDC 永续 图表」，现货为现货名 + 「图表」；iOS 26+ 底部 Tab 栏补背景
+- 图表高度 200–250 px 按视口自适应
+- 短屏设备上图表不遮挡主要交易操作（买入 / 卖出按钮、输入框可操作）
+- 切换交易对后必须显示新交易对数据，不残留上一交易对的图表
+
+#### 10.3 桌面端面板高度
+- 支持拖动 K 线与持仓 / 订单信息区之间的分隔线调整两个面板高度
+- 松手后保存高度，刷新 / 重进后保持
+- 最小高度：图表区 360 px、信息区 300 px，拖到极限后内容仍可操作；拖动中光标为上下调整、图表 iframe 不响应鼠标
+- 「重置为默认布局」：设置菜单与 Web 账户面板设置两处入口；恢复默认面板尺寸 + 订单簿显示状态，Toast「布局已重置」；重置结果持久化；双击分隔线亦恢复默认（无 Toast）
+- 图表全屏切换保持现有图表实例与状态（指标 / 周期 / 画线不丢）；退出恢复保存高度；刷新后退出全屏
+
+#### 10.4 新功能引导
+- 移动端首次进入：「更多」按钮与「布局设置」入口显示提示点，访问后各自消失，跨会话不再出现
+- 桌面端首次展示分隔线：延迟约 1 秒显示高亮条 + 「拖动分隔线可调整图表和持仓区域的高度。」，全屏时不显示，关闭后不再出现
+
+#### 10.5 源码定位参考（PR #12878 / #13022，OK-59954）
+- 位置存储：`perpsCustomSettingsAtom.chartPosition`（`top | bottom | hidden`；x 分支默认 `top`，#13022 由 bottom 改为 top——与产品「默认底部」不一致，见 10.2）；适用条件 `isNative || !gtMd`（小屏 Web 同移动端）
+- 顶部 / 底部展开状态为会话态：切位置、切交易对、重进页面重置为收起；顶部图表内无关闭按钮
+- 移动端图表高度 200–250 px 按视口自适应（视口 − 底部偏移 − 220）
+- 底部入口条文案「<交易对>USDC 永续 图表」；iOS 26+ 底部 Tab 栏补背景
+- 桌面端分隔线：Allotment 垂直 split，最小高度图表区 360 / 信息区 300；拖动中 `row-resize` + 拖动遮罩；松手保存 `perpsLayoutStateAtom.chartHeight`；默认比例基线 1512×982
+- 重置：`resetPerpDesktopLeftSplit` 同时清除订单簿显示状态；Web 账户面板设置内有第二入口；Toast 文案「布局已重置」；双击分隔线亦重置（无 Toast）
+- 全屏：信息区 display 隐藏不卸载；刷新后 `chartExpanded` 重置
+- Spotlight：`perpLayoutSettingsMenu` / `perpLayoutSettings` / `perpDesktopChartResize`（延迟 700ms，全屏不显示，文案「拖动分隔线可调整图表和持仓区域的高度。」），持久化于 `spotlightPersistAtom`
+- testID：`perp-mobile-settings-feature-dot` / `perp-mobile-layout-settings-button` / `perp-mobile-layout-settings-feature-dot` / `perp-mobile-chart-position-option-{top|bottom|hidden}` / `perp-mobile-top-chart-toggle` / `perp-mobile-chart-toggle` / `perp-desktop-chart-split` / `perp-desktop-chart-resize-spotlight` / `perp-reset-layout-button`
+
 ## 📝 规则维护指南
 
 ### 如何更新规则
@@ -974,6 +1018,9 @@ Hyperliquid 采用 **Agent Wallet** 模式：
 ---
 
 ## 📅 变更记录
+
+### 2026-08-28
+- 10：新增「K 线布局」规则（产品需求 2026-08-28）：移动端 K 线位置三选一、桌面端分隔线拖动 / 重置 / 全屏、新功能引导；源码推导项经产品确认并入 10.1–10.4（含小屏 Web 适用）；默认位置按产品确认改为底部，源码 top 为已上报 bug
 
 ### 2026-08-03
 - 8：新增「最小下单金额快捷填入（Minimum Order Guidance）」规则（来源 PR #12720）：Toast 金额按单位动态换算；桌面端 Toast 带「填入最小金额」按钮；移动端自动聚焦 + 键盘附件条快捷填入

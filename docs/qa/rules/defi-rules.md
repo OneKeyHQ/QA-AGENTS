@@ -17,6 +17,8 @@
 | Lista | 简单赚币 | BSC / Ethereum 等 | ✅ 已记录 |
 | Bitway | 简单赚币（Absolute Return） | BSC（U / USDT） | ✅ 已记录 |
 | Spark | 简单赚币（Savings） | Ethereum（USDC / USDT） | ✅ 已记录 |
+| Morpho Steakhouse | 简单赚币（Morpho 金库） | Katana（vbUSDC） | ✅ 已记录 |
+| Morpho Gauntlet | 简单赚币（Morpho 金库） | Base（USDC） | ✅ 已记录 |
 | Aave | 借贷 | 待补充 | ⏳ 待添加 |
 
 ---
@@ -1037,6 +1039,99 @@ LISTA 部分代币数量 = LISTA 部分(USD) / LISTA 当前价格
 
 ---
 
+## 7. Morpho（Steakhouse / Gauntlet）
+
+> 7.1–7.6 以 Steakhouse（Katana / vbUSDC）为主线描述，Gauntlet（Base / USDC）差异见 7.7。赚币列表代币卡片显示 APY、网络、渠道数。
+
+### 7.1 渠道说明
+- **协议名称**：Morpho（金库由 Steakhouse Financial 策展），渠道名 Morpho Steakhouse
+- **网络**：Katana（evm--747474），原生 gas 为 ETH
+- **支持币种**：vbUSDC（Vault Bridge USDC）
+- **钱包支持**：HD 与 HW 钱包均支持认购 / 赎回 / 领取签名（HW 需固件支持 Katana 与 EIP-712 typed data）
+- **入口路径**：DeFi → 赚币 → vbUSDC → Morpho Steakhouse（面包屑：DeFi › vbUSDC › Morpho Steakhouse）
+- **APY 组成**：综合 APY = 原生 APY（vbUSDC）+ MORPHO 奖励 APY + KAT 奖励 APY − 业绩费；APY 弹窗四行分别展示，业绩费为负值扣减行
+- **简介区「收益代币」**：标题下分别展示 vbUSDC、MORPHO、KAT 三项
+- **源码锚点**：`earnUtils.ts` `getApproveSpenderAddress`（Permit → `MorphoKatanaBundlerContract`）、`useEarnPermitApprove.ts`、`ApproveBaseStake/index.tsx`（`usePermit2Approve`）、`ProtocolRewards.tsx`、`PortfolioTabContent.tsx`（`defi_claimable_protocol_rewards`）
+
+### 7.2 认购规则（Permit 签名授权）
+
+| 项 | 规则 |
+|---|------|
+| 最小认购金额 | 0.000001 vbUSDC（= 1 个精度单位） |
+| 最大认购金额 | 无上限（仅受钱包余额限制） |
+| 精度 | 6 位小数 |
+| 授权方式 | **Permit 签名**（EIP-712 typed data，不上链、不耗 gas）。底部**单个按钮**（「授权并认购 N vbUSDC」类文案），点击 → 签名请求 → 签名后自动进入认购交易确认。**全程只有 1 笔链上交易**，无两步 Stepper，历史记录无单独「授权」条目。已授权（命中缓存）时按钮直接显示「认购」 |
+| Permit spender | 0x916aa175c36e845db45ff6ddb886ae437d403b61（Morpho GeneralAdapter on Katana）；App 校验 spender 不符直接报错 |
+| Permit 缓存 | 24 小时，key = 账户 + 网络 + 代币 + 金额。同金额 24h 内按钮显示「认购」、点击不弹签名；改金额按钮回到「授权并认购」需重签；取消认购确认后按钮显示「认购」，再次点击直接进认购确认 |
+| 预估年收益 | 固定三行（vbUSDC / MORPHO / KAT 各一行），各行 USD 之和 ≈ 综合 APY × 认购价值 |
+| 未创建 Katana 地址 | 显示创建地址引导，不弹签名 |
+
+> 与 Spark / Bitway 的「1. 授权 → 2. 认购」两笔交易模式**不同**，用例不得套用两步模板。
+
+### 7.3 赎回规则
+- 管理弹窗「赎回」tab → 输入金额 → 「赎回」→ 签名广播，立即到账，无提现选项弹窗、无手续费
+- 最小按代币精度，最大为全部持仓
+- vbUSDC 收益随本金一并结算；全额赎回后未领取的 MORPHO / KAT 仍可领取
+- 流动性不足：前端无预校验，提交后服务端 / 链上报错
+
+### 7.4 投资组合与累计收益
+- 投资组合列：已认购 / 预计 24 小时收益 / 资产状态 / 可领取 / 管理
+- **累计收益仅在投资组合展示**：预计 24 小时收益列第二行 = 累计收益数值 + 「累计收益」标签，币种 vbUSDC，数据来自 Morpho，**每 1 小时刷新一次**（间隔不足 1 小时数值不变不判为缺陷）；详情页持仓区与管理弹窗不展示
+- 累计收益不含 MORPHO / KAT；准确性与 Morpho 官方站点同地址同金库 Earned 对比（容差 1 小时内增量）
+
+### 7.5 协议奖励规则（MORPHO / KAT 各自独立领取）
+- 两处展示：① 详情页「协议奖励」区块（每代币一行：图标 + 可领取数量 (USD) + 「领取」按钮 + 「未来可领取 X」；info icon 弹窗显示更新频率）② 投资组合分组下方「可领取协议奖励」区（各代币数量 + 「领取」按钮）
+- 显示条件：任一代币 claimableNow 或 claimableNext > 0；claimableNow = 0 时按钮**置灰不隐藏**
+- 领取按代币独立（`claimTokenAddress`），互不影响，不影响本金与累计收益
+- MORPHO / KAT 为协议方额外发放的奖励，**协议方停发某奖励时该代币行不显示**（非缺陷）；协议方仍在发放（Morpho 官方站点可见）但 App 缺行才判缺陷。奖励代币 token 元数据已内置；缺元数据时该行整体不渲染
+
+### 7.6 测试数据
+
+| 币种 | 质押最小 | 质押最大 | 质押精度（小数位） | 赎回最小 | 赎回最大 |
+|------|---------|---------|-----------------|---------|---------|
+| vbUSDC | 0.000001 | 无上限 | 6 位 | 按代币精度 | 全部持仓 |
+
+| 项 | 值 |
+|---|---|
+| vbUSDC 合约地址（Katana） | 0x203A662b0BD271A6ed5a60EdFbd04bFce608FD36 |
+| vbUSDC 观察地址 | 0x92bAA173828d55B2F1ed611352Aa0627AB825178 |
+| Permit spender | 0x916aa175c36e845db45ff6ddb886ae437d403b61 |
+
+- 观察地址仅用于只读验证；认购 / 赎回 / 领取核心流程用有 vbUSDC 余额及 Katana gas 的 HD 钱包账户真实执行
+- 用例：`docs/qa/testcases/cases/defi/2026-08-27_DeFi-Morpho-Steakhouse-stake.md`；需求：`docs/qa/requirements/DeFi-Morpho协议.md`
+
+### 7.7 Gauntlet 渠道（Base / USDC）差异
+
+与 Steakhouse 共用 7.2–7.5 全部规则（Permit 签名、24h 缓存、按钮文案、赎回、累计收益、奖励展示逻辑），差异仅以下几项：
+
+| 项 | Steakhouse | Gauntlet |
+|---|---|---|
+| 网络 | Katana（gas ETH） | Base（gas ETH） |
+| 币种 | vbUSDC | USDC |
+| 金库管理员 | Steakhouse | Gauntlet |
+| Permit spender | 0x916aa175c36e845db45ff6ddb886ae437d403b61 | 0xb98c948cfa24072e58935bc004a8a7b376ae746a（`MorphoBaseBundlerContract`） |
+| 协议奖励代币 | MORPHO、KAT | **无**（已确认）；详情页「协议奖励」区块与投资组合「可领取协议奖励」区均不显示 |
+| 凭证代币 | — | gtokenusdc（0xefa40c84f1f2335a8599dd7686a28d2b6263b6ef） |
+| 综合 APY | 原生 + MORPHO + KAT − 业绩费 | 原生 − 业绩费 |
+| 预估年收益 | 三行 | 仅 USDC 一行 |
+
+**测试数据**：
+
+| 币种 | 质押最小 | 质押最大 | 质押精度（小数位） | 赎回最小 | 赎回最大 |
+|------|---------|---------|-----------------|---------|---------|
+| USDC | 0.000001 | 无上限 | 6 位 | 按代币精度 | 全部持仓 |
+
+| 项 | 值 |
+|---|---|
+| USDC 合约地址（Base） | 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913（源码 `BaseUSDC`） |
+| 凭证代币 gtokenusdc 合约地址（Base） | 0xefa40c84f1f2335a8599dd7686a28d2b6263b6ef |
+| USDC 观察地址 | 0x92bAA173828d55B2F1ed611352Aa0627AB825178 |
+
+- 同一账户同时持有 Steakhouse 与 Gauntlet 时，投资组合按渠道独立分组，不合并
+- 用例：`docs/qa/testcases/cases/defi/2026-08-28_DeFi-Morpho-Gauntlet-stake.md`
+
+---
+
 ## 📝 规则维护指南
 
 ### 如何添加新渠道规则
@@ -1143,3 +1238,7 @@ LISTA 部分代币数量 = LISTA 部分(USD) / LISTA 当前价格
 - 添加 Health Factor 显示规则、Cap 判断规则、按钮状态规则、警告 Banner 规则
 - 添加交互流程测试规则和计算公式
 - 明确 Kamino 仅在 Solana 链上支持
+- 2026-08-28：产品确认 7.7 Gauntlet：无协议奖励代币；USDC 代币地址为源码 `BaseUSDC` 0x8335…2913，0xefa4…b6ef 为凭证代币 gtokenusdc 地址
+- 2026-08-28：**新增** 7.7 Gauntlet 渠道（Base / USDC）差异：spender 0xb98c…746a、无固定协议奖励代币、测试数据；渠道支持表加 Morpho Gauntlet 行
+- 2026-08-28：产品确认回填 第 7 章：综合 APY 扣业绩费（弹窗四行）、收益代币标题下分列三项、预估年收益固定三行、累计收益 1 小时刷新、已授权按钮显示「认购」、未创建地址显示创建引导、协议方停发奖励则该代币行不显示
+- 2026-08-28：**新增** 第 7 章 Morpho Steakhouse（Katana / vbUSDC）规则：Permit 签名授权（单按钮、1 笔链上交易、24h 缓存、spender 0x916a…3b61）、赎回立即到账、累计收益仅投资组合展示（Morpho 数据源）、协议奖励 MORPHO / KAT 两处展示 + 各自独立领取 + claimableNext、测试数据与参数表
