@@ -418,6 +418,11 @@ node scripts/lookup-rules.mjs --keyword "Keyless Wallet,无私钥"
 - 重点查看：**条件渲染**（feature gate / 可见性开关）、**平台差异**（`.ios.tsx` / `.android.tsx` / `.tsx`）、**状态持久化**（atom / `useSettingsPersistAtom` 是否跨端同步）、**枚举值**（`E*` 类型定义）
 - **同时查 git fix 历史**：`gh search prs --repo OneKeyHQ/app-monorepo --match title "fix" | head -20`，每个 OK-XXXXX 修复都对应一个曾经出问题的边界场景，需转化为用例覆盖
 - 用例 / 规则与代码实现冲突时，**优先以产品需求为准**（可主动跟用户确认），不盲目相信代码 ≡ 需求
+- **需求为主、代码推导需标注确认（强制）**：
+  - 用户给的需求生成的用例是主体，预期结果用需求口径描述
+  - 源码反推的场景（常量、内部行为、需求未提的边界）**可以写**，但必须在用例文档**单列一章「代码推导场景（待产品确认）」**，场景列加【代码推导】前缀；混在正式用例里的单个断言也要标【代码推导】。回复中列出全部待确认项；用户确认后并入正式章节
+  - 规则 / 需求文档中的代码细节放独立的「源码实现参考」小节，不并入需求正文
+  - **代码行为与需求不一致 = 疑似 bug**，必须在回复中主动报告（附源码位置 / PR 号），不得写成「需求变更」
 
 ### 常规录制流程
 0. （上面 Phase 0 已做）也读 `shared/ui-semantic-map.json` + `shared/generated/app-monorepo-testid-index.json` 找已知定位
