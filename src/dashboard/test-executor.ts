@@ -159,7 +159,7 @@ export function restartRun() {
 }
 
 function isMobileFile(filePath: string): boolean {
-  // Registry passes paths relative to src/tests/ (e.g. "mobile/wallet/x.test.mjs"),
+  // Registry passes paths relative to src/tests/ (e.g. "mobile/modules/wallet/x.test.mjs"),
   // so we match on the "mobile/" segment without requiring a leading slash.
   return /(^|[\\/])mobile[\\/]/.test(filePath);
 }

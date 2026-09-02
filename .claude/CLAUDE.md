@@ -128,7 +128,12 @@ curl -s http://127.0.0.1:9222/json/version
 - `src/tests/run.mjs` — CLI Runner（**正式入口**）
 - `src/tests/helpers/{index,navigation,accounts,network,transfer,preconditions,components,runtime-config}.mjs`
   - `runtime-config.mjs` 暴露 `loadAccounts()` / `requireAccounts()` / `resolveTransferDirection()`，读取 `shared/runtime-config.json` 中 Dashboard 配置的钱包账户，转账脚本默认 primary→secondary，余额不足自动反向
+- `src/tests/android/recorder.mjs` — Android 录制器（Midscene Hybrid，与下方 Appium POM 线独立）
 - `src/tests/mobile/_appium.mjs` — 移动端 Appium server + WDIO 会话生命周期（Android/iOS 共用入口，`MOBILE_TARGET_PLATFORM` 决定平台）
+- `src/tests/mobile/run-mobile.mjs` — `createMobileRunner()` / `runAsMain()` CLI 入口
+- `src/tests/mobile/mobile-page.mjs` — `MobilePage` 基类（tap / waitFor / setValue / tapText）
+- `src/tests/mobile/helpers/{index,components}.mjs` — 元素解析（`lookupTestId`）+ 步骤跟踪（`safeStep(driver, …)`）
+- `src/tests/mobile/modules/<module>/{test,data,pages}/` — 移动端 POM 模块根（见下方 Mobile Test Module Contract）
 - `src/schemas/*.schema.json` — JSON Schema for all shared state files
 - `src/dashboard/server.ts` — 测试执行面板（http://localhost:5050）
 - `src/dashboard/test-executor.ts` — Dashboard executor
@@ -225,10 +230,136 @@ if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 ```
 
 **关键约束**：
-- `fn(page)` 只接收 `page` 一个参数 — Dashboard executor 兼容性要求
+- `fn(page)` 只接收 `page` 一个参数 — Dashboard executor 兼容性要求（**移动端例外：见 Mobile Test Module Contract，用 `fn(driver)`**）
 - 前置条件在 `setup()` 中运行并缓存到模块级 `_preReport`，不在每个 fn 中重复运行
 - **永远不要关闭 browser** — 那是用户的 OneKey 实例
 - 脚本必须连贯执行：一个用例 = 一段连续操作流，不拆成多个孤立用例
+
+## Mobile Test Module Contract（POM · Appium）
+
+移动端自动化走 **Appium + Page Object Model**，与桌面 CDP（Playwright `page`）分离。新脚本**必须**落在 `src/tests/mobile/modules/` 下，禁止在 `src/tests/mobile/<module>/` 根层新建扁平 `.test.mjs`。
+
+### 目录结构
+
+```
+src/tests/mobile/
+├── _appium.mjs                 # connectDriver / disconnectDriver
+├── run-mobile.mjs              # createMobileRunner, runAsMain
+├── mobile-page.mjs             # MobilePage 基类
+├── helpers/
+│   ├── index.mjs               # byTestId / tap / waitFor / setValue（走 shared/locators）
+│   └── components.mjs          # createStepTracker + safeStep(driver, …)
+└── modules/
+    ├── <module>/               # 通用 MOBILE-* 用例（Android + iOS 复用）
+    │   ├── test/*.test.mjs     # 用例编排：步骤 + 断言
+    │   ├── data/*.mjs          # 用例 ID 列表 + 参数化数据
+    │   └── pages/*.mjs         # Page Object：导航与元素交互（不做断言）
+    ├── ios/<module>/           # IOS-* 平台特有用例（可 import 通用模块的 pages/）
+    └── android/<module>/       # ANDROID-* 平台特有用例
+```
+
+### 三层职责
+
+| 层 | 路径 | 职责 | 禁止 |
+|----|------|------|------|
+| **Test** | `modules/<module>/test/*.test.mjs` | `createStepTracker` + `safeStep` 编排流程；调用 Page 方法；写断言 / SKIP | 直接 `driver.$()` 定位；硬编码 testid |
+| **Page** | `modules/<module>/pages/*.mjs` | 继承 `MobilePage`；封装页面导航与点击/输入；方法返回 detail 字符串 | `createStepTracker`；`throw` 业务断言（可读检查可放在 Page 的 `assert*` 辅助方法里供 test 调用） |
+| **Data** | `modules/<module>/data/*.mjs` | `*_CASES` 数组（id/name/kind）；`load*Data()` 读 env / 默认参数 | UI 操作逻辑 |
+
+跨模块复用 Page：直接 import 目标模块的 `pages/`（例：`address-book` test import `../../wallet/pages/wallet-home.mjs`）。
+
+### 完整模板（`modules/<module>/test/<feature>.test.mjs`）
+
+```javascript
+// <测试描述> — MOBILE-<MODULE>-NNN
+// 数据: ../data/<feature>.mjs
+
+import { resolve } from 'node:path';
+import { createStepTracker, safeStep } from '../../../helpers/components.mjs';
+import { createMobileRunner, runAsMain } from '../../../run-mobile.mjs';
+import { OnboardingPage } from '../pages/onboarding.mjs';
+import { FEATURE_CASES, loadFeatureData } from '../data/<feature>.mjs';
+
+export const platform = 'mobile';
+export const displayName = '中文组名';           // 必填
+// export const categoryTitle = '模块中文名';  // 可选，覆盖侧栏模块名
+
+const screenshotDir = resolve(import.meta.dirname, '../../../../../../shared/results/mobile/<module>');
+const data = loadFeatureData();
+
+export const testCases = FEATURE_CASES.map((caseDef) => ({
+  id: caseDef.id,
+  name: caseDef.name,
+  fn: async (driver) => {
+    const t = createStepTracker(caseDef.id);
+    const page = new OnboardingPage(driver);
+
+    await safeStep(driver, t, '前置：等待引导页就绪', async () => {
+      return page.waitForReady();
+    }, screenshotDir);
+
+    await safeStep(driver, t, '点击创建或导入', async () => {
+      return page.tapCreateOrImport();
+    }, screenshotDir);
+
+    return t.result();
+  },
+}));
+
+export async function setup() {
+  return { shouldSkip: () => false };
+}
+
+export const { run } = createMobileRunner({ testCases, setup });
+// connectOptions: { platform: 'ios' } 仅当文件需固定平台时传入
+
+runAsMain(import.meta.url, run);
+```
+
+### Page Object 模板（`modules/<module>/pages/<page>.mjs`）
+
+```javascript
+import { MobilePage } from '../../../mobile-page.mjs';
+
+/** 文件头注释列出涉及的 testid / 可见文案 */
+export class ExamplePage extends MobilePage {
+  async waitForReady(opts = {}) {
+    await this.waitFor('some-testid', { timeout: opts.timeout ?? 15000 });
+    return 'ready';
+  }
+
+  async tapEntry() {
+    await this.tap('entry-button');       // data-testid → shared/locators
+    return 'entry tapped';
+  }
+
+  async tapByLabel(label) {
+    await this.tapText(label);              // 无 testid 时用可见文案
+    return `tapped ${label}`;
+  }
+}
+```
+
+### 关键约束（移动端）
+
+- **`fn(driver)`** 只接收 WDIO driver 一个参数 — Dashboard executor 对 mobile 文件自动走 Appium 会话
+- **`safeStep(driver, t, …)`** 来自 `src/tests/mobile/helpers/components.mjs`（不是桌面 `src/tests/helpers/components.mjs`）
+- **`createMobileRunner`** 替代 `connectCDP`；CLI 直跑用 `runAsMain(import.meta.url, run)`
+- **定位**：Page 内通过 `MobilePage` → `helpers/index.mjs` → `lookupTestId()` 读 `shared/locators/<module>.json`；缺失时抛 `MissingTestIdError`，先补 locator 再写脚本
+- **平台**：默认两端复用同一份 `MOBILE-*` 脚本；`MOBILE_TARGET_PLATFORM`（Dashboard 移动端切换器 / env）决定当前跑 Android 还是 iOS；仅平台差异拆 `IOS-*` / `ANDROID-*` 到 `modules/ios|android/<module>/test/`
+- **截图目录**：`shared/results/mobile/<module>/`；仅失败步骤自动截图
+- **每个 case 独立可跑**：case 内第一步必须是幂等前置（`waitForReady` / 导航 helper），不假设上一 case 留下的 UI 状态
+- **不要 disconnect 以外的副作用**：`createMobileRunner` 在 finally 里断开 Appium；桌面 CDP 规则不适用
+
+### 运行
+
+```bash
+# 单文件
+node src/tests/mobile/modules/onboarding/test/create-wallet.test.mjs
+
+# Dashboard：切换到 Mobile 平台 + 选择 Android/iOS target → 勾选用例执行
+curl -s http://localhost:5050/api/mobile-target   # 查看当前 target
+```
 
 ## Locator 维护流程（严格执行 ⚠️）
 
@@ -303,11 +434,13 @@ node scripts/build-locator-map.mjs --check
 - **移动端 ID 前缀规范**（强制）：
   | 前缀 | 含义 | 用例文件位置 |
   |------|------|----------|
-  | `MOBILE-<MODULE>-<NNN>` | 两端共用的通用流程 | `src/tests/mobile/<module>/*.test.mjs` |
-  | `ANDROID-<MODULE>-<NNN>` | 仅 Android 特有（指纹、back 键、系统弹窗等） | `src/tests/mobile/android/<module>/*.test.mjs` |
-  | `IOS-<MODULE>-<NNN>` | 仅 iOS 特有（Face ID、Allow Notification 弹窗等） | `src/tests/mobile/ios/<module>/*.test.mjs` |
+  | `MOBILE-<MODULE>-<NNN>` | 两端共用的通用流程 | `src/tests/mobile/modules/<module>/test/*.test.mjs` |
+  | `ANDROID-<MODULE>-<NNN>` | 仅 Android 特有（指纹、back 键、系统弹窗等） | `src/tests/mobile/modules/android/<module>/test/*.test.mjs` |
+  | `IOS-<MODULE>-<NNN>` | 仅 iOS 特有（Face ID、Allow Notification 弹窗等） | `src/tests/mobile/modules/ios/<module>/test/*.test.mjs` |
 
-  默认走 `MOBILE-*`——除非真的存在平台差异（非共享 testID、非共享业务流），否则不要拆。在 `_appium.mjs` 里通过 `MOBILE_TARGET_PLATFORM` 环境变量决定当前会话跑 Android 还是 iOS，同一份 `MOBILE-*` 用例代码两端复用。
+  每个业务模块目录自包含 POM 三层：`modules/<module>/{test/, data/, pages/}`（详见 **Mobile Test Module Contract**）。`pages/` 只做交互，`test/` 做步骤编排与断言，`data/` 放用例 ID 与参数。iOS/Android 特有用例放 `modules/ios|android/<module>/test/`，可复用通用模块的 `pages/`。基础设施留在 `src/tests/mobile/` 根目录（`helpers/`、`mobile-page.mjs`、`_appium.mjs`、`run-mobile.mjs`）。
+
+  默认走 `MOBILE-*`——除非真的存在平台差异（非共享 testID、非共享业务流），否则不要拆。`MOBILE_TARGET_PLATFORM`（Dashboard 移动端 target 或 env）决定当前会话跑 Android 还是 iOS。
 - Result files: `shared/results/<id>.json`
 - Selector strategy (current execution path): ui-map primary → fallbacks → JS evaluate emergency
 - Selector reference order for new test generation / maintenance: `shared/ui-semantic-map.json` → `shared/generated/app-monorepo-testid-index.json` → `shared/ui-map.json` → runtime exploration
@@ -954,6 +1087,7 @@ node src/tests/run.mjs perps              # 运行整个模块
 node src/tests/run.mjs settings/language  # 运行子路径
 node src/tests/desktop/utility/address-book-add.test.mjs           # 单文件
 node src/tests/desktop/utility/address-book-add.test.mjs ADDR-ADD-003  # 单用例
+node src/tests/mobile/modules/onboarding/test/create-wallet.test.mjs   # Mobile POM 单文件
 
 # Dashboard API
 curl -s http://localhost:5050/api/status
@@ -1128,6 +1262,8 @@ MCP 工具：`list_pages` | `navigate_page` | `take_snapshot` | `click` | `fill`
 - 修改脚本后重启 Dashboard
 - 录制后列出操作清单，用户确认后才生成脚本
 - 提交前执行 `/onekey-qa-review`
+- 移动端新脚本放 `src/tests/mobile/modules/<module>/{test,data,pages}/`，用 `fn(driver)` + `createMobileRunner`
+- 移动端定位走 `MobilePage` → `shared/locators`（`lookupTestId`）
 
 ### Don't
 - 不要硬编码 OneKey 路径，用 `ONEKEY_BIN` 环境变量
@@ -1145,3 +1281,6 @@ MCP 工具：`list_pages` | `navigate_page` | `take_snapshot` | `click` | `fill`
 - 不要关闭 browser 连接
 - 不要没有证据就猜测根因
 - Bug 修复需用户审批，只输出诊断 + 修复建议
+- 不要在 `src/tests/mobile/<module>/` 根层新建扁平 `.test.mjs`（必须用 `modules/` POM 结构）
+- 不要在 mobile `test/` 里裸写 `driver.$()` — 交互进 `pages/`
+- 不要把桌面 `src/tests/helpers/components.mjs` 的 `safeStep(page, …)` 用于 Appium driver

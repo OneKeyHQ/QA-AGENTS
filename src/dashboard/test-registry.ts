@@ -117,12 +117,16 @@ export async function getTestRegistry(): Promise<TestGroup[]> {
       const knownPlatforms = ['desktop', 'web', 'extension', 'mobile'];
       const platform = knownPlatforms.includes(parts[0]) ? parts[0] : 'desktop';
 
-      // Normalize path: "{platform}/{module}/{feature}"
-      // Example: "desktop/perps/favorites" → category: "Perps", group: "Favorites"
-      // Example: "web/market/chart" → category: "Market", group: "Chart"
+      // Normalize path: "{platform}/[{wrapper}/]{module}/{feature...}"
+      // mobile/modules/onboarding/create-wallet → module=onboarding, feature=create-wallet
       const isPlatformDir = knownPlatforms.includes(parts[0]);
-      const moduleSeg = isPlatformDir ? parts[1] : parts[0];
-      const featureSeg = isPlatformDir ? parts[2] : parts[1];
+      const WRAPPER_SEGMENTS = new Set(['modules']);
+      let pathSegs = isPlatformDir ? parts.slice(1) : [...parts];
+      while (pathSegs.length > 0 && WRAPPER_SEGMENTS.has(pathSegs[0])) {
+        pathSegs = pathSegs.slice(1);
+      }
+      const moduleSeg = pathSegs[0] ?? '';
+      const featureSeg = pathSegs.slice(1).join('/') || pathSegs[1] || '';
 
       // Resolution priority for category / group display names:
       //   1. mod.categoryTitle / mod.displayName  (test file owns its own name — preferred for new tests)

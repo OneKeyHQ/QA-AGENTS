@@ -87,6 +87,17 @@ node scripts/lookup-knowledge.mjs --search "DeFi 持仓"
 
 ## Phase 3: 生成测试脚本
 
+### 平台分流
+
+| 平台 | 路径 | 句柄 |
+|------|------|------|
+| Desktop / Web / Extension | `src/tests/<platform>/<module>/*.test.mjs` | `page` |
+| **Mobile（Appium POM）** | `src/tests/mobile/modules/<module>/test/*.test.mjs` | `driver` |
+
+移动端完整规范见 `.claude/CLAUDE.md` → **Mobile Test Module Contract（POM · Appium）**。
+
+### Desktop 模板
+
 按 Phase 0 查到的 knowledge 严格生成。模板：
 
 ```javascript
@@ -103,6 +114,38 @@ export async function setup(page) { /* ... */ }
 ```
 
 **每个 case 必须有 Step 0 前置**确保独立可跑（K-134）。
+
+### Mobile 模板（Appium POM）
+
+路径：`src/tests/mobile/modules/<module>/test/<feature>.test.mjs` + `data/` + `pages/`。
+
+```javascript
+import { resolve } from 'node:path';
+import { createStepTracker, safeStep } from '../../../helpers/components.mjs';
+import { createMobileRunner, runAsMain } from '../../../run-mobile.mjs';
+import { ExamplePage } from '../pages/example.mjs';
+import { FEATURE_CASES } from '../data/<feature>.mjs';
+
+export const platform = 'mobile';
+export const displayName = '中文组名';
+
+const screenshotDir = resolve(import.meta.dirname, '../../../../../../shared/results/mobile/<module>');
+
+export const testCases = FEATURE_CASES.map((c) => ({
+  id: c.id, name: c.name,
+  fn: async (driver) => {
+    const t = createStepTracker(c.id);
+    const page = new ExamplePage(driver);
+    await safeStep(driver, t, '前置', async () => page.waitForReady(), screenshotDir);
+    return t.result();
+  },
+}));
+
+export const { run } = createMobileRunner({ testCases, setup: async () => ({ shouldSkip: () => false }) });
+runAsMain(import.meta.url, run);
+```
+
+Mobile 要点：`fn(driver)` · Page 只做交互 · test 只做 safeStep · testid 走 `shared/locators` · 禁止根层扁平 `mobile/<module>/*.test.mjs`。
 
 ## Phase 4: CDP 实探验证（强制）
 

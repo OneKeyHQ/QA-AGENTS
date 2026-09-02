@@ -146,7 +146,16 @@ cd /Users/chole/onekey-agent-test && node src/recorder/listen.mjs &
 
 ## Phase 3: 生成测试脚本
 
-### 3.1 文件结构
+### 3.0 平台分流
+
+| 平台 | 路径 | 会话句柄 | Runner |
+|------|------|----------|--------|
+| Desktop / Web / Extension | `src/tests/<platform>/<module>/*.test.mjs` | `page` (Playwright CDP) | `connectCDP()` |
+| **Mobile（Appium POM）** | `src/tests/mobile/modules/<module>/test/*.test.mjs` | `driver` (WDIO) | `createMobileRunner()` |
+
+生成移动端脚本前必读 `.claude/CLAUDE.md` → **Mobile Test Module Contract（POM · Appium）**。
+
+### 3.1 文件结构（Desktop / Web / Extension）
 
 文件路径: `src/tests/<feature>/<name>.test.mjs`
 
@@ -230,6 +239,59 @@ export async function run() {
 const isMain = !process.argv[1] || process.argv[1] === new URL(import.meta.url).pathname;
 if (isMain) run().catch(e => { console.error(e); process.exit(1); });
 ```
+
+### 3.1b 文件结构（Mobile · Appium POM）
+
+**路径**：`src/tests/mobile/modules/<module>/test/<feature>.test.mjs`  
+同模块下必须有 `data/<feature>.mjs`（用例 ID + 参数）和 `pages/*.mjs`（Page Object）。
+
+```javascript
+// <测试描述> — MOBILE-<MODULE>-NNN
+// 数据: ../data/<feature>.mjs
+
+import { resolve } from 'node:path';
+import { createStepTracker, safeStep } from '../../../helpers/components.mjs';
+import { createMobileRunner, runAsMain } from '../../../run-mobile.mjs';
+import { ExamplePage } from '../pages/example.mjs';
+import { FEATURE_CASES, loadFeatureData } from '../data/<feature>.mjs';
+
+export const platform = 'mobile';
+export const displayName = '中文组名';
+
+const screenshotDir = resolve(import.meta.dirname, '../../../../../../shared/results/mobile/<module>');
+
+export const testCases = FEATURE_CASES.map((caseDef) => ({
+  id: caseDef.id,
+  name: caseDef.name,
+  fn: async (driver) => {
+    const t = createStepTracker(caseDef.id);
+    const page = new ExamplePage(driver);
+
+    await safeStep(driver, t, '前置：页面就绪', async () => page.waitForReady(), screenshotDir);
+    // …更多 safeStep，只调 Page 方法，不写 driver.$ 裸定位
+
+    return t.result();
+  },
+}));
+
+export async function setup() {
+  return { shouldSkip: () => false };
+}
+
+export const { run } = createMobileRunner({ testCases, setup });
+runAsMain(import.meta.url, run);
+```
+
+**Mobile 代码生成规则（强制）**：
+
+1. **`fn(driver)`** — 不是 `fn(page)`；Dashboard 对 `mobile/` 路径自动注入 Appium driver
+2. **三层分离** — 定位与点击进 `pages/`；用例 ID / 密码 / 地址进 `data/`；`test/` 只做 `safeStep` 编排
+3. **Page 继承 `MobilePage`** — 用 `tap` / `waitFor` / `setValue` / `tapText`；testid 经 `lookupTestId` 解析，先登记 `shared/locators/<module>.json`
+4. **`safeStep` 来源** — `src/tests/mobile/helpers/components.mjs`（第一个参数是 `driver`）
+5. **ID 前缀** — 默认 `MOBILE-*`；仅平台差异拆 `IOS-*` → `modules/ios/<module>/test/` 或 `ANDROID-*` → `modules/android/<module>/test/`
+6. **跨模块 Page** — `import { WalletHomePage } from '../../wallet/pages/wallet-home.mjs'`
+7. **禁止** — 在 `src/tests/mobile/<module>/` 根层新建扁平 test；在 test 里硬编码 `driver.$('~…')`（iOS 特有用例中已有稳定 accessibility id 的 smoke 除外）
+8. **验证** — 真机/Appium 跑通入口步骤；新 testid 先 `node scripts/build-locator-map.mjs` 再执行
 
 ### 3.2 代码生成规则
 
