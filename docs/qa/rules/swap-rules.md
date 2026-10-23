@@ -318,6 +318,61 @@
 - 页面展示的所有手续费与实际扣除的手续费一致
 - 手续费明细清晰可查
 
+#### 3.5 Swap 申请 Gas Account 补贴（客户端申请门禁）
+
+此前中心化渠道兑换可申请 Gas 补贴。本次起是否向估价接口申请补贴，不再仅按渠道类型（CEX / DEX）判断，而是由 **Swap 后台渠道配置** 与 **本次是否需要授权**、**是否启用自定义 RPC** 共同决定。
+
+**客户端申请条件（须同时满足）**：
+
+1. **后台允许该渠道补贴**：构建交易结果标记该渠道可申请补贴。
+2. **本次兑换无需授权**：没有 Approve 交易。
+3. **未启用自定义 RPC**：自定义 RPC 不走 OneKey 服务端 RPC，无法补贴。
+
+三项同时满足时，确认交易估价请求中 **补贴申请开关为开**；任一不满足则为关。
+
+**申请 ≠ 获批**：最终是否补贴以估价接口返回的资格和报价为准。获批则确认页展示「Gas 赞助」并使用赞助；未获批则不展示、用户自付 Gas。后台当前通过渠道开关禁止 **OKX**、**HiFi Swap** 补贴，可用于验证「后台不允许」分支。未获批时可记录该次请求 `requestId`，联系 yuhao 排查限制原因。
+
+**测试矩阵**：
+
+| 场景 | 估价请求补贴申请 | 页面与发送 |
+|------|------------------|------------|
+| 该渠道后台允许赞助，且交易无需授权（默认 RPC） | 开 | 按接口返回决定；获批展示并使用「Gas 赞助」，否则自付 Gas |
+| 该渠道后台禁止赞助，且交易无需授权（如 OKX / HiFi） | 关 | 不展示「Gas 赞助」，自付 Gas 完成兑换 |
+| 交易需要授权 | 关 | 不展示「Gas 赞助」，自付 Gas 完成兑换 |
+| 启用自定义 RPC | 关 | 不展示「Gas 赞助」，自付 Gas 完成兑换 |
+
+**源码实现参考**（`packages/kit` `SignatureConfirm/hooks/useTxFeeInfo.ts`，`x` 分支）：`build-tx` 结果字段 `gasAccountEnabled`；确认估价 `estimateFee` / `estimate-fee` 入参 `gasAccountEnabled`；发送 `send-transaction`。测试用例正文不写接口路径与字段名。
+
+#### 3.6 Dust Sweep（小额代币批量兑换）
+
+钱包用户长期积累的小额代币（dust）在钱包内批量兑成 **当前链 gas token**。入口只在钱包，不进 Trade。渠道暂固定 **OKX**，费率沿用现有 OKX 通道。报价 / 预执行 / 构建 / 广播复用单笔 Swap 管线，客户端 **串行队列**；无链上批量合约；**无进度持久化**。
+
+**入口**：钱包 More「Dust Sweep」+ 一次性 `NEW`（点击后消失）；资产列表小额折叠行快捷入口。
+
+**选择页**：
+- 网络：移动端下拉；桌面端按该网络可清扫余额降序平铺 pills（链图标 + 余额）
+- 档位：`<$1` / `<$10` / `<$100`，默认 `<$10`，记忆上次选择
+- 默认不进列表：Ethereum 主网估值 `< $0.1`；其他网络 `< $0.01`
+- 列表底部隐藏提示行：主文案 `N hidden tokens under $X` + 副行 `Gas fees likely exceed their value` + `Add anyway`；点击后低于门槛的代币一次性加入列表尾部，提示行消失；单向、本页不可撤销（反悔=退出重进）；两端同构
+- 排除：链 gas token、LP / 协议衍生仓位；风险币（未验证 / 可疑）默认不勾选并置灰
+- 列表行：ticker + 全名双行 + 数量/USD；Select all 默认全选可选项
+- 滑点：复用 Review order 交互，预设 `5%` / `10%` / `20%`（默认 `5%`），仅 Confirm；`>50%` 沿用 Review order 错误态；关闭不保存
+- 空态：当前链无可清扫资产时展示空态（No small balances on X / 建议换网络或档位），Convert 不可点击
+
+**执行页**：Convert 直接开始并进入进度页；筛选 / Select all 置灰；checkbox 原位变状态图标。行五态：等待 / 暂停（仅当前停住的一笔）/ 进行中 / 完成（绿勾）/ 失败（红叉，点击展示原因）。`You receive` 随每笔完成实时累加。移动端标题副文案 `Converting N of M…` / `Paused at N of M`；桌面进度在右卡。Stop：停后续未执行项，进行中一笔等落定后标暂停，主按钮变 Continue。执行中返回：弹 `Leave Dust Sweep?`；离开后进度不持久化，已广播的留在链上，重进需重新选币。
+
+**跳过**：凡单笔 Swap Review Order 需要用户二次确认的情形，批量一律跳过。原因能确定则对号入座，否则通用兜底：
+- `Price impact exceeds slippage — skipped`
+- `High value drop — skipped`
+- `No quote from provider — skipped`
+- `Insufficient balance for network fee — skipped`
+- `Transaction failed on-chain`（链上失败，**不是**跳过）
+- `Unknown error — try a manual swap`（兜底）
+
+**完成态**：全部落定后停留本页。移动端底部结果弹层（到账金额 + Converted/Skipped）；`View details` 收起看逐行；`Sweep again` 回选择页刷新。桌面无弹层，右卡 `You receive` 换成结果块（绿勾 + Dust swept + 到账金额）+ Converted 计数，主按钮 `Sweep again`。有跳过时计数写 `6/7 (1 skipped)`，不写 `7/7`。行内不展开明细，去 History 看各笔与 hash。
+
+**目标币固定为链 gas token，不支持切换。**
+
 ---
 
 ### 4. 历史记录测试（History Testing）
@@ -610,6 +665,7 @@
 | RocketX | `SwapRocketX` |
 | HiFi | `SwapHifiSwap` |
 | SwapKit（ThorChain） | `SwapThor` |
+| Binance Web3 | 待 `/swap/v1/providers/list` 或 quote 返回值回填；手工用例按 UI 展示名 `Binance Web3` 断言 |
 
 **渠道构建依赖规则（quoteResultCtx）**：
 - 部分渠道的构建接口（`POST /swap/v1/build-tx`）**必须依赖询价返回的上下文**（如 `quoteResultCtx` / 内部 quoteId / CowSwap 未签名订单等），不能只靠静态字段拼 body。
@@ -631,6 +687,7 @@
 | ❌ 不需要 | 1inch (`Swap1inch`) | 普通 1inch 构建不需要 quoteResultCtx，按静态参数构建 |
 | ❌ 不需要 | OKX (`SwapOKX`) | 构建按静态参数+provider 即可 |
 | ❌ 不需要 | ThorSwap / SwapKit（`SwapThor`） | 由 SwapKit 封装，当前构建按静态参数处理 |
+| ✅ 需要 | Binance Web3 | 仅同链；构建前必须先询价并携带返回的 `quoteResultCtx` |
 | ✅ 需要 | Panora (`SwapPanora`) | Aptos Panora 当前按 `quote/events -> quoteResultCtx.panoraQuoteResultCtx -> build-tx` 执行 |
 | ✅ 需要 | Jupiter (`SwapJupiter`) | Solana Jupiter 构建依赖 quote 返回的 `quoteResultCtx`，并且必须返回 `data.tx` |
 
@@ -669,6 +726,19 @@
 
 **1inch Fusion**：
 - Ethereum、Arbitrum、Optimism、BSC、Polygon、Avalanche
+
+**Binance Web3**：
+- 仅同链；不支持跨链。
+- 同链支持网络：BSC、Ethereum、Arbitrum、Base、Polygon、Optimism、Linea、Blast、Avalanche、Scroll、Sonic、Katana、Monad、Solana、Tron、Robinhood
+- 接入 `networkId` 映射：`evm--56 / evm--1 / evm--42161 / evm--8453 / evm--137 / evm--10 / evm--59144 / evm--81457 / evm--43114 / evm--534352 / evm--146 / evm--747474 / evm--143 / sol--101 / tron--0x2b6653dc / evm--4663`
+- Solana `binanceChainId=CT_501`、Tron `binanceChainId=CT_195`，其余 EVM 使用十进制 chainId；接入清单备注 `monda` 对应 `evm--143` / Monad
+- 不覆盖 `Mode / Metis / Plasma`
+- 按同链聚合器处理：EVM ERC20、Tron TRC20 作为源币需要授权；Solana 不需要授权
+- 构建强制依赖 `quoteResultCtx`，不允许跳过询价直接 build
+- provider 枚举待客户端 `/swap/v1/providers/list` 或 quote 回填；手工用例按 UI 展示名 `Binance Web3` 断言
+- 特殊资产：`Katana` 用 `USDC / KAT`；`Monad` 用 `USDC / USDT`；`Robinhood` 用 `USDG / USDe`；`Blast` 仍用 `USDB`
+- 配套需求：`docs/qa/requirements/Swap-Binance-Web3同链支持网络.md`
+- 配套用例：`docs/qa/testcases/cases/swap/2026-09-22_Swap-Binance-Web3渠道同链测试.md`
 
 **Jupiter**：
 - Solana
@@ -1057,6 +1127,20 @@
    - `Fantom` 的稳定币对当前使用 `USDC -> fUSDT`（`0x04068...` -> `0x049d68...`），返回符号为 `fUSDT`。
 7. 变量表与 token 地址必须从 `swap-network-features.md` 读取；`Blast / X Layer` 这类特殊链不要临时手填老变量名或继承其他渠道的 stable token 表。
 
+### Binance Web3 用例生成加速规则（避免重复调试）
+
+1. Binance Web3 当前按**仅同链聚合器**处理；跨链 `fromNetworkId != toNetworkId` 不得写入成功集。
+2. 用户确认支持网络：`BSC、Ethereum、Arbitrum、Base、Polygon、Optimism、Linea、Blast、Avalanche、Scroll、Sonic、Katana、Monad、Solana、Tron、Robinhood`。不覆盖 `Mode / Metis / Plasma`。
+3. `networkId` 必须用 OneKey 口径；Solana=`sol--101`、Tron=`tron--0x2b6653dc`。对接 Binance 侧 chainId 时 Solana=`CT_501`、Tron=`CT_195`，不得把 `CT_*` 写进 OneKey quote `networkId`。
+4. **provider**：生成 Apifox 前先打 `/swap/v1/providers/list` 或同链 quote，用返回的 `provider` 字符串回填映射表，禁止自拟。
+5. **构建依赖 `quoteResultCtx`**：必须先 quote，再使用返回的 `quoteResultCtx` 做 `build-tx`；缺少 `quoteResultCtx` 判定 failed。
+6. `quote.data` 未命中目标 provider 判定 failed；命中但 `errorMessage` 为流动性不足等业务层错误时，按渠道 SKIP / 业务兜底口径记录，不写成「渠道不支持」。
+7. 特殊资产必须从 `swap-network-features.md` 读取：
+   - `Blast` 使用 `USDB`
+   - `Katana` 使用 `USDC=0x203a662b0bd271a6ed5a60edfbd04bfce608fd36`、`KAT=0x7f1f4b4b29f5058fa32cc7a97141b8d7e5abdc2d`
+   - `Monad` 使用 `USDC=0x00000000efe302beaa2b3e6e1b18d08d69a9012a`、`USDT=0xe7cd86e13ac4309349f30b3435a9d337750fc82d`
+   - `Robinhood` 使用 `USDG=0x5fc5360d0400a0fd4f2af552add042d716f1d168`、`USDe=0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34`，不得套用通用 `USDC / USDT`
+
 ### 0x 用例生成加速规则（避免重复调试）
 
 1. 0x 当前按**同链聚合器**处理，provider 固定为 `Swap0x`；本轮成功集覆盖网络：`Ethereum、Arbitrum、Optimism、BSC、Polygon、Avalanche、Base`。
@@ -1402,6 +1486,15 @@ Swap 支持将兑换后的代币发送到**自定义接收地址**（而非当�
 ---
 
 ## 📅 变更记录
+
+### 2026-10-16
+- 新增 §3.6 Dust Sweep：钱包内小额代币批量兑成链 gas token；OKX 串行；跳过规则对齐 Review Order 二次确认；完成态分端。配套需求 `docs/qa/requirements/Swap-DustSweep.md`、用例 `docs/qa/testcases/cases/swap/2026-10-16_Swap-DustSweep小币种批量兑换.md`。
+
+### 2026-10-12
+- 新增 §3.5 Swap 申请 Gas Account 补贴：客户端是否申请不再仅按渠道类型判断，须同时满足后台允许该渠道补贴、本次无 Approve、未启用自定义 RPC；估价请求补贴申请开关；获批展示「Gas 赞助」；当前可用 OKX / HiFi Swap 验证后台禁止分支。配套需求 `docs/qa/requirements/Swap-GasAccount补贴.md`、用例 `docs/qa/testcases/cases/swap/2026-10-12_Swap-GasAccount补贴申请.md`。
+
+### 2026-09-22
+- 新增 Binance Web3 渠道规则：仅同链，不支持跨链；支持网络为 BSC、Ethereum、Arbitrum、Base、Polygon、Optimism、Linea、Blast、Avalanche、Scroll、Sonic、Katana、Monad、Solana、Tron、Robinhood；去掉 Mode / Metis / Plasma；Solana / Tron 的 `binanceChainId` 分别为 `CT_501` / `CT_195`；构建强制依赖 `quoteResultCtx`；Katana / Monad / Robinhood 代币基线已回填。新增需求 `docs/qa/requirements/Swap-Binance-Web3同链支持网络.md` 与用例 `docs/qa/testcases/cases/swap/2026-09-22_Swap-Binance-Web3渠道同链测试.md`。
 
 ### 2026-07-16
 - 新增风控章节：代币税检测（Token Tax Detection）规则，覆盖 GoPlus + OKX 双源命中、双源税率取大、from / to 双向税、生效滑点自动叠加、用户手动值优先、切代币 / 切方向重算；新增配套需求 `docs/qa/requirements/Swap-代币税检测.md` 与用例 `docs/qa/testcases/cases/swap/2026-07-16_Swap-代币税检测测试.md`

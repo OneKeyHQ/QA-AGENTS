@@ -43,6 +43,9 @@ Swap 模块支持的网络按技术架构分为三类：
 | Sonic | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
 | X Layer | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址） |
 | HyperEVM | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（EOA 复用，USDC / USDT 已补齐） |
+| Katana | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址；USDC / KAT 已回填） |
+| Monad | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址；USDC / USDT 已回填） |
+| Robinhood | `0x99f2c780ffCF94f6Fb5B8C38c6cFaE7E12b0d0B0` | ✅ 已维护（沿用 EVM 地址；USDG / USDe 已回填） |
 | Solana | `5UCR1u65cKhcJCnuaRxXy9zFYXnRBZ9ArYmGah6sEB52` | ✅ 已维护 |
 | TON | `UQADRchuTBUsiEEtGow4z9Uc33l4dz0nhuNz-7S_8jwCE7oP` | ⚠️ 有效样例地址，执行前建议替换为当前测试钱包地址 |
 | Near | `d7be27229b157122eae4e1329fabe67272dcb4ba186378f5f788f245cc1c10d2` | ⚠️ 有效样例地址，执行前建议替换为当前测试钱包地址 |
@@ -75,6 +78,9 @@ Swap 模块支持的网络按技术架构分为三类：
 | Sonic | `evm--146` | `0x29219dd400f2bf60e5a23d13be72b486d4038894` | `0x6047828dc181963ba44974801ff68e538da5eaf9` |
 | X Layer | `evm--196` | `0x74b7f16337b8972027f6196a17a631ac6de26d22` | `-` |
 | HyperEVM | `evm--999` | `0xb88339cb7199b77e23db6e890353e22632ba630f` | `0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb` |
+| Katana | `evm--747474` | `0x203a662b0bd271a6ed5a60edfbd04bfce608fd36` | `-` |
+| Monad | `evm--143` | `0x00000000efe302beaa2b3e6e1b18d08d69a9012a` | `0xe7cd86e13ac4309349f30b3435a9d337750fc82d` |
+| Robinhood | `evm--4663` | `-` | `-` |
 | Solana | `sol--101` | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` | `Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB` |
 | TON | `ton--mainnet` | `-` | `EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs` |
 | Tron | `tron--0x2b6653dc` | `TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8` | `TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t` |
@@ -86,6 +92,13 @@ Swap 模块支持的网络按技术架构分为三类：
 > OKX 当前有两条同链特殊资产基线：
 > - `Blast (evm--81457)` 已验证成功的稳定币基线不是 `USDC / USDT`，而是 `USDB = 0x4300000000000000000000000000000000000003`
 > - `X Layer (evm--196)` 当前已验证稳定币基线为 `0x74b7f16337b8972027f6196a17a631ac6de26d22`，quote 返回符号为 `USDC`
+
+> Binance Web3 特殊资产基线：
+> - `Katana (evm--747474)`：`USDC = 0x203a662b0bd271a6ed5a60edfbd04bfce608fd36`；常用第二代币为 `KAT = 0x7f1f4b4b29f5058fa32cc7a97141b8d7e5abdc2d`（不是 USDT）
+> - `Monad (evm--143)`：`USDC = 0x00000000efe302beaa2b3e6e1b18d08d69a9012a`，`USDT = 0xe7cd86e13ac4309349f30b3435a9d337750fc82d`
+> - `Robinhood (evm--4663)`：稳定币基线为 `USDG = 0x5fc5360d0400a0fd4f2af552add042d716f1d168`、`USDe = 0x5d3a1ff2b6bab83b63cd9ad0787074081a52ef34`，不要写成通用 `USDC / USDT`
+> - `Blast` 稳定币仍优先 `USDB`
+> - Binance Web3 不覆盖 `Mode / Metis / Plasma`
 
 ---
 
@@ -108,6 +121,9 @@ Swap 模块支持的网络按技术架构分为三类：
 | Blast | ETH | 18 | wei | ✅ 是（ERC20 代币） | - | Layer 2 |
 | X Layer | OKB | 18 | wei | ✅ 是（ERC20 代币） | - | Layer 2 |
 | Sonic | SONIC | 18 | wei | ✅ 是（ERC20 代币） | - | EVM 兼容 |
+| Katana | ETH | 18 | wei | ✅ 是（ERC20 代币） | 常用代币为 USDC / KAT | EVM 兼容 |
+| Monad | MON | 18 | wei | ✅ 是（ERC20 代币） | 接入清单备注 `monda`，networkId=`evm--143` | EVM 兼容 |
+| Robinhood | ETH | 18 | wei | ✅ 是（ERC20 代币） | 稳定币基线为 USDG / USDe | EVM 兼容 |
 
 **EVM 网络通用特性**：
 - **授权机制**：ERC20 代币需要先授权（Approve）才能 Swap，Native token（ETH/BNB/MATIC 等）不需要授权
@@ -290,6 +306,9 @@ Swap 模块支持的网络按技术架构分为三类：
 ---
 
 ## 🔄 更新记录
+
+### 2026-09-22
+- 为 Binance Web3 同链渠道补齐 `Katana / Monad / Robinhood` 账户地址与代币基线；去掉 Mode / Metis / Plasma。Katana 使用 `USDC / KAT`，Monad 使用 `USDC / USDT`，Robinhood 使用 `USDG / USDe`。Blast 仍沿用 `USDB`。
 
 ### 2026-05-15
 - 新增 BTC 网络渠道专项规则：支持 BTC 的 Swap 渠道必须覆盖 BTC 目标链新鲜地址与 BTC 源链找零地址，校验接收地址未复用、找零地址归属当前钱包、UTXO 输入/输出/矿工费对账一致。

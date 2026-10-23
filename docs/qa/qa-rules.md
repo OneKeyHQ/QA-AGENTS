@@ -151,6 +151,8 @@
 - 状态机：询价→路径→授权→Swap→Pending→Success/Fail
 - 资金流：授权额度、余额对账、手续费/滑点展示一致
 - 风控：高滑点提醒、合约风险提示、最小收到保护
+- Gas 赞助申请：后台渠道配置 + 无授权 + 非自定义 RPC；获批展示「Gas 赞助」
+- Dust Sweep：钱包内小额代币批量兑成链 gas token；需二次确认的单笔情形批量一律跳过
 - **详细规则**：`docs/qa/rules/swap-rules.md`
 - **网络特性**：`docs/qa/rules/swap-network-features.md`
 - **渠道/场景 Markdown 用例**（同链跨链分文件、P0-only、金额边界并入 §1、专项文档默认不收异常/账户限制章）：见 `swap-rules.md` 中「Swap 渠道/场景用例文档编写规范」
