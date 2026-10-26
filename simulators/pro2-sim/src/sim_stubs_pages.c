@@ -18,6 +18,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "slip39_recovery.h" // SLIP39_FEED_ERR_* 枚举（桩返回值随固件漂移时编译期兜底）
+
 // ── trezor-crypto 纯算法符号（pages/factory/mnemonic、passphrase 输入页用）──
 // 真机由 modules/trezor-crypto 提供（bip39.c / slip39.c / memzero.c）。
 // 那几个 .c 传递依赖 hmac/sha2/pbkdf2/rand，为保持编译集精简此处给最小替身：
@@ -145,9 +147,10 @@ void passphrase_runtime_set_unlocked_via_attach_pin(bool unlocked) { (void)unloc
 // 真机：发布 SE 请求消息 → SE 协处理器处理 → 回执经 zbus 派发到 cb。
 // sim 无 SE：一律返回 false（"未发起请求"），调用页据此走无挂起分支，cb 永不触发。
 // is_pending 一律 false。这些都在按钮事件里触发，离线打开页面（仅布局）不会调用。
-typedef void (*mnemonic_op_client_cb_t)(const void* outcome);
-typedef void (*pin_op_client_cb_t)(const void* outcome);
-typedef void (*passphrase_op_client_cb_t)(const void* outcome);
+// main 2026-10 起直接 include 固件头（回调类型 / 签名随固件漂移时编译期兜底）
+#include "mnemonic_op_client.h"
+#include "pin_op_client.h"
+#include "passphrase_op_client.h"
 
 // pin_op_client
 bool pin_op_verify_async(const char* pin, uint8_t pin_type, pin_op_client_cb_t cb)
@@ -178,8 +181,9 @@ bool pin_op_get_retry_times_async(pin_op_client_cb_t cb)
 bool pin_op_client_is_pending(void) { return false; }
 
 // mnemonic_op_client
-bool mnemonic_op_generate_async(uint8_t word_count, mnemonic_op_client_cb_t cb)
+bool mnemonic_op_generate_async(uint8_t word_count, bool use_multiple_entropy, mnemonic_op_client_cb_t cb)
 {
+    (void)use_multiple_entropy;
     (void)word_count;
     (void)cb;
     return false;
@@ -196,8 +200,9 @@ bool mnemonic_op_verify_async(const char* mnemonic, uint16_t mnemonic_len, mnemo
     (void)cb;
     return false;
 }
-bool mnemonic_op_generate_multi_share_async(uint8_t total_shares, uint8_t threshold, mnemonic_op_client_cb_t cb)
+bool mnemonic_op_generate_multi_share_async(uint8_t total_shares, uint8_t threshold, bool use_multiple_entropy, mnemonic_op_client_cb_t cb)
 {
+    (void)use_multiple_entropy;
     (void)total_shares;
     (void)threshold;
     (void)cb;
@@ -288,18 +293,23 @@ bool slip39_recovery_begin(bool dry_run)
     (void)dry_run;
     return false;
 }
-// slip39_recovery_feed 返回 Slip39FeedResult_t 枚举；SLIP39_FEED_ERR_STATE 是
-// "not active / bad args" 分支，sim 无会话恒返回它。枚举底层是 int，此处用其数值
-// （ERR_STATE 是枚举最后一项）。为避免依赖具体枚举值，直接 include 头取定义更稳，
-// 但该头又拉 utils 链路；折中：返回 int 强转，调用方只比较 OK_COMPLETE，非 OK 即失败路径。
-int slip39_recovery_feed(const uint16_t* word_indices, uint8_t word_count, uint8_t* secret_out, size_t* secret_len)
+// slip39_recovery_feed 返回 Slip39FeedResult_t；SLIP39_FEED_ERR_STATE = "not active / bad args"，
+// sim 无会话恒返回它（枚举来自固件头，值漂移编译期兜底）。
+Slip39FeedResult_t slip39_recovery_feed(const uint16_t* word_indices, uint8_t word_count, uint8_t* secret_out, size_t* secret_len)
 {
     (void)word_indices;
     (void)word_count;
     (void)secret_out;
     if ( secret_len )
         *secret_len = 0;
-    return 5; // SLIP39_FEED_ERR_STATE（枚举末项）：not active
+    return SLIP39_FEED_ERR_STATE;
+}
+// dev 2026-08 新增：续片前四个 metadata 词的预校验。sim 无会话，同 feed 恒 ERR_STATE。
+Slip39FeedResult_t slip39_recovery_validate_prefix(const uint16_t* word_indices, uint8_t prefix_word_count)
+{
+    (void)word_indices;
+    (void)prefix_word_count;
+    return SLIP39_FEED_ERR_STATE;
 }
 void     slip39_recovery_end(void) {}
 bool     slip39_recovery_is_active(void) { return false; }
@@ -392,23 +402,9 @@ void ui_state_when_bg_ready(ui_state_bg_ready_cb_t cb)
         cb();
 }
 
-// ── SeedCard 备份/恢复流程（d10b3be2 起接真实 BG NFC，整组页面被排除出 sim 构建，
-//    见 CMakeLists SIM_PAGES_UNSUPPORTED）。仍编入的入口页（backup_*.c/settings 等）
-//    引用这些流程入口符号，给 no-op 桩：sim 点到对应入口无反应（页面本体不可离线渲染）。
-#include "pages/backup/seedcard_flow.h"
-#include "pages/backup/seedcard_name_flow.h"
-void        seedcard_backup_start(void) {}
-void        restore_seedcard_start(void) {}
-void        seedcard_name_flow_show(const SeedcardNameFlowCfg_t* cfg) { (void)cfg; }
-void        seedcard_flow_wipe_pins(void) {}
-void        seedcard_flow_wipe_write_secrets(void) {}
-const char* seedcard_flow_card_pin(uint8_t* len_out)
-{
-    if ( len_out != NULL )
-        *len_out = 0;
-    return NULL;
-}
-bool seedcard_precheck_is_seed_card(void) { return false; }
+// ── SeedCard 备份/恢复流程：dev 2026-08 重命名挪入 pages/backup/（backup_seedcard_flow.c
+//    / _steps.c / _name_flow.c / backup_restore_seedcard.c），配合 nfc_trigger_* 桩后可在
+//    sim 整组真实编入 —— 原 no-op 桩（seedcard_backup_start 等 9 个）已删除，避免重复符号。
 
 // ── ui_fingerprint_receipt_take（ui_fingerprint_bridge.c）──
 // sim 无指纹事件源，恒无回执。
@@ -492,9 +488,7 @@ bool passkey_discoverable_credential_take_remove_result(bool* success)
 }
 
 // ── b0ef9830 批次新增缺符号 ──
-// seedcard 流程出口/HOLDING 解除（真机由 BG NFC 结果驱动；sim 无 NFC）
-PageId_t seedcard_flow_exit(void) { return PAGE_ID_HOMESCREEN; }
-void     seedcard_holding_disarm(void) {}
+// （seedcard_flow_exit / seedcard_holding_disarm 桩已删：dev 2026-08 起真实实现编入，见上）
 // SE 助记词类型/密文校验异步查询：同其余 op_client 桩，恒"未发起"
 bool mnemonic_op_get_type_async(mnemonic_op_client_cb_t cb)
 {
@@ -552,3 +546,394 @@ bool passkey_discoverable_credential_take_added_notification(void) { return fals
 // ── dev daad16c4 批次：device_rename_confirm 页（dfff5b4a）确认/取消回调 ──
 bool foreground_device_control_rename_confirmed(void) { return false; }
 bool foreground_device_control_rename_cancelled(void) { return false; }
+
+// ── dev 89c4ceb3 批次（2026-08-04 多语言走查）：链接缺符号最小桩 ──
+// auth_manager：SE 绑定失效后的锁定入口。sim 无 SE，空实现。
+void auth_manager_lock_after_binding_invalidated(void) {}
+
+// change_pin_flow：Change PIN 状态机（dev 2eebfd2c 移出页面层）。sim 无 SE 会话：
+// start 返回 false（无法启动），覆盖确认/取消回调空实现。
+bool change_pin_flow_start(void) { return false; }
+void change_pin_flow_overwrite_confirmed(void) {}
+void change_pin_flow_overwrite_cancelled(void) {}
+
+// filesystem（NFT 存储）：sim 无 eMMC 文件系统，全部保守失败 → NFT Gallery 走空态分支
+// （与真机"无 NFT"路径一致，非捏造）。secbool 语义：sectrue=0x55AA55AA，此处返回 secfalse=0。
+#include <filesystem.h>
+secbool_t filesystem_path_exist(const char* path_buff)
+{
+    (void)path_buff;
+    return secfalse;
+}
+secbool_t filesystem_path_info(const char* path_buff, FilesystemPathInfo_t* file_info)
+{
+    (void)path_buff;
+    (void)file_info;
+    return secfalse;
+}
+secbool_t filesystem_file_read(
+    const char* path_buff, uint32_t offset, void* buff, uint32_t target_len, uint32_t* processed_len
+)
+{
+    (void)path_buff;
+    (void)offset;
+    (void)buff;
+    (void)target_len;
+    if ( processed_len )
+        *processed_len = 0;
+    return secfalse;
+}
+secbool_t filesystem_file_delete(const char* path_buff)
+{
+    (void)path_buff;
+    return secfalse;
+}
+secbool_t filesystem_dir_list(
+    const char* path_buff, char* list_subdirs_buff, uint32_t list_subdirs_len, char* list_files_buff,
+    uint32_t list_files_len, uint32_t depth
+)
+{
+    (void)path_buff;
+    (void)depth;
+    if ( list_subdirs_buff && list_subdirs_len )
+        list_subdirs_buff[0] = '\0';
+    if ( list_files_buff && list_files_len )
+        list_files_buff[0] = '\0';
+    return secfalse;
+}
+
+// lv_gif_set_loop_start_frame：main 2026-10 起 sim 编入固件补丁版 lv_gif.c（含该扩展），不再桩
+
+// mnemonic_op：导出开关 get/set（dev 新增）。async 返回 false = op 未启动。
+bool mnemonic_op_get_export_enabled_async(mnemonic_op_client_cb_t cb)
+{
+    (void)cb;
+    return false;
+}
+bool mnemonic_op_set_export_enabled_async(bool enable, const char* pin, uint8_t pin_len, mnemonic_op_client_cb_t cb)
+{
+    (void)pin;
+    (void)pin_len;
+    (void)enable;
+    (void)cb;
+    return false;
+}
+
+// nfc_trigger（SeedCard NFC 会话触发）：sim 无 BG NFC，全部空实现（页面停留在等待态）。
+void nfc_trigger_seedcard_detect(bool is_restore) { (void)is_restore; }
+void nfc_trigger_seedcard_execute(
+    bool is_restore, const char* card_pin, uint8_t card_pin_len, const char* device_pin, uint8_t device_pin_len,
+    const char* mnemonic, uint16_t mnemonic_len
+)
+{
+    (void)is_restore;
+    (void)card_pin;
+    (void)card_pin_len;
+    (void)device_pin;
+    (void)device_pin_len;
+    (void)mnemonic;
+    (void)mnemonic_len;
+}
+void nfc_trigger_seedcard_verify_pin(const char* card_pin, uint8_t pin_len, const char* expected_serial)
+{
+    (void)card_pin;
+    (void)pin_len;
+    (void)expected_serial;
+}
+void nfc_trigger_seedcard_change_pin(
+    const char* old_pin, uint8_t old_len, const char* new_pin, uint8_t new_len, const char* expected_serial
+)
+{
+    (void)old_pin;
+    (void)old_len;
+    (void)new_pin;
+    (void)new_len;
+    (void)expected_serial;
+}
+void nfc_trigger_seedcard_set_lock(bool enable, const char* card_pin, uint8_t pin_len, const char* expected_serial)
+{
+    (void)enable;
+    (void)card_pin;
+    (void)pin_len;
+    (void)expected_serial;
+}
+void nfc_trigger_seedcard_set_name(
+    const uint8_t* name, uint8_t name_len, const char* card_pin, uint8_t pin_len, const char* expected_serial
+)
+{
+    (void)name;
+    (void)name_len;
+    (void)card_pin;
+    (void)pin_len;
+    (void)expected_serial;
+}
+void nfc_trigger_seedcard_reset_card(const char* expected_serial) { (void)expected_serial; }
+
+// passkey：网站图标路径解析（dev ba362d6e sized icons）。返回 NULL = 无图标，
+// 页面走默认占位图标分支。
+#include "passkey/passkey_ui.h"
+const char* passkey_ui_website_icon(char* path, size_t path_size, const char* rp_id, PasskeyWebsiteIconSize_t size)
+{
+    (void)path;
+    (void)path_size;
+    (void)rp_id;
+    (void)size;
+    return NULL;
+}
+
+// passphrase runtime：是否经 attach-PIN 解锁。sim 恒 false（未解锁常规态）。
+bool passphrase_runtime_is_unlocked_via_attach_pin(void) { return false; }
+
+// pin_op_client：取消挂起 PIN 操作。sim 无挂起 op，空实现。
+void pin_op_client_cancel(void) {}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// main 2026-10（d7e612e6）追平：pages/ 新引用的业务层符号
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── navigation_coordinator（tasks/task_foreground/utils/navigation_coordinator.c）──
+// 真机：所有页面导航经协调器统一排队（锁屏/启动/渲染暂停时拒绝或延后），最终构造 PageNavRequest_t 交
+// page_manager_submit。sim 无锁屏/启动门禁，跳过守卫，op → PageNavRequest_t 的映射逐条照抄固件
+// navigate_ex 的 switch（scope / dedup / axis / chain_transient 决定转场轴向与栈形态，关系 compositor 走哪条转场路径）。
+#include "navigation_coordinator.h"
+#include "page_manager/page_manager.h"
+NavigationNavResult_t navigation_coordinator_navigate_ex(NavigationOp_t op, NavigationLane_t lane, PageId_t id, void* arg)
+{
+    (void)lane;
+    bool accepted = false;
+    switch ( op )
+    {
+    case NAV_OP_PUSH:
+        accepted = page_manager_submit(&(PageNavRequest_t){.action = PAGE_NAV_PUSH, .target_id = id, .arg = arg});
+        break;
+    case NAV_OP_PUSH_UP:
+        accepted = page_manager_submit(&(PageNavRequest_t){.action = PAGE_NAV_PUSH, .target_id = id, .arg = arg, .axis = PAGE_NAV_AXIS_VERTICAL});
+        break;
+    case NAV_OP_REPLACE:
+        accepted = page_manager_submit(&(PageNavRequest_t){.action = PAGE_NAV_PUSH, .target_id = id, .arg = arg, .scope = PAGE_NAV_SCOPE_REPLACE_TOP});
+        break;
+    case NAV_OP_REPLACE_TOP_INPLACE:
+        accepted = page_manager_submit(&(PageNavRequest_t){
+            .action = PAGE_NAV_PUSH, .target_id = id, .arg = arg, .scope = PAGE_NAV_SCOPE_REPLACE_TOP, .dedup = PAGE_NAV_DEDUP_NONE});
+        break;
+    case NAV_OP_PUSH_ROOT:
+        accepted = page_manager_submit(&(PageNavRequest_t){.action = PAGE_NAV_PUSH, .target_id = id, .arg = arg, .scope = PAGE_NAV_SCOPE_CLEAR_STACK});
+        break;
+    case NAV_OP_PUSH_ROOT_UP:
+        accepted = page_manager_submit(&(PageNavRequest_t){
+            .action = PAGE_NAV_PUSH, .target_id = id, .arg = arg, .scope = PAGE_NAV_SCOPE_CLEAR_STACK, .axis = PAGE_NAV_AXIS_VERTICAL});
+        break;
+    case NAV_OP_POP_TO_ROOT:
+        accepted = page_manager_submit(&(PageNavRequest_t){.action = PAGE_NAV_POP_TO_ROOT, .target_id = id, .arg = arg, .axis = PAGE_NAV_AXIS_VERTICAL});
+        break;
+    case NAV_OP_PUSH_ROOT_INTERRUPT_INTERACTIVE:
+        accepted = page_manager_submit(&(PageNavRequest_t){
+            .action = PAGE_NAV_PUSH, .target_id = id, .arg = arg, .scope = PAGE_NAV_SCOPE_CLEAR_STACK, .abort_interactive = true});
+        break;
+    case NAV_OP_JUMP_TO_EXISTING:
+        accepted = page_manager_contains(id)
+                && page_manager_submit(&(PageNavRequest_t){.action = PAGE_NAV_PUSH, .target_id = id, .dedup = PAGE_NAV_DEDUP_JUMP_TO_EXISTING});
+        break;
+    case NAV_OP_CANCEL_PENDING_PUSH:
+        accepted = page_manager_cancel_pending_push(id);
+        break;
+    case NAV_OP_BACK:
+        accepted = page_manager_back();
+        break;
+    case NAV_OP_POP:
+        accepted = page_manager_submit(&(PageNavRequest_t){.action = PAGE_NAV_POP, .chain_transient = true});
+        break;
+    case NAV_OP_POP_NO_CHAIN:
+        accepted = page_manager_submit(&(PageNavRequest_t){.action = PAGE_NAV_POP});
+        break;
+    case NAV_OP_REMOVE_BURIED:
+        accepted = page_manager_remove_buried(id);
+        break;
+    case NAV_OP_REBUILD_STACK:
+        accepted = page_manager_rebuild_stack();
+        break;
+    default:
+        break;
+    }
+    return accepted ? NAV_RESULT_ACCEPTED : NAV_RESULT_REFUSED;
+}
+bool navigation_coordinator_navigate(NavigationOp_t op, NavigationLane_t lane, PageId_t id, void* arg)
+{
+    return navigation_coordinator_navigate_ex(op, lane, id, arg) != NAV_RESULT_REFUSED;
+}
+NavigationNavResult_t
+navigation_coordinator_navigate_with_press(NavigationOp_t op, NavigationLane_t lane, PageId_t id, void* arg_p, uint32_t press_token)
+{
+    (void)press_token;
+    return navigation_coordinator_navigate_ex(op, lane, id, arg_p);
+}
+uint32_t navigation_coordinator_press_begin(uint32_t timeout_ms)
+{
+    (void)timeout_ms;
+    return 1U;
+}
+bool navigation_coordinator_press_pending(uint32_t token)
+{
+    (void)token;
+    return false;
+}
+void navigation_coordinator_press_cancel(uint32_t token) { (void)token; }
+bool navigation_coordinator_register_busy_source(NavigationCoordinatorBusy_func_t is_busy)
+{
+    (void)is_busy;
+    return true;
+}
+void navigation_coordinator_on_lock_screen_revealed(void) {}
+
+// ── auth_manager（SE 鉴权/锁屏/指纹匹配编排）：sim 永远"已解锁"，PIN 重试次数未知（0）──
+#include "auth_manager.h"
+bool auth_manager_is_locked(void) { return false; }
+bool auth_manager_is_ui_locked(void) { return false; }
+uint8_t auth_manager_known_pin_retry_times(void) { return 0; }
+void auth_manager_set_known_pin_retry_times(uint8_t remaining) { (void)remaining; }
+void auth_manager_refresh_known_pin_retry_times(void) {}
+void auth_manager_cancel_pin_retry_refresh(void) {}
+void auth_manager_on_lock_request(void) {}
+void auth_manager_fingerprint_match_start(const AuthFingerprintMatchHooks_t* hooks) { (void)hooks; }
+void auth_manager_fingerprint_match_stop(void (*owner_on_unlock)(void)) { (void)owner_on_unlock; }
+bool auth_manager_request_home_navigation(AuthHomeNavAction_t action)
+{
+    (void)action;
+    return false; // 未处理 → 调用方自行导航
+}
+
+// ── boot_loading / device_state / foreground_power_hold / foreground_access ──
+#include "boot_loading.h"
+#include "device_state.h"
+#include "foreground_power_hold.h"
+#include "foreground_access_flow.h"
+bool boot_loading_is_active(void) { return false; }
+void device_state_set_unlock_settling(bool settling) { (void)settling; }
+void device_state_shutdown_commit(void) {}
+void device_state_suppress_usb_homescreen_reset(void) {}
+void foreground_power_hold_acquire(void) {}
+void foreground_power_hold_release(void) {}
+void foreground_access_abandon_interactive_flows(void) {}
+
+// ── change_pin_flow / passphrase_op_client / mnemonic_op_client / reset_device（SE 异步操作）──
+#include "change_pin_flow.h"
+#include "passphrase_op_client.h"
+#include "mnemonic_op_client.h"
+#include "reset_device.h"
+bool change_pin_flow_busy(void) { return false; }
+void change_pin_flow_abandon(void) {}
+void change_pin_flow_lock_after_success(void) {}
+void passphrase_op_client_cancel(void) {}
+void mnemonic_op_clear_local(void) {}
+void mnemonic_op_client_cancel(mnemonic_op_client_cb_t cb) { (void)cb; }
+bool mnemonic_op_export_async(const char* pin, uint8_t pin_len, mnemonic_op_client_cb_t cb)
+{
+    (void)pin;
+    (void)pin_len;
+    (void)cb;
+    return false; // 未发起
+}
+bool mnemonic_op_take_exported(char* out, size_t cap)
+{
+    (void)out;
+    (void)cap;
+    return false;
+}
+bool reset_device_request_delayed(uint32_t delay_ms)
+{
+    (void)delay_ms;
+    return false;
+}
+
+// ── host_asset_package / host_firewall（主机侧资源包、协议防火墙）──
+#include "host_asset_package.h"
+#include "host_firewall.h"
+HostAssetPackageResult_t host_asset_package_extract(const char* package_path_p, const HostAssetPackageEntry_t* entries_p, size_t entry_count)
+{
+    (void)package_path_p;
+    (void)entries_p;
+    (void)entry_count;
+    return HOST_ASSET_PACKAGE_INVALID;
+}
+void host_asset_package_remove_outputs(const HostAssetPackageEntry_t* entries_p, size_t entry_count)
+{
+    (void)entries_p;
+    (void)entry_count;
+}
+secbool_t host_firewall_boot_language_synced(void) { return sectrue; }
+
+// ── my_address_session 展示会话（main 2026-10 新增 display_* 四件套）──
+#include "my_address_session.h"
+bool my_address_session_display_busy(void) { return false; }
+void my_address_session_display_begin(void) {}
+void my_address_session_display_done(void) {}
+bool my_address_session_request_busy(void) { return false; }
+
+// ── passkey 可发现凭据刷新（FIDO）──
+#include "passkey/passkey_service.h"
+bool passkey_discoverable_credential_is_refresh_queued(void) { return false; }
+bool passkey_discoverable_credential_needs_refresh(void) { return false; }
+bool passkey_discoverable_credential_take_refresh_failure(void) { return false; }
+
+// ── ui_state_cache：蜂鸣器请求（BG 播放）──
+#include "ui_state_cache.h"
+void ui_request_buzzer(BuzzerMelodyId_t melody) { (void)melody; }
+
+// ── filesystem 文件句柄 API（nft_storage / 壁纸等；sim 无 vol1 文件系统，一律失败）──
+#include <filesystem.h>
+secbool_t filesystem_file_open(FilesystemFile_t* file_p, const char* path_buff, FilesystemFileMode_t mode)
+{
+    (void)file_p;
+    (void)path_buff;
+    (void)mode;
+    return secfalse;
+}
+secbool_t filesystem_file_read_at(FilesystemFile_t* file_p, uint32_t offset, void* buff, uint32_t target_len, uint32_t* processed_len)
+{
+    (void)file_p;
+    (void)offset;
+    (void)buff;
+    (void)target_len;
+    if ( processed_len != NULL )
+        *processed_len = 0;
+    return secfalse;
+}
+secbool_t filesystem_file_write_at(FilesystemFile_t* file_p, uint32_t offset, const void* buff, uint32_t target_len, uint32_t* processed_len)
+{
+    (void)file_p;
+    (void)offset;
+    (void)buff;
+    (void)target_len;
+    if ( processed_len != NULL )
+        *processed_len = 0;
+    return secfalse;
+}
+secbool_t filesystem_file_sync(FilesystemFile_t* file_p)
+{
+    (void)file_p;
+    return secfalse;
+}
+secbool_t filesystem_file_close(FilesystemFile_t* file_p)
+{
+    (void)file_p;
+    return secfalse;
+}
+secbool_t filesystem_file_touch(const char* path_buff)
+{
+    (void)path_buff;
+    return secfalse;
+}
+secbool_t filesystem_file_rename(const char* path_buff_old, const char* path_buff_new)
+{
+    (void)path_buff_old;
+    (void)path_buff_new;
+    return secfalse;
+}
+
+// ── resource_manager：noto 字体包路径（sim 资源树里 noto 目录直接可读，pkg 视为恒挂载）──
+#include <resource_manager.h>
+const char* resource_manager_noto_pkg_path(const char* lang_tag)
+{
+    (void)lang_tag;
+    return "A:/resource/font/noto";
+}

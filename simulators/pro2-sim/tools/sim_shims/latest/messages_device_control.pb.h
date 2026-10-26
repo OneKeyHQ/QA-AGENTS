@@ -42,7 +42,21 @@ typedef enum _DeviceSettingsPage
     DeviceSettingsPage_DevicePinChange = 1,
     DeviceSettingsPage_DevicePassphrase = 2,
     DeviceSettingsPage_DeviceAirgap = 3,
+    DeviceSettingsPage_DeviceNameDisplay = 4,
+    DeviceSettingsPage_DeviceUsbLock = 5,
+    DeviceSettingsPage_DeviceRandomKeypad = 6,
+    DeviceSettingsPage_DeviceFido = 7,
+    DeviceSettingsPage_DeviceAutolock = 8,
+    DeviceSettingsPage_DeviceAutoshutdown = 9,
+    DeviceSettingsPage_DeviceBluetooth = 10,
 } DeviceSettingsPage;
+
+typedef enum _DeviceRebootType
+{
+    DeviceRebootType_Normal = 0,
+    DeviceRebootType_Romloader = 1,
+    DeviceRebootType_Bootloader = 2,
+} DeviceRebootType;
 
 typedef struct _DeviceSettings
 {
