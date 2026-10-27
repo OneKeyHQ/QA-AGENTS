@@ -16,6 +16,7 @@
 | **Gas Account 面板** | 登录页、余额、充值（Apple Pay）、Activity；下文「gasAccountInfo」「feePaymentMethod」等 JSON 示例面向该域与后端兼容。 |
 | **SignatureConfirm Gas Sponsor** | 任意业务（发送 / Swap / Perps / Earn / dApp）交易确认页：`/estimate-fee` 的 `payer`、`gasAccountEligible`、`gasAccountQuote`（`quoteId`/`maxFee`/`expiresAt`），`/send-transaction` 的 `quoteId`/`idempotencyKey`，A/B/C 类错误与 `gasAccountTemporarilyDisabled`；**以 `docs/qa/rules/wallet-rules.md` §8.9 与 `docs/qa/testcases/cases/wallet/2026-03-31_Wallet-GasAccount功能测试.md` 为准**。 |
 | **与用例关系** | 当前手工用例 `Wallet-GasAccount功能测试.md` 聚焦 SignatureConfirm 链路，**暂不覆盖**充值流程；面板能力仍以本章功能说明为准，分阶段验收。 |
+| **Swap 申请门禁** | 兑换是否向估价申请补贴，不再仅按中心化渠道判断。须同时满足后台允许该渠道补贴、本次无 Approve、未启用自定义 RPC。详见 `docs/qa/requirements/Swap-GasAccount补贴.md`。 |
 
 ## 产品定位
 
@@ -139,3 +140,4 @@ Gas Account 是 OneKey 钱包内的"代付 Gas 账户"，用户充值 USDT 等�
 |------|---------|
 | 2026-03-31 | 初始版本，基于 4 份设计文档汇总 |
 | 2026-04-20 | 增加「文档分域与测试口径」：区分面板与 SignatureConfirm；与 §8.9 / 手工用例对齐说明 |
+| 2026-10-12 | 补充 Swap 申请门禁交叉引用：`docs/qa/requirements/Swap-GasAccount补贴.md` |

@@ -62,6 +62,10 @@ Wallet 模块包含以下核心功能：
 | 筛选 | 支持按链筛选 |
 | 空状态 | 无 Token 时显示引导添加 |
 
+### 2.3 Dust Sweep 入口
+
+钱包页 More 菜单提供「Dust Sweep」（一次性 `NEW` 标签，点击后消失）；资产列表小额资产折叠行提供快捷入口。**不放 Trade 页。** 选择、执行、跳过、完成态见 `docs/qa/rules/swap-rules.md` §3.6、`docs/qa/requirements/Swap-DustSweep.md`。
+
 ---
 
 ## 3. 转账规则
@@ -483,6 +487,8 @@ Gas Account 是 OneKey 钱包内的"代付 Gas 账户"，用户充值 USDT 等�
 | 成功 Toast | Gas-sponsored 提交成功：文案 `Gas-sponsored transaction submitted`，图标 GiftSolid；用户自付沿用原默认完成提示 |
 | 每日限额 | 用尽后 `payer=user` / `gasAccountEligible=false`，确认页显示常规 Network Fee，不包含 quote 字段 |
 
+**Swap 客户端申请门禁（2026-10-12）**：兑换场景在调用估价前，还须同时满足后台允许该渠道补贴、本次无 Approve、未启用自定义 RPC，才会把估价请求中的补贴申请开关打开。申请后是否获批仍以估价返回为准；获批时 Swap 确认页展示「Gas 赞助」。详见 `docs/qa/rules/swap-rules.md` §3.5、`docs/qa/requirements/Swap-GasAccount补贴.md`。与本表「自定义 RPC 时禁用」一致。
+
 ---
 
 ## 11. BTC 多地址 / Address List / Coins (UTXO) 规则
@@ -588,6 +594,20 @@ Gas Account 是 OneKey 钱包内的"代付 Gas 账户"，用户充值 USDT 等�
 | 「切换」行为 | **仅关闭当前端的**多地址模式（不同步到其他端）；dApp 以单一固定地址连接成功 |
 | Swap | 多地址关闭后正常询价与提交交易；多地址开启时是否拦截以产品实现为准（btcUnitsat 类 dApp 拦截，常规 Swap 通常不受影响） |
 
+### 11.8 xStocks Multiplier 规则
+
+适用于 Solana、TON、EVM 上由 Backed 发行的 xStocks。分红、拆股与反向拆分通过 multiplier 改变用户可见权益数量。
+
+| 链 | 余额显示 | 交易金额 |
+| --- | --- | --- |
+| Solana（Token-2022 Scaled UI Amount） | `raw × multiplier` | 用户输入显示量，构建时换算为 raw 最小单位 |
+| TON（TEP-0526） | `muldivr(raw, numerator, denominator)` | 用户输入显示量，按 `muldivr(display, denominator, numerator)` 换算后上链 |
+| EVM | 直接采用 `balanceOf()` | 直接采用标准 ERC-20 可见余额；禁止再次应用 multiplier |
+
+- multiplier API 的 pending 值与 activation timestamp 必须缓存；到点后刷新资产缓存与所有余额入口。API 异常时保留上次有效值，不得归零或采用非法乘数。
+- Solana / TON 的 xStocks 在 activation 前后各 15 分钟暂停转账、MAX 与 Swap 构建/提交；非 xStocks 与 EVM xStocks 不受影响。
+- 新增或修改 xStocks 测试时，必须使用可控 multiplier 覆盖 dividend、split、reverse split；不能只使用 multiplier=1.0 的线上数据。
+
 ---
 
 ## 9. 通用规则
@@ -660,3 +680,5 @@ Gas Account 是 OneKey 钱包内的"代付 Gas 账户"，用户充值 USDT 等�
 | 2026-04-17 | 新增 §1.1 钱包类型术语规范（全模块通用）：统一 HD/HW 简写；§5.05 隐藏范围修正为「观察账户 / 外部账户 / HD（未备份）/ 已删除的隐藏钱包 / 已重置的 HW」；§5.05 搜索路径过滤补充「结果中不显示派生路径标签」；§5.05.1 新增 HW 重置后联想清理条目 |
 | 2026-04-20 | 补充 §8.9 SignatureConfirm Gas Sponsor；§8.4/§8.7 与用例 API 口径对齐说明；恢复本表 2026-04-03～2026-04-17 变更记录行 |
 | 2026-05-20 | 新增 §11 BTC 多地址 / Address List / Coins (UTXO) 规则（PR #11716，v6.3.0）：多地址开关默认值（老用户关 / 新装开）+ **单端独立不跨端同步**、开启/关闭后 UI 与找零行为、Address List 模态（Receive/Change Tab + Next badge + 7/页分页 + 派生路径切换器）、Coins (UTXO) 只读模态、选币功能策略（**最小化手续费默认** / 合并硬币）+ 4 种排序 + 算法以官方实现为准、dApp 单地址连接拦截（弹窗 / 插件无弹窗，「切换」仅关闭当前端）|
+| 2026-10-12 | §8.9 补充 Swap 申请门禁：后台渠道配置 + 无授权 + 非自定义 RPC；获批展示「Gas 赞助」；详见 swap-rules §3.5 |
+| 2026-10-16 | §2.3 新增 Dust Sweep 入口：钱包 More / 小额折叠行，不进 Trade；详见 swap-rules §3.6 |
