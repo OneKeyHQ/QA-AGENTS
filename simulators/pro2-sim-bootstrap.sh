@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# pro2 模拟器 bootstrap：拉取 firmware-pro2 dev 分支 → 构建 → 30 帧无头冒烟。
+# pro2 模拟器 bootstrap：拉取 firmware-pro2 main 分支 → 构建 → 30 帧无头冒烟。
+# （2026-10 起固件远端 dev 已删除，跟踪 main）
 #
 # 用法：
 #   ./simulators/pro2-sim-bootstrap.sh
@@ -9,12 +10,12 @@
 #                    （不 fetch / 不切分支），适合复用本地已在维护的固件仓库。
 #                    不指定时默认 clone/更新到 QA-AGENTS/.deps/firmware-pro2（已 gitignore）。
 #   FIRMWARE_REMOTE  固件仓库地址（默认 OneKeyHQ/firmware-pro2）
-#   FIRMWARE_BRANCH  跟踪分支（默认 dev）
+#   FIRMWARE_BRANCH  跟踪分支（默认 main）
 #
 # 构建后固件 commit 记录在 simulators/pro2-sim/build/firmware-commit.txt，
 # 测试报告引用该 hash 即可复现（无需把固件代码入库）。
 #
-# 注意：拉最新 dev 后若链接报 undefined symbols，是 dev 新增页面引用了未桩的
+# 注意：拉最新 main 后若链接报 undefined symbols，是 main 新增页面引用了未桩的
 # 固件后端符号 —— 按现有风格在 pro2-sim/src/sim_stubs_pages.c 补最小桩。
 set -euo pipefail
 
@@ -23,7 +24,7 @@ REPO_ROOT="$(cd "$SIM_DIR/../.." && pwd)"
 
 DEFAULT_FIRMWARE_DIR="$REPO_ROOT/.deps/firmware-pro2"
 FIRMWARE_REMOTE="${FIRMWARE_REMOTE:-https://github.com/OneKeyHQ/firmware-pro2.git}"
-FIRMWARE_BRANCH="${FIRMWARE_BRANCH:-dev}"
+FIRMWARE_BRANCH="${FIRMWARE_BRANCH:-main}"
 
 if [ -n "${FIRMWARE_DIR:-}" ]; then
     # 外部 clone：按原样使用，由使用者自己负责更新到想测的 commit
@@ -59,3 +60,4 @@ echo "$FIRMWARE_COMMIT" > "$SIM_DIR/build/firmware-commit.txt"
 
 echo "OK: 构建 + 30 帧冒烟通过 | firmware @ $FIRMWARE_COMMIT"
 echo "全量逐页截图验证: cd $SIM_DIR && ./build/onekey-sim --snapshot <dir>"
+echo "滚动闪烁类场景回归: cd $SIM_DIR && SDL_VIDEODRIVER=dummy SIM_FIRMWARE_COMMIT=$FIRMWARE_COMMIT ./build/onekey-sim --scenario scenarios/ok-64012-ms-warning-scroll.json"
