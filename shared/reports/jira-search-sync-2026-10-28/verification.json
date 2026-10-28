@@ -1,0 +1,15 @@
+{
+  "issue": "OK-26036",
+  "description_verified": true,
+  "cases": 73,
+  "tables": 11,
+  "cells": 292,
+  "headings": 12,
+  "prerequisites_and_notes": 9,
+  "real_cell_line_breaks": 47,
+  "source_and_copyable_and_remote_cells_equal": true,
+  "numbering_preserved": true,
+  "literal_break_markers": false,
+  "verification_source": "Jira renderedFields.description HTML read back after update; collapsible HTML source whitespace is normalized, explicit br / paragraph boundaries retained",
+  "errors": []
+}

@@ -1,0 +1,12 @@
+{
+  "issue_key": "OK-24550",
+  "status": "passed",
+  "kind": "remote",
+  "case_count": 22,
+  "table_count": 6,
+  "case_cells": 88,
+  "headings": 7,
+  "prerequisites_and_notes": 5,
+  "cell_line_breaks": 46,
+  "description_html_sha256": "d842f74a986420e93bbd4c649883aa5627a4635bf6b6b5cbb807290ac71899f1"
+}

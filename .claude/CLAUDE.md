@@ -4,6 +4,10 @@
 Three-layer multi-agent UI automation testing system for OneKey wallet.
 Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
+## 手动用例交付与 Jira 同步（所有 AI 必须读取）
+
+新建、补充、修改手动用例时，先读 `docs/qa/qa-rules.md` §7.3 和 `docs/qa/rules/jira-test-sync-rules.md`。必须交付 Markdown 源文件及内容一致的可复制 HTML；复制正文只留前置条件与用例内容，保留真实换行。完成本地验证后，主动询问是否同步 Jira；用户同意本批同步后，按 `docs/qa/jira-test-mapping.json` 已核实的 Test 编号直接更新。无映射时询问用户提供已有 Test 编号或确认创建，用户拒绝则不写 Jira。此询问是交付流程的一部分，不受下文「不要再问」影响；当前会话已明确授权同一批目标时不重复询问。完整步骤、字段范围、回读验证与映射维护以同步规则为准。
+
 ## OneKey Desktop App
 - **可执行路径可配置**：通过环境变量 `ONEKEY_BIN` 指定，默认 `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
 - **CDP URL 可配置**：通过环境变量 `CDP_URL` 指定，默认 `http://127.0.0.1:9222`
@@ -742,16 +746,16 @@ NODE
 5. 汇总结果（PASS/FAIL/SKIP + 通过率 + 总耗时）
 6. 失败自动诊断（见 QA Manager 规则）
 
-### 6. `设计用例` / `写用例` / `新增测试` / `@<需求文档> 生成用例`
+### 6. `设计用例` / `写用例` / `修改用例` / `补充用例` / `新增测试` / `@<需求文档> 生成用例`
 
-**角色**：Test Designer — 从 PRD 到可执行测试。
+**角色**：Test Designer — 生成或维护手动用例；明确要求自动化时再进入脚本流程。
 
-1. 读取 @ 引用需求文档（或 `docs/qa/requirements/` 对应文档）
-2. 读取 `docs/qa/qa-rules.md` + `docs/qa/rules/` 对应模块规则
-3. 提取可测试场景，分配 Test ID (`FEATURE-NNN`)，排优先级
-4. 分析前置条件
-5. 按规范生成用例，保存到 `docs/qa/testcases/cases/<模块目录>/`
-6. 如需录制 → 自动启动 CDP + 录制器
+1. 读取需求、执行知识、通用规范及模块规则，对齐 app-monorepo 源码；已知 Bug 按修复后的预期写
+2. 手动用例使用「优先级 / 场景 / 操作步骤 / 预期结果」四列，不分配 Test ID；仅自动化脚本使用 `FEATURE-NNN`
+3. 分析前置条件，去重并检查平台范围，保存到 `docs/qa/testcases/cases/<模块目录>/`
+4. 默认同时生成可复制 HTML，只保留前置条件和用例内容；验证与 Markdown 一致，保留真实换行
+5. 按 `docs/qa/rules/jira-test-sync-rules.md` 询问是否同步 Jira；同意后按共享映射更新，无映射则询问编号或确认创建，拒绝则不写入
+6. 仅明确要求录制或执行自动化时，进入对应平台连接与脚本流程
 
 ### 7. `诊断失败` / `分析结果` / `为什么失败`
 

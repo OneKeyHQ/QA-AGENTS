@@ -1,8 +1,8 @@
 ---
 name: onekey-test-designer
 description: >
-  Test Designer - 从 PRD 到可执行测试。分析用例 → 引导录制 → 生成测试脚本。
-  Triggers on: /onekey-test-designer, "设计用例", "写用例", "新增测试".
+  Test Designer - 生成或更新手动用例与可复制版，按用户选择同步 Jira；也支持从 PRD / 录制生成测试脚本。
+  Triggers on: /onekey-test-designer, "设计用例", "写用例", "修改用例", "补充用例", "新增测试".
 user-invocable: true
 ---
 
@@ -12,7 +12,11 @@ user-invocable: true
 
 ## 工作目录
 
-`/Users/chole/workspace/QA-AGENTS/`
+当前仓库根目录（以 `AGENTS.md` / `.claude/CLAUDE.md` 所在仓库为准）。
+
+## 手动用例交付分支（先判断）
+
+用户要求生成、补充、修改或复核手动用例时，先读取 `docs/qa/qa-rules.md` §7.3、`docs/qa/rules/qa-workflow-rules.md` 和 `docs/qa/rules/jira-test-sync-rules.md`。按模块查规则与知识，交付内容一致的 Markdown 源文件和可复制 HTML；可复制正文只保留前置条件与用例内容，使用真实换行。完成验证后主动询问是否同步 Jira；已明确授权本批目标时不重复询问。同意后按 `docs/qa/jira-test-mapping.json` 更新已核实的 Test；无映射时询问提供编号或确认创建，拒绝则跳过。更新后回读验证并维护映射，完整流程以同步规则为准。纯手动用例任务到此结束，不进入下面的录制、自动化 ID 分配或脚本生成流程；手动表格保持四列且不加 ID。
 
 ## Phase 0: 加载相关 knowledge + rules（**强制 ⚠️ 必须做完才能继续**）
 
