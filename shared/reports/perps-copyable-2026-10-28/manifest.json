@@ -1,0 +1,198 @@
+{
+  "artifact": "shared/reports/Perps-手动用例-可复制版-2026-10-28.html",
+  "documents": [
+    {
+      "issue_key": "OK-24511",
+      "file": "docs/qa/testcases/cases/perps/2026-08-28_Perps-K线布局设置.md",
+      "title": "Perps - K 线布局设置（移动端 K 线位置 / 桌面端面板高度）",
+      "case_count": 59,
+      "table_count": 12,
+      "cell_line_breaks": 53,
+      "source_sha256": "3bad93925563728c8843b9941bbcbd105c9c73597b1ac384dfc0797aeb0e2324"
+    },
+    {
+      "issue_key": "OK-42127",
+      "file": "docs/qa/testcases/cases/perps/2026-01-21_Perps-TV图表功能与设置.md",
+      "title": "Perps - TradingView 图表功能与设置测试用例",
+      "case_count": 61,
+      "table_count": 17,
+      "cell_line_breaks": 74,
+      "source_sha256": "7531cf13baaf83f18b9115a4bc161410d97c453dc45a4002627fea140d88e3f1"
+    },
+    {
+      "issue_key": "OK-48434",
+      "file": "docs/qa/testcases/cases/perps/2026-08-03_Perps-Unifold充值.md",
+      "title": "Perps - Unifold 充值（链上收款）",
+      "case_count": 37,
+      "table_count": 7,
+      "cell_line_breaks": 54,
+      "source_sha256": "63420db4a6a9b3ac2ee26652532f8b1d7ef9950655f0bd67b2e010f08d936670"
+    },
+    {
+      "issue_key": "OK-55703",
+      "file": "docs/qa/testcases/cases/perps/2026-06-03_Perps-分时分段委托下单.md",
+      "title": "Perps - 分时委托 / 分段委托下单",
+      "case_count": 134,
+      "table_count": 23,
+      "cell_line_breaks": 144,
+      "source_sha256": "2a2d20f904a9b2f2e6b47e26dfd2bb4868bb23d15a6230883787a8edb98903de"
+    },
+    {
+      "issue_key": "OK-23819",
+      "file": "docs/qa/testcases/cases/perps/2026-07-27_Perps-加仓与追单.md",
+      "title": "Perps - 持仓加仓与委托追单",
+      "case_count": 32,
+      "table_count": 7,
+      "cell_line_breaks": 49,
+      "source_sha256": "72a565107255d1cd613c428d926f0c49ae1d5f08c153066337a14ce9dd869c28"
+    },
+    {
+      "issue_key": "OK-24059",
+      "file": "docs/qa/testcases/cases/perps/2026-10-27_Perps-历史成交筛选详情与分享.md",
+      "title": "Perps - 历史成交筛选、详情与分享",
+      "case_count": 14,
+      "table_count": 3,
+      "cell_line_breaks": 45,
+      "source_sha256": "577216073ee1174257ccc5d6fbcb7042442a3b6b7cd71c0c3e901a681b683d3e"
+    },
+    {
+      "issue_key": "OK-48432",
+      "file": "docs/qa/testcases/cases/perps/2026-10-27_Perps-反手与持仓按钮设置.md",
+      "title": "Perps - 反手与持仓按钮设置",
+      "case_count": 31,
+      "table_count": 5,
+      "cell_line_breaks": 12,
+      "source_sha256": "197d4791c781fc8e9da08673f4a8f4c5582ae173c3e49b7683c7f13830cc893e"
+    },
+    {
+      "issue_key": "OK-27264",
+      "file": "docs/qa/testcases/cases/perps/2026-03-26_Perps-投资组合&盈亏.md",
+      "title": "Perps - 投资组合 & 盈亏",
+      "case_count": 146,
+      "table_count": 15,
+      "cell_line_breaks": 220,
+      "source_sha256": "327b8e3df91019b4c99783c43807cbca4e15b21c0fb77d28335e44e9d97c7abd"
+    },
+    {
+      "issue_key": "OK-26036",
+      "file": "docs/qa/testcases/cases/perps/2026-02-03_Perps-搜索功能.md",
+      "title": "Perps - 搜索功能",
+      "case_count": 73,
+      "table_count": 11,
+      "cell_line_breaks": 47,
+      "source_sha256": "c3619c6e3835ae6728c92c959d9ba6725214c7b514d19351b9635d31caa3e792"
+    },
+    {
+      "issue_key": "OK-23956",
+      "file": "docs/qa/testcases/cases/perps/2026-01-20_Perps-收藏功能测试.md",
+      "title": "Perps - 收藏功能测试",
+      "case_count": 48,
+      "table_count": 9,
+      "cell_line_breaks": 92,
+      "source_sha256": "7d38245b5659719c4e7b86e549dfb3ae16e1bff23bf22a1191348c0b3da5489e"
+    },
+    {
+      "issue_key": "OK-12145",
+      "file": "docs/qa/testcases/cases/perps/2026-03-20_Perps-条件单模式合并测试.md",
+      "title": "Perps - 条件单（市价止盈止损 / 限价止盈止损 合并）",
+      "case_count": 29,
+      "table_count": 12,
+      "cell_line_breaks": 126,
+      "source_sha256": "1e25cedc6b1851f1579e9e778df8fcdad3667b1c04a333435cfa8e841bfb9660"
+    },
+    {
+      "issue_key": "OK-24921",
+      "file": "docs/qa/testcases/cases/perps/2026-04-21_Perps-现货交易.md",
+      "title": "Perps - 现货交易",
+      "case_count": 98,
+      "table_count": 12,
+      "cell_line_breaks": 158,
+      "source_sha256": "26855e8f34782a4ac1ac2fb25134085ab4680b16aa6e116ecd24b3f6237872c4"
+    },
+    {
+      "issue_key": "OK-24039",
+      "file": "docs/qa/testcases/cases/perps/2026-10-27_Perps-现货碎币自动兑换.md",
+      "title": "Perps - 现货碎币自动兑换设置",
+      "case_count": 8,
+      "table_count": 2,
+      "cell_line_breaks": 24,
+      "source_sha256": "3a8f80a29a2a8d3c7502321b543727b24de5d3d5483223e9ca5dbd01aa56746a"
+    },
+    {
+      "issue_key": "OK-54794",
+      "file": "docs/qa/testcases/cases/perps/2026-07-01_Perps-画线下单.md",
+      "title": "Perps - 图表画线下单测试用例",
+      "case_count": 38,
+      "table_count": 8,
+      "cell_line_breaks": 54,
+      "source_sha256": "1c164b51197c4ac8f89f93c74fdb49371ed488f26883701fa14fd67e5f56ef80"
+    },
+    {
+      "issue_key": "OK-23787",
+      "file": "docs/qa/testcases/cases/perps/2026-01-03_Perps-限价单最优价格BBO.md",
+      "title": "Perps - 限价单最优价格（BBO）",
+      "case_count": 26,
+      "table_count": 9,
+      "cell_line_breaks": 52,
+      "source_sha256": "cb4cac2f43ed0428df7c3dcbf438fec1dc0ef017b95d6f5f24ef0027162af6bd"
+    },
+    {
+      "issue_key": "OK-23881",
+      "file": "docs/qa/testcases/cases/perps/2026-03-05_Perps-首页底部状态.md",
+      "title": "Perps - 首页底部状态",
+      "case_count": 27,
+      "table_count": 6,
+      "cell_line_breaks": 36,
+      "source_sha256": "310f7cff6bc7958ec3b0eb3e2de00e64167d3c9110b2e2713dce2d0a46c4981a"
+    },
+    {
+      "issue_key": "OK-24550",
+      "file": "docs/qa/testcases/cases/perps/2026-01-04_Hyperliquid-ApproveAgent推荐绑定Checkbox.md",
+      "title": "Hyperliquid - ApproveAgent 推荐绑定 Checkbox",
+      "case_count": 22,
+      "table_count": 6,
+      "cell_line_breaks": 46,
+      "source_sha256": "8bb2914b77aaa534da1a26c0633362ddf3cf816659e797a2a3fc0e91b0981815"
+    },
+    {
+      "issue_key": "OK-24222",
+      "file": "docs/qa/testcases/cases/perps/2026-08-03_Perps-交易.md",
+      "title": "Perps - 交易",
+      "case_count": 58,
+      "table_count": 15,
+      "cell_line_breaks": 75,
+      "source_sha256": "d34ed4e8f2de915acc809c162e310d67271e7835966e573f60e51b1c89266351"
+    },
+    {
+      "issue_key": "OK-11789",
+      "file": "docs/qa/testcases/cases/perps/2026-10-28_Perps-Native存取款.md",
+      "title": "Perps - Native 存取款",
+      "case_count": 40,
+      "table_count": 5,
+      "cell_line_breaks": 119,
+      "source_sha256": "f0aaab514a8d9e4314f0dd63e66475890f15bd36e67b8fa8245aefcff4cba8c1"
+    },
+    {
+      "issue_key": "OK-24305",
+      "file": "docs/qa/testcases/cases/perps/2026-10-28_Perps-分享.md",
+      "title": "Perps - 分享",
+      "case_count": 27,
+      "table_count": 4,
+      "cell_line_breaks": 80,
+      "source_sha256": "94f565f7e91e6a14c8c6962fbdd82dfb65fdb915c7f119a96060da98f867f609"
+    }
+  ],
+  "total_cases": 1008,
+  "validation": {
+    "markdown_html_cells_equal": true,
+    "browser_clipboard_tested": false,
+    "limitation": "仅离线核对表格、单元格换行及复制序列化；浏览器策略阻止本地文件预览，未实测复制按钮。",
+    "documents_checked": 20,
+    "case_cells_checked": 4032,
+    "mapping_hashes_equal": true,
+    "synced_mapping_count": 7,
+    "unsynced_mapping_count": 13,
+    "plaintext_serialization_tsv_roundtrip": true,
+    "cell_line_breaks_checked": 1560
+  }
+}

@@ -18,7 +18,7 @@
 ### 影响范围
 - **测试端**：iOS / Android / Extension / Desktop / Web（全端，桌面端与移动端交互不同）
 - **数据源**：Hyperliquid
-- **范围**：仅主下单面板（PerpTradingPanel）；加仓弹窗等其他入口的最小金额 Toast 不带该按钮
+- **范围**：主下单面板与加仓弹窗均提供最小金额引导；Desktop / Android Toast 按钮，iOS 自动聚焦与附件条。原 PR 范围描述由本轮确认更新
 
 ---
 
@@ -57,7 +57,7 @@ Toast 标题：`仓位大小必须至少 {amount}`（i18n key `perp.order_size_s
 ### 边界说明
 
 - 保证金不足（金额 ≥ $10 但超过可用余额）是**另一类** Toast，不带填入按钮——本功能只针对低于最小下单金额
-- 现货标准限价单（非 BBO）不适用最小金额守卫（既有 `shouldApplyMinimumOrderGuard` 规则）
+- 现货标准限价单（非 BBO）与 BBO 均适用 $10 最小名义金额守卫（2026-10-27 确认，PR #13879）
 - 建议值随币种价格、精度（szDecimals）、杠杆实时计算
 
 ---
@@ -67,3 +67,7 @@ Toast 标题：`仓位大小必须至少 {amount}`（i18n key `perp.order_size_s
 | 日期 | 内容 |
 | --- | --- |
 | 2026-08-03 | 首版，来源 PR #12720 |
+
+## 2026-10-27 维护对齐
+
+当前执行口径补充见 `docs/qa/requirements/Perps-代码审查补充能力.md`（用户已确认 D01–D10 / G01–G03）。本文件旧版实现记录保留作追溯；本轮补充优先。

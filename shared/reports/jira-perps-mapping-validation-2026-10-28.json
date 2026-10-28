@@ -1,0 +1,39 @@
+{
+  "mapping_identity_and_hashes": "passed",
+  "unique_mappings": 20,
+  "active_and_historical_files_accounted_for": 21,
+  "local_case_count": 1008,
+  "remote_case_count": 1008,
+  "table_text_equal": 20,
+  "different_tables": 0,
+  "symlink_integrity": "passed",
+  "three_ai_manual_route_consistency": "passed",
+  "report_local_links": "passed",
+  "skill_yaml_compatibility": [
+    ".agents/skills/onekey-test-designer/SKILL.md: baseline user-invocable preserved; validation without unsupported key passed",
+    ".claude/skills/onekey-test-designer/SKILL.md: baseline user-invocable preserved; validation without unsupported key passed"
+  ],
+  "standalone_skill_validator": "pre-existing user-invocable key rejected; original configuration preserved",
+  "live_jira_sync": "7 targets synced and rendered HTML verified after explicit approval: search plus current 6; other 13 targets not written",
+  "xray_folder_membership": "blocked by browser login",
+  "search_sync_evidence": "shared/reports/jira-search-sync-2026-10-28/verification.json",
+  "exact_table_cells_equal": 7,
+  "remaining_format_only_targets": [
+    "OK-24511",
+    "OK-42127",
+    "OK-55703",
+    "OK-23819",
+    "OK-24059",
+    "OK-48432",
+    "OK-23956",
+    "OK-12145",
+    "OK-24921",
+    "OK-24039",
+    "OK-54794",
+    "OK-23881",
+    "OK-24222"
+  ],
+  "batch_sync_evidence": "shared/reports/jira-perps-batch-sync-2026-10-28/verification.json",
+  "unmapped_remote_tests": 0,
+  "browser_clipboard_check_current_batch": "not run: IAB security policy blocks file URLs; offline serialization and TSV reparse passed"
+}
