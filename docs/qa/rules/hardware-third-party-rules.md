@@ -2,8 +2,8 @@
 
 > 本文档记录第三方硬件设备在 OneKey Account/Hardware 场景下的专项测试规则。  
 > 生成第三方硬件相关测试用例时，必须参考本文档。  
-> 当前已沉淀：Ledger、Trezor。
-> 关联需求：`docs/qa/requirements/Account-Ledger设备识别与匹配规则.md`、`docs/qa/requirements/Hardware-Ledger安装APP.md`、`docs/qa/requirements/Account-Trezor连接与设备交互.md`
+> 当前已沉淀：Ledger、Trezor、KeyStone。
+> 关联需求：`docs/qa/requirements/Account-Ledger设备识别与匹配规则.md`、`docs/qa/requirements/Hardware-Ledger安装APP.md`、`docs/qa/requirements/Account-Trezor连接与设备交互.md`、`docs/qa/requirements/Account-KeyStone连接与设备交互.md`
 
 ---
 
@@ -11,10 +11,10 @@
 
 | 维度 | 范围 |
 |-----|------|
-| 设备大类 | Ledger、Trezor（仅 Trezor 无 App 安装逻辑） |
+| 设备大类 | Ledger、Trezor、KeyStone（仅 Trezor/KeyStone 无 Ledger App 安装逻辑） |
 | 功能域 | 设备连接、Wallet 添加、Account 添加、设备匹配校验；其中 App 安装能力仅适用于 Ledger |
-| 连接方式 | USB、BLE（按设备能力生效） |
-| 端 | Desktop（后续端能力扩展时同步补充） |
+| 连接方式 | USB、BLE、二维码（按设备能力生效） |
+| 端 | Desktop、插件端、iOS、Android（按设备能力生效） |
 | 链路优先级 | BTC、EVM 为 P0 回归链路；SOL、TRON 为安装与交互回归链路 |
 
 ---
@@ -66,6 +66,12 @@
 | 不同助记词设备且网络已有锚点 | 拦截并提示“设备不匹配” |
 
 ### 2.2 BLE 规则
+
+#### 2.2.0 Desktop 蓝牙支持
+
+1. Desktop Ledger 连接流程必须提供蓝牙搜索与连接入口；USB 入口继续保留。
+2. Desktop 蓝牙成功连接后，沿用本节既有的设备标识、地址匹配、wallet 聚合和 account 添加规则，并覆盖 BTC / EVM / SOL / TRON 交互。
+3. 蓝牙不可用、未发现设备或连接中断时，不得将设备标记为已连接；应允许用户重试或切换 USB。
 
 #### 2.2.1 设备标识与聚合
 
@@ -291,7 +297,61 @@
 
 ---
 
-## 4. 用例产出规范（第三方硬件专项）
+## 4. KeyStone（新增）
+
+> 连接支持网络：BTC（仅账户 0）/ EVM / SOL / TRON。
+> USB 仅适用于 Desktop 与插件端；二维码交互适用于 Desktop、插件端、iOS、Android。
+
+### 4.1 连接方式与平台规则
+
+| 场景 | 规则 |
+|-----|------|
+| Desktop / 插件端 USB | 提供 KeyStone USB 连接入口，可搜索、连接并进入 wallet/account 交互 |
+| 全端二维码 | 提供二维码连接/交互入口；移动端使用二维码完成 KeyStone 交互 |
+| 同一 wallet 多通道 | 同一个 wallet 可先通过 USB 交互，也可通过二维码交互，不因连接方式不同而强制创建另一个 wallet |
+| USB 设备未连接 | Desktop / 插件端发起交互时，若没有可用 KeyStone USB 设备，展示二维码交互入口 |
+
+### 4.2 网络与账户限制
+
+1. BTC 仅支持创建和交互账户 0；不得将账户 1 及以上作为 KeyStone BTC 默认可用账户。
+2. EVM、SOL、TRON 支持 KeyStone wallet/account 创建及后续交互。
+3. SOL 或 EVM 使用 Ledger Live 派生路径时，二维码模式批量创建地址最多 20 个。
+4. 二维码模式批量创建超过 20 个地址时：Desktop / 插件端提示切换 USB；移动端提示减少创建数量。
+
+### 4.3 设备身份、解锁与二维码匹配
+
+| 场景 | 规则 |
+|-----|------|
+| 同一设备切换不同 wallet 解锁 | 解锁到与当前 wallet 不匹配的 wallet 时，提示“解锁钱包错误”语义并终止当前交互 |
+| 二维码设备限制 | 二维码交互不绑定某一台物理 KeyStone 设备，不要求设备唯一 ID 一致 |
+| 二维码匹配条件 | 以助记词/导出信息匹配作为交互准入条件；匹配后允许继续交互 |
+| 二维码取消或无效 | 终止当前交互并保留重新扫描/重新发起入口，不生成半完成账户 |
+
+### 4.4 地址展示与核对
+
+1. KeyStone 设备不提供硬件侧地址核对能力。
+2. App 的“核对地址”仅展示待核对地址，并明确提示用户自行确认地址内容。
+3. App 不得把地址展示误报为已完成硬件确认，也不得因此跳过地址一致性校验。
+
+### 4.5 异常与回退
+
+| 异常 | 规则 |
+|------|------|
+| USB 设备未连接 | 按 4.1 规则展示二维码交互入口 |
+| 同设备 wallet 解锁错误 | 显示解锁钱包错误语义，停止当前交互 |
+| 二维码批量数量超限 | 按端提示切换 USB 或减少数量，不进入超限创建 |
+| 二维码数据无效/取消 | 停止当前交互，允许重试，不写入不完整账户 |
+
+### 4.6 测试设计强制点
+
+1. 必测 Desktop / 插件端 USB 与全端二维码两种连接方式，以及同一 wallet 在两种方式间切换。
+2. 必测 BTC 账户 0 与账户 1 的边界；必测 EVM、SOL、TRON 主流程。
+3. 必测二维码批量创建 20、21 个地址在 Desktop / 插件端和移动端的不同提示。
+4. 必测同设备切换不同 wallet 时的“解锁钱包错误”分支。
+5. 必测二维码不绑定物理设备、仅凭助记词/导出信息匹配即可继续交互。
+6. 必测 KeyStone 核对地址只展示地址并提示用户确认，不声称硬件已完成核对。
+
+## 5. 用例产出规范（第三方硬件专项）
 
 - 用例目录：`docs/qa/testcases/cases/hardware/`。  
 - 文件命名：`YYYY-MM-DD_Hardware-第三方硬件-<设备>-<主题>.md`。  
@@ -302,10 +362,11 @@
 
 ---
 
-## 5. 变更记录
+## 6. 变更记录
 
 | 日期 | 版本 | 变更内容 |
 |------|------|---------|
+| 2026-10-30 | v1.8 | 新增 KeyStone USB/二维码、网络与批量创建上限、解锁错误、地址展示规则；补充 Desktop Ledger 蓝牙支持规则 |
 | 2026-07-14 | v1.7 | 增加 Trezor 设备名称规则与强制覆盖点：空 label 按型号展示，外部改名后通过设备交互同步最新名称 |
 | 2026-07-13 | v1.6 | 精简设备重置规则，仅保留 DeviceID 变化后创建新钱包 |
 | 2026-07-13 | v1.5 | 修正 Trezor USB/BLE 搜索规则：两种连接方式使用独立页面，各页面仅搜索当前通道，同时保留同通道多设备发现能力 |
