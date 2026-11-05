@@ -1,4 +1,7 @@
-// Perps Portfolio & PnL Tests (Desktop) — PERPS-PNL-001 ~ PERPS-PNL-008
+const connectCDP = () => connectPlatform('desktop');
+import {connectPlatform} from '../../helpers/platform-session.mjs';
+import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
+// Perps Portfolio & PnL Tests (Desktop) — PERPS-PNL-001 ~ PERPS-PNL-013
 // Thin wrapper: test logic lives in src/tests/shared/perps/portfolio.mjs
 // Connects via CDP port 9222 (OneKey Electron app).
 //
@@ -7,34 +10,16 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
-  connectCDP, sleep, RESULTS_DIR,
+  sleep, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { clickSidebarTab, importWatchAddress } from '../../helpers/components.mjs';
 import { PerpsPage } from '../../helpers/pages/index.mjs';
+import {typeInput} from '../../helpers/perps-ui.mjs';
 import { createPortfolioTests, WATCH_ADDRESSES } from '../../shared/perps/portfolio.mjs';
 
 const SCREENSHOT_DIR = resolve(RESULTS_DIR, 'perps-portfolio');
 mkdirSync(SCREENSHOT_DIR, { recursive: true });
-const CASE_TIMEOUT_MS = 240_000;
-
-async function withCaseTimeout(promise, testId) {
-  let timer;
-  try {
-    return await Promise.race([
-      promise,
-      new Promise((_, reject) => {
-        timer = setTimeout(
-          () => reject(new Error(`${testId} timed out after ${Math.round(CASE_TIMEOUT_MS / 1000)}s`)),
-          CASE_TIMEOUT_MS,
-        );
-      }),
-    ]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
 // ── Platform-specific Navigation ─────────────────────────────
 
 async function goToPerps(page) {
@@ -46,94 +31,41 @@ async function goToPerps(page) {
 /**
  * 通过地址搜索并切换到指定观察钱包账户。
  * 流程：打开账户选择器 → 观察钱包 tab → 搜索地址 → 点击结果 → 关闭弹窗
- * 搜不到则自动导入。
+ * 未配置地址时明确跳过，禁止首条兜底或自动导入。
  */
-async function switchToWatchAccount(page, address, label) {
-  await clickSidebarTab(page, 'Wallet');
-  await sleep(2000);
-
-  // 打开账户选择器
-  await page.evaluate(() => {
-    document.querySelector('[data-testid="AccountSelectorTriggerBase"]')?.click();
-  });
-  await sleep(2000);
-
-  // 点击「观察钱包」tab
-  await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    if (!modal) return;
-    for (const sp of modal.querySelectorAll('span')) {
-      if (sp.textContent?.trim() === '观察钱包' && sp.children.length === 0 && sp.getBoundingClientRect().width > 0) {
-        sp.click(); return;
-      }
+async function switchToWatchAccount(page,address,label) {
+  await unlockWalletIfNeeded(page);
+  await clickSidebarTab(page,'Wallet');
+  await page.locator('[data-testid="AccountSelectorTriggerBase"]:visible').click();
+  const modal=page.locator('[data-testid="APP-Modal-Screen"]:visible').last();
+  await modal.locator('[data-testid="wallet-others-view-tabs-watching"]').click();
+  const input=modal.locator('input').first();
+  await typeInput(input,address.slice(0,10));
+  await sleep(1200);
+  const rows=modal.locator('[data-testid^="account-item-"]:visible');
+  for(let i=0;i<await rows.count();i++) {
+    const row=rows.nth(i),text=(await row.innerText()).toLowerCase();
+    if(text.includes(address.slice(0,8).toLowerCase()) && text.includes(address.slice(-4).toLowerCase())) {
+      await row.click();
+      await modal.waitFor({state:'hidden',timeout:10000});
+      return;
     }
-  });
-  await sleep(1500);
-
-  // 搜索地址（用前 10 字符）
-  const searchKey = address.slice(0, 10);
-  const found = await page.evaluate((key) => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    if (!modal) return false;
-    const input = modal.querySelector('input[placeholder*="搜索"]');
-    if (!input) return false;
-    input.focus();
-    const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-    if (nativeSet) {
-      nativeSet.call(input, key);
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    return true;
-  }, searchKey);
-
-  if (!found) {
-    console.log(`  [warn] 搜索框未找到，尝试直接导入`);
-  } else {
-    await sleep(2000);
   }
-
-  // 检查搜索结果中是否有匹配的账户（地址包含搜索词）
-  const clicked = await page.evaluate((key) => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    if (!modal) return false;
-    for (const el of modal.querySelectorAll('[data-testid^="account-item-"]')) {
-      const text = el.textContent || '';
-      const r = el.getBoundingClientRect();
-      if (r.width > 0 && r.height > 20 && text.toLowerCase().includes(key.toLowerCase())) {
-        el.click();
-        return true;
-      }
-    }
-    const first = modal.querySelector('[data-testid="account-item-index-0"]');
-    if (first && first.getBoundingClientRect().width > 0) {
-      first.click();
-      return true;
-    }
-    return false;
-  }, searchKey);
-
-  if (clicked) {
-    await sleep(2000);
-    console.log(`  ✓ 切换到 ${label} (${searchKey}...)`);
-    return;
-  }
-
-  // 搜不到 → 关闭弹窗 → 导入
-  await page.keyboard.press('Escape').catch(() => {});
-  await sleep(500);
-  console.log(`  [AUTO] ${label} 不存在，导入 ${address.slice(0, 10)}...`);
-  await importWatchAddress(page, address, { name: label !== '空账户' ? label : undefined });
-  await sleep(2000);
-  console.log(`  ✓ 导入并切换到 ${label}`);
+  await page.keyboard.press('Escape');
+  return `SKIP: ${label} 未配置匹配地址的观察账户；不选择首条兜底，不自动导入钱包`;
 }
 
 /** 切换到有资产的 Perps 账户（高胜率观察钱包） */
 async function switchToFundedAccount(page) {
-  await switchToWatchAccount(page, WATCH_ADDRESSES['高胜率'], '高胜率');
+  await unlockWalletIfNeeded(page);
+  await goToPerps(page);
+  const text=await page.getByTestId('perp-portfolio-button').innerText();
+  if(!/[1-9]/.test(text)) return 'SKIP: 当前账户未提供有资产的投资组合测试数据';
 }
 
 // ── Test Cases (from shared module) ──────────────────────────
 
+export const platform = 'desktop';
 export const displayName = '投资组合';
 
 const { testCases, setup, ALL_TEST_IDS } = createPortfolioTests({
@@ -143,6 +75,7 @@ const { testCases, setup, ALL_TEST_IDS } = createPortfolioTests({
   goToPerps,
   switchToFundedAccount,
   switchToWatchAccount,
+  accounts: [{label:'当前账户',isFunded:true}],
 });
 
 export { testCases, setup, ALL_TEST_IDS };
@@ -162,6 +95,7 @@ export async function run() {
   let { browser, page } = await connectCDP();
   await unlockWalletIfNeeded(page);
   await dismissOverlays(page);
+  await setup(page);
 
   const results = {};
 
@@ -172,7 +106,7 @@ export async function run() {
 
     const start = Date.now();
     try {
-      const result = await withCaseTimeout(tc.fn(page), tc.id);
+      const result = await tc.fn(page);
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
       results[tc.id] = result;
       const summary = result.summary || {};
@@ -188,7 +122,7 @@ export async function run() {
       }, null, 2));
     } catch (e) {
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-      results[tc.id] = { status: 'failed', steps: [], errors: [e.message] };
+      results[tc.id] = { status: 'failed', steps: [], errors: [e.message], fatalRestore: Boolean(e.fatalRestore) };
       console.log(`>> ${tc.id}: FAILED (${elapsed}s) — ${e.message}`);
       try {
         await page.screenshot({ path: resolve(SCREENSHOT_DIR, `${tc.id}-fatal-or-timeout.png`) });
@@ -197,14 +131,14 @@ export async function run() {
         testId: tc.id, status: 'failed', duration: Date.now() - start,
         error: e.message, timestamp: new Date().toISOString(),
       }, null, 2));
-      if (/timed out|Target page|context or browser has been closed/i.test(e.message || '')) {
-        try { await browser?.close?.(); } catch {}
+      if (!e.fatalRestore && /timed out|Target page|context or browser has been closed/i.test(e.message || '')) {
         ({ browser, page } = await connectCDP());
         await unlockWalletIfNeeded(page).catch(() => {});
         await dismissOverlays(page).catch(() => {});
         await setup(page).catch(() => {});
       }
     }
+    if(mustStopAfterResult(results[tc.id])) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
     console.log();
   }
 
@@ -219,7 +153,7 @@ export async function run() {
   writeFileSync(resultPath, JSON.stringify(results, null, 2));
   console.log(`Results saved to ${resultPath}`);
 
-  return { status: failed === 0 ? 'passed' : 'failed', passed, failed, total: toRun.length };
+  return { fatalRestore: Object.values(results).some(mustStopAfterResult), status: failed === 0 ? 'passed' : 'failed', passed, failed, total: Object.keys(results).length, notRun: toRun.length-Object.keys(results).length };
 }
 
 const _thisFile = new URL(import.meta.url).pathname;

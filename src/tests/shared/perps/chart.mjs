@@ -1,3 +1,11 @@
+import {chartInteractions} from './chart-interactions.mjs';
+import {writeFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {runPreconditions} from '../../helpers/preconditions.mjs';
+import {reloadPerps,markRestoreFailure} from './runtime.mjs';
+import {snapshotNonOrderForm,restoreNonOrderForm} from './non-order-ui.mjs';
+import {setChartMode,locator,currentPair,restorePair} from '../../helpers/perps-ui.mjs';
+import {PerpsPage} from '../../helpers/pages/perps.mjs';
 // Perps TV Chart — shared test logic (Desktop / Web / Extension)
 //
 // Wrapper files at:
@@ -5,7 +13,7 @@
 //   src/tests/web/perps/chart.test.mjs
 //   src/tests/extension/perps/chart.test.mjs
 // inject platform-specific tvEval + goToPerps, then call createChartTests()
-// to get the same 8 test cases prefixed for their platform.
+// to get the same 9 test cases prefixed for their platform.
 //
 // Key platform difference (TV chart access):
 //   - Desktop (Electron): TV chart lives in <webview> → blob: <iframe>.
@@ -27,12 +35,10 @@ import { sleep } from '../../helpers/constants.mjs';
 import { screenshot } from '../../helpers/index.mjs';
 import {
   createStepTracker, safeStep,
-  clickWithPointerEvents, dismissPopover,
-  switchToAccount, getCurrentAccount,
 } from '../../helpers/components.mjs';
 
 /**
- * Build the 8 Perps TV Chart test cases for one platform.
+ * Build the 9 Perps chart test cases for one platform.
  *
  * @param {object} opts
  * @param {string} opts.prefix - Test ID prefix, e.g. 'PERPS' | 'WEB-PERPS' | 'EXT-PERPS'
@@ -44,8 +50,7 @@ import {
  * @param {string} opts.screenshotDir - Absolute directory to write failure screenshots.
  * @param {(page: import('playwright-core').Page) => Promise<{ getCurrentPair: () => Promise<string|null>, switchPair: (sym: string) => Promise<void> }>} [opts.makePerpsPage]
  *   Optional factory for platform-specific PerpsPage. If omitted, falls back to a DOM-only impl.
- * @param {boolean} [opts.canSwitchAccount=false] - Whether `switchToAccount('hl-99', ...)` works on this platform.
- *   Desktop = true. Web/Ext default = false (skip account switching for CHART-005).
+ * Account/position matrices are validated separately; these tests retain the selected account.
  * @returns {{ testCases: Array, setup: (page) => Promise<void>, ALL_TEST_IDS: string[] }}
  */
 export function createChartTests({
@@ -55,12 +60,12 @@ export function createChartTests({
   tvEval,
   screenshotDir,
   makePerpsPage,
-  canSwitchAccount = false,
 }) {
   if (!goToPerps) throw new Error('createChartTests: goToPerps is required');
   if (!tvEval) throw new Error('createChartTests: tvEval is required');
   if (!screenshotDir) throw new Error('createChartTests: screenshotDir is required');
 
+  const interactions=chartInteractions(tvEval);
   const ALL_TEST_IDS = [
     `${prefix}-CHART-001`,
     `${prefix}-CHART-002`,
@@ -70,6 +75,7 @@ export function createChartTests({
     `${prefix}-CHART-006`,
     `${prefix}-CHART-007`,
     `${prefix}-CHART-008`,
+    `${prefix}-CHART-009`,
   ];
 
   // ── TV iframe helpers (all go through injected tvEval) ──────
@@ -79,7 +85,11 @@ export function createChartTests({
     while (Date.now() - start < timeoutMs) {
       try {
         const count = await tvEval(page, `return doc.querySelectorAll('canvas').length;`);
-        if (count >= minCanvases) return count;
+        if (count >= minCanvases) {
+          const controls=locator(page,'perps.chart.controls');
+          const enabled=await controls.evaluate(e=>{const s=getComputedStyle(e);return s.opacity==='1' && s.pointerEvents!=='none';});
+          if(enabled && await controls.locator('[data-sentry-component="SegmentControlItem"]:visible').count()>0) return count;
+        }
       } catch {}
       await sleep(1000);
     }
@@ -91,103 +101,74 @@ export function createChartTests({
   }
 
   async function getIndicatorLabels(page) {
-    return tvEval(page, `
-      const labels = [];
-      doc.querySelectorAll('*').forEach(el => {
-        const txt = el.textContent?.trim();
-        if (!txt || el.children.length > 3) return;
-        const r = el.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0 || r.height > 30) return;
-        if (/^(MA|EMA|SMA|MACD|RSI|BOLL|Volume|Vol|成交量)/.test(txt)) labels.push(txt.slice(0, 60));
-      });
-      return [...new Set(labels)];
-    `);
-  }
-
-  function hasIndicator(labels, prefixStr) {
-    return labels.some(l => l.startsWith(prefixStr));
+    return tvEval(page, `return [...doc.querySelectorAll('[data-name="legend-source-item"] [data-name="legend-source-title"]')].map(e=>e.innerText.trim()).filter(Boolean);`);
   }
 
   async function getTimeIntervals(page) {
-    return tvEval(page, `
-      const btns = [];
-      const seen = new Set();
-      doc.querySelectorAll('button').forEach(b => {
-        const r = b.getBoundingClientRect();
-        if (r.y > 50 || r.height === 0 || r.height > 40 || r.width === 0) return;
-        const aria = b.getAttribute('aria-label') || '';
-        const text = b.textContent?.trim()?.slice(0, 15) || '';
-        if (aria && !seen.has(aria) && (aria.includes('分钟') || aria.includes('小时') || aria.includes('日') || aria.includes('周'))) {
-          seen.add(aria);
-          const active = b.className.includes('isActive') || b.getAttribute('aria-pressed') === 'true';
-          btns.push({ text, aria, active });
-        }
+    return locator(page,'perps.chart.controls').evaluate(root=>{
+      const result=[...root.querySelectorAll('[data-sentry-component="SegmentControlItem"]')].filter(e=>e.getBoundingClientRect().width>0).map(e=>{
+        const text=e.innerText.trim(),span=e.querySelector('span');
+        return {text,aria:text,active:span?.className.split(' ').includes('_col-text'),more:false};
       });
-      return btns;
-    `);
+      const more=root.querySelector('[data-testid="trading-view-native-interval-selector-more-select"]');
+      if(more && !/更多|More/.test(more.innerText) && !result.some(e=>e.text===more.innerText.trim())) result.push({text:more.innerText.trim(),aria:more.innerText.trim(),active:true,more:true});
+      return result;
+    });
   }
 
-  async function clickTimeInterval(page, ariaLabel) {
-    await tvEval(page, `
-      const btns = doc.querySelectorAll('button[aria-label="${ariaLabel}"]');
-      if (btns.length === 0) throw new Error('Interval button [aria-label="${ariaLabel}"] not found');
-      btns[0].click();
-    `);
-    await sleep(2000);
+  async function clickTimeInterval(page,label,settle=1500) {
+    const text=label.replace(/\s/g,'').replace('分钟','分').replace('小时','时');
+    const segment=locator(page,'perps.chart.controls').locator('[data-sentry-component="SegmentControlItem"]').filter({has:page.getByText(text,{exact:true})});
+    if(await segment.count()===1) await segment.click();
+    else {
+      await locator(page,'perps.chart.interval_more').click();
+      const option=locator(page,'perps.chart.interval_all').filter({has:page.getByText(text,{exact:true})});
+      if(await option.count()!==1) throw Error(`Interval option missing or ambiguous: ${label}`);
+      await option.click();
+    }
+    await sleep(settle);
   }
 
   async function getOHLC(page) {
     return tvEval(page, `
-      const text = doc.body.innerText || '';
-      const m = text.match(/O\\s*([\\d,.]+)\\s*H\\s*([\\d,.]+)\\s*L\\s*([\\d,.]+)\\s*C\\s*([\\d,.]+)/);
-      return m ? { O: m[1], H: m[2], L: m[3], C: m[4] } : null;
+      const text=doc.querySelector('[data-name="legend-series-item"]')?.innerText || '';
+      const values=[...text.matchAll(/(?:^|\\n)(?:开|高|低|收|[OHLC])\\s*=?\\s*([\\d,.]+)/g)].map(m=>m[1]);
+      return values.length===4 ? {O:values[0],H:values[1],L:values[2],C:values[3]} : null;
     `);
   }
 
+  function indicatorPanel(page) {return page.locator('[data-testid="TMPopover-ScrollView"]:visible').filter({has:locator(page,'perps.chart.indicator_items')});}
+  async function closeChartPopover(page,panel) {
+    await page.keyboard.press('Escape');
+    if(await panel.count()) {
+      // New OverlayView backdrops have no legacy ovelay-popover testID.
+      // Scope to the entry containing this panel, excluding inert old portals.
+      const entry=panel.locator('xpath=ancestor::*[@data-onekey-overlay-entry][1]');
+      const backdrop=entry.locator(':scope > [aria-hidden="true"]');
+      if(await backdrop.count()) await backdrop.click({position:{x:3,y:3}});
+      else {
+        const legacy=page.locator('[data-testid="ovelay-popover"]:visible');
+        if(await legacy.count()) await legacy.last().click({position:{x:3,y:3}});
+      }
+    }
+    await panel.waitFor({state:'hidden',timeout:5000});
+  }
   async function clickIndicatorButton(page) {
-    await tvEval(page, `
-      const btn = doc.querySelector('button[aria-label="指标 & 策略"]')
-        || doc.querySelector('button[aria-label="指标"]');
-      if (!btn) {
-        for (const b of doc.querySelectorAll('button')) {
-          if (b.textContent?.trim() === '指标') { b.click(); return; }
-        }
-        throw new Error('Indicator button not found');
-      }
-      btn.click();
-    `);
-    await sleep(1500);
+    if(await indicatorPanel(page).count()) {
+      await closeChartPopover(page,indicatorPanel(page));
+    } else {
+      await waitForTVReady(page);
+      const trigger=locator(page,'perps.chart.indicator_trigger');
+      // The first pointer sequence can lack a click during hover/focus changes.
+      // Let the tooltip transition finish before clicking.
+      await trigger.hover();
+      await sleep(400);
+      await trigger.click();
+      await indicatorPanel(page).waitFor({state:'visible'});
+    }
   }
-
-  async function isIndicatorPanelOpen(page) {
-    return tvEval(page, `
-      const d = doc.querySelector('[role="dialog"]');
-      return d ? d.getBoundingClientRect().width > 200 : false;
-    `);
-  }
-
-  async function getIndicatorPanelText(page) {
-    return tvEval(page, `
-      const d = doc.querySelector('[role="dialog"]');
-      return d ? d.textContent?.slice(0, 400) || '' : '';
-    `);
-  }
-
-  async function clickResetLayout(page) {
-    await tvEval(page, `
-      let target = doc.querySelector('[aria-label="重置布局"]');
-      if (!target) {
-        for (const el of doc.querySelectorAll('div, button')) {
-          if (el.textContent?.trim() === '重置布局' && el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().width < 120) {
-            target = el; break;
-          }
-        }
-      }
-      if (!target) throw new Error('Reset layout button not found (checked div[aria-label] + text match)');
-      target.click();
-    `);
-    await sleep(2000);
-  }
+  async function isIndicatorPanelOpen(page) {return await indicatorPanel(page).count()>0;}
+  async function getIndicatorPanelText(page) {return indicatorPanel(page).innerText();}
 
   async function getDrawingKeys(page) {
     return tvEval(page, `
@@ -219,27 +200,6 @@ export function createChartTests({
     `);
   }
 
-  async function getMainCanvasHash(page) {
-    return tvEval(page, `
-      let maxCanvas = null, maxArea = 0;
-      doc.querySelectorAll('canvas').forEach(c => {
-        const r = c.getBoundingClientRect();
-        const area = r.width * r.height;
-        if (area > maxArea && r.height > 100) { maxArea = area; maxCanvas = c; }
-      });
-      if (!maxCanvas) return null;
-      try {
-        const ctx = maxCanvas.getContext('2d');
-        const data = ctx.getImageData(0, 0, maxCanvas.width, maxCanvas.height).data;
-        let hash = 0;
-        for (let j = 0; j < data.length; j += 100) {
-          hash = ((hash << 5) - hash + data[j]) | 0;
-        }
-        return hash;
-      } catch(e) { return null; }
-    `);
-  }
-
   async function getChartLayout(page) {
     // Use TV iframe directly for both webview size hint + canvas measurements.
     const canvasLayout = await tvEval(page, `
@@ -265,240 +225,88 @@ export function createChartTests({
 
   // ── Main-page DOM helpers ───────────────────────────────────
 
-  async function getCurrentPair(page) {
-    return page.evaluate(() => {
-      for (const sp of document.querySelectorAll('span')) {
-        const text = sp.textContent?.trim();
-        if (text && /^[A-Z]{2,10}USDC$/.test(text) && sp.children.length === 0) {
-          const r = sp.getBoundingClientRect();
-          if (r.width > 50 && r.height > 20) return text;
-        }
-      }
-      return null;
-    });
-  }
+  async function getCurrentPair(page) { return currentPair(page); }
 
+  function settingsPanel(page) {return page.locator('[data-testid="TMPopover-ScrollView"]:visible').filter({has:locator(page,'perps.chart.skip_confirm')});}
   async function openPerpsSettingsMenu(page) {
-    await clickWithPointerEvents(page, '[data-testid="perp-header-settings-button"]');
+    if(await settingsPanel(page).count()) return;
+    await locator(page,'perps.settings.button').click();
+    if(await locator(page,'perps.menu.preferences').count()) await locator(page,'perps.menu.preferences').click();
+    await settingsPanel(page).waitFor({state:'visible'});
   }
-
+  async function closeSettings(page) {
+    await closeChartPopover(page,settingsPanel(page));
+  }
   async function getPerpsSettings(page) {
     await openPerpsSettingsMenu(page);
-
-    for (let i = 0; i < 10; i++) {
-      const result = await page.evaluate(() => {
-        const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-        let pop = null;
-        for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
-        if (!pop) return null;
-        const text = pop.textContent || '';
-        if (!text.includes('买卖') && !text.includes('订单')) return null;
-
-        const switches = [];
-        pop.querySelectorAll('[data-state]').forEach(s => {
-          const r = s.getBoundingClientRect();
-          if (r.width > 0) switches.push({ state: s.getAttribute('data-state'), y: Math.round(r.y) });
-        });
-        return switches.sort((a, b) => a.y - b.y);
-      });
-
-      if (result && result.length >= 3) {
-        await dismissPopover(page);
-        return {
-          skipConfirm: result[0].state,
-          showTrades: result[1].state,
-          showPositions: result[2].state,
-        };
-      }
-      await sleep(500);
-    }
-
-    return null;
+    try {
+      const panel=settingsPanel(page);
+      const skipConfirm=await panel.locator('[data-testid="perp-intl-switch"]').getAttribute('data-state');
+      const chart=panel.locator('[data-testid="perp-switch"]');
+      if(await chart.count()!==2) throw Error('Expected two chart switches');
+      return {skipConfirm,showTrades:await chart.nth(0).getAttribute('data-state'),showPositions:await chart.nth(1).getAttribute('data-state')};
+    } finally {await closeSettings(page);}
   }
-
-  async function clickSettingsToggle(page, index) {
+  async function clickSettingsToggle(page,index) {
     await openPerpsSettingsMenu(page);
-
-    await page.evaluate((idx) => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let pop = null;
-      for (const pp of pops) { if (pp.getBoundingClientRect().width > 0) { pop = pp; break; } }
-      if (!pop) throw new Error('no visible popover');
-      const switches = [];
-      pop.querySelectorAll('[data-state]').forEach(s => {
-        if (s.getBoundingClientRect().width > 0) switches.push(s);
-      });
-      if (!switches[idx]) throw new Error('toggle ' + idx + ' not found');
-      switches[idx].click();
-    }, index);
-    await sleep(1000);
-
-    await dismissPopover(page);
-    await sleep(4000);
+    try {
+      const target=settingsPanel(page).locator('[data-testid="perp-switch"]').nth(index-1);
+      const before=await target.getAttribute('data-state');
+      await target.click();
+      await page.waitForFunction(({before,index})=>[...document.querySelectorAll('[data-testid="perp-switch"]')].filter(e=>e.getBoundingClientRect().width>0)[index-1]?.getAttribute('data-state')!==before,{before,index});
+    } finally {await closeSettings(page);}
   }
 
   // ── PerpsPage abstraction (with fallback) ───────────────────
 
-  function defaultMakePerpsPage(page) {
-    return {
-      getCurrentPair: () => getCurrentPair(page),
-      // DOM-only switchPair: open pair selector, search, click result.
-      // Mirrors the desktop PerpsPage behavior to stay platform-agnostic.
-      switchPair: async (symbol) => {
-        // Open selector by clicking current pair span.
-        const cur = await getCurrentPair(page);
-        if (!cur) throw new Error('switchPair: cannot detect current pair');
-        await page.evaluate((p) => {
-          for (const sp of document.querySelectorAll('span')) {
-            if (sp.textContent?.trim() === p && sp.getBoundingClientRect().width > 50) {
-              sp.click(); return;
-            }
-          }
-        }, cur);
-        await sleep(1500);
-
-        // Type symbol in search box.
-        await page.evaluate((sym) => {
-          const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-          let input = null;
-          for (const pop of pops) {
-            if (pop.getBoundingClientRect().width === 0) continue;
-            const inp = pop.querySelector('input[data-testid="nav-header-search"]')
-              || pop.querySelector('input[placeholder*="搜索"]');
-            if (inp && inp.getBoundingClientRect().width > 0) { input = inp; break; }
-          }
-          if (!input) throw new Error('switchPair: search input not found');
-          input.focus();
-          const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-          if (nativeSet) {
-            nativeSet.call(input, sym);
-            input.dispatchEvent(new Event('input', { bubbles: true }));
-            input.dispatchEvent(new Event('change', { bubbles: true }));
-          }
-        }, symbol);
-        await sleep(1500);
-
-        // Click first matching token row.
-        await page.evaluate((sym) => {
-          const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-          let pop = null;
-          for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
-          if (!pop) throw new Error('switchPair: popover gone');
-          for (const div of pop.querySelectorAll('div')) {
-            const t = div.textContent?.trim();
-            const r = div.getBoundingClientRect();
-            if (!t || r.width < 50 || r.height < 30 || r.height > 80) continue;
-            if (t.startsWith(sym) && t.includes('USDC')) { div.click(); return; }
-          }
-          throw new Error(`switchPair: no row matches "${sym}"`);
-        }, symbol);
-        await sleep(2000);
-      },
-    };
-  }
+  function defaultMakePerpsPage(page) { return new PerpsPage(page); }
 
   const getPerps = makePerpsPage || ((page) => defaultMakePerpsPage(page));
 
   // ── Misc utilities ───────────────────────────────────────────
 
-  const _ssStep = (page, t, name, fn) =>
-    safeStep(page, t, name, fn, (p, n) => screenshot(p, screenshotDir, n));
+  const _ssStep = async (page, t, name, fn) => {
+    let fatal;
+    const result=await safeStep(page, {...t,add:(n,status,detail)=>{ if(status==='passed'&&/^SKIP:/.test(detail)) t.skip(n,detail); else t.add(n,status,detail); }}, name, async()=>{
+      try {return await fn();}catch(error){if(error.fatalRestore)fatal=error;throw error;}
+    }, (p, n) => screenshot(p, screenshotDir, n));
+    if(fatal)throw fatal;
+    return result;
+  };
+  const restoreState=async(fn)=>{
+    try {return await fn();}catch(error){throw markRestoreFailure(null,error,'恢复图表内部测试状态');}
+  };
 
   async function navigateToPerps(page) {
     await goToPerps(page);
+    await setChartMode(page,'tradingView');
   }
 
   async function reloadAndWait(page) {
-    // Trigger a soft state reload by navigating away and back.
-    // Use goToPerps both times — the wrapper knows how to navigate away (via sidebar/header).
-    // We bounce via the URL "/" to keep this platform-agnostic.
-    try {
-      // Try clicking a sidebar tab that isn't perps; fall back to goToPerps round-trip.
-      // Simplest cross-platform: just re-trigger goToPerps after a short sleep.
-      await sleep(500);
-    } catch {}
-    await goToPerps(page);
-    await sleep(2000);
-    await waitForTVReady(page);
+    const expectedCanvases=await getCanvasCount(page);
+    const expectedIndicators=await getIndicatorLabels(page);
+    await reloadPerps(page,{navigate:goToPerps,ready:()=>waitForTVReady(page,expectedCanvases,30000)});
+    const deadline=Date.now()+15000;
+    while(Date.now()<deadline) {
+      const restored=await getIndicatorLabels(page);
+      if(expectedIndicators.every(name=>restored.includes(name))) return;
+      await sleep(250);
+    }
+    throw Error(`Indicators not restored after refresh: ${expectedIndicators.join(', ')}`);
   }
 
   // ── Test Cases (8 merged) ──────────────────────────────────
 
   async function testChart001(page) {
-    const id = `${prefix}-CHART-001`;
-    const t = createStepTracker(id);
-
+    const t=createStepTracker(`${prefix}-CHART-001`);
     await navigateToPerps(page);
-
-    await _ssStep(page, t, 'TV 图表加载', async () => {
-      const canvases = await waitForTVReady(page);
-      if (canvases < 7) throw new Error(`Canvas count too low: ${canvases}`);
-      return `${canvases} canvases`;
+    await _ssStep(page,t,'TradingView 加载并读取当前指标',async()=>{
+      const canvases=await waitForTVReady(page);
+      const labels=await getIndicatorLabels(page);
+      // An existing user chart may intentionally contain no indicators.
+      return `${canvases} canvases; indicators=${labels.join(', ')}`;
     });
-
-    await _ssStep(page, t, '重置布局 + 刷新', async () => {
-      await clickResetLayout(page);
-      await sleep(3000);
-      await reloadAndWait(page);
-    });
-
-    await _ssStep(page, t, '默认指标为 Volume', async () => {
-      let labels = [];
-      for (let attempt = 0; attempt < 15; attempt++) {
-        labels = await getIndicatorLabels(page);
-        const hasVolume = labels.some(l => l.includes('Volume') || l.includes('成交量'));
-        const hasNonDefault = labels.some(l =>
-          (/^MA\d/.test(l) || l === 'MA' || l.startsWith('MACD') || l.startsWith('RSI') || l.startsWith('BOLL'))
-          && !l.includes('Volume') && !l.includes('成交量'));
-        if (hasVolume && !hasNonDefault) break;
-        await sleep(1000);
-      }
-      const hasVolume = labels.some(l => l.includes('Volume') || l.includes('成交量'));
-      const hasMACD = hasIndicator(labels, 'MACD');
-      const hasMA = labels.some(l => /^MA\d/.test(l) || l === 'MA');
-      if (!hasVolume) throw new Error(`Volume not found. Labels: ${JSON.stringify(labels)}`);
-      if (hasMACD) throw new Error(`MACD should not be present after reset. Labels: ${JSON.stringify(labels)}`);
-      if (hasMA) throw new Error(`MA should not be present after reset. Labels: ${JSON.stringify(labels)}`);
-      return `Only Volume present. Labels: ${labels.filter(l => l.length < 25).join(', ')}`;
-    });
-
-    await _ssStep(page, t, '确认有 Volume 指标', async () => {
-      for (let i = 0; i < 10; i++) {
-        const labels = await getIndicatorLabels(page);
-        if (labels.some(l => l.includes('Volume') || l.includes('成交量'))) return 'Volume present';
-        await sleep(1000);
-      }
-      throw new Error('Volume not present after reset + 10s wait');
-    });
-
-    await _ssStep(page, t, '删除 Volume 指标', async () => {
-      const deleted = await tvEval(page, `
-        const legends = doc.querySelectorAll('[data-name="legend-source-item"]');
-        for (const legend of legends) {
-          if (legend.textContent?.includes('Vol') || legend.textContent?.includes('成交量')) {
-            const removeBtn = legend.querySelector('[data-name="legend-delete-action"]')
-              || legend.querySelector('button[aria-label*="删除"]')
-              || legend.querySelector('button[aria-label*="Remove"]');
-            if (removeBtn) { removeBtn.click(); return 'clicked'; }
-          }
-        }
-        return 'not_found';
-      `);
-      if (deleted === 'not_found') return 'SKIP: Volume delete button not found in TV legend (manual deletion needed)';
-      await sleep(2000);
-      return 'Volume deleted via legend button';
-    });
-
-    await _ssStep(page, t, '刷新后 Volume 不恢复', async () => {
-      await reloadAndWait(page);
-      const labels = await getIndicatorLabels(page);
-      const hasVol = labels.some(l => l.includes('Volume') || l.includes('成交量'));
-      if (hasVol) {
-        return 'Volume reappeared after refresh — TV may restore default indicators';
-      }
-      return 'Volume NOT restored (user setting respected)';
-    });
-
+    await _ssStep(page,t,'图表初始默认 Volume 及删除后刷新保持',()=>interactions.defaultVolume(page,()=>reloadPerps(page,{navigate:goToPerps,ready:()=>waitForTVReady(page,7,30000)})));
     return t.result();
   }
 
@@ -526,26 +334,49 @@ export function createChartTests({
     });
 
     let panelTextBefore;
-    await _ssStep(page, t, '收藏指标排序位置', async () => {
+    await _ssStep(page, t, '当前指标分类与选项', async () => {
       await clickIndicatorButton(page);
       await sleep(500);
       panelTextBefore = await getIndicatorPanelText(page);
+      if(!panelTextBefore.includes('MACD') || !panelTextBefore.includes('主图指标')) throw Error('Indicator categories/options missing');
       const macdPos = panelTextBefore.indexOf('MACD');
       await clickIndicatorButton(page);
-      return `MACD at position ${macdPos} ${macdPos >= 0 && macdPos < 100 ? '(in favorites)' : '(not favorited or further down)'}`;
+      return `主图 / 副图分类及 MACD 选项可见，位置 ${macdPos}`;
     });
 
-    t.skip('收藏指标（点击星形按钮）', '指标面板内的收藏按钮在 TV webview 内，无法自动点击（K-027）');
-    t.skip('取消收藏指标', '同上，需手动在指标面板内点击星形按钮取消');
-    t.skip('删除指标（图表上右键→删除）', '指标删除需要在 TV webview 内右键指标标签操作（K-027）');
-    t.skip('RSI 参数修改持久化', 'TV 内指标参数面板操作无法自动化（K-027），需手动测试');
+    t.skip('收藏指标（点击星形按钮）', '旧版步骤已停用：当前统一指标面板无星形收藏入口，正式用例改验分类和选中状态');
+    t.skip('取消收藏指标', '旧版步骤已停用：当前统一指标面板无星形收藏入口');
+    const rsiBefore=await interactions.api(page,`return chart.getAllStudies().filter(s=>s.name==='Relative Strength Index');`);
+    if(rsiBefore.length) {
+      t.skip('RSI 参数修改持久化','当前已有用户 RSI；需独立 RSI 样本，避免覆盖用户参数');
+      t.skip('删除测试指标','当前已有用户 RSI；不删除用户指标');
+    } else {
+      let fixtureId;
+      try {
+        await _ssStep(page,t,'RSI 参数修改持久化',async()=>{
+          fixtureId=await interactions.addRsi(page);
+          await interactions.editRsi(page,fixtureId,18);
+          await sleep(1500);await reloadAndWait(page);
+          fixtureId=await interactions.wait(page,`return chart.getAllStudies().find(s=>s.name==='Relative Strength Index')?.id;`);
+          const inputs=await interactions.api(page,`return chart.getStudyById(${JSON.stringify(fixtureId)}).getInputValues();`);
+          if(inputs.find(i=>i.id==='length')?.value!==18)throw Error('RSI length not restored as 18');
+          return 'UI 添加 RSI；TV API 打开参数面板；真实鼠标键盘 14→18；刷新后 length=18';
+        });
+        if(fixtureId) await _ssStep(page,t,'删除测试指标',async()=>{
+          await interactions.deleteStudy(page,fixtureId);await sleep(2500);fixtureId=null;
+          return '真实点击 RSI 图例移除按钮，模型与图例均移除；原 BB/MACD 保留';
+        });
+      } finally {
+        if(fixtureId)await restoreState(()=>interactions.api(page,`if(chart.getAllStudies().some(s=>s.id===${JSON.stringify(fixtureId)}))chart.removeEntity(${JSON.stringify(fixtureId)});return true;`));
+      }
+    }
 
-    await _ssStep(page, t, '刷新后指标 + 收藏一次性验证', async () => {
+    await _ssStep(page, t, '真实刷新后指标与分类选项保留', async () => {
       const beforeLabels = await getIndicatorLabels(page);
       await reloadAndWait(page);
       const afterLabels = await getIndicatorLabels(page);
 
-      const toName = (l) => l.replace(/[\d,.\s∅KMBTkmbt−+%]+$/, '').trim();
+      const toName = (l) => l.trim();
       const beforeSet = new Set(beforeLabels.map(toName).filter(Boolean));
       const afterSet = new Set(afterLabels.map(toName).filter(Boolean));
       const missing = [...beforeSet].filter(x => !afterSet.has(x));
@@ -555,13 +386,14 @@ export function createChartTests({
       await sleep(1000);
       const panelTextAfter = await getIndicatorPanelText(page);
       await clickIndicatorButton(page);
+      if(!panelTextAfter.includes('MACD')) throw Error('Indicator options missing after reload');
       const macdPosBefore = panelTextBefore.indexOf('MACD');
       const macdPosAfter = panelTextAfter.indexOf('MACD');
 
       const results = [];
       results.push(`Indicators: ${[...afterSet].join(', ')}`);
       if (macdPosAfter >= 0) {
-        results.push(`MACD favorite: pos ${macdPosBefore}→${macdPosAfter}`);
+        results.push(`MACD option: pos ${macdPosBefore}→${macdPosAfter}`);
       }
       return results.join(' | ');
     });
@@ -593,25 +425,53 @@ export function createChartTests({
       return `Symbol: ${symbol} | Drawing key: ${currentPairKey ? `${currentPairKey.key} (${currentPairKey.len} bytes)` : 'none'} | Total perps drawing keys: ${totalKeys}`;
     });
 
-    await _ssStep(page, t, '刷新后画图持久化', async () => {
-      const keysBefore = await getDrawingKeys(page);
-      const beforeKey = keysBefore.find(k => k.key.includes(`perps_${symbol}`));
-
-      await reloadAndWait(page);
-
-      const keysAfter = await getDrawingKeys(page);
-      const afterKey = keysAfter.find(k => k.key.includes(`perps_${symbol}`));
-
-      if (beforeKey && !afterKey) throw new Error(`Drawing data lost after refresh for ${symbol}`);
-      if (beforeKey && afterKey && afterKey.len < beforeKey.len * 0.5) {
-        throw new Error(`Drawing data shrank significantly: ${beforeKey.len} → ${afterKey.len}`);
+    const drawingBackup=await interactions.api(page,`const symbol=chart.symbol().replace(/[^a-zA-Z0-9-_]/g,'_').toLowerCase();const key='tradingview_drawings_perps_'+symbol;return {key,value:doc.defaultView.localStorage.getItem(key),ids:chart.getAllShapes().filter(s=>s.name!=='text').map(s=>s.id)};`);
+    drawingBackup.settings=await interactions.settingsSnapshot(page);
+    const fixtureIds=[];let drawing;let originalWidth;
+    try {
+      await _ssStep(page,t,'水平线/斐波那契/矩形绘制',async()=>{
+        for(const type of ['trend_line','horizontal_line','fib_retracement','rectangle'])fixtureIds.push(await interactions.drawUi(page,type));
+        drawing=await interactions.api(page,`return ${JSON.stringify(fixtureIds)}.map(id=>({id,name:chart.getAllShapes().find(s=>s.id===id)?.name,points:chart.getShapeById(id).getPoints()}));`);
+        if(drawing.some(s=>s.points.length<1))throw Error('Drawing has no points');
+        originalWidth=await interactions.api(page,`return chart.getShapeById(${JSON.stringify(fixtureIds[0])}).getProperties().linewidth;`);
+        await interactions.waitDrawingSaved(page,fixtureIds);return '真实工具菜单、原生指针绘制四类图形，等待持久化后继续';
+      });
+      if(fixtureIds.length===4) {
+        await _ssStep(page,t,'编辑趋势线样式',async()=>{
+          const detail=await interactions.editTrendStyle(page,fixtureIds[0],originalWidth===3?4:3);await interactions.waitDrawingSaved(page,fixtureIds,{width:originalWidth===3?4:3});return detail+'；存储线宽已更新';
+        });
+        await _ssStep(page,t,'刷新后画图持久化',async()=>{
+          const readDrawingState=()=>interactions.api(page,`const symbol=chart.symbol().replace(/[^a-zA-Z0-9-_]/g,'_').toLowerCase();return {symbol,resolution:chart.resolution(),shapes:chart.getAllShapes().map(s=>({...s,points:chart.getShapeById(s.id).getPoints(),linewidth:chart.getShapeById(s.id).getProperties().linewidth})),stored:doc.defaultView.localStorage.getItem('tradingview_drawings_perps_'+symbol)};`);
+          const evidence={expected:drawing,before:await readDrawingState()};
+          await reloadAndWait(page);
+          let after;
+          try {
+            after=await interactions.wait(page,`const ids=${JSON.stringify(fixtureIds)};return ids.every(id=>chart.getAllShapes().some(s=>s.id===id)) && ids.map(id=>({id,name:chart.getAllShapes().find(s=>s.id===id)?.name,points:chart.getShapeById(id).getPoints()}));`,45000);
+          } finally {
+            evidence.after=await readDrawingState();
+            writeFileSync(resolve(screenshotDir,`${id}-drawing-refresh-evidence.json`),JSON.stringify(evidence,null,2));
+          }
+          for(const before of drawing){const current=after.find(s=>s.id===before.id);if(!current||current.points.length!==before.points.length||before.points.some((p,i)=>(before.name!=='horizontal_line'&&p.time!==current.points[i].time)||Math.abs(p.price-current.points[i].price)>1e-8))throw Error(`Drawing coordinates changed: ${JSON.stringify({before,current})}`);}
+          const width=await interactions.api(page,`return chart.getShapeById(${JSON.stringify(fixtureIds[0])}).getProperties().linewidth;`);
+          if(width!==(originalWidth===3?4:3))throw Error(`Drawing style not restored: before=${originalWidth===3?4:3}, after=${width}, id=${fixtureIds[0]}`);
+          return '四类样本刷新后 ID、趋势线/回撤/矩形时价锚点、水平线价格及编辑后的线宽一致';
+        });
+        await _ssStep(page,t,'删除画图图形',async()=>{
+          await interactions.editTrendStyle(page,fixtureIds[0],originalWidth);
+          await interactions.deleteDrawing(page,fixtureIds[0]);await interactions.waitDrawingSaved(page,fixtureIds.slice(1),{removed:[fixtureIds[0]]});await reloadAndWait(page);
+          await interactions.wait(page,`return !chart.getAllShapes().some(s=>s.id===${JSON.stringify(fixtureIds[0])})&&${JSON.stringify(fixtureIds.slice(1))}.every(id=>chart.getAllShapes().some(s=>s.id===id));`,45000);
+          return '真实 Delete 删除一条，刷新后该条仍不存在，另外三条仍在';
+        });
       }
-      return `Before: ${beforeKey?.len || 0} bytes → After: ${afterKey?.len || 0} bytes`;
-    });
-
-    t.skip('水平线/斐波那契/矩形绘制', 'canvas 内拖拽绘制无法自动化，需手动测试');
-    t.skip('编辑趋势线样式', 'canvas 内选中+右键编辑无法自动化，需手动测试');
-    t.skip('删除画图图形', 'canvas 内选中+删除无法自动化，需手动测试');
+    } finally {
+      await restoreState(async()=>{
+      // Restore only this pair's drawing record, then replace the document so its
+      // pending autosave cannot overwrite the user's snapshot during cleanup.
+      await tvEval(page,`const {key,value}=${JSON.stringify(drawingBackup)};const storage=doc.defaultView.localStorage;if(value===null)storage.removeItem(key);else storage.setItem(key,value);return true;`);
+      await interactions.restoreSettings(page,drawingBackup.settings,()=>reloadAndWait(page));
+      await interactions.wait(page,`const ids=chart.getAllShapes().filter(s=>s.name!=='text').map(s=>s.id).sort();return JSON.stringify(ids)===JSON.stringify(${JSON.stringify(drawingBackup.ids)}.sort());`,45000);
+      });
+    }
 
     return t.result();
   }
@@ -640,8 +500,7 @@ export function createChartTests({
         const after = await getTimeIntervals(page);
         const nowActive = after.find(i => i.active);
         if (!nowActive || nowActive.aria !== interval.aria) {
-          const canvases = await getCanvasCount(page);
-          if (canvases < 7) throw new Error(`Chart broken after switching to ${interval.text}: only ${canvases} canvases`);
+          throw Error(`Time interval selection not applied: ${interval.aria}`);
         }
 
         const ohlcAfter = await getOHLC(page);
@@ -655,6 +514,7 @@ export function createChartTests({
     let intervalsBefore;
     await _ssStep(page, t, '记录当前收藏周期', async () => {
       intervalsBefore = await getTimeIntervals(page);
+      if(!intervalsBefore.length) throw Error('Interval toolbar empty');
       return `Toolbar: ${intervalsBefore.map(i => i.text + (i.active ? '[*]' : '')).join(', ')}`;
     });
 
@@ -662,8 +522,8 @@ export function createChartTests({
       await reloadAndWait(page);
       const intervalsAfter = await getTimeIntervals(page);
 
-      const beforeSet = new Set(intervalsBefore.map(i => i.aria).filter(a => a !== '图表周期'));
-      const afterSet = new Set(intervalsAfter.map(i => i.aria).filter(a => a !== '图表周期'));
+      const beforeSet = new Set(intervalsBefore.filter(i=>!i.more).map(i => i.aria).filter(a => a !== '图表周期'));
+      const afterSet = new Set(intervalsAfter.filter(i=>!i.more).map(i => i.aria).filter(a => a !== '图表周期'));
       const lost = [...beforeSet].filter(x => !afterSet.has(x));
       const added = [...afterSet].filter(x => !beforeSet.has(x));
 
@@ -672,8 +532,8 @@ export function createChartTests({
       return `Preserved: ${[...afterSet].join(', ')}`;
     });
 
-    t.skip('自定义时间周期设置', 'TV 内自定义周期设置面板操作无法自动化（K-027），需手动测试');
-    t.skip('自定义时间周期刷新持久化', '依赖 027 的自定义周期设置，需手动测试');
+    t.skip('自定义时间周期设置', '旧版步骤已停用：当前统一周期面板只提供预设周期与偏好编辑');
+    t.skip('自定义时间周期刷新持久化', '旧版步骤已停用：当前无自定义周期输入，偏好周期刷新另有断言');
 
     return t.result();
   }
@@ -682,18 +542,7 @@ export function createChartTests({
     const id = `${prefix}-CHART-005`;
     const t = createStepTracker(id);
 
-    if (canSwitchAccount) {
-      await _ssStep(page, t, '切换到有持仓的账户', async () => {
-        const currentAccount = await getCurrentAccount(page);
-        if (currentAccount?.includes('hl-99')) {
-          return `Already on hl-99`;
-        }
-        await switchToAccount(page, 'hl-99', '观察钱包');
-        return `Switched to hl-99`;
-      });
-    } else {
-      t.skip('切换到有持仓的账户', '当前平台不支持自动切换账户（hl-99 观察钱包仅在桌面端可用）');
-    }
+    t.skip('多账户 / 不同持仓样本的叠加线对账','使用当前账户，不按固定钱包名切换；真实标记点与持仓线另需样本复测');
 
     await navigateToPerps(page);
     await waitForTVReady(page);
@@ -710,46 +559,26 @@ export function createChartTests({
       return `跳过确认: ${settings.skipConfirm} | 买卖点: ${settings.showTrades} | 仓位订单: ${settings.showPositions}`;
     });
 
-    await _ssStep(page, t, '买卖点开关影响图表渲染', async () => {
-      if (settings.showTrades !== 'checked') {
-        await clickSettingsToggle(page, 1);
-        await sleep(1000);
-      }
-
-      const hashON = await getMainCanvasHash(page);
-      await clickSettingsToggle(page, 1);
-      const hashOFF = await getMainCanvasHash(page);
-
-      if (hashON === hashOFF) {
-        await clickSettingsToggle(page, 1);
-        throw new Error(`Canvas hash unchanged after toggling buy/sell OFF — 账户 hl-99 应有买卖历史 (hash=${hashON})`);
-      }
-
-      await clickSettingsToggle(page, 1);
-      const hashRestored = await getMainCanvasHash(page);
-      return `ON=${hashON} → OFF=${hashOFF} (changed ✓) → ON=${hashRestored} ${hashON === hashRestored ? '(restored ✓)' : '(data updated, OK)'}`;
-    });
-
-    await _ssStep(page, t, '仓位订单开关影响图表渲染', async () => {
-      const currentSettings = await getPerpsSettings(page);
-      if (!currentSettings) throw new Error('cannot read settings');
-
-      if (currentSettings.showPositions !== 'checked') {
-        await clickSettingsToggle(page, 2);
-        await sleep(1000);
-      }
-
-      const hashON = await getMainCanvasHash(page);
-      await clickSettingsToggle(page, 2);
-      const hashOFF = await getMainCanvasHash(page);
-
-      await clickSettingsToggle(page, 2);
-
-      if (hashON === hashOFF) {
-        throw new Error(`Canvas hash unchanged after toggling positions OFF — 账户 hl-99 有持仓 (hash=${hashON})`);
-      }
-      return `ON=${hashON} → OFF=${hashOFF} (changed ✓) — 持仓线消失确认`;
-    });
+    for(const [index,key] of [[1,'showTrades'],[2,'showPositions']]) {
+      await _ssStep(page,t,`${key}切换并恢复开关状态`,async()=>{
+        const before=await getPerpsSettings(page);
+        if(!before || !['checked','unchecked'].includes(before[key])) throw Error(`Missing ${key} state`);
+        try {
+          await clickSettingsToggle(page,index);
+          const after=await getPerpsSettings(page);
+          if(!after || after[key]===before[key]) throw Error(`${key} did not toggle`);
+          return `${before[key]} -> ${after[key]}; state change verified`;
+        } finally {
+          await restoreState(async()=>{
+          const current=await getPerpsSettings(page);
+          if(!current) throw Error('Cannot restore chart setting');
+          if(current[key]!==before[key]) await clickSettingsToggle(page,index);
+          if((await getPerpsSettings(page))?.[key]!==before[key]) throw Error('Chart setting restoration failed');
+          });
+        }
+      });
+    }
+    t.skip('叠加标记点及持仓线实际绘制','实时价格也会改变 canvas hash，不能以 hash 变化判定叠加线存在；需可控数据截图 / 组件断言');
 
     await _ssStep(page, t, '刷新后设置持久化', async () => {
       const settingsBefore = await getPerpsSettings(page);
@@ -781,38 +610,7 @@ export function createChartTests({
     await navigateToPerps(page);
     await waitForTVReady(page);
 
-    const beforeLabels008 = await getIndicatorLabels(page);
-    const beforeCanvases008 = await getCanvasCount(page);
-
-    await _ssStep(page, t, '重置前状态', async () => {
-      return `Indicators: ${beforeLabels008.filter(l => l.length < 20).join(', ')} | Canvases: ${beforeCanvases008}`;
-    });
-
-    await _ssStep(page, t, '执行重置布局', async () => {
-      await clickResetLayout(page);
-      await sleep(3000);
-    });
-
-    await _ssStep(page, t, '重置后仅保留 Volume', async () => {
-      const labels = await getIndicatorLabels(page);
-      const hasVolume = labels.some(l => l.includes('Volume') || l.includes('成交量'));
-      const hasOthers = labels.some(l =>
-        (l.startsWith('MA') && !l.includes('Volume')) || l.startsWith('RSI') || l.startsWith('BOLL'));
-      if (!hasVolume) throw new Error('Volume not present after reset');
-      if (hasOthers) throw new Error(`Non-default indicators still present: ${labels.filter(l => l.length < 20).join(', ')}`);
-      return `Reset OK — only Volume`;
-    });
-
-    await _ssStep(page, t, '刷新后重置状态保持', async () => {
-      await reloadAndWait(page);
-      const labels = await getIndicatorLabels(page);
-      const hasVolume = labels.some(l => l.includes('Volume') || l.includes('成交量'));
-      const hasOthers = labels.some(l =>
-        (l.startsWith('MA') && !l.includes('Volume')) || l.startsWith('RSI') || l.startsWith('BOLL'));
-      if (!hasVolume) throw new Error('Volume lost after refresh');
-      if (hasOthers) throw new Error(`Reset reverted — non-default indicators reappeared: ${labels.join(', ')}`);
-      return `Persisted: only Volume after refresh`;
-    });
+    t.skip('重置布局与默认 Volume 回归','指标重置入口与流程尚待实现；Desktop TF 当前指标面板未见对应入口，不能用外层面板高度重置代替');
 
     let layoutBefore;
     await _ssStep(page, t, '记录当前布局', async () => {
@@ -824,6 +622,7 @@ export function createChartTests({
       await reloadAndWait(page);
       await waitForTVReady(page, layoutBefore.canvasLayout?.canvasCount || 7, 20000).catch(() => {});
       const layoutAfter = await getChartLayout(page);
+      if(!layoutBefore.wvSize || !layoutAfter.wvSize || !layoutAfter.canvasLayout?.mainW) throw Error('Chart layout dimensions missing');
 
       if (layoutBefore.wvSize && layoutAfter.wvSize) {
         const wDiff = Math.abs(layoutBefore.wvSize.w - layoutAfter.wvSize.w);
@@ -840,29 +639,7 @@ export function createChartTests({
       return `Webview: ${layoutAfter.wvSize?.w}x${layoutAfter.wvSize?.h} | Canvas: ${layoutAfter.canvasLayout?.mainW}x${layoutAfter.canvasLayout?.mainH} | Count: ${layoutAfter.canvasLayout?.canvasCount}`;
     });
 
-    await _ssStep(page, t, '默认状态下点重置无变化', async () => {
-      await clickResetLayout(page);
-      await sleep(3000);
-      await reloadAndWait(page);
-
-      const hashBefore = await getMainCanvasHash(page);
-      const indicatorsBefore = await getIndicatorLabels(page);
-
-      await clickResetLayout(page);
-      await sleep(3000);
-
-      const hashAfter = await getMainCanvasHash(page);
-      const indicatorsAfter = await getIndicatorLabels(page);
-
-      const toName = (l) => l.replace(/[\d,.\s∅KMBTkmbt−+%]+$/, '').trim();
-      const setBefore = new Set(indicatorsBefore.map(toName).filter(Boolean));
-      const setAfter = new Set(indicatorsAfter.map(toName).filter(Boolean));
-      const diff = [...setBefore].filter(x => !setAfter.has(x));
-
-      return `Hash: ${hashBefore} → ${hashAfter} | Indicators unchanged: ${diff.length === 0 ? 'yes' : 'lost: ' + diff.join(',')} | No errors`;
-    });
-
-    t.skip('调整图表区域大小', 'canvas 边界拖拽无法自动化，需手动测试');
+    await _ssStep(page,t,'调整图表区域大小',()=>interactions.dragLayout(page));
 
     return t.result();
   }
@@ -883,11 +660,7 @@ export function createChartTests({
       const start = Date.now();
       for (let i = 0; i < 6; i++) {
         const target = available[i % available.length];
-        await tvEval(page, `
-          const btns = doc.querySelectorAll('button[aria-label="${target.aria}"]');
-          if (btns.length > 0) btns[0].click();
-        `);
-        await sleep(300);
+        await clickTimeInterval(page,target.aria,300);
       }
       const elapsed = Date.now() - start;
 
@@ -903,34 +676,32 @@ export function createChartTests({
       const ohlc = await getOHLC(page);
       const intervals2 = await getTimeIntervals(page);
       const active = intervals2.find(i => i.active);
+      if(!active || !ohlc) throw Error('Missing selected interval or OHLC after switching');
       return `Active: ${active?.text || 'unknown'} | OHLC: ${ohlc ? `O=${ohlc.O} C=${ohlc.C}` : 'not readable'}`;
     });
 
-    await _ssStep(page, t, '清除 TV localStorage', async () => {
-      await tvEval(page, `
-        const win = doc.defaultView || doc.parentWindow;
-        const keyCount = win.localStorage.length;
-        win.localStorage.clear();
-        return keyCount;
-      `);
-      return 'localStorage cleared';
+    t.skip('清空图表存储后的默认恢复', '需隔离图表配置执行，禁止在用户钱包会话清空整个 origin 的 localStorage');
+
+    await _ssStep(page,t,'localStorage 配额异常后图表仍可操作',async()=>{
+      const intervals=await getTimeIntervals(page);
+      const before=intervals.find(i=>i.active)?.text;
+      const target=intervals.find(i=>!i.active&&!i.more);
+      if(!before||!target)throw Error('Need current interval and an alternate interval for quota probe');
+      try {
+        return await interactions.quotaFailure(page,async()=>{
+          await clickTimeInterval(page,target.aria);
+          if(!(await getTimeIntervals(page)).some(i=>i.text===target.text&&i.active))throw Error('Interval did not change after quota error');
+        },()=>reloadAndWait(page));
+      } finally {
+        await restoreState(async()=>{
+        await clickTimeInterval(page,before);
+        if(!(await getTimeIntervals(page)).some(i=>i.text===before&&i.active))throw Error('Quota probe interval restoration failed');
+        });
+      }
     });
-
-    await _ssStep(page, t, '刷新后恢复默认', async () => {
-      await reloadAndWait(page);
-
-      const labels = await getIndicatorLabels(page);
-      const hasVol = labels.some(l => l.includes('Volume') || l.includes('成交量'));
-
-      const drawingKeys = await getDrawingKeys(page);
-      const perpsDrawings = drawingKeys.filter(k => k.key.includes('perps_'));
-
-      return `Indicators: ${labels.filter(l => l.length < 20).join(', ')} | Volume: ${hasVol ? 'yes' : 'no'} | Drawing keys: ${perpsDrawings.length} (should be 0)`;
-    });
-
-    t.skip('localStorage 已满降级', '需要填满约 5MB localStorage，不现实');
-    t.skip('大量指标性能 (20 个)', '需要在 TV 内逐个添加 20 个指标（K-027），需手动测试');
-    t.skip('大量画图性能 (50 条线)', 'canvas 内绘制 50 条线无法自动化，需手动测试');
+    t.skip('存储不足提示','配额异常后的可操作性已测；提示文案及全局存储不可用另需独立故障场景');
+    t.skip('大量指标性能 (20 个)', 'Desktop TF 已构造20指标样本；回归尚缺真实呈现帧率采样，不能断言≥30FPS');
+    t.skip('大量画图性能 (50 条线)', 'Desktop TF 已验证50线保存与刷新保留；尚缺真实呈现帧率采样，不能断言≥30FPS');
 
     return t.result();
   }
@@ -1017,7 +788,7 @@ export function createChartTests({
     await _ssStep(page, t, '指标全局同步验证', async () => {
       const indicators2 = await getIndicatorLabels(page);
 
-      const getName = (labels) => new Set(labels.map(l => l.match(/^(MA|MACD|RSI|BOLL|EMA|Volume|成交量)/)?.[0]).filter(Boolean));
+      const getName = (labels) => new Set(labels.filter(Boolean));
       const set1 = getName(indicators1);
       const set2 = getName(indicators2);
 
@@ -1025,7 +796,7 @@ export function createChartTests({
       const onlyInB = [...set2].filter(x => !set1.has(x));
 
       if (onlyInA.length > 0 || onlyInB.length > 0) {
-        return `Indicators differ — A only: [${onlyInA}], B only: [${onlyInB}]. TV indicator config may be per-symbol or global depending on TV version.`;
+        throw Error(`Indicators differ — A only: [${onlyInA}], B only: [${onlyInB}]`);
       }
       return `Indicators synced: ${[...set2].join(', ')}`;
     });
@@ -1046,7 +817,7 @@ export function createChartTests({
       drawingKeysBefore016 = await getDrawingKeys(page);
       settingsBefore016 = await getPerpsSettings(page);
       intervalsBefore016 = await getTimeIntervals(page);
-      const toName = (l) => l.replace(/[\d,.\s∅KMBTkmbt−+%]+$/, '').trim();
+      const toName = (l) => l.trim();
       return `Indicators: ${[...new Set(indicatorsBefore016.map(toName))].join(', ')} | Drawings: ${drawingKeysBefore016.filter(k => k.key.includes('perps_')).length} keys | Intervals: ${intervalsBefore016.length}`;
     });
 
@@ -1055,7 +826,7 @@ export function createChartTests({
       const results = [];
 
       const indicatorsAfter = await getIndicatorLabels(page);
-      const toName = (l) => l.replace(/[\d,.\s∅KMBTkmbt−+%]+$/, '').trim();
+      const toName = (l) => l.trim();
       const setBefore = new Set(indicatorsBefore016.map(toName).filter(Boolean));
       const setAfter = new Set(indicatorsAfter.map(toName).filter(Boolean));
       const lost = [...setBefore].filter(x => !setAfter.has(x));
@@ -1080,8 +851,8 @@ export function createChartTests({
       }
 
       const intervalsAfter = await getTimeIntervals(page);
-      const beforeISet = new Set(intervalsBefore016.map(i => i.aria).filter(a => a !== '图表周期'));
-      const afterISet = new Set(intervalsAfter.map(i => i.aria).filter(a => a !== '图表周期'));
+      const beforeISet = new Set(intervalsBefore016.filter(i=>!i.more).map(i => i.aria).filter(a => a !== '图表周期'));
+      const afterISet = new Set(intervalsAfter.filter(i=>!i.more).map(i => i.aria).filter(a => a !== '图表周期'));
       const lostI = [...beforeISet].filter(x => !afterISet.has(x));
       if (lostI.length > 0) throw new Error(`Intervals lost: ${lostI.join(', ')}`);
       results.push(`Intervals: ${[...afterISet].join(', ')}`);
@@ -1089,28 +860,90 @@ export function createChartTests({
       return results.join(' | ');
     });
 
-    t.skip('加仓后持仓线更新', '需要执行真实交易操作，自动化风险高');
-    t.skip('限价单成交后挂单线消失', '需要等待真实市场成交，不可控');
+    t.skip('加仓后持仓线更新', '缺同一仓位加仓前后数量/均价及可控事件样本；本轮不提交真实交易');
+    t.skip('限价单成交后挂单线消失', '缺既有测试挂单和受控成交/撮合事件；不能以撤单或价格变化代替成交');
 
+    return t.result();
+  }
+
+  async function testChart009(page) {
+    const t=createStepTracker(`${prefix}-CHART-009`);
+    await goToPerps(page);
+    const pairBefore=await currentPair(page);
+    await _ssStep(page,t,'切换原生版主图',async()=>{
+      await setChartMode(page,'native');
+      await locator(page,'perps.chart.controls').waitFor({state:'visible',timeout:20000});
+      if((await locator(page,'perps.chart.engine').innerText()).includes('TradingView')) throw Error('Native chart not selected');
+      return `pair=${pairBefore}`;
+    });
+    await _ssStep(page,t,'真实刷新后原生版与交易对保持',async()=>{
+      await reloadPerps(page,{navigate:goToPerps,ready:()=>locator(page,'perps.chart.controls').waitFor({state:'visible',timeout:20000})});
+      if((await locator(page,'perps.chart.engine').innerText()).includes('TradingView')) throw Error('Native chart preference lost after real reload');
+      if(await currentPair(page)!==pairBefore) throw Error('Pair changed after reload');
+      return '真实 shell 文档已重新加载，原生版与交易对保持';
+    });
+    await _ssStep(page,t,'切换 TradingView 后仅一个有效主图',async()=>{
+      await setChartMode(page,'tradingView');
+      await waitForTVReady(page);
+      if(!((await locator(page,'perps.chart.engine').innerText()).includes('TradingView'))) throw Error('TradingView not selected');
+      return 'TradingView ready';
+    });
     return t.result();
   }
 
   // ── Registry ────────────────────────────────────────────────
 
   const testCases = [
+    { id: `${prefix}-CHART-009`, name: `${namePrefix}双引擎切换与真实刷新`, fn:testChart009, skipSteps:[] },
     { id: `${prefix}-CHART-001`, name: `${namePrefix}默认指标测试`, fn: testChart001, skipSteps: [] },
-    { id: `${prefix}-CHART-002`, name: `${namePrefix}指标管理测试`, fn: testChart002, skipSteps: ['收藏指标', '取消收藏', '删除指标', 'RSI 参数修改'] },
-    { id: `${prefix}-CHART-003`, name: `${namePrefix}画图工具测试`, fn: testChart003, skipSteps: ['水平线/斐波那契/矩形', '编辑趋势线', '删除画图'] },
-    { id: `${prefix}-CHART-004`, name: `${namePrefix}K线时间周期测试`, fn: testChart004, skipSteps: ['自定义时间周期'] },
-    { id: `${prefix}-CHART-005`, name: `${namePrefix}图表叠加显示测试`, fn: testChart005, skipSteps: ['多个限价单'] },
-    { id: `${prefix}-CHART-006`, name: `${namePrefix}视图布局测试`, fn: testChart006, skipSteps: ['调整图表区域大小'] },
-    { id: `${prefix}-CHART-007`, name: `${namePrefix}异常与边界场景`, fn: testChart007, skipSteps: ['localStorage 已满', '大量指标性能', '大量画图性能'] },
+    { id: `${prefix}-CHART-002`, name: `${namePrefix}指标管理测试`, fn: testChart002, skipSteps: ['旧版收藏指标', '旧版取消收藏'] },
+    { id: `${prefix}-CHART-003`, name: `${namePrefix}画图工具测试`, fn: testChart003, skipSteps: [] },
+    { id: `${prefix}-CHART-004`, name: `${namePrefix}K线时间周期测试`, fn: testChart004, skipSteps: ['旧版自定义时间周期设置', '旧版自定义时间周期刷新'] },
+    { id: `${prefix}-CHART-005`, name: `${namePrefix}图表叠加显示测试`, fn: testChart005, skipSteps: ['多账户叠加线对账', '叠加线实际绘制', '多个限价单'] },
+    { id: `${prefix}-CHART-006`, name: `${namePrefix}视图布局测试`, fn: testChart006, skipSteps:['指标重置布局与默认 Volume'] },
+    { id: `${prefix}-CHART-007`, name: `${namePrefix}异常与边界场景`, fn: testChart007, skipSteps: ['清空图表存储默认恢复', '存储不足提示', '大量指标性能', '大量画图性能'] },
     { id: `${prefix}-CHART-008`, name: `${namePrefix}跨交易对测试`, fn: testChart008, skipSteps: ['加仓后持仓线更新', '限价单成交后线消失'] },
   ];
 
+  for (const tc of testCases) {
+    const run=tc.fn;
+    tc.fn=async (page)=>{
+      page.setDefaultTimeout(15000);
+      await goToPerps(page);
+      const pairBefore=await currentPair(page);
+      const formBefore=await snapshotNonOrderForm(page);
+      const original=(await locator(page,'perps.chart.engine').innerText()).includes('TradingView')?'tradingView':'native';
+      let intervalBefore;
+      let result;
+      try {
+        if(!tc.id.endsWith('-009')) {
+          await setChartMode(page,'tradingView');await waitForTVReady(page);
+          intervalBefore=(await getTimeIntervals(page)).find(i=>i.active)?.aria;
+        }
+        result=await run(page);return result;
+      }
+      finally {
+        try {
+          await page.keyboard.press('Escape');
+          if(intervalBefore) await clickTimeInterval(page,intervalBefore);
+          await restorePair(page,pairBefore);
+          await setChartMode(page,original);
+          await restoreNonOrderForm(page,formBefore);
+        } catch(error) {
+          const failure=markRestoreFailure(result,error,'恢复图表及原表单');
+          if(!result) throw failure;
+        }
+      }
+    };
+  }
+
+  let _preReport = null;
   async function setup(page) {
     await goToPerps(page);
     await sleep(2000);
+    _preReport ??= await runPreconditions(page, testCases.map(tc => tc.id));
+    if (!_preReport.canRun) throw new Error('Perps 前置检查未通过');
+    return _preReport;
   }
 
   return { testCases, setup, ALL_TEST_IDS };

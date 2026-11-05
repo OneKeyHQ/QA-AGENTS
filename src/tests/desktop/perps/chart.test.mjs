@@ -1,4 +1,7 @@
-// Perps TV Chart Tests (Desktop) — PERPS-CHART-001 ~ PERPS-CHART-008
+const connectCDP = () => connectPlatform('desktop');
+import {connectPlatform} from '../../helpers/platform-session.mjs';
+import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
+// Perps TV Chart Tests (Desktop) — PERPS-CHART-001 ~ PERPS-CHART-009
 // Thin wrapper: test logic lives in src/tests/shared/perps/chart.mjs
 // Connects via CDP port 9222 (OneKey Electron app).
 //
@@ -10,7 +13,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
-  connectCDP, sleep, RESULTS_DIR,
+  sleep, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { PerpsPage } from '../../helpers/pages/index.mjs';
@@ -54,6 +57,7 @@ function makePerpsPage(page) {
 
 // ── Test Cases (from shared module) ──────────────────────────────
 
+export const platform = 'desktop';
 export const displayName = '图表';
 
 const { testCases, setup, ALL_TEST_IDS } = createChartTests({
@@ -83,6 +87,7 @@ export async function run() {
   const { browser, page } = await connectCDP();
   await unlockWalletIfNeeded(page);
   await dismissOverlays(page);
+  await setup(page);
 
   const results = {};
 
@@ -104,9 +109,13 @@ export async function run() {
       }
     } catch (e) {
       const elapsed = ((Date.now() - start) / 1000).toFixed(1);
-      results[tc.id] = { status: 'failed', steps: [], errors: [e.message] };
+      results[tc.id] = { status: 'failed', steps: [], errors: [e.message], fatalRestore: Boolean(e.fatalRestore) };
       console.log(`>> ${tc.id}: FAILED (${elapsed}s) — ${e.message}`);
     }
+    results[tc.id]={testId:tc.id,...results[tc.id],timestamp:new Date().toISOString(),duration:Date.now()-start};
+    // Keep per-case evidence when a later targeted run replaces results.json.
+    writeFileSync(resolve(RESULTS_DIR,`${tc.id}.json`),JSON.stringify(results[tc.id],null,2));
+    if(mustStopAfterResult(results[tc.id])) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
     console.log();
   }
 
@@ -120,7 +129,7 @@ export async function run() {
   writeFileSync(resultPath, JSON.stringify(results, null, 2));
   console.log(`Results saved to ${resultPath}`);
 
-  return { status: failed === 0 ? 'passed' : 'failed', passed, failed, total: toRun.length };
+  return { fatalRestore: Object.values(results).some(mustStopAfterResult), status: failed === 0 ? 'passed' : 'failed', passed, failed, total: Object.keys(results).length, notRun: toRun.length-Object.keys(results).length };
 }
 
 const _isDirectRun = process.argv[1] && process.argv[1].endsWith('chart.test.mjs');

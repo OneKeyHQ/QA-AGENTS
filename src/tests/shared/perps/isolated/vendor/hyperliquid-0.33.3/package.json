@@ -1,0 +1,76 @@
+{
+  "name": "@nktkas/hyperliquid",
+  "version": "0.33.3",
+  "description": "Hyperliquid API SDK for all major JS runtimes, written in TypeScript.",
+  "keywords": [
+    "api",
+    "library",
+    "sdk",
+    "javascript",
+    "typescript",
+    "cryptocurrency",
+    "trading",
+    "blockchain",
+    "exchange",
+    "web3",
+    "dex",
+    "hyperliquid"
+  ],
+  "homepage": "https://github.com/nktkas/hyperliquid",
+  "bugs": {
+    "url": "https://github.com/nktkas/hyperliquid/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nktkas/hyperliquid.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "nktkas",
+    "email": "github.turk9@passmail.net",
+    "url": "https://github.com/nktkas"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./esm/mod.d.ts",
+      "default": "./esm/mod.js"
+    },
+    "./signing": {
+      "types": "./esm/signing/mod.d.ts",
+      "default": "./esm/signing/mod.js"
+    },
+    "./utils": {
+      "types": "./esm/utils/mod.d.ts",
+      "default": "./esm/utils/mod.js"
+    },
+    "./api/exchange": {
+      "types": "./esm/api/exchange/mod.d.ts",
+      "default": "./esm/api/exchange/mod.js"
+    },
+    "./api/explorer": {
+      "types": "./esm/api/explorer/mod.d.ts",
+      "default": "./esm/api/explorer/mod.js"
+    },
+    "./api/info": {
+      "types": "./esm/api/info/mod.d.ts",
+      "default": "./esm/api/info/mod.js"
+    },
+    "./api/subscription": {
+      "types": "./esm/api/subscription/mod.d.ts",
+      "default": "./esm/api/subscription/mod.js"
+    }
+  },
+  "main": "./esm/mod.js",
+  "types": "./esm/mod.d.ts",
+  "dependencies": {
+    "@nktkas/rews": "^4.1.0",
+    "@noble/hashes": "^2.2.0",
+    "decimal.js": "^10.6.0",
+    "valibot": "^1.4.2"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

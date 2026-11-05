@@ -1,0 +1,8 @@
+{
+  "package": "@nktkas/hyperliquid",
+  "version": "0.33.3",
+  "registryArtifact": "https://registry.npmjs.org/@nktkas/hyperliquid/-/hyperliquid-0.33.3.tgz",
+  "tarballSha256": "b25840425c78eb2e1c8a89e4d54ac923eaee2631d5114f9dda58ba55c84ea230",
+  "httpSha256": "8de96a09f3aa156643790e5471ac473a588a20b8d9339e32bbe4b8d67241ac82",
+  "scope": "Unmodified published HTTP transport; executed only in an isolated VM with fake fetch. No SDK clients/signing imported."
+}

@@ -1,3 +1,5 @@
+import {currentPair,openPairs,searchPairs,pairPopover,closePairs,locator,clickPairTab} from '../../helpers/perps-ui.mjs';
+import {createSelectorKeyboardTests} from './selector-keyboard.mjs';
 // Perps Token Search — shared test logic (Desktop / Web / Extension)
 //
 // Wrapper files at:
@@ -7,11 +9,11 @@
 // inject platform-specific CDP connect + goToPerps + tab layout, then call
 // createPerpsTokenSearchTests() to get the same set of test cases.
 //
-// Tab layout 'flat'   (Desktop / Extension):
+// Legacy layout 'flat' (retained only for explicitly selected older builds):
 //   单级 tab: 自选 / 永续合约 / 加密货币 / 股票 / 贵金属 / 指数 / 大宗商品 / 外汇 / 预上线
 //   测试用例：SEARCH-001 ~ SEARCH-003
 //
-// Tab layout 'two-level' (Web):
+// Current layout 'two-level' (Desktop / Web / Extension):
 //   顶级 tab: 自选 / 永续合约 / 现货
 //   子级 tab（仅永续合约下）: 全部 / 加密货币 / 股票 / 贵金属 / 指数 / 大宗商品 / 外汇 / 预上线
 //   测试用例：SEARCH-001 ~ SEARCH-004
@@ -29,7 +31,7 @@ import { assertListRendered } from '../../helpers/components.mjs';
  * @param {(page: import('playwright-core').Page) => Promise<void>} opts.goToPerps
  * @param {(page: import('playwright-core').Page, dir: string, name: string) => Promise<void>} opts.screenshot
  * @param {string} opts.screenshotDir - Absolute directory for failure screenshots
- * @param {'flat'|'two-level'} [opts.tabLayout='flat'] - Tab layout for this platform
+ * @param {'flat'|'two-level'} [opts.tabLayout='two-level'] - Tab layout for this platform
  * @param {Array<{ query: string, expected: string }>} [opts.extraTwoLevelChineseSearchCases] - Extra 永续合约/全部 search cases for two-level layout.
  * @returns {{ testCases: Array, setup: (page) => Promise<void>, ensurePopoverOpen: (page) => Promise<void>, dismissPopover: (page) => Promise<void>, getPreReport: () => any }}
  */
@@ -39,37 +41,15 @@ export function createPerpsTokenSearchTests({
   goToPerps,
   screenshot,
   screenshotDir,
-  tabLayout = 'flat',
+  tabLayout = 'two-level',
   extraTwoLevelChineseSearchCases = [],
 }) {
 
   // ── Helpers (Web-flavored, work on both layouts) ─────────────
 
-  async function getCurrentPair(page) {
-    return page.evaluate(() => {
-      for (const sp of document.querySelectorAll('span')) {
-        const text = sp.textContent?.trim();
-        if (text && /^[A-Z]{2,10}USDC$/.test(text) && sp.children.length === 0) {
-          const r = sp.getBoundingClientRect();
-          if (r.width > 50 && r.height > 20) return text;
-        }
-      }
-      return null;
-    });
-  }
+  async function getCurrentPair(page) { return currentPair(page); }
 
-  async function openPairSelector(page) {
-    const pair = await getCurrentPair(page);
-    if (!pair) throw new Error('Cannot detect current pair');
-    await page.evaluate((p) => {
-      for (const sp of document.querySelectorAll('span')) {
-        if (sp.textContent?.trim() === p && sp.getBoundingClientRect().width > 50) {
-          sp.click(); return;
-        }
-      }
-    }, pair);
-    await sleep(1500);
-  }
+  async function openPairSelector(page) { await openPairs(page); }
 
   async function ensurePopoverOpen(page) {
     const open = await page.evaluate(() => {
@@ -90,62 +70,10 @@ export function createPerpsTokenSearchTests({
     await sleep(1500);
   }
 
-  async function searchAsset(page, query) {
-    await page.evaluate((q) => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let input = null;
-      for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
-        const inp = pop.querySelector('input[data-testid="nav-header-search"]')
-          || pop.querySelector('input[placeholder*="搜索"]');
-        if (inp && inp.getBoundingClientRect().width > 0) { input = inp; break; }
-      }
-      if (!input) {
-        for (const inp of document.querySelectorAll('input[data-testid="nav-header-search"], input[placeholder*="搜索"]')) {
-          if (inp.getBoundingClientRect().width > 0) { input = inp; break; }
-        }
-      }
-      if (!input) throw new Error('Search input not found');
-      input.focus();
-      const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-      if (nativeSet) {
-        nativeSet.call(input, q);
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    }, query);
-    await sleep(800);
-  }
+  async function searchAsset(page, query) { await searchPairs(page,query); }
 
-  async function clearSearch(page) {
-    const clearPos = await page.evaluate(() => {
-      for (const el of document.querySelectorAll('[data-testid="-clear"]')) {
-        const r = el.getBoundingClientRect();
-        if (r.width > 0) return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
-      }
-      return null;
-    });
-    if (clearPos) {
-      await page.mouse.click(clearPos.x, clearPos.y);
-      await sleep(300);
-      return;
-    }
-    await page.evaluate(() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
-        const input = pop.querySelector('input');
-        if (input) {
-          const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-          if (nativeSet) { nativeSet.call(input, ''); input.dispatchEvent(new Event('input', { bubbles: true })); }
-          return;
-        }
-      }
-    });
-    await sleep(300);
-  }
+  async function clearSearch(page) { await searchPairs(page,''); }
 
-  /** Flat tab click (Desktop / Extension) — first matching visible span in popover. */
   async function clickTab(page, tabName) {
     const clicked = await page.evaluate((txt) => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
@@ -164,34 +92,14 @@ export function createPerpsTokenSearchTests({
   }
 
   async function getPopoverTabRows(page) {
-    return page.evaluate(() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let pop = null;
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
-      if (!pop) return [];
-      const pr = pop.getBoundingClientRect();
-      const known = ['自选','永续合约','现货','全部','热门','新上架','加密货币','股票','贵金属','指数','大宗商品','外汇','Pre-IPO','预上线'];
-      const items = [];
-      for (const sp of pop.querySelectorAll('span')) {
-        const text = sp.textContent?.trim();
-        if (!text || !known.includes(text)) continue;
-        const r = sp.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0) continue;
-        items.push({ text, x: Math.round(r.x), y: Math.round(r.y), dy: Math.round(r.y - pr.y) });
-      }
-      const rowYs = [];
-      for (const item of items.sort((a, b) => a.dy - b.dy || a.x - b.x)) {
-        if (!rowYs.some(y => Math.abs(y - item.dy) <= 12)) rowYs.push(item.dy);
-      }
-      return rowYs.map((rowY, index) => ({
-        index,
-        y: rowY,
-        tabs: items
-          .filter(item => Math.abs(item.dy - rowY) <= 12)
-          .sort((a, b) => a.x - b.x)
-          .map(item => item.text),
-      }));
-    });
+    const result=[];
+    for (const key of ['perps.selector.primary_tabs','perps.selector.secondary_tabs']) {
+      const group=locator(page,key);
+      if (await group.count()===0) continue;
+      const row=await group.evaluate(el=>({y:el.getBoundingClientRect().y,tabs:[...el.children].map(e=>e.innerText.trim()).filter(Boolean)}));
+      result.push({index:result.length,...row});
+    }
+    return result;
   }
 
   /**
@@ -199,26 +107,7 @@ export function createPerpsTokenSearchTests({
    * 顶级 tab 通常在弹窗顶部第一行（相对 y < 100px）。
    */
   async function clickTopTab(page, tabName) {
-    const clicked = await page.evaluate((txt) => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const pop of pops) {
-        const pr = pop.getBoundingClientRect();
-        if (pr.width === 0) continue;
-        const candidates = [];
-        for (const sp of pop.querySelectorAll('span')) {
-          if (sp.textContent?.trim() !== txt) continue;
-          const sr = sp.getBoundingClientRect();
-          if (sr.width === 0 || sr.height === 0) continue;
-          candidates.push({ el: sp, dy: sr.y - pr.y, x: sr.x });
-        }
-        if (candidates.length === 0) continue;
-        candidates.sort((a, b) => a.dy - b.dy || a.x - b.x);
-        candidates[0].el.click();
-        return true;
-      }
-      return false;
-    }, tabName);
-    if (!clicked) throw new Error(`Top tab "${tabName}" not found`);
+    await clickPairTab(page,tabName);
     await sleep(1200);
   }
 
@@ -227,30 +116,9 @@ export function createPerpsTokenSearchTests({
    * 子级 tab 在顶级 tab 下方第二行（相对 y >= 100px 且 < 200px）。
    */
   async function clickSubTab(page, tabName) {
-    const clicked = await page.evaluate((txt) => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const pop of pops) {
-        const pr = pop.getBoundingClientRect();
-        if (pr.width === 0) continue;
-        const candidates = [];
-        for (const sp of pop.querySelectorAll('span')) {
-          if (sp.textContent?.trim() !== txt) continue;
-          const sr = sp.getBoundingClientRect();
-          if (sr.width === 0 || sr.height === 0) continue;
-          candidates.push({ el: sp, dy: sr.y - pr.y, x: sr.x });
-        }
-        if (candidates.length === 0) continue;
-        candidates.sort((a, b) => {
-          const aPreferred = a.dy > 60 ? 0 : 1;
-          const bPreferred = b.dy > 60 ? 0 : 1;
-          return aPreferred - bPreferred || a.dy - b.dy || a.x - b.x;
-        });
-        candidates[0].el.click();
-        return true;
-      }
-      return false;
-    }, tabName);
-    if (!clicked) throw new Error(`Sub tab "${tabName}" not found`);
+    const target=locator(page,'perps.selector.secondary_tabs').getByText(tabName,{exact:true});
+    if(await target.count()!==1) throw Error(`Expected one secondary tab: ${tabName}`);
+    await target.click();
     await sleep(800);
   }
 
@@ -281,28 +149,7 @@ export function createPerpsTokenSearchTests({
    * 同时收集两种格式，调用方自行根据 mode 过滤。
    */
   async function getTokenList(page) {
-    return page.evaluate(() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let pop = null;
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
-      if (!pop) return [];
-      const tokens = [];
-      const ignore = new Set([
-        '自选','永续合约','现货','全部',
-        '热门','新上架','加密货币','股票','贵金属','指数','大宗商品','外汇','Pre-IPO','预上线',
-        '资产','最新价格','24小时涨跌','资金费率','成交量','成交额','合约持仓量','市值',
-        '搜索资产','未找到匹配的代币','暂无数据','暂无代币','添加到自选',
-      ]);
-      const tickerRe = /^[A-Z][A-Z0-9]{1,9}$/;
-      const pairRe = /^[A-Z][A-Z0-9]{1,9}\/[A-Z]{2,6}$/;
-      for (const sp of pop.querySelectorAll('span')) {
-        const t = sp.textContent?.trim();
-        if (!t || sp.children.length !== 0 || sp.getBoundingClientRect().width === 0) continue;
-        if (ignore.has(t)) continue;
-        if ((tickerRe.test(t) || pairRe.test(t)) && !tokens.includes(t)) tokens.push(t);
-      }
-      return tokens;
-    });
+    return pairPopover(page).locator('[data-testid^="perp-token-selector-row-"]').evaluateAll(rows=>rows.map(e=>e.innerText.split('\n')[0].trim()).filter(Boolean));
   }
 
   /** 提取 base ticker（去掉 /USDC 等后缀），用于断言「现货搜 BTC 命中 BTC/USDC」之类。 */
@@ -315,7 +162,7 @@ export function createPerpsTokenSearchTests({
     return page.evaluate(() => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       let pop = null;
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
+      for (const p of pops) { if (p.getBoundingClientRect().width > 0 && p.querySelector('input[data-testid*="perp-token-selector-search"]')) { pop = p; break; } }
       if (!pop) return [];
       const tabs = [];
       const known = ['自选','永续合约','加密货币','股票','贵金属','指数','大宗商品','外汇','Pre-IPO','预上线'];
@@ -329,24 +176,9 @@ export function createPerpsTokenSearchTests({
 
   /** 返回当前弹窗的子级 tab 列表（仅在 永续合约 顶级 tab 下出现）。 */
   async function getSubTabs(page) {
-    return page.evaluate(() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let pop = null;
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
-      if (!pop) return [];
-      const pr = pop.getBoundingClientRect();
-      const tabs = [];
-      const known = ['全部','热门','新上架','加密货币','股票','贵金属','指数','大宗商品','外汇','Pre-IPO','预上线'];
-      for (const sp of pop.querySelectorAll('span')) {
-        const t = sp.textContent?.trim();
-        if (!t || !known.includes(t)) continue;
-        const sr = sp.getBoundingClientRect();
-        if (sr.width === 0) continue;
-        const dy = sr.y - pr.y;
-        if (dy > 60 && dy < 240 && !tabs.includes(t)) tabs.push(t);
-      }
-      return tabs;
-    });
+    const group=locator(page,'perps.selector.secondary_tabs');
+    if(await group.count()===0) return [];
+    return group.evaluate(el=>[...el.children].map(e=>e.innerText.trim()).filter(Boolean));
   }
 
   // ── Pre-report state (per-instance) ──────────────────────────
@@ -355,7 +187,7 @@ export function createPerpsTokenSearchTests({
   function getPreReport() { return _preReport; }
 
   const ALL_TEST_IDS = tabLayout === 'two-level'
-    ? [`${prefix}-001`, `${prefix}-002`, `${prefix}-003`, `${prefix}-004`]
+    ? Array.from({length:8},(_,i)=>`${prefix}-${String(i+1).padStart(3,'0')}`)
     : [`${prefix}-001`, `${prefix}-002`, `${prefix}-003`];
 
   // ── Test Cases (Flat layout: Desktop / Extension) ────────────
@@ -497,14 +329,12 @@ export function createPerpsTokenSearchTests({
       const tokens = await getTokenList(page);
       const empty = await isSearchEmpty(page);
 
-      if (tokens.length > 0) {
-        t.add(`${sub} 搜索 BT 有联想`, 'passed',
+      if (tokens.includes('BTC')) {
+        t.add(`${sub} 搜索 BT 仍命中 BTC`, 'passed',
           `${tokens.length} results: ${tokens.join(', ')}`);
-      } else if (empty) {
-        t.add(`${sub} 搜索 BT 显示空状态`, 'passed', '未找到匹配的代币');
       } else {
         await screenshot(page, screenshotDir, `${prefix}-001-bt-${sub}-error`);
-        t.add(`${sub} 搜索 BT 状态异常`, 'failed', '既无结果也无空状态提示');
+        t.add(`${sub} 搜索 BT 必须包含 BTC`, 'failed', `results=${tokens.join(', ') || 'none'}; empty=${empty}`);
       }
     }
 
@@ -591,7 +421,7 @@ export function createPerpsTokenSearchTests({
     t.add('现货搜索 BTC 命中 BTC pair', btcBases.includes('BTC') ? 'passed' : 'failed',
       `bases: ${btcBases.join(', ')}`, { dataKey: 'BTC' });
     t.add('现货 BTC 结果仅含 pair 格式',
-      btcList.length > 0 && btcList.every(x => /\/[A-Z]{2,6}$/.test(x)) ? 'passed' : 'failed',
+      btcList.length > 0 && btcList.every(x => /\/[A-Z0-9]{2,12}$/.test(x)) ? 'passed' : 'failed',
       `results: ${btcList.join(', ')}`);
 
     await clearSearch(page);
@@ -616,6 +446,7 @@ export function createPerpsTokenSearchTests({
         { id: `${prefix}-002`, name: `${namePrefix}Perps-搜索-永续合约/全部 中文比特/以太`, fn: testTwoLevel002 },
         { id: `${prefix}-003`, name: `${namePrefix}Perps-搜索-永续合约 子Tab遍历`, fn: testTwoLevel003 },
         { id: `${prefix}-004`, name: `${namePrefix}Perps-搜索-现货 BTC/HYPE`, fn: testTwoLevel004 },
+        ...createSelectorKeyboardTests(prefix, namePrefix),
       ]
     : [
         { id: `${prefix}-001`, name: `${namePrefix}Perps-搜索-英文搜索与跨Tab联动`, fn: testFlat001 },
