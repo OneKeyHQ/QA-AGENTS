@@ -1,8 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createRequire } from 'node:module';
-const appRequire=createRequire(new URL('../../../../../../app-monorepo/package.json',import.meta.url));
-const {JSDOM}=appRequire('jsdom');
+import { JSDOM } from 'jsdom';
 test('F02 Tooltip 读取限于投资组合弹窗，日期/标签/数值必须来自同一个可见框',async()=>{
   const {portfolioTooltipSnapshot}=await import('../portfolio-assertions.mjs');
   const dom=new JSDOM(`<div id="portfolio"><div id="chart" data-box="0,0,500,200"><canvas data-box="0,0,500,200"></canvas></div></div><div style="position:absolute;pointer-events:none" data-box="0,0,200,60"><span>10/29 10:00</span><span>净值</span><span>$999</span></div>`,{runScripts:'outside-only'});

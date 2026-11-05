@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createRequire } from "node:module";
-import { resolve } from "node:path";
+import { JSDOM } from "jsdom";
 import {
   mountChaseCaptureGuard,
   chaseGuardKey,
@@ -11,10 +10,6 @@ import {
   chasePreviewBlockReason,
   projectChaseEntry,
 } from "../chase-preview-evidence.mjs";
-const require = createRequire(
-  resolve(process.env.PERPS_SOURCE_ROOT ?? "../app-monorepo", "package.json"),
-);
-const { JSDOM } = require("jsdom");
 const account = "0x" + "1".repeat(40),
   order = {
     oid: 1,

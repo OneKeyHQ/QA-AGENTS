@@ -55,3 +55,7 @@ shared/perps-execution-request.local.json
 # Python bytecode caches
 __pycache__/
 *.py[cod]
+
+# Synthetic QR fixtures are test inputs, not execution screenshots
+!src/tests/shared/perps/tests/fixtures/qr-dotted.png
+!src/tests/shared/perps/tests/fixtures/qr-share-small.png

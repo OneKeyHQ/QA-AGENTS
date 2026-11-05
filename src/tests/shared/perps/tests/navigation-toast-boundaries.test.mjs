@@ -1,7 +1,6 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {createRequire} from 'node:module';
+import test from 'node:test';import assert from 'node:assert/strict';import {JSDOM} from 'jsdom';
 import {perpsLandingSnapshot} from '../../../helpers/pages/perps.mjs';
 import {dismissCurrentValidationToasts} from '../desktop-form-boundaries.mjs';
-const requireApp=createRequire(new URL('../../../../../../app-monorepo/package.json',import.meta.url));const {JSDOM}=requireApp('jsdom');
 test('retained Perps under CSS hidden ancestor cannot prove navigation',()=>{
  const dom=new JSDOM('<main style="visibility:hidden"><div data-testid="perp-token-selector">BTCUSDC</div></main>',{runScripts:'outside-only'});const w=dom.window;
  Object.defineProperty(w.HTMLElement.prototype,'innerText',{get(){return this.textContent}});w.HTMLElement.prototype.getBoundingClientRect=()=>({width:100,height:20});w.HTMLElement.prototype.checkVisibility=function(){for(let n=this;n;n=n.parentElement){const s=w.getComputedStyle(n);if(s.visibility==='hidden'||s.display==='none'||s.opacity==='0')return false;}return true;};
