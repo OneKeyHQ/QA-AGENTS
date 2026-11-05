@@ -14,6 +14,12 @@ user-invocable: true
 
 `/Users/chole/onekey-agent-test/`
 
+## 先路由任务，再准备环境
+
+快捷口令：`审查 <模块>` → `onekey-code-case-review`；`回归 <模块>` → `onekey-ui-regression`。Perps 默认参数及授权边界按两个技能的“简单口令”执行。用户仅询问用法或要求修改口令时不连接 App。
+
+纯用例与代码对照审查使用 `onekey-code-case-review`，不进入下方 CDP / Dashboard 启动流程。按最新已确认用例补脚本、执行实机回归与维护使用 `onekey-ui-regression`，并先读 `docs/qa/rules/code-review-and-ui-regression.md`；用户只要求离线时不启动设备。两个流程分别交付，A 完成不自动执行 B；代码驱动的用例变更须先列建议等用户确认。
+
 ## Phase 1: 环境准备
 
 ### 1.1 检查 CDP 连接
