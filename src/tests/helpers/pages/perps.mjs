@@ -3,6 +3,7 @@
 // IMPORTANT (K-024): Always use querySelectorAll + find visible, not querySelector
 import { clickSidebarTab, clickWithPointerEvents, dismissPopover } from '../components.mjs';
 import { sleep } from '../constants.mjs';
+import {currentPair,openPairs,searchPairs,closePairs,pairPopover,locator} from '../perps-ui.mjs';
 
 /** Find the visible TMPopover inside page.evaluate. Inlined for use in evaluate(). */
 const _findPop = `
@@ -17,183 +18,31 @@ export class PerpsPage {
   setPage(page) { this.page = page; }
 
   async navigate() {
+    await closePairs(this.page);
     await navigateToPerps(this.page);
   }
 
-  /** Get current trading pair (e.g., "ETHUSDC" or "BTCUSDC"). */
-  async getCurrentPair() {
-    return this.page.evaluate(() => {
-      for (const sp of document.querySelectorAll('span')) {
-        const text = sp.textContent?.trim();
-        // Match XXXUSDC format (Perps uses USDC as quote)
-        if (text && /^[A-Z]{2,10}USDC$/.test(text) && sp.children.length === 0) {
-          const r = sp.getBoundingClientRect();
-          if (r.width > 50 && r.height > 20) return text;
-        }
-      }
-      return null;
-    });
-  }
-
-  /** Open the pair selector popover by clicking the current pair name. */
-  async openPairSelector() {
-    const pair = await this.getCurrentPair();
-    if (!pair) throw new Error('Cannot detect current pair');
-    await this.page.evaluate((p) => {
-      for (const sp of document.querySelectorAll('span')) {
-        if (sp.textContent?.trim() === p && sp.getBoundingClientRect().width > 50) {
-          sp.click(); return;
-        }
-      }
-    }, pair);
-    await sleep(1500);
-  }
-
-  /** Check if the pair selector popover is open. */
-  async isPairSelectorOpen() {
-    return this.page.evaluate(() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) return true; }
-      return false;
-    });
-  }
-
-  /** Ensure pair selector is open. */
-  async ensurePairSelectorOpen() {
-    if (!(await this.isPairSelectorOpen())) {
-      await this.openPairSelector();
-    }
-  }
-
-  /** Dismiss the pair selector popover. */
-  async dismissPairSelector() {
-    await dismissPopover(this.page);
-  }
-
-  /** Search for a pair in the popover. Opens popover if needed. */
-  async searchPair(keyword) {
-    await this.ensurePairSelectorOpen();
-    // Use nativeInputValueSetter for React compatibility inside popover
-    await this.page.evaluate((q) => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let input = null;
-      for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
-        const inp = pop.querySelector('input[data-testid="nav-header-search"]')
-          || pop.querySelector('input[placeholder*="搜索"]');
-        if (inp && inp.getBoundingClientRect().width > 0) { input = inp; break; }
-      }
-      if (!input) throw new Error('Search input not found in pair selector');
-      input.focus();
-      const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-      if (nativeSet) {
-        nativeSet.call(input, q);
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    }, keyword);
-    await sleep(1000);
-  }
-
-  /**
-   * Select a pair from the popover list by clicking it.
-   * @param {string} symbol — e.g., "BTC", "ETH". Matches span text in popover.
-   */
+  /** Supports spot pairs, DEX names and digits through the stable selector. */
+  async getCurrentPair() { return currentPair(this.page); }
+  async openPairSelector() { await openPairs(this.page); }
+  async isPairSelectorOpen() { return await pairPopover(this.page).count() > 0; }
+  async ensurePairSelectorOpen() { await openPairs(this.page); }
+  async dismissPairSelector() { await closePairs(this.page); }
+  async searchPair(keyword) { await searchPairs(this.page,keyword); }
   async selectPair(symbol) {
-    await this.ensurePairSelectorOpen();
-    const clicked = await this.page.evaluate((sym) => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
-        // Find the row containing the symbol and click it
-        for (const el of pop.querySelectorAll('span, div')) {
-          const text = el.textContent?.trim();
-          const r = el.getBoundingClientRect();
-          if (text === sym && r.width > 0 && r.height > 10 && r.height < 30 && el.children.length === 0) {
-            // Click the parent row for better hit area
-            const row = el.closest('[class]');
-            if (row && row.getBoundingClientRect().height > 20) { row.click(); return true; }
-            el.click(); return true;
-          }
-        }
-      }
-      return false;
-    }, symbol);
-    if (!clicked) throw new Error(`Pair "${symbol}" not found in selector`);
-    await sleep(2000);
+    const pop=pairPopover(this.page);
+    const row=pop.locator('[data-testid^="perp-token-selector-row-"]').filter({has: this.page.getByText(symbol,{exact:true})});
+    if (await row.count()!==1) throw Error(`Expected unique pair ${symbol}, found ${await row.count()}`);
+    await row.click();
+    await pop.waitFor({state:'hidden',timeout:10000});
+    const selected=await currentPair(this.page);
+    if (!selected.includes(symbol)) throw Error(`Selected ${selected}, expected ${symbol}`);
   }
-
-  /**
-   * Switch to a different trading pair.
-   * Opens selector → searches pair → clicks it → waits for chart reload.
-   * Uses search to find pairs not visible in initial list.
-   * @param {string} symbol — e.g., "BTC", "ETH", "ENA"
-   */
   async switchPair(symbol) {
-    // First try direct select (for common pairs visible in list)
-    await this.openPairSelector();
-    await sleep(500);
-
-    // Ensure "永续合约" tab is selected (search only works within current tab)
-    await this.page.evaluate(() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
-        for (const sp of pop.querySelectorAll('span')) {
-          if (sp.textContent?.trim() === '永续合约' && sp.getBoundingClientRect().width > 0) {
-            sp.click(); return;
-          }
-        }
-      }
-    });
-    await sleep(500);
-
-    const directClick = await this.page.evaluate((sym) => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const pop of pops) {
-        if (pop.getBoundingClientRect().width === 0) continue;
-        for (const el of pop.querySelectorAll('span')) {
-          const text = el.textContent?.trim();
-          const r = el.getBoundingClientRect();
-          if (text === sym && r.width > 0 && r.height > 10 && r.height < 30 && el.children.length === 0) {
-            const row = el.closest('[class]');
-            if (row && row.getBoundingClientRect().height > 20) { row.click(); return true; }
-            el.click(); return true;
-          }
-        }
-      }
-      return false;
-    }, symbol);
-
-    if (!directClick) {
-      // Not in visible list — use search
-      await this.searchPair(symbol);
-      await sleep(1000);
-      const searchClick = await this.page.evaluate((sym) => {
-        const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-        for (const pop of pops) {
-          if (pop.getBoundingClientRect().width === 0) continue;
-          for (const el of pop.querySelectorAll('span, div')) {
-            const text = el.textContent?.trim();
-            const r = el.getBoundingClientRect();
-            if (text && text.includes(sym) && r.width > 0 && r.height > 15 && r.height < 50 && el.children.length < 3) {
-              const row = el.closest('[class]');
-              if (row && row.getBoundingClientRect().height > 20) { row.click(); return true; }
-              el.click(); return true;
-            }
-          }
-        }
-        return false;
-      }, symbol);
-      if (!searchClick) throw new Error(`Pair "${symbol}" not found even after search`);
-    }
-
-    await sleep(2000);
-    // Verify pair changed
-    const newPair = await this.getCurrentPair();
-    if (newPair && !newPair.startsWith(symbol)) {
-      throw new Error(`Expected pair to start with ${symbol}, got ${newPair}`);
-    }
+    await openPairs(this.page);
+    await this.clickPairTab('永续合约');
+    await searchPairs(this.page,symbol);
+    await this.selectPair(symbol);
   }
 
   /** Click a tab in the pair selector popover (自选/永续合约/加密货币/股票...). */
@@ -216,23 +65,15 @@ export class PerpsPage {
   }
 }
 
-export async function getPerpsLandingState(page) {
-  return page.evaluate(() => {
+export function perpsLandingSnapshot() {
     const visible = (el) => {
       if (!el) return false;
       const r = el.getBoundingClientRect();
-      return r.width > 0 && r.height > 0;
+      return r.width > 0 && r.height > 0 && el.checkVisibility({checkOpacity:true,checkVisibilityCSS:true});
     };
-    const text = (document.body.textContent || '').replace(/\s+/g, ' ').trim();
-    const currentPair = [...document.querySelectorAll('span')]
-      .map((sp) => {
-        const r = sp.getBoundingClientRect();
-        return {
-          text: sp.textContent?.trim() || '',
-          visible: r.width > 40 && r.height > 10 && sp.children.length === 0,
-        };
-      })
-      .find((item) => item.visible && /^[A-Z]{2,12}USDC$/.test(item.text))?.text || null;
+    const text = (document.body.innerText || '').replace(/\s+/g, ' ').trim();
+    const selector = [...document.querySelectorAll('[data-testid="perp-token-selector"]')].find(visible);
+    const currentPair = selector?.innerText.trim() || null;
     const visibleTestIds = [
       'perp-token-selector',
       'perp-portfolio-button',
@@ -245,11 +86,12 @@ export async function getPerpsLandingState(page) {
       currentPair,
       visibleTestIds,
       hasPerpsText,
-      isPerps: !!currentPair || visibleTestIds.length > 0 || hasPerpsText,
+      isPerps: !!currentPair || visibleTestIds.length > 0,
       text: text.slice(0, 500),
     };
-  });
 }
+
+export async function getPerpsLandingState(page) { return page.evaluate(perpsLandingSnapshot); }
 
 async function waitForPerpsLanding(page, timeoutMs = 8000) {
   const deadline = Date.now() + timeoutMs;
@@ -293,6 +135,17 @@ async function clickPerpsSidebarTestId(page) {
 }
 
 export async function navigateToPerps(page) {
+  if (/^https?:/.test(page.url())) {
+    const header=locator(page,'global.header.navigation');
+    if(await header.count()) {
+      const tab=header.getByText(/^(合约|Perps)$/).filter({visible:true});
+      if(await tab.count()!==1) throw Error('Expected one Web Perps navigation entry');
+      await tab.click();
+      const landing=await waitForPerpsLanding(page);
+      if(!landing?.isPerps) throw Error('Web Perps navigation did not reach trading page');
+      return landing;
+    }
+  }
   await clickSidebarTab(page, 'Perps').catch(() => {});
   let state = await waitForPerpsLanding(page, 6000);
   if (state?.isPerps) return state;

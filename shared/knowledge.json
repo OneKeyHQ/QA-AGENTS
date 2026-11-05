@@ -3,12 +3,12 @@
   "lastUpdated": "2026-11-05",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
-    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164,K-170,K-183,K-186,K-190,K-191 — DOM定位/选择器/testid陷阱",
-    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165,K-169,K-171,K-172,K-173,K-188,K-189,K-195 — OneKey/Electron/React行为异常",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167,K-168,K-175,K-187,K-192,K-197,K-198,K-199,K-200,K-202,K-203,K-204,K-206 — 工作流/前置条件/状态恢复,K-207,K-208,K-210,K-240,K-241,K-242,K-439,K-442",
-    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161,K-177,K-178,K-180,K-181,K-182,K-184,K-185,K-193,K-196,K-205 — 断言策略/校验方法,K-209,K-211,K-239",
-    "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109,K-116,K-117,K-118 — 录制器相关",
-    "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166,K-174,K-176,K-179,K-201 — 时序/异步/页面状态切换"
+    "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164,K-170,K-183,K-186,K-190,K-191,K-213,K-217,K-223 — DOM定位/选择器/testid陷阱,K-233,K-235,K-244,K-245,K-258,K-262, K-297,K-300,K-322,K-361",
+    "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165,K-169,K-171,K-172,K-173,K-188,K-189,K-195,K-215,K-224 — OneKey/Electron/React行为异常,K-255,K-305",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167,K-168,K-175,K-187,K-192,K-197,K-198,K-199,K-200,K-202,K-203,K-204,K-206,K-207,K-208,K-210,K-214,K-220,K-221,K-222 — 工作流/前置条件/状态恢复,K-231,K-234,K-236,K-238,K-240,K-241,K-242,K-249,K-251,K-252,K-254,K-256, K-296,K-299,K-334,K-341,K-366,K-398,K-409,K-422,K-423,K-425,K-427,K-428,K-429,K-430,K-431,K-436,K-437,K-438,K-440,K-441,K-444,K-439,K-442,K-445",
+    "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161,K-177,K-178,K-180,K-181,K-182,K-184,K-185,K-193,K-196,K-205,K-209,K-211,K-212,K-216,K-219,K-225,K-228,K-229,K-230 — 断言策略/校验方法,K-237,K-246,K-247,K-248,K-250,K-253,K-259,K-263,K-264,K-265,K-298,K-301,K-302,K-303,K-319,K-321,K-333,K-335,K-336,K-337,K-338,K-339,K-340,K-342,K-343,K-344,K-345,K-346,K-347,K-348,K-349,K-350,K-351,K-352,K-353,K-354,K-355,K-356,K-357,K-358,K-359,K-360,K-362,K-363,K-364,K-365,K-367,K-368,K-369,K-370,K-371,K-372,K-373,K-374,K-375,K-376,K-377,K-378,K-379, K-380, K-381, K-382, K-383, K-384, K-385, K-386, K-387,K-388, K-389, K-390, K-391, K-392, K-393, K-394,K-395,K-396,K-397,K-399,K-400,K-401,K-402,K-403,K-405,K-407,K-408,K-418,K-420,K-421,K-424,K-426,K-432,K-433,K-434,K-435,K-239",
+    "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109,K-116,K-117,K-118 — 录制器相关,K-419",
+    "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166,K-174,K-176,K-179,K-201,K-218,K-226,K-227 — 时序/异步/页面状态切换,K-232,K-243,K-257,K-266,K-267, K-268,K-269,K-304,K-318,K-320,K-404,K-406,K-417"
   },
   "patterns": [
     {
@@ -224,7 +224,7 @@
       "category": "quirk",
       "platform": "desktop",
       "pattern": "录制器无法捕获 webview 内部的操作事件",
-      "details": "src/recorder/listen.mjs 通过 CDP 注入事件监听，只能捕获主页面（file:///perps）的 DOM 事件。Electron <webview> 是独立的渲染进程，事件不冒泡到主页面。TV 图表内的操作（点击指标按钮、切换时间周期、画图等）无法被录制器捕获。变通方案：用户手动描述操作 + 脚本通过 wv.executeJavaScript 抓取状态变化。",
+      "details": "src/recorder/listen.mjs 通过 CDP 注入事件监听，只能捕获主页面（file:///perps）的 DOM 事件。Electron <webview> 是独立的渲染进程，事件不冒泡到主页面。TV 图表内的操作（点击指标按钮、切换时间周期、画图等）无法被录制器捕获。变通方案：用户手动描述操作 + 脚本通过 wv.executeJavaScript 抓取状态变化。 2026-10-27 补充：以上仅指内嵌 webview 事件；当前两种引擎的周期和指标入口已迁到主文档，能通过注册 testID 操作，见 K-217 / K-218。不能把录制器捕获限制扩大成所有图表操作都无法自动化。",
       "confidence": 0.98
     },
     {
@@ -1684,6 +1684,222 @@
       "confidence": 0.99
     },
     {
+      "id": "K-212",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "Perps 回归审查须验证失败能被检测；导航返回不能作为刷新持久化证据",
+      "details": "触发场景：审查 Perps UI 自动化断言或持久化测试。2026-10-27 源码审查发现 src/tests/shared/perps/portfolio.mjs 的风险颜色不符、健康标签缺失分支返回 INFO 字符串，而 helpers/components.mjs 的 safeStep 对正常返回统一记 passed；有可验证数据时应抛断言，数据不足时显式 skipped。chart.mjs 的 reloadAndWait 正常路径只等待并导航到 Perps，不能证明刷新/冷启动后的存储恢复；Web/Extension 导航失败时的 goto 兜底也不能保证每次真实刷新。后续检查必须验证失败样本能触发 failed、记录真实刷新或会话重建证据，且分别报告 passed/failed/skipped。来源：shared/reports/review-2026-10-27-perps-full-code-audit.md 的 A01/A02；初次审查仅诊断，随后维护已修复这些脚本。 后续维护已将缺失字段和错误颜色改为抛出断言，SKIP 显式记 skipped；真实文档刷新后再检查引擎和交易对。8 条正反例测试通过，Desktop TF 双引擎刷新用例通过。Electron 路由文档刷新方式见 K-215。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-213",
+      "category": "locator",
+      "platform": "all",
+      "pattern": "Perps 搜索应作用于交易对弹层内的组合 testID；图表测试须显式选择引擎",
+      "details": "触发场景：维护 Perps 搜索、收藏或图表自动化。2026-10-27 TF 实测交易对搜索 input 为 nav-header-search-perp-token-selector-search，而不是通用 nav-header-search；使用 shared/locators/perps.json 的 perps.selector.search_input，并限定可见交易对弹层。主图会恢复用户保存的原生版引擎，TV 用例开始前显式选择 TradingView，finally 恢复原引擎。IN_PAGE_TAB_CONTAINER 存在外层 dialog 与内层 Content 两个节点，读取时限定可见 role=dialog 而非严格单例 testID。不得用全页同名搜索框、首个隐藏弹层或固定窗口坐标代替。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-214",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Perps UI 回归保持单进程；终止信号后必须确认旧进程退出，收藏先持久保存快照",
+      "details": "触发场景：中止或重跑通过 CDP 连接同一钱包的自动化。2026-10-27 实测普通 SIGTERM 后旧 Runner 仍存在（UIRegistry 注册信号监听仅清理 watcher，没有退出），使新旧进程同时操作同一个应用。重跑前先查进程 PID 并确认旧进程退出；无法协作停止时只终止对应测试进程，不关闭用户 browser。收藏测试开始前保存全量包含顺序/DEX/报价币身份的快照到 shared/results，finally 按精确身份恢复并核对，不允许把受并发干扰的结果计为通过。隐藏 TMPopover 即使有宽度，也须通过当前业务输入框或可见内容识别。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-215",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Electron 刷新加载已记录的 app shell；交易对 Tab 排除列表里的同名现货标签",
+      "details": "触发场景：Perps 持久化回归或收藏恢复。2026-10-27 TF 6.7.0 实测前端地址变成 file:/// 后直接 page.reload 报 ERR_FILE_NOT_FOUND；源码 Electron app.ts 用 index.html 启动。使用 performance.getEntriesByType(\"navigation\")[0].name 获取实际已加载 shell，校验 file: 且 index.html 后用 page.goto 重新加载真实文档，再解锁并导航检查，缺失入口必须失败。不得编造 file:///perps 或把导航当刷新。交易对弹层中每个现货行也有“现货”徽标，getByText 精确文本仍匹配多项；Tab 选择排除 perp-token-selector-row-* 后代。恢复含 HYPE/USDT0、HYPE/USDC、HYPE/USDE 的 10 个原始收藏已按身份和顺序实际验证。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-216",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "Perps 弹窗按 role 计实例、按内层 Content 测尺寸；只读可见业务区域，不能用全页 textContent 兜底",
+      "details": "触发场景：投资组合布局、存款或账户模式、Home Perps 验证。2026-10-27 TF 实测 IN_PAGE_TAB_CONTAINER 外层 role=dialog 宽 1379，内层 Content 宽 960；按 testid 节点数量会误报双弹窗，按外层宽度误报布局。新版存款先显示无 APP-Modal-Screen testid 的 role=dialog 方式选择页，不能要求第一层直接有 USDC 表单。页面 document.body.textContent 包含脚本中的表单 HTML 与关键词，曾使 Home Perps Tab 不存在也返回通过；应使用可见稳定入口与局部 innerText，缺少入口明确跳过或失败，不点击侧栏当作 Home Tab。收藏 $/% 是同一个切换控件，先读活跃字重再决定是否点击；百分比断言仅查看 favorites-bar 拖拽容器，不能接受主图价格旁涨跌幅。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-217",
+      "category": "locator",
+      "platform": "all",
+      "pattern": "Perps 两种引擎共用外层工具栏；TV 内只读图例，设置弹层关闭必须校验",
+      "details": "触发场景：图表周期、指标入口或偏好设置回归。2026-10-27 TF 6.7.0 实测 TradingView 的周期/指标入口已位于 OneKey 主文档，trading-view-native-* 命名并不代表仅原生版；TV 内按钮查找会失败。共用指标 Popover 是主图/副图分类，不提供旧版星形收藏；旧版步骤必须按能力适用并明确跳过。周期通过 SegmentControlItem 与更多周期 Popover 切换，当前非偏好周期不应算作新增收藏；恢复须支持原先在更多菜单里的 4时。TV 指标名称读 legend-source-item 下 legend-source-title，不把 SMA/EMA 参数算作独立指标；canvas 出现早于图例恢复。Escape 后等待对应 Popover 隐藏，不能使用不校验的通用 dismissPopover 继续操作底层控件。维护位置：src/tests/shared/perps/chart.mjs 与 shared/locators/perps.json。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-218",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "Perps 图标工具栏 Tooltip 首次 hover 可使 pointerdown/up 后没有 click；关闭 Popover 校验遮罩",
+      "details": "触发场景：通过 Playwright 点击 Perps 工具栏图标时首次无响应、二次可开。2026-10-27 定点事件探针实际捕获：首次只有 pointerdown/up 而没有 click，第二次出现 click 并打开指标 Popover；当时有 Tooltip / 焦点切换；尚未证明具体框架根因，执行端先 hover 等待 UI 稳定再点击，不能把等待弹层超时误判成选择器不存在。探针也确认 Escape 后 Popover 可能仍可见；需定位当前 portal 的真实遮罩关闭并等待业务面板消失。图表 canvas 数量恢复早于指标图例恢复，刷新后的比较须等待原指标名称就绪，超时仍失败，不将暂无标签当作空配置。探针日志：shared/reports/perps-maintenance-evidence-2026-10-27/perps-chart-open-probe.log；修复验证另记结果。 后续 DOM / 源码核实：新 OverlayView 的透明遮罩没有 ovelay-popover testID；通过当前业务 Popover 的 data-onekey-overlay-entry 祖先，定位其直属 aria-hidden=true 遮罩并点击，可关闭实际弹层，避免隐藏旧 portal 或底层按钮。来源：packages/components/src/actions/Popover/index.tsx 的 anchored backdrop；本地 shared/reports/perps-maintenance-evidence-2026-10-27/perps-backdrop-dom.json。 实测验证：共用指标面板首开、关闭及真实刷新后 BB/MACD 保留的 CHART-002 复验通过（4 步通过、4 步因旧面板或手工覆盖跳过）。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-219",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "收藏增删先建立相反状态并核对精确增量，已有收藏不能冒充添加动作",
+      "details": "触发场景：收藏新增/取消或跨入口同步自动化。2026-10-27 检查 Perps 收藏用例时发现：原账户已有 BTC，setFavorite(true) 会幂等返回，旧 SEARCH 收藏步骤仅检查 includes(BTC) 仍会通过，未证明新增操作；先取消 BTC 再添加并断言长度 +1，XRP 则先确保已收藏再取消并断言 -1。自选删除及跨入口操作同样要求恰好减少 1 且唯一移除项，不以 length < before 接受误删多项。用户原收藏在 finally 按完整身份和顺序恢复。对应 src/tests/shared/perps/favorites.mjs，维护后须执行 002/003/005 定点复验。 维护后 Desktop TF 6.7.0 的 002/003/004/005 定点复验全部通过，证据：shared/reports/perps-maintenance-evidence-2026-10-27/perps-favorites-targeted.log。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-220",
+      "category": "process",
+      "platform": "all",
+      "pattern": "导入测试入口不能因 argv[1] 缺失而自动运行 UI",
+      "details": "触发场景：使用 node --input-type=module / eval / stdin 导入测试模块检查导出契约。2026-10-27 校验时发现旧 Web / Extension Perps 入口将 !process.argv[1] 视作直接执行，导入后误启动 run() 并尝试连接 / 启动 Chrome；当即终止校验进程。入口应仅在存在 argv[1] 且与当前模块文件路径相同时运行，缺少入口参数只能注册。已修复 8 个入口；新增 src/tests/shared/perps/tests/entrypoints.test.mjs 在独立子进程中导入 12 个入口，要求 5 秒内退出、退出码 0、stdout 为空，防止只检查导出后遗漏异步副作用。未取得 Web / Extension 产品执行结果，不计为平台通过。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-221",
+      "category": "process",
+      "platform": "all",
+      "pattern": "钱包首页合约 Tab 先建立 EVM 网络前置，不能把非 EVM 下缺入口归为版本不支持",
+      "details": "2026-10-27 用户纠正 PERPS-PNL-011：进入钱包首页后须选择受支持的 EVM 主网（例如 Ethereum）。实际复现当前原网络 Solana 无 home-tab-perps，切 Ethereum 后 Tab、home-perps-desktop-deposit-button 和 home-perps-manage-button 出现。源码 HomePageView.tsx 通过 useHomeWalletTabSupport 决定入口，shared/utils/homeWalletTabSupportUtils.ts 的 isPerpsSupported 还取决于网络支持配置与 perpDisabled，不能声称所有 EVM 无条件显示。脚本应记录原网络、切 ETH 并等待 Tab、验证首页资产入口，finally 恢复；前置成立后缺入口必须失败，不能再自动 skipped。修复位置 src/tests/shared/perps/portfolio.mjs；正式口径 docs/qa/rules/perps-rules.md §13.13、Portfolio&PnL 需求及投资组合用例 §1。当前只验证 Desktop TF，其他平台不能据注册宣称已测。 Desktop TF 6.7.0 复验 PERPS-PNL-011：3 步通过、0 失败、0 跳过，已恢复 Solana；日志 shared/reports/perps-maintenance-evidence-2026-10-27/perps-portfolio-011-evm.log。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-222",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Perps 布局拖动先把真实分隔条滚动到可视区",
+      "details": "2026-10-27 TF 6.7.0：chart-split 的 sash 初始 y=917，大于窗口 innerHeight=835，直接 page.mouse 操作没有改变高度；scrollIntoViewIfNeeded 后 y=490，真实拖动 -70px 得到 y=420，反向拖动恢复 y=490。测试应建立可见前置，断言实际高度增量并 finally 恢复，不改变 viewport。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-223",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "TradingView 参数面板可通过图表 API 打开后用真实鼠标键盘编辑",
+      "details": "2026-10-27 TF 6.7.0：blob iframe 的 tradingViewApi.activeChart() 提供 getAllStudies / getStudyById / showPropertiesDialog。通过统一指标面板添加 RSI 后，打开真实 TV 参数面板，按 iframe 与 webview 相对坐标用 page.mouse + keyboard 将 length 14 改为18，读取实际 study inputs=18。不能沿用 K-027 将 webview 操作一概写成无法自动化；当前 TF 统一指标 Popover 只有指标 pills，没有 x 分支新增的外层 settings/confirm 按钮。UI 覆盖与 API 构造前置必须分别标注。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-224",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "Electron webview 键盘事件须发送给 guest 并逐事件 await",
+      "details": "2026-10-27 RSI 参数补测：doc.activeElement 已是数值框、doc.hasFocus()=true，主 page.keyboard 输入仍可能落不到 guest；不能据此判断产品参数保存失败。实测 webview.focus 后仅对真实输入框执行 focus/select，再依次 await webview.sendInputEvent 的 keyDown/char/keyUp，14→18 后 DOM value=18；此为原生输入事件，不设置 DOM value。鼠标几何操作前先将 webview 滚动可见，避免刷新后图表下部图例超出窗口。TV 删除指标后的持久化验证须等待自动保存，再真实刷新，不能在删除回调后立即导航。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-225",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "绘图回归用真实工具菜单建样本；水平线只比价格，删除前确认 iframe 焦点",
+      "details": "2026-10-27 TF：一级工具图标可能打开菜单，必须再选择菜单具体工具，再用原生指针逐点绘制。绘图样本 getAllShapes/getPoints 可对账：trend_line/fib_retracement/rectangle 比时间和价格；无限水平线刷新时横向时间锚点会归一到左边界，必须只比价格，不能因无视觉意义的 time 变化误报位置变化。已复现 horizontal_line time 1791777600→1788782400 而价格不变。webview.focus 不等于 iframe 获得焦点；doc.hasFocus=false 时原生 Delete 事件没有进入 iframe（keydown 捕获为空）；先真实点击 pane-top-canvas，确认 doc.hasFocus=true，再选择独立样本并 Delete，模型立即移除。API 建样本与 UI 绘制须分别标注，刷新等待实际图形 ID 恢复，不以 canvas 初始化或 legacy storage key 长度代表完成。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-226",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "绘图修改与删除后等待真实存储完成再刷新，清理用交易对级备份恢复",
+      "details": "2026-10-27 实际加载 https://tradingview.onekeytest.com/assets/index-daG6EcW3.js 的 DrawingManager：监听 onAutoSaveNeeded 后再防抖3000ms写入 tradingview_drawings_<namespace>_<symbol>。UI 改粗细/删除立即刷新读到旧数据；固定等待3000ms也可能不足，须轮询存储 sources 中测试图形的实际状态/linewidth，再真实刷新，不能以当前模型变化当作已保存。真实 UI 四类图形、粗细保存与单条删除复验步骤已通过；连续清理时存储未完全收敛，不把原用户数据当作清理样本。执行前备份当前交易对的独立绘图记录，finally 原值恢复并真实刷新，校验原绘图 ID；不清整个 origin，也不影响其他币种图形。独立 webview location.reload 会使外层 native controls 停留未就绪，恢复时须完整 OneKey 文档刷新和导航。自定义 storageNamespace 在运行时源码支持，但当前 TF 替换 URL 后15秒未取得可用 iframe；不能把此尝试算作已获得隔离测试环境。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-227",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "TradingView 工具菜单点击后等待 selectedLineTool 确认再落点",
+      "details": "2026-10-27 绘图补测：菜单项真实 click 返回时，tradingViewApi.selectedLineTool() 仍为 cursor；随后读值变为 horizontal_line。固定等待400ms存在间歇落点未绘制，不应报告产品无法绘制。等待 selectedLineTool() === 目标工具后，再在可见 pane-top-canvas 用原生指针绘制。原生 pointer 事件记录可核对 isTrusted、目标 CANVAS、坐标；不能用创建 API 掩盖 UI 绘制失败。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-228",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "配额降级可用当前图表键注入异常；周期比较需处理别名",
+      "details": "2026-10-27 TF 补测：暂存当前交易对绘图记录，只对该 key 的 Storage.prototype.setItem 抛 QuotaExceededError，确认实际保存触发1次异常后，真实切到15分，模型resolution=15、样本图形仍在、12个canvas；finally恢复原prototype/记录并完整刷新，BB/MACD及原绘图恢复。此证据只覆盖异常后可操作性，不覆盖存储不足提示或全局存储失效。TradingView接收4H、返回240属于同一周期，清理断言不可直接比较原始字符串；优先验当前选中UI标签或规范化周期。容量20指标/50线的≥30FPS需真实呈现帧测量，不能用RAF回调次数替代。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-229",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "默认 Volume 用 Perps 设置键快照建立前置，删除标志为字符串1",
+      "details": "2026-10-27 TF：备份并只清除 tradingview_settings_perps_*、tradingview_study_template_perps、tradingview_default_volume_removed_perps、tradingview_pane_heights_perps 后，完整刷新得到仅Volume。默认删除使用原生指标面板 VOL 开关，模型可移除；标志实际值为字符串1，不是true，不能因错误字符串断言误报产品保存失败。finally按原值恢复上述设置并刷新等待原指标。此为图表初始状态覆盖，不等同重装或清空整个origin。容量实测可API建立20个MA与50条趋势线，后者保存/刷新后50个ID齐全；API造样本不代表50次手动画图或≥30FPS通过。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-230",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "跨入口同步必须从目标入口独立重读，不可复用同一快照证明同步",
+      "details": "2026-10-27 覆盖静态核查：src/tests/shared/perps/favorites.mjs test005 在自选取消后以 favsBefore-favsAfter 得到 tokenRemoved，最后再次断言 !favsAfter.includes(tokenRemoved)，复用了同一来源快照；虽可证明该列表取消及精确-1，但不能证明顶部、行情自选或云端同步。前面推荐收藏→顶部无SOL的独立读取不能替代取消后的跨入口验证。此为仍待修复的覆盖缺口：必须另读目标入口，按完整币种/DEX/报价对身份对账，并单列跨设备/网络条件。当前31条通过不代表该语义已覆盖；未在本轮修改测试实现或重跑。 续作已修复：取消后关闭选择器，waitForFavoriteSync 独立轮询顶部并对账完整有序列表；PERPS-005 TF6.7.0实测通过，旧目标/错项/重排/漏项反例测试通过；本场景推荐列表均为唯一永续名称，其他现货/DEX同名仍需完整身份对账。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-231",
+      "category": "process",
+      "platform": "all",
+      "pattern": "Perps 最新源码必须对齐 OneKeyHQ，而非个人 fork 的 origin/x",
+      "details": "本项目 ../app-monorepo origin 是个人 fork，fetch origin x 后仍为69a579b；显式 fetch https://github.com/OneKeyHQ/app-monorepo.git x 到独立 ref 获取71e4ae1。隔离 Jest 必须将 @onekeyhq/* 映射到固定快照 packages，否则 node_modules workspace 软链回旧 checkout 导致混版与假失败。修正 mapper 后反手及账户切换图表30条通过；不改产品 checkout。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-232",
+      "category": "timing",
+      "platform": "all",
+      "pattern": "Perps 弹层打开后必须等待目标 dialog，不能按固定短等待再次点底层",
+      "details": "单位偏好由内页 dialog 异步打开，200ms快照可尚未返回，随后已经存在遮罩。再次点击底层会被 aria-hidden backdrop 拦截。用可见 dialog 标题与输入字段 waitFor；关闭使用 dialog 自身关闭按钮并等待消失；不要 force 点击穿透。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-233",
+      "category": "locator",
+      "platform": "all",
+      "pattern": "TF Checkbox 无 aria-checked/data-state，不能据此记录原值",
+      "details": "TF6.7.0 RawCheckbox 通过内部方块 _bg-bgPrimary / _bg-iconInverse 表示选中/未选中，始终包含相同 checked SVG；不能只检查图标或缺失 data-state。Perps 表单快照按源码背景状态记录，还原后逐项核对，陌生结构必须失败。Select 的通用 select-trigger 可能同时表示高级模式、止盈比例等，要用严格完整高级标题过滤，而非任取一个。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-234",
+      "category": "process",
+      "platform": "all",
+      "pattern": "Perps 杠杆无交易权限时没有确认按钮；输入校验与权限要分开断言",
+      "details": "当前 TF 杠杆弹窗只有启用交易按钮，不能等待新版 perp-leverage-confirm-button 后误判产品缺陷。输入回调拒绝 0 与大于 maxLeverage 的值，不是自动截断到最大值；允许 1 与清空。只验证输入并取消，不点击启用交易或确认。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-235",
+      "category": "locator",
+      "platform": "all",
+      "pattern": "TF BBO 使用价格 Select 的通用 trigger；选项没有 ARIA option role",
+      "details": "2026-10-28 DOM 观测：TF6.7.0 无 data-sentry-component=BBOSelector，启用后 [data-testid=select-trigger] 的文案为价格+对手价1。下拉项 testid 为 select-item-counterparty-0/-5、select-item-queue-0/-5，无 role=option。按表单范围+价格文案定位 trigger，按 select-item 前缀读完整有序选项，不以空 role 列表或组件标记缺失报产品失败。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-236",
+      "category": "process",
+      "platform": "all",
+      "pattern": "输入自动化要恢复曾进入的隐藏模式草稿，而非只恢复结束时可见字段",
+      "details": "2026-10-28 非下单表单测试会改 TWAP 时长、Scale 价格、条件单价格及 BBO。只备份最初市价字段会遗漏隐藏草稿；每次进入交易对/模式时在第一次修改前缓存字段、单位和复选框，finally 逆序恢复各模式，再恢复原模式和高级模式偏好，并逐项断言字段/复选框。现货/永续分别取快照。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-237",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "源码隔离 TODO 是待确认风险，不能并入通过数或直接宣布界面缺陷",
+      "details": "71e4ae1 的 ApproveAgent 推荐 hook 隔离复用同一实例时，A snoozed->B unsnoozed 勾选仍为false。真实签名入口是否重挂载尚未核实，因此保留可执行 TODO 断言（false!=true），单列风险和触发条件，不把其当通过，不签名造现场，也不直接宣称已确认的 UI bug。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-238",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "TF更新期间进程可能被taskgated签名策略终止；不要反复启动干扰更新",
+      "details": "2026-10-28测试后CDP消失，指定TF自动启动超时，带日志直接启动退出137。系统ips为SIGKILL(Code Signature Invalid)，CODESIGNING/Taskgated Invalid Signature；磁盘codesign --verify却通过，不能据磁盘验证宣布可启动。用户随后告知正在更新最新TF包：立即停止启动尝试，继续离线报告/校验，更新完成后核对版本并补收尾；不将安装期间异常定为Perps bug，不改签名/清钱包/换其他app来绕过。",
+      "confidence": 0.99
+    },
+    {
       "id": "K-239",
       "category": "assertion",
       "platform": "all",
@@ -1716,6 +1932,1669 @@
       "confidence": 0.99
     },
     {
+      "id": "K-243",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "TF 启动密码框只读且 loading 时，先排除系统认证等待，不继续输入或点击底层页面",
+      "details": "触发场景：Desktop TF 6.7.0 build 20261028970 启动解锁。密码输入值始终为0；DOM readonly=true、右侧progressbar，源码 PasswordVerify 在VERIFYING时设editable=false。向前台OneKey发送系统Escape取消认证等待后，readonly=false，既有密码helper输入并解锁通过。此时不是密码错误或Perps缺陷；不得移除readonly、修改认证状态或把底层钱包DOM当解锁。仅在确认仍未输入/提交密码且为启动认证等待时取消；已提交校验中的状态应等待结果。",
+      "confidence": 0.98
+    },
+    {
+      "id": "K-244",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "Perps 多持仓表格的数据列与操作列分开渲染，不能把多按钮数量当成缺样本",
+      "details": "触发场景：FORM-013/014，新TF当前账户3个持仓。旧脚本要求恰好一个加仓/反手按钮导致跳过，改为逐个已有样本检查；桌面实际tab为perp-info-panel-tab-Positions，perp-positions-tab不在此布局。perp-desktop-table-body包含数据列，固定操作列在其外；逐个按钮点击前按纵向位置严格对应唯一数据行，记录资产和数量，与反手弹窗独立对账。不按首按钮猜资产，不提交交易。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-245",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "Perps 选择器新增快捷键提示后，“自选”有两个同名文本，必须限定顶级分类容器",
+      "details": "触发场景：TF build 20261028970 收藏快照与分类行检查。底部快捷提示包含⌘S / 自选，与顶部自选/永续合约/现货分类同名；未限定 getByText 自选抛strict violation。现限定同时包含永续合约和现货直接子项的顶级容器，并从分类行统计排除含选择代币与Esc的底部提示。新包反手价格栏为价格/市价，卖出文案为出售；按当前源码与真实UI校准标签，仍严格验证目标资产、方向和2倍数量，不把市价占位当价格估值通过。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-246",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Perps 收藏取消/跳转前先准备可恢复的多项样本；推荐卡片不属于已收藏资产行",
+      "details": "触发场景：新TF用户仅收藏BTC。取消后跳转和顶部至少三项展示旧脚本缺少前置；先快照完整身份/顺序，再补到BTC/ETH/BNB三项，finally恢复原单项BTC。自选清空后推荐卡片的Ticker不应被uppercase span扫描计为已收藏，必须只统计perp-token-selector-row-*真实资产行。分类也从实际二级容器读取，纳入ETFs服务端新增项，顶部自选与底部⌘S自选分开定位。新包全5条收藏、全4条基础搜索复验通过。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-247",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "Perps 搜索64字符限制适用于匹配词，不是输入框可见文本长度",
+      "details": "触发场景：新增SEARCH-006超长输入。PerpTokenSelector的Input未绑定value/maxLength，输入200字符仍显示200字符；usePerpTokenSelector.normalizeSearchQuery执行trim().slice(0,64)。不能仅凭inputValue长度200报产品bug。UI验证长文本/特殊字符稳定及空结果操作；64字符匹配边界使用AST提取的实际normalizeSearchQuery函数独立验证空白、64/超64与中文输入。输入框可见文本与生效搜索词必须区分。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-248",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TradingView getAllShapes中的text对象不能自动认定为持仓/挂单叠加线",
+      "details": "触发场景：新TF初始BTC图表4个text对象。独立读取getPoints/getProperties显示成对的透明边框与[-8]价格文字，不能据此声称已与当前持仓/订单对账。切换引擎/刷新会重建对象ID，恢复检查要核对形状/坐标/文本及持久化数据，不以ID变化判数据丢失。保留所有原text对象，不删除；非text数为0也不等于用户图形完全为空。账户叠加线仍需专门可读的模型/渲染证据，不以Canvas hash或text数量代替。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-249",
+      "category": "process",
+      "platform": "all",
+      "pattern": "Dashboard共享模块新增用例后，重新请求/api/tests可能仍读到ESM旧缓存",
+      "details": "触发场景：Perps共享token-search增加SEARCH-005至008后，CLI三端导入为8条，但常驻Dashboard仍各4条、总141。先读取/api/run-state确认idle，重启准确的Dashboard server进程，再读取/api/tests核对18组153条、每端51。不要调用/api/restart替代server重启（该接口重启测试队列），不要重启OneKey或停止其他正在执行的任务。仅注册变化和CLI执行结果分开记录。缓存快照源码复验还需同时传匹配的--snapshot与--dependencies，SDK路径校验拒绝不同配对时按原配对重跑，不绕过保护。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-250",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "绘图刷新失败先对比真实图形及持久记录；缺失图形后的删除失败只算级联",
+      "details": "触发场景：TF6.7.0 build20261028970，CHART-003全套及独立复验。独立采集同btc/15分钟：刷新前trend_line/horizontal_line/fib_retracement/rectangle四图含坐标；当前保存键只有其他ID的null墓碑，没有这四个有效记录；刷新后仅原四个text，非text四图全消失。不是只重建ID，不修改断言使其通过，也不把随后编辑/删除旧ID失败另报独立bug。留存before/after原始JSON，恢复本交易对原绘图记录并刷新；不继续反复试画。源码mock通过不能抵销该包UI缺陷；包的构建SHA未知，暂不断言哪个提交引入。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-251",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "图表失败清理还要恢复最后使用的工具样式；周期以已加载图表为准",
+      "details": "触发场景：CHART-003编辑线宽后保存/刷新失败，正常删除步骤不会执行，finally不能只恢复绘图键。现快照并恢复tradingview_settings_perps_专属键，立即真实shell刷新取消旧文档待写回，再独立读回。不得清空origin、指标模板或其他模块。新包全局恢复首读仅mainSeriesProperties.interval不一致：原缓存4H、已加载图表实际15；这是加载后派生字段，只按独立读取的chart.resolution()归一化该字段，其他设置逐键精确检查。实机再次验证16个设置键、BB/MACD、15分钟及原4个text文字/坐标无变化，最终回原生/%。不能宣称原线宽残留已确认，记录的是失败路径防护。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-252",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "定点复验前保留逐ID结果；不能让分组results.json覆盖全量证据",
+      "details": "触发场景：Desktop chart CLI全9条后定点跑003，分组perps-chart/results.json仅剩003。已补每例独立shared/results/<id>.json；本次其余8例只能从保存的ui-chart.log按原状态/步骤重建，明确provenance与时间为整组完成时间，不伪装原始结构化结果。003用最新原始组结果，汇总按ID去重；不能混入旧TF结果凑51条，也不能将级联删除失败另报bug。新CLI写文件逻辑已静态校验，尚未为此再跑UI。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-253",
+      "category": "assertion",
+      "platform": "all",
+      "scenario": "perps-negative-assertions",
+      "pattern": "Perps Tooltip/统计/搜索的缺失状态必须用反例证明不能通过",
+      "details": "触发场景：维护 Perps 盈亏 Tooltip、统计、带词分类搜索或键盘高亮断言。2026-10-29 离线抽取现有实际回调验证：Tooltip null、统计字段全 null、BT 的其他分类仅 ETH/空列表，以及同名不同 DEX 选错项均可被当前脚本判通过。应先断言组件/必需字段存在，再比较值；切图异常不可吞；带词查询验证目标资产身份；键盘用唯一 id/DEX/报价币比较。证据 shared/reports/perps-automation-audit-2026-10-29/counterexamples.json。2026-10-29修复后37条离线回归全部通过；Tooltip/统计新TF实机通过。新增反例覆盖testid重复但报价币不同：按唯一高亮索引及完整行身份验证，不能仅比较名称或重复testid。修复后证据 shared/reports/perps-fixes-coverage-2026-10-29/harness-offline.tap；原反例文件保留历史，不覆盖。",
+      "confidence": 1.0,
+      "source": "Perps automation audit 2026-10-29",
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-254",
+      "category": "process",
+      "platform": "all",
+      "scenario": "perps-coverage-accounting",
+      "pattern": "Perps 执行通过率不能替代手动场景覆盖率",
+      "details": "触发场景：汇总 Perps 自动化覆盖率。2026-10-29 当前手动真源21份1029行，旧19份962行遗漏10-28新增Native存取款40行与分享27行。51个桌面编排组和Web/插件同逻辑注册不等于逐行覆盖；45/51是历史执行通过率。没有手动行→具体断言→平台执行证据映射时，整体场景百分比应标未建立，源码参数化数量和TODO不并入UI覆盖率。 本轮已建立完整逐行台账：shared/reports/perps-fixes-coverage-2026-10-29/coverage-ledger.json，1029行逐项绑定原文哈希、明确已断言/缺口及具体代码锚点。完整13/1029=1.26%，部分250，未覆盖766；其中10完整行含UI断言(0.97%)、3行仅源码组件隔离。涉及263/1029=25.56%不能称完整覆盖率；平台实机结果与实现覆盖分列，TODO不计通过或完整覆盖。生成时核对手动原文哈希，避免文档变更后沿用旧结论。 用户随后明确只统计Desktop，当前展示应改用desktop-coverage-ledger.json：1029原始行中，其他平台专属87、纯跨端对比5、03-12明确被03-20取代的历史文档21行列不适用，当前Desktop有效916行。混合行只评价Desktop分支；任一端连续开关3次(D09-30)已有Desktop完整断言，不能因移动未实现判部分。结果完整14/916=1.53%(含UI11行=1.20%、纯源码3行)，部分244、未覆盖658；已有断言涉及258/916=28.17%。旧13/250/766保留为全端历史，不能再用作Desktop当前指标。其他端未执行不应降低Desktop实现覆盖，实机执行另列。报告HTML章节ID与筛选器ID必须唯一，避免getElementById选到章节导致默认范围错误；离线DOM验收已覆盖唯一ID、916默认范围与113排除项。",
+      "confidence": 1.0,
+      "source": "Perps automation audit and row-ledger verification 2026-10-29",
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-255",
+      "category": "quirk",
+      "platform": "desktop",
+      "scenario": "perps-portfolio-entry",
+      "pattern": "Perps 投资组合入口不得用全局返回按钮清理后台导航栈",
+      "details": "触发场景：2026-10-29 TF 6.7.0 build20261029030，投资组合入口点击后回钱包首页。实机 DOM 证明后台保留 Perps 按钮仍有非零矩形，原 openPortfolioPopup 调用 goBackToMainPage 会点到残留 nav-header-back；按矩形取余额坐标随后落在首页。改为幂等进入 Perps、解锁、点击注册的可操作余额 Locator，再等待图表类型控件；PNL-004/005/008 实机均通过。不得把后台非零rect当页面已到达，也不将此脚本问题归因产品弹窗。证据 shared/reports/perps-fixes-coverage-2026-10-29/desktop-portfolio-final.log。",
+      "confidence": 1.0,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-256",
+      "category": "process",
+      "platform": "all",
+      "scenario": "perps-restore-stop-platform",
+      "pattern": "Perps恢复失败必须穿透safeStep并停止整个队列；平台连接不可借用Desktop",
+      "details": "触发场景：维护Perps各平台CLI、Dashboard或图表故障注入。恢复异常以fatalRestore标记，safeStep记录后仍重新抛出；图表内层finally（配额补丁、默认Volume、绘图/设置/RSI）也必须标记，否则外层成功恢复草稿仍会掩盖内部污染。Dashboard含fn和仅run两种入口、单文件及跨文件CLI都按同一策略停止；剩余条目标明未执行。37条离线实际回调/执行器测试证明普通断言可继续、恢复失败不执行下一例。Web必须精确WEB_URL origin，插件必须ONEKEY_EXT_ID，找不到唯一目标即失败，不启动或借用Desktop。非空12.34草稿在收藏004和图表008实机切币、刷新后均恢复，结束再恢复用户原始空草稿。证据 shared/reports/perps-fixes-coverage-2026-10-29/nonempty-ui.json。",
+      "confidence": 1.0,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-257",
+      "category": "timing",
+      "platform": "desktop",
+      "scenario": "perps-failure-screenshot",
+      "pattern": "失败取证截图必须有独立超时，不能阻塞状态恢复",
+      "details": "触发场景：2026-10-29 TF 20261029030，SEARCH-008九个真实列表样本已采完，永续568px、自选/现货524px，正确触发44px失败后停在截图。独立CDP screenshot(timeout:5000)确认为截图超时，不能把等待当测试仍在构造前置或放宽高度断言。通用safeStep目录截图及screenshot helper增加5000ms，截图不可用时保留原断言失败并继续finally。中断首次执行后，按SEARCH-008-before原始收藏/表单快照恢复并独立比较再重跑；不中断用户OneKey。截图超时两条回归及其余合计37条离线通过。证据 shared/reports/perps-fixes-coverage-2026-10-29/screenshot-red.tap 与 search-interrupted-restored.json。 最终005/007重跑均通过；desktop-final-state.json独立读回确认原收藏和完整表单恢复，实机9组8通过1产品高度失败；截图失败不再妨碍恢复。",
+      "confidence": 1.0,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-258",
+      "category": "locator",
+      "platform": "all",
+      "scenario": "perps-selector-full-row-identity",
+      "pattern": "Perps同名DEX行的可视检查也要联合testid和完整显示名",
+      "details": "触发场景：2026-10-29新TF SEARCH-005跨屏滚动选中AAOI后，名称Locator命中xyz-AAOI和para-AAOI两行，boundingBox抛strict mode violation；不能只修高亮断言而保留后续名称定位。新增selectedRow通过显示名与page.getByTestId(item.id)交集并断言count=1：同名不同DEX靠ID区分，同ID不同现货报价币靠完整显示名区分。实际helper回归在两类重复身份均只返回目标；37条离线通过，实机最终复验另存日志。证据 shared/reports/perps-fixes-coverage-2026-10-29/dex-locator-red.tap。 最终新TF复验SEARCH-005六步骤全部通过，原收藏/表单恢复独立核对；最终证据live-results/SEARCH-005.json。",
+      "confidence": 1.0,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-259",
+      "category": "assertion",
+      "platform": "all",
+      "scenario": "perps-keyboard-fixture-precondition",
+      "pattern": "BTC搜索结果首行可能是BTCD；固定资产收藏前按完整身份建立高亮",
+      "details": "触发场景：2026-10-29新TF SEARCH-007准备永续关键词BTC，默认首项为para-BTCD；旧脚本直接收藏首项后却断言原生BTC存在，误报产品快捷键失败。新增selectFixtureWithKeyboard按id+完整显示名找到唯一索引，先回首项再真实方向键到目标，复核所选身份后才快捷收藏。默认高亮用例仍单独验证首项，不把目标资产强选掩盖默认行为。实际helper反例BTCD/IREN/BTC证明必须导航到第三项，目标缺失即失败。37条离线回归通过；最终实机结果另列。 最终新TF SEARCH-007五步骤全部通过，实际BTC快捷添加/取消及现货/永续隔离通过，结束收藏和完整表单恢复。证据live-results/SEARCH-007.json。",
+      "confidence": 1.0,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-260",
+      "category": "process",
+      "platform": "desktop",
+      "scenario": "perps-desktop-row-completion",
+      "pattern": "非下单补齐仍按手动整行验收，执行结果与实现覆盖分列",
+      "details": "触发场景：用户要求只看Desktop并补齐非真实下单场景。保留916有效手动行，不能用脚本数、通过率或其他平台未运行状态代替完整行覆盖；混合下单行可补安全子步骤，但尚缺真实成交的预期必须维持部分。Desktop高级页签源代码/规则确认第一次点击可直接激活上次高级模式，通用chooseMode需先判断是否出现下拉，再执行选择；实机分时/分段/条件三次切换与草稿恢复已验证。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-261",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-validation-trading-permission",
+      "pattern": "已有持仓及买卖按钮不等于canTrade：无效表单点击也可能先启用交易",
+      "details": "触发场景：2026-10-29当前TF账户已有BTC逐仓但只读按钮组件状态canTrade=false、agentOk=false、activatedOk=true。空触发价/空数量点击出现启用交易Toast。官方x@6fe766b TradingButtonGroup.handlePress先requestOrderPanelEnableTrading，之后才validateOrderPanelState。校验用例必须先明确验证canTrade，不能仅看按钮文字或有持仓；授权未就绪则跳过实际校验点击并记环境阻塞，不自动签名。其他输入/选择/只读路径继续。只读React投影仅提取canTrade/agentOk/activatedOk，不改产品状态，不暴露账户或密钥。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-262",
+      "category": "locator",
+      "platform": "desktop",
+      "scenario": "perps-desktop-tif",
+      "pattern": "Desktop 分段 TIF 使用 popover，恢复时同时捕获其持久值",
+      "details": "触发场景：TF20261029030分段TIF复验。UI原有role=dialog等待失败；官方TimeInForceSelector和实机确认Desktop为TMPopover-ScrollView，带订单有效期标题、三个option testid和SvgCheckRadio选中标记，文案为完整中文说明。snapshotNonOrderForm新增scaleTif，恢复根据实际dialog/popover定位；实际三项选择与恢复复验未完成前不宣称通过。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-263",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-spot-search-oracle",
+      "pattern": "现货搜索固定 USDH 样本先验证成交量门槛；行情上下文必须按 coin 关联",
+      "details": "触发场景：当前TF搜BTC/HYPE不展示USDH。只读HL spotMetaAndAssetCtxs确认@232 HYPE/USDH和@234 UBTC/USDH存在但24h成交量均0；其他市场有量，按1000美元门槛应过滤。不能只因手动示例USDH未显示报产品缺陷或跳过全部搜索。以完整原始coin对账所有符合门槛的市场，并验证大小写结果。原始universe.index有跳号，ctx数组序号与index不一，必须按ctx.coin关联，不能使用ctx[index]。离线负例覆盖乱序、重复coin、1000边界与全无成交量。 公开响应中tokens索引不连续（511项最大index1308），必须按token.index建Map；assetContexts也按coin建Map，不能用数组下标关联universe。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-264",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-spot-chinese-label",
+      "pattern": "“无中文标签”不等于现货行内不能出现中文",
+      "details": "触发场景：现货搜索行包含现货类型徽标。旧新增断言对整行禁止汉字，错误地把徽标当代币中文标签。改为检查目标服务端代币subtitle（BTC比特币）不出现在现货字幕行，永续仍须显示；保留类型徽标。SEARCH-003第三次实机三项通过，证据见perps-desktop-completion-2026-10-29/search-third.log。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-265",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-virtual-market-identity",
+      "pattern": "虚拟市场行不能用React旧分支属性确定资产身份",
+      "details": "分类滚动连续暴露旧alternate属性、复用DOM及过渡期fiber不存在，停止该方向。改用公开allPerpMetas/spotMetaAndAssetCtxs与DOM testid+全名+DEX/报价币唯一匹配，不按base去重或忽略冲突。权限诊断仍只读稳定组件，缺证据即阻塞。新方案待实机验证。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-266",
+      "category": "timing",
+      "platform": "desktop",
+      "scenario": "perps-recommendation-handles",
+      "pattern": "异步读取必须在finally释放句柄前等待完成",
+      "details": "推荐卡片checked()直接return c.evaluate()后finally先dispose，误报Target page/context closed。改为return await c.evaluate()，读取结束才释放句柄。应用仍存活，不能据此重启。修复待复验。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-267",
+      "category": "timing",
+      "platform": "desktop",
+      "scenario": "perps-selector-preference-restore",
+      "pattern": "分类、子分类与排序必须同一DOM快照读取并稳定后恢复",
+      "details": "已确认原恢复代码在永续切现货期间分别await读取顶级和子分类，拼出旧永续+已移除子分类，导致等待不存在的元素超时。改为一次DOM读取三者的原子快照，ready完整后比较/恢复。实机三次永续→原现货分类及排序恢复均与基线一致，证据 shared/reports/perps-desktop-completion-2026-10-29/selector-restore-probe.json。恢复失败仍须停止队列。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-268",
+      "category": "timing",
+      "platform": "desktop",
+      "scenario": "perps-tif-close-transition",
+      "pattern": "TIF选项点击后等待原弹层关闭再切模式",
+      "details": "实机TIF各选项和勾选断言通过后，最后选IOC未等待关闭即调用chooseMode，清理逻辑点正在关闭的backdrop，报html intercepts/element detached。补显式弹层hidden等待，保留原选项和持久化严格断言。该失败属于脚本过渡时序，须定点复验后才能记录通过。",
+      "confidence": 0.95,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-269",
+      "category": "timing",
+      "platform": "desktop",
+      "scenario": "perps-selector-preferences",
+      "pattern": "空自选推荐页没有表头，仍是可恢复的有效选择器状态",
+      "details": "2026-10-29 favorites-third 六项推荐断言全部通过，清空收藏后恢复偏好失败，因为 coherent snapshot 错把 headers>=5 用于空自选。须原子读取自选选中、六个指定推荐名、添加入口及零市场行，以该明确空态允许无表头；普通缺表头仍应失败。切目标分类前不能等待当前空页出现表头。修复后需恢复原基线并实机回读，未复验前不得计通过。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-270",
+      "category": "timing",
+      "platform": "desktop",
+      "scenario": "perps-selection-controls",
+      "pattern": "高频行情重渲染可能反复替换选项叶子，须有超时并独立验证选择结果",
+      "details": "2026-10-29 TIF pw:api 定点日志显示 locator.click 在等待稳定时每约2秒遇到 detached，旧 CDP 默认无超时导致批次长时间等待。Desktop row suite 设置15秒上限；只对本地选择项，确认唯一且可见后执行 DOM 原生 click，再核对选中值、唯一勾选和弹层消失。此方式不得用于下单、签名或资金提交。修改后必须定点实机复验；证据 tif-diagnostic.log，后续结果另记。 定点 tif-diagnostic-committed.log 已通过三种选项/IOC跨模式保留，并 finally 独立读回原表单。原生点击前还必须等待唯一目标可见，不能打开后立即 count() 判不存在。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-271",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-state-restore",
+      "pattern": "账户恢复比较稳定身份，不能比较包含实时资产和盈亏的整段账户面板",
+      "details": "2026-10-29 编写资金/投资组合补测静态复核时，发现账户边界 innerText 包含实时价格驱动的资产和盈亏。逐字比较会把正常行情波动误报账户恢复失败。改为从该边界读取明确地址指纹，要求存在且前后相等；资金数值另用独立同笔/同帧 oracle 校验，不删除资金断言来规避行情变化。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-272",
+      "category": "locator",
+      "platform": "desktop",
+      "scenario": "perps-footer-preview-restore",
+      "pattern": "隐藏预览后仍存在设置图标，但 PerpFooterTicker 的 Sentry DOM 祖先会消失",
+      "details": "Desktop TF 6.7.0 选择不展示预览后，PerpFooterTicker.web.tsx 的提前返回创建另一容器，不携带原 PerpFooterTicker DOM 标记。使用该祖先定位会在 finally 恢复时 count=0。已通过可见 SliderVer 图标及其祖先现场快照确认，改为 BasicPage 内唯一可见图标并登记 locator；三种模式都必须验证可达且独立读回原模式。定点与正式结果另记。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-273",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-layout-baseline",
+      "pattern": "布局默认尺寸必须取当前固定版本常量；恢复前先落盘基线并保留原失败",
+      "details": "定点源码与 TF props 确认本版基础高度为588/480，不是旧520/380；reset后的有效订单簿为visible=true，不能以属性必须不存在代替可见行为。原finally失败还覆盖了拖动原错误；增加主错误保留、每次布局操作前落盘原state/size/scroll。当前TF实际回到588/480、orderBook=true。后续需正式重跑。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-274",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-navigation-readiness",
+      "pattern": "保留页面有非零矩形，不代表导航成功；检查祖先CSS可见性",
+      "details": "选产品/Perps专用后导航helper把retained Wallet背后的Perps selector当就绪，readTradingPermission无visible组件。现场截图与visible locator证实仍在Wallet，直接点击sidebar perp后才实际进入。getPerpsLandingState改为同时checkVisibility(含opacity及CSSvisibility)；必须验证Wallet时isPerps=false、Perps时true。切换后已实机读到agentOk/canTrade/activatedOk均true。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-275",
+      "category": "timing",
+      "platform": "desktop",
+      "scenario": "perps-validation-toast",
+      "pattern": "连续输入校验须越过按钮1000ms前沿防抖，并排除Sonner已移除的旧Toast",
+      "details": "授权账户正式form-sixth复验：空触发价首次正确，立即再点空数量未出现新Toast。源码SideButton.handlePress前沿防抖1000ms、trailing=false；随后两条同文本Toast严格定位命中data-removed=true退场旧节点。仅对空数量安全校验，在点击前等1100ms并将Toast范围限制为非removed节点；仍要求新提示、无确认、无exchange请求。不能用last()或删金额断言掩盖时序。修改待正式复验。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-276",
+      "category": "locator",
+      "platform": "desktop",
+      "scenario": "perps-action-list",
+      "pattern": "ActionList当前Desktop渲染Popover里的button，不是role=menu/menuitem",
+      "details": "Footer第五次批次更多图标点击成功，但等待menu超时。固定源码ActionListItem返回ButtonFrame，ActionList以LazyPopover承载，无menu角色。更多菜单与投资组合盈亏类型共用此组件，改为当前可见Popover内button，并继续严格检查数量、顺序及唯一勾选。待正式实机验证。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-277",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-state-restore",
+      "pattern": "恢复目标已经满足时不做额外往返切换；重复Toast必须先清除再断言新提示",
+      "details": "Desktop布局正式复验发现finally为构造orderBook属性而先false再true，在gtXl=false无可见开关的窗口误报恢复失败。独立读回已为原visible=true且588/480。只在有效目标不同才使用控件，保留完整状态和物理尺寸独立对账。连续reset会留下多个尚未退出的同文Toast，应清除active通知再等待唯一新通知。拖动、刷新持久化后已通过；其余布局另跑。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-278",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-spot-side-controls",
+      "pattern": "Desktop现货用买卖方向切换器与一个当前方向提交按钮，不能同时等待两个永续按钮",
+      "details": "新包Spot正式复验等待perp-short-button超时；固定源码PerpTradingForm在isSpot&&!isMobile渲染TradeSideToggle，底部只渲染当前side按钮。模式断言改为独立检查买入/卖出方向标签及唯一当前方向按钮，不点击提交、不以永续双按钮代替。修改待重跑。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-279",
+      "category": "timing",
+      "platform": "desktop",
+      "scenario": "perps-instrument-readiness",
+      "pattern": "切币页头先乐观更新；必须等真实资产身份和表单稳定后再保存基线或编辑",
+      "details": "BBO正式复验错误恢复BTC价格79.06（此前HYPE价）。源码actions.changeActiveAsset先set optimisticInstrument、await后台changeActiveAsset，最后才按目标mid更新price及trigger等字段。原restorePair只等页头与弹层关闭，chooseMode随即记录了过渡快照。现在独立读committed PerpTradingForm instrument/原生或现货asset coin，且输入需连续350ms不变后才执行；禁止调用action或set atom。已补3个反例：旧asset、缺asset、混合instrument都不能证明就绪。原可见BTC市价空表单已独立恢复；79.06过渡草稿不可当持久基线。后续正式复验另记。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-280",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-platform-url",
+      "pattern": "URL断言先解析平台替代文件；Desktop现货模式由UI身份验证",
+      "details": "Spot第二轮中HYPE现货UI全部成立，URL mode为null。固定x源码存在usePerpTokenUrlSync.desktop.ts，函数明确为空实现，Web文件才调用history.replaceState。不能用Web地址要求判定Desktop回归，也不能把删除URL断言称整行已覆盖。拆分D10-28与29，前者保留URL平台差异为部分，后者独立验证现货切回永续；台账另记录待审的适用性。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-281",
+      "category": "locator",
+      "platform": "desktop",
+      "scenario": "perps-funds-scope",
+      "pattern": "资金按钮必须定位到最顶层资金弹窗；Desktop信息页签不能复用移动端ID",
+      "details": "正式funds-first中全局perp-btn命中两个可见元素。CDP取到投资组合和资金两个dialog，资金提交实际是后者perp-btn；改为top dialog内登记选择器。账户历史DOM实测为perp-info-panel-tab-Account，旧perp-account-tab在Desktop不存在，新增Desktop语义键，不改旧端映射。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-282",
+      "category": "locator",
+      "platform": "desktop",
+      "scenario": "perps-imperative-chart",
+      "pattern": "图表库动态canvas没有React绑定；只读投影须显式从最近React容器解析committed分支",
+      "details": "投资组合净值/盈亏/资金费正式复验UI切换可见，但canvas直接查__reactFiber失败；图表库动态创建canvas。新增closestAncestor显式选项，保留默认严格行为，只对图表投影启用；原canvas仍用于物理尺寸和可见性，最近容器找不到数据时继续等待，禁止把全局其他曲线当结果。补反例保证默认不静默爬祖先及无容器仍失败。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-283",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-history-restore",
+      "pattern": "可选market缺失与undefined同为无市场限制，具体值及其他筛选仍须严格对账",
+      "details": "history-first finally恢复type=all side=all，UI处理后market键为undefined而原对象缺键，deepStrictEqual误报fatalRestore。只规范化此可选键，具体BTC/active与side变化仍保留并以反例验证。主步骤失败与恢复失败须同时保存，不能在finally覆盖原始原因；修复后须重新跑真实筛选交集。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-284",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-unifold-qr",
+      "pattern": "实机圆点/圆角二维码使用能识别该样式的独立解码器，不从组件value推断可扫码",
+      "details": "原jsQR对同一张原始二维码截图失败，补白和缩放仍失败；ZXing直接解码未修改截图得到与显示地址相同的值。改为ZXing，仅RGB转亮度供解码；不做形态学修补或按组件props重建。空白图仍必须失败，实际剪贴板需独立核对并恢复。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-285",
+      "category": "locator",
+      "platform": "desktop",
+      "scenario": "perps-unifold-ui",
+      "pattern": "链上收款先核对TF DOM，网络图标异步加载、Select自定义trigger和版本布局可能不同",
+      "details": "只读实机诊断证据unifold-menu/card/networks和withdraw-diagnostic：网络提示Token已经挂载但img可能未创建，按限定菜单的Token等就绪；提现Select外层testID未转发到自定义trigger，实际select-trigger需限定顶层提现dialog并按“至 网络”过滤。当前TF路径为DepositRouteRow，新x为QR卡片内conversion-route，使用两种互斥可见分支保留相同源到目标断言。网络列表用innerText，allTextContents不保留换行，不能按换行查网络名。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-286",
+      "category": "locator",
+      "platform": "desktop",
+      "scenario": "perps-production-fiber-projection",
+      "pattern": "TF中memo匿名组件用instrumented JSX语义身份补充displayName，缺组件数据不能回退成猜测值",
+      "details": "favorites-fourth行情列和顶部quote失败。只读favorite-readonly-diagnostic.json证明FavoriteTokenItem子树存在匿名memo，其committed props保留coinName/displayMode和data-sentry-element=CtxPriceDisplay，hook ref含markPrice/change24hPercent。旧仅displayName分支漏读。改为displayName或该精确JSX元素身份，必须唯一；保留原始报价、数值、颜色和模式严格断言，缺失仍失败。新增生产匿名memo正反例通过，实机需独立重跑。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-287",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-market-row-dom-identity",
+      "pattern": "市场名称从独立名称span读取，不能按整行innerText换行切分并用斜杠猜测现货",
+      "details": "favorites-fourth D03-79失败证据：LTC整行innerText无换行，涨跌幅的 / 导致旧脚本把原生永续识别成现货。实机DOM名称独立span仍为LTC；改为首个非空叶span，随后仍须id+完整名+spot+DEX与独立元数据唯一匹配。新增无换行永续、同名不同报价现货和缺名失败反例。星标目标同时按id+完整名稳定定位，避免nth复用漂移；点击后500ms内等committed空实状态，每次均须转换，不能以最终一次状态代替。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-288",
+      "category": "assertion",
+      "platform": "desktop",
+      "scenario": "perps-minimum-toast",
+      "pattern": "最小金额数值来自“仓位大小必须至少”标题，不能从“填入最小金额”按钮猜金额",
+      "details": "minimum-first实机提示为“仓位大小必须至少 $10.00 / 填入最小金额”，旧正则要求最小后跟金额导致脚本误报。改为独立解析标题数值及币种；token须BTC，美元/成本须$，负数/非有限/缺数/错币种失败。10.00与输入10按规范十进制值比较，不放宽金额或单位；真实填入后仍须规整后市值>=10且已有普通/TWAP订单ID不变。新增标题、单位及反例两测试通过，实机仍待重跑。",
+      "confidence": 1,
+      "lastVerified": "2026-10-29"
+    },
+    {
+      "id": "K-289",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "Perps链上收款复制需等待实际剪贴板异步写入",
+      "details": "触发场景：QR地址复制断言立即读取空剪贴板。固定源码useClipboard.copyText明确用setTimeout延迟200ms写入，Toast先显示。实际复制断言轮询剪贴板等于可见完整地址，finally恢复原剪贴板；不以Toast代替复制内容。网络选择项实际选中图标为CheckRadioSolid，应同时核对勾选唯一和触发器当前网络身份。",
+      "confidence": 1
+    },
+    {
+      "id": "K-290",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Perps钱包存取款输入经过SendAutoSizeAmountInput清洗，不等于交易表单原样拒绝",
+      "details": "触发场景：对存取款填入-1脚本期待保留0，实机变1。固定源码sanitizeAmountInputText先去非数字、去空白、逗号转小数点再校验精度；不能复用validateSizeInput原样拒绝矩阵。手动用例仍要求负值不可提交时保留差异/失败，不通过改预期为1伪造覆盖。源码清洗断言与手动验收断言必须分别标注。",
+      "confidence": 1
+    },
+    {
+      "id": "K-291",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "投资组合多画布共用React数据，不能用Map最后一个轴交叉canvas的尺寸判断主曲线",
+      "details": "实机投影确认主画布508×452，Y轴48×452，X轴508×28，最后交叉轴48×28，均返回同一series/data。旧Map按data/series去重保留最后对象导致主曲线误判小尺寸。改为先严格验证所有画布投影的数据和配置唯一，再选同一曲线面积最大画布验证主图物理尺寸；小画布单独存在、不同series/data/config和非有限点仍必须失败。证据portfolio-canvas-diagnostic.json。",
+      "confidence": 1
+    },
+    {
+      "id": "K-292",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "收藏大集合按ticker搜索仍需滚动定位原始coin，不能只扫描虚拟列表当前窗口",
+      "details": "实机AR搜索命中47项，首屏22项无原生AR，完整滚动第35项为AR；服务端别名/DEX para关键词也会匹配AR。stress脚本只看首屏错误报Exact star fixture AR/AR。新增revealSearchMarket按原始coin+完整展示名匹配，滚动真实列表并在目标所在位置停止，点击用稳定testid+精确展示名，不再使用旧nth序号。证据ar-search-diagnostic.json；现货第101项当前因72个符合阈值市场真实跳过，不造行情数据。",
+      "confidence": 1
+    },
+    {
+      "id": "K-293",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "资金费市场SearchBar运行时有前缀；Desktop空态替代表格body",
+      "details": "固定源码SearchBar传入perps-funding-history-market-search后Input实际testID为nav-header-search-perps-funding-history-market-search；不能直接使用调用处原字符串。CommonTableListView空数据时不渲染perp-desktop-table-body，改渲染PerpDesktopEmptyState。空交集先核对committed数据确为0，再验证当前唯一空态标题/插图及无导出，不要求不存在的正文；非空仍逐条与真实分页行对账。失败证据要在finally关闭/恢复之前采集，避免只保存恢复后视图。",
+      "confidence": 1
+    },
+    {
+      "id": "K-294",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "最小金额快捷填入不能仅以Toast与输入相等证明正确",
+      "details": "触发场景：Perps最小金额Toast及USD/币种/成本快捷填入。Toast数值和填入框可能同源出错；两者相等再加名义金额>=10仍会放过错误的过大建议。BTC限价100、szDecimals5的受控UI夹具应独立计算币种0.1、USD10、成本ceil(1000/杠杆)/100；同时断言按实际精度规整后不低于10。填入有效建议后立即清空，不点击有效数量提交。",
+      "confidence": 1
+    },
+    {
+      "id": "K-295",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "QR原图与NetworkAvatar缩图URL不能直接按字符串比较",
+      "details": "触发场景：链上存款QR中心网络图标。TF真实DOM中QR SVG image href为https://uni.onekey-asset.com/static/chain/arbitrum.png；同一选择器img src额外带x-tos-process=image/resize,w_96。先保存DOM证明同源资源，再仅删除已观察的x-tos-process做身份对账，保留主机、路径及其他query以识别错网图标；另验唯一图标实际尺寸及居中。二维码本身仍独立解码像素，不用props替代扫码。",
+      "confidence": 1
+    },
+    {
+      "id": "K-296",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "非下单复验须逐行核对账户、仓位和委托内容，资金变更不自动回滚",
+      "details": "触发场景：共享实机/同账户另端并行交易。2026-10-29 17:32–17:34观测到原GTC撤单、ALO及市价买入，用户明确确认来自其本人或其他任务；不能凭时间重叠归因于自动化。暂停UI并保留只读成交/委托证据。新基线应包含账户全地址、仓位coin/szi/entryPx及普通/分时委托内容；排除行情/PnL浮动。每行和最终恢复后比较，变化即fatal停止，不通过平仓、撤单或再下单恢复基线。页面HTTP route仅监视renderer请求，不能声称已拦截Electron后台全部交易请求。",
+      "confidence": 1
+    },
+    {
+      "id": "K-297",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "动态market-*前缀会命中SearchBar的search-clear按钮",
+      "details": "触发场景：资金费市场筛选输入后，perps-funding-history-market-search-clear与真实选项同前缀；只排除input不够，空文案清空按钮会被解析成market search-clear。shared/locators/perps.json真源须明确排除search及search-clear，再构建ui-semantic-map；真实市场集合仍逐项与toolbar marketOptions核对，不能泛化过滤未知资产来让断言通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-298",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "统一指标面板的选中态为IndicatorPill边框高亮，不是勾选SVG",
+      "details": "触发场景：NativeIndicatorSelector统一指标面板。固定源码IndicatorPill将isActive&&!isDisabled映射到bgActive/borderActive；未选中borderColor透明，完全没有Check图标。不能用不存在的SvgCheckLarge把所有选项读成未选中。只读committed IndicatorPill状态并检查真实computed border宽度与透明度，再与独立TradingView study集合对账；Desktop popover点击即时更新，Dialog分支需确认提交，两者不得混用。新脚本尚待实机验证，不据源码读取即宣称UI通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-299",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "同名OneKey或共享BundleID不得代替用户指定TF完整应用路径",
+      "details": "用户纠正：按应用名OneKey或BundleID so.onekey.wallet激活会选错应用。仅用/Applications/OneKey-3.localized/OneKey.app完整路径绑定当前已选TF窗口；不能凭BundleID/显示名、CDP的visible/focus为true认定正确原生窗口。此次正确TF被遮挡时1秒仅1帧，完整路径选中并Raise后700ms78帧。原AGENTS已有指定唯一路径规则，不需要新增同义规则；记录本次执行偏差，受影响QR/分享批次必须重新验证。",
+      "confidence": 1
+    },
+    {
+      "id": "K-300",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "已限定dialog的locator不能再重复role=dialog祖先前缀",
+      "details": "分享PNG实际DOM为当前dialog直接后代img，900×900，src为data:image/png;base64；locator(dialog, perps.share.preview)原primary又含[role=dialog]，等价要求嵌套dialog，导致可见PNG仍超时。已将真源primary改为img[src^=\"data:image/png;base64,\"]，保持调用处dialog作用域及唯一性断言；不能退化为截图有像素就通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-301",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "SideButtonInternal校验ref位于第472个Hook，固定前400扫描会假报缺失",
+      "details": "触发场景：TF6.7.0(20261029030)低于最低名义金额的非零数量。只读正数量诊断记录证明SideButtonInternal最新校验ref在Hook472；原扫描h&&n<400截断成空，导致保护门禁阻止了校验点击。改为遍历整个组件Hook链，4096上限与循环检测溢出时显式失败，不静默接受不完整投影；独立回归先复现0!=1和循环不抛错，再修正。币种、方向、单位、限价100、实际数量/价格、生产belowMinimum均仍严格证明后才能点非法输入。",
+      "confidence": 1
+    },
+    {
+      "id": "K-302",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "ZXing decode(image)会清掉预设TRY_HARDER，分享卡片小QR必须decodeWithState",
+      "details": "触发场景：900×900分享卡内100×100二维码，整PNG解码失败而原像素裁剪可解码。对照依赖源码确认MultiFormatReader.decode会setHints(undefined)，旧setHints因此失效。改decodeWithState保留QR_CODE与TRY_HARDER；同一张完整原PNG无需裁剪/放大就能独立解码。新增900画布右下角小QR回归，先失败再通过；二维码值仍逐字与实际链接/复制值对比，不能直接读取props当扫码证据。",
+      "confidence": 1
+    },
+    {
+      "id": "K-303",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "反手预览除同量反向与两倍数量，还必须断言市价单实际买卖方向",
+      "details": "审查发现旧预览断言仅验证当前/目标多空方向、两倍数量与资产，遗漏市价执行方向。因此多仓反手错误显示购买也会通过。抽取纯文本断言，负例先复现Missing expected exception，再要求原多仓→出售/卖出、原空仓→购买/买入。此断言只读取已打开预览，永不点击反手确认；多空样本与强平价独立计算缺口仍保留部分覆盖。",
+      "confidence": 1
+    },
+    {
+      "id": "K-304",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "自选切换后必须核对标签与虚拟列表属于同一提交，再读取或清空收藏",
+      "details": "101条实机采集两次只读到前25项；诊断初始祖先仍为16552px的永续全集，下一次取滚动根时已换成无溢出的过渡列表。bulk改用prepareSearch等待标签与搜索去抖就绪；原clearFavorites还会在空自选切换时误读旧行并点击已卸载星标。增加主标签/空关键词/全实心星或推荐空态联合就绪检查；快照有顶部栏时还必须全量计数相等，不能保存截断集合。空自选、原筛选及资金状态已独立回读，101条修复后仍需最终复验。",
+      "confidence": 1
+    },
+    {
+      "id": "K-305",
+      "category": "quirk",
+      "platform": "desktop",
+      "pattern": "macOS TF沙盒下载不能使用Playwright宿主临时目录",
+      "details": "同一100px公开二维码Blob，同一allowAndName下载配置，只变目录：宿主tmp canceled；选定App的Library/Containers/<bundleId>/Data/tmp completed，实际文件逐字节一致。分享导出改按ONEKEY_BIN对应Info.plist读取BundleID、在容器tmp创建独立目录，通过Browser.downloadProgress确认completed/文件字节数，再复制实际下载文件到证据目录。每次finally恢复default下载行为、移除事件/独立目录并detach；不能将预览直接写盘冒称导出。share-sandbox正式复验两模式PNG/真实QR/不同hash通过，资金与表单恢复通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-306",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "Playwright扩展选择器不能传给原生DOM查询",
+      "details": "TF复验waitFavoriteView时把primary_tabs含:text-is()的registry选择器传入document.querySelectorAll导致SyntaxError，发生在收藏写操作前。现先用Playwright解析elementHandle，再将真实元素传给waitForFunction，并finally释放handle；空自选helper实机读回通过，101项完整集合随后实机通过，恢复阶段的升级提示另外处理。",
+      "confidence": 1
+    },
+    {
+      "id": "K-307",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "真实刷新后可能异步出现OneKey升级说明并遮挡收藏恢复",
+      "details": "favorites-stress-dom-fixed真实构造101收藏、完整集合及FPS通过，shell刷新后OneKey再升级说明dialog阻挡closePairs的底层backdrop，导致恢复失败。读取实际顶层dialog确认后仅点击dialog-header-close（不点立即更新），按原始空收藏/分类排序/表单/交易信息标签和资金基线逐项恢复，stress-overlay-recovery.json独立读回全部一致。openPairs/closePairs增加仅匹配此说明文案的关闭处理，授权/交易/PIN/password等其他dialog不自动确认，单元保护测试通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-308",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "资金费CSV必须验证真实下载文件并独立对齐稀疏collateralToken索引",
+      "details": "funding-export-first在6.7.0(20261029030)实际导出616条与筛选后多仓BTC CSV，逐行核对UTC ISO、市场DEX标签、绝对数量、方向、原始正负金额、结算币与精确费率，不能只验预览或当前20条。公开allPerpMetas+spotMeta中collateralToken是token.index，360等稀疏索引不能当数组下标；缺结算元数据应失败。费率用BigInt十进制独立计算，避免float边界误差；CSV零方向--需遵循公式注入保护的前导单引号。2000条上限与元数据失败实机分支未跑，仍保留缺口。",
+      "confidence": 1
+    },
+    {
+      "id": "K-309",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "资金费UI市场名与CSV市场标签不同，不能复用同一展示oracle",
+      "details": "funding-dom-final首次真实屏幕断言失败：第10行UNITREE实际符合FundingHistoryRow的parseDexCoin.displayName，脚本误期望CSV形式UNITREE (xyz)。只读投影保存原始xyz:UNITREE作身份，UI市场列独立按基础展示名核对，CSV继续严格含DEX标签；不把UI错误断言当产品缺陷。新增DOM错市场/错方向/错费率/错误页码负例；poll保留实际错配供诊断，修正后需重新跑实机。",
+      "confidence": 1
+    },
+    {
+      "id": "K-310",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "HL碎币兑换记录会复用tid=0，成交历史身份不可只用tid",
+      "details": "反手关闭后的独立成交快照首次因Unique fill trade IDs中止在打开预览前。公开userFills实际859条，其中7条不同日期/市场/oid的Spot Dust Conversion均tid=0、hash全零。已用tid+raw coin+time+oid+hash+side完整身份保留全部记录；既有history-oracle对碎币事件回退到完整原始元组，单元负例先红后绿。真实重复完整身份仍必须失败，不能去重掩盖。资金状态未变，修正后重新实机复验关闭前后逐条完整历史。",
+      "confidence": 1
+    },
+    {
+      "id": "K-311",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "反手确认会被实时Agent门禁替换，关闭预览不依赖确认按钮",
+      "details": "position-history-corrected失败前保存的三个DOM均有perp-reverse-position-dialog和perp-is-disabled-btn，按钮文案启用交易，并无reverse_confirm。TradingGuardWrapper在isAgentReady=false时替换children，已有持仓或早先canTrade=true不能证明当前弹窗有权限。脚本现按真实guard报告前置阻塞；缺按钮但没有guard、重复按钮或确认禁用仍失败，不回退去点启用交易。D18-24仅关闭与核对完整成交历史，不强加确认按钮可用；最新实机尚待独占复验，旧失败证据保留。两项门禁正负例已通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-312",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "高级订单页签不能强加首击不展开要求，Trigger会组合子动作与打开菜单",
+      "details": "D08-16手动行只要求两普通tab、四高级选项、选中高亮与字段切换，无首次点击禁止展开条款。保存实机多次失败1!=0后追踪SelectTrigger→Trigger：composeEventHandlers先await子onPress，只有显式false才阻止父打开；PerpTradingForm激活回调返回undefined，因此首击直接展开属于当前组件路径。已删除虚构首击断言，兼容先激活再展开与直接展开，仍严格核对四项/唯一勾选及真实字段。固定官方源码真实compose函数回归通过(undefined继续/false拦截)；UI改动尚未复验，不宣称TF该行通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-313",
+      "category": "process",
+      "platform": "all",
+      "pattern": "HTML覆盖报告的章节锚点与筛选控件必须使用不同ID并执行交互验证",
+      "details": "新报告section#scope与select#scope重复，getElementById误取章节，语法检查通过但范围过滤失效。已将控件改scope-filter，并用真实生成HTML在jsdom中执行脚本验证唯一ID、无运行错误、802/916/1029范围、覆盖/实机/文档筛选、搜索空结果、分页换行及相对证据链接。先失败15!=16后修复通过。报告交互验证只运行本地报告，不连接或操作OneKey实例。",
+      "confidence": 1
+    },
+    {
+      "id": "K-314",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "保留的硬件PIN层可能opacity为0，不能凭DOM文案判定当前阻塞",
+      "details": "实机复验body.innerText与Playwright isVisible仍可读到在设备上输入PIN码/连接中，但祖先MorphOverlay实际opacity=0、pointer-events=none并移出视图，当前截图无PIN提示。检测需结合祖先透明度、实际遮挡及截图；不可仅凭保留DOM暂停测试或要求用户解锁。",
+      "confidence": 1
+    },
+    {
+      "id": "K-315",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "另一CDP客户端刷新后，长期会话的执行上下文可能过期",
+      "details": "layout-exclusive子进程真实刷新并完成资金/表单恢复，父队列随后旧CDP读回Execution context was destroyed并保守停止；新连接三次独立读取证明资金基线一致。队列现每次观察重新连接指定Desktop CDP，仅对context destroyed/指定context id失效最多重连一次；资金不一致等真实断言绝不重试掩盖。原始失败批次保留。",
+      "confidence": 1
+    },
+    {
+      "id": "K-316",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "条件单限价执行价占位文案必须按正式手动用例与当前翻译核对",
+      "details": "D08-16修复首击额外断言后，实机到达字段检查，实际输入执行价格而脚本期望输入价格。正式手动行已明确输入执行价格；源码PriceInput使用perps_input_price_place_holder，已改正期望并保留原失败待新实机复验，不放宽为模糊匹配。",
+      "confidence": 1
+    },
+    {
+      "id": "K-317",
+      "category": "assertion",
+      "platform": "all",
+      "pattern": "碎币跨账户竞态夹具必须覆盖相反初始状态和两向写入",
+      "details": "原隔离夹具A/B初始optOut均true，未满足手动要求。现遍历A初值true/false和迟到成功/失败，B初值与A相反，核对A待提交禁用、B可操作、迟到响应无B成功/失败toast、返回A按服务端结果、再返B仍原状态且仅一请求。真实组件16项通过；服务端实写仍独立记前置阻塞。VM返回请求对象跨realm原型不同，应逐字段/键名严格核对，不能将deepStrictEqual原型差异判为业务失败。",
+      "confidence": 1
+    },
+    {
+      "id": "K-318",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "全屏控件首次悬停可重建节点，Allotment隐藏不能只断言子元素isVisible",
+      "details": "当前TF首次从分隔条移入全屏控件：真实pointerdown命中旧节点，pointerup命中新同testid节点，click未派发。先hover等待400ms后旧handle实际断连，随后单次真实click三事件均命中，chartExpanded=true。下一失败来自子tab isVisible=true：官方Allotment setVisible(false)将pane.size置0，CSS overflow:hidden仍保留子DOM；现改断言对应信息pane实际height=0与overflow=hidden，并补恢复前截图；最终该断言仍待新实机，不据源码宣称通过。 随后发现项目locator默认filter(visible:true)会过滤零高pane，不能在该集合nth(1)取隐藏pane；增加显式visible:false选项仅用于隐藏态观测，默认不变，待复验。",
+      "confidence": 1
+    },
+    {
+      "id": "K-319",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "分享PNG需独立识别实际图片文字，状态或hash不同不能证明文字正确",
+      "details": "当前TF真实预览4次roe/pnl切换及两个实际下载PNG，使用本机macOS Vision读取图片像素，再独立十进制oracle核对币名/方向杠杆/收益正负/美元截断精度/百分比半入精度/开仓与标记价格及标签，D21-22通过；边界正负微额、错模式/丢负号/错币错价/缺标签/裁剪/面板按钮混入负例通过。D21-20/32仍缺背景、图标或其他整行条款，不借OCR通过升级整行。复制链接本次失败，单列保留，不影响独立图片结果。 复制事件诊断只有trusted down/up无click；新增先悬停400ms实际发现首个旧handle断连，其余未替换，随后四次复制剪贴板=QR、反馈及无下载全部实机通过，分享三组通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-320",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "TradingView嵌入页网络错误时executeJavaScript可能不返回，读取也要有界",
+      "details": "新增周期组首次卡在未做任何偏好修改前的resolution只读调用。主文档和账户行情仍正常，原生AX明确TradingView区域网络错误；两个独立只读调用4秒均未返回。中止挂起Node测试进程后重新连接确认资金基线一致；原批标fatalRestore保留，单独记录未动偏好/资金未变的恢复证据。新读取先识别实际网络错误并记录前置阻塞，使用5秒Promise超时，不将无返回默认为已加载。 后续原生AX网络错误已消失；按完整TF路径Raise后同一只读API立即返回12个canvas、resolution=15，周期组进入实际菜单。应补原生窗口置前前置，document.hasFocus=true本身不充分；不能把curl的403响应直接当TF WebView403证据。",
+      "confidence": 1
+    },
+    {
+      "id": "K-321",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "全屏退出需比真实面板高度，持久化chartHeight未变不足以判恢复",
+      "details": "修复真实单击与零高裁剪断言后，D16-139已连续两轮到达真实退出：dragTo先核对chartHeight=440和实际图表440；退出实际583/485px，而committed chartHeight仍440。D16-140在全屏真正刷新后恢复440通过。保留尺寸失败与恢复前PNG/布局state；不把atom相等或刷新后正确当立即退出恢复通过，也不改产品代码。当前源码useLayoutEffect仅依赖chartSplitSizes，chartExpanded切换未触发尺寸重应用，为待进一步定位线索，不据此认定引入版本。",
+      "confidence": 1
+    },
+    {
+      "id": "K-322",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "周期编辑勾选SVG的组件名不带Outline，小时选项值与TV resolution不同",
+      "details": "当前TF编辑DOM实际svg data-sentry-component=SvgCheckmark1Small（文件路径outline/Checkmark1Small.tsx），并非SvgCheckmark1SmallOutline；只读找错图标导致初始全未选，错误恢复草稿在确认前被严格断言拦住，关闭重开独立核对15分/1日/1周/1月持久化未变。实际选项testid值1H/4H，不能拿图表resolution 60/240去定位选项；读取UI原始值并单独按小时换算图表分钟resolution。未改变偏好时不打开编辑重写，先比较完整列表。新脚本仍待对应版本实机。",
+      "confidence": 1
+    },
+    {
+      "id": "K-323",
+      "category": "timing",
+      "platform": "desktop",
+      "pattern": "选择已激活周期也会异步关闭面板，下次打开须等旧面板消失",
+      "details": "D04-80先选择当前15分后立即重开，旧popover仍可见，下一次1时选项在actionability等待时detached。源码handleIntervalPress无论当前值均调用onClose；实测等待panel hidden后15分→1时标签与实际resolution=60通过。79/86/93同轮断言也通过，94刷新等待独立失败不能连带宣布整组已复验。刷新失败后的偏好已用独立恢复脚本回原15、15/1D/1W/1M并精确读回，资金基线一致。",
+      "confidence": 1
+    },
+    {
+      "id": "K-324",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "原生图Canvas输入可能已转为Heikin Ashi，不能直接当原始OHLC",
+      "details": "D04-191首次独立行情断言80061.19056927352对80182失败，实际原生图保留Heikin Ashi样式。固定chartType.ts将primarySeriesPoints做HA均值及递归开盘价变换；现同时读取实际chartType、source、绘制位图并按独立公开原始历史重算。HA递归必须从实际画布第一根开始请求，不能只取末尾22根混用初值。原生绘制不由工具栏存在替代；新oracle负例及已知均价夹具已通过，UI待对应版本复验。 2026-10-29复验补充：native-current-final实际刷新前后八根已收盘HA均与同起点独立换算结果一致，当前版本通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-325",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "有界图表读取异常不等于整个就绪等待已重试；真实刷新缺控件需保留恢复失败",
+      "details": "resolution单次5秒超时被pollForm直接抛出，原30秒就绪轮询未捕获该异常；增加仅已知加载中异常的有界重试并激活当前CDP页后，周期79/80/86/93当前文件独立组通过。94真正shell刷新仍在45秒内未出现控件，延长等待/激活目标均未证明解决，保留failed/fatalRestore，不能继续用未验证的等待宣称修复；独立恢复脚本已回原15及15/1D/1W/1M并核对资金。嵌入页就绪/原生窗口前台原因仍待采集，不将curl403或一次Raise关联当根因。",
+      "confidence": 1
+    },
+    {
+      "id": "K-326",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "异步返回Locator的helper需await且提供标签，避免未处理rejection绕过恢复",
+      "details": "新增图表限价脚本将priceInput(page,label)误当同步Locator并遗漏label，typeInput收到Promise；内部getByText(undefined)产生未处理rejection，Node提前退出，没有逐行结果。操作停在切换原生图和限价模式，尚未写任何输入；已按保存的外部表单/资金baseline独立恢复。修正为typeInput(await priceInput(page,\"价格\"),...)，真实复验前不计通过；语法检查不能检出这一调用契约问题。 修正后chart-order-menu-third两组通过，四行限价预览与多仓上下价位TP/SL预填均完成独立财务和表单恢复读回。",
+      "confidence": 1
+    },
+    {
+      "id": "K-327",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "共用弹窗组件不能替代手动用例明确指定的图表引擎入口",
+      "details": "D12手动§1–4明确要求TradingView路径，§5单独覆盖Native。原生菜单限价弹窗四行虽实机通过且共用LimitOrderForm，也不能计TradingView整行已覆盖。台账将44/47/53/56降为部分实现并注明入口缺口；保留真实Native通过证据，后续必须通过TradingView实际菜单补齐，不用组件同源推定入口正确。 续验补充：已通过真实TradingView webview右键、读取可见菜单并发送真实鼠标点击，chart-order-tradingview-fourth及generalized-fifth两组均通过，四行入口缺口已解除；历史降级记录保留。",
+      "confidence": 1
+    },
+    {
+      "id": "K-328",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "原生绘图属性浮层覆盖Canvas顶部，实际绘图点应避开其矩形",
+      "details": "D04-193首轮在Canvas相对y=50点击被chart-drawing-properties拦截。日志显示drawing-count仍4、tool=trend，失败前截图显示属性栏在顶部，未新增图形；finally取消工具并核对原图形和财务。新脚本读取真实属性栏bottom，使用其下方40px及再下60px两点，仍通过正常locator.click，不force穿透。待实机验证独立stroke像素与新增/删除。 native-drawing-unoccluded-second复验通过：实际线段10个取样点至少8个命中新增线色且比绘制前多至少5个，画布真实两点趋势线增删，原4图全部几何与样式一致，财务/表单/光标和引擎恢复通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-329",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "逐字输入边界也不能用Electron全局Meta+A清空",
+      "details": "静态复审在新增分段笔数101用例发现ControlOrMeta+A，违背项目已规定的输入框select()+Backspace策略；即使先前通过也有Electron快捷键被全局处理的风险。已仅把该步改为真实输入框select/Backspace，仍逐字输入101并断言拒绝第三位，已在advanced-selection-final-2026-10-29T12-06-10-132Z实机复验通过，101→10及999粘贴、小数/负号/字母/空格/Emoji均严格核对。规则已在CLAUDE.md弹窗/Modal交互规则，无需另加规范。",
+      "confidence": 1
+    },
+    {
+      "id": "K-330",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "手动行映射新增后先执行完整collector校验，再计算覆盖率",
+      "details": "新增止盈预览把D12-84/85/86误写为83/84/85；实际界面断言执行过，但83不是手动数据行，导致后两项错位。逐项核对源文档和原始行指纹确认原因；collector实跑已严格拒绝D12-83。已纠正三个行号，历史原始结果保留且旧执行指纹不匹配，修正版本复验前不计实机完整通过。不能把一次UI通过等同映射正确。",
+      "confidence": 1
+    },
+    {
+      "id": "K-331",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "覆盖率版本核对必须包含执行manifest记录的共用运行时依赖",
+      "details": "原build-reviewed-ledger只核对主断言文件，同名helper变化不会使旧UI结果失效。离线递归审计证实103个旧完整通过行中83行存在已记录Perps/helper依赖变更。已补递归静态导入核对，并用入口不变但helper变更/缺manifest的反例验证会降为待复验；当前仅20行满足此版本范围。其他业务模块及外部包未记录在历史manifest，必须透明列出，不把当前哈希回填进旧执行证据。旧原始通过保留，不改成产品失败。",
+      "confidence": 1
+    },
+    {
+      "id": "K-332",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "合约与现货委托是独立状态源，不能当作重复快照互相比对",
+      "details": "2026-10-30真实TF存在BTC合约挂单、现货委托为空，旧financialSnapshot把两份openOrders要求相等而误报冲突。官方PerpOrderInfoPanel分别订阅usePerpsActiveOpenOrdersAtom和useSpotActiveOpenOrdersAtom；真实hook元数据及源码确认openOrdersByCoin标识perp、spotActiveOpenOrdersAtom标识spot。现按已识别scope分别核验重复快照，再合并保留marketScope；未知源拒绝猜测。新增回归先复现旧失败，修复后合约非空/现货空、双市场非空通过，同scope冲突及错账户仍拒绝；真实只读快照已成功。本轮未授权、签名、下单或撤单。",
+      "confidence": 1
+    },
+    {
+      "id": "K-333",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "加仓数量、成本和最小金额使用三种舍入规则，独立oracle必须分别处理",
+      "details": "固定源码6fe766b的SizeInput手输按币种精度向下取整；成本NumberSizeableText使用两位小数四舍五入，最小数量按szDecimals向上取整且美元/成本提示向上到分。新BigInt oracle首轮将成本向下取整，0.58/0.59负例暴露错误，改为HALF_UP后独立源码夹具通过。除显示分值，还对真实原始成本按1e-12核对，防止数量不同但显示同一分值漏检。token模式须执行SizeInput手输回调，不能错调用只处理usd/margin的conversion helper。均为离线验证，Desktop对应UI仍待独占后执行。",
+      "confidence": 1
+    },
+    {
+      "id": "K-334",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "追单跳过确认会直接改单，预览必须同步门禁且固定同一DOM元素",
+      "details": "固定源码handleChaseOrderPress在skipOrderConfirm=false仅打开确认框，true直接调用orderService修改委托；离线真实回调夹具已验证两分支。预览脚本要求显式false、交易就绪、当前账户和完整既有委托一致，DOM捕获阶段逐事件重读committed状态，未知/冲突/变化或异常一律阻止冒泡。安装后不能用Locator重新解析再点击，列表重渲染可能换成无门禁元素；现使用同一ElementHandle安装、点击和清理，脱离DOM直接停止。竞态、状态异常及元素替换负例通过；尚未实机执行，不计真实预览通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-335",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "隔离渲染测试应使用真实翻译枚举映射及host树，VM错误类型需同一realm",
+      "details": "ChaseOrderConfirmModal隔离测试中ETranslations.perp_long实际映射perp.long，不能用猜测的属性名找中文；读取固定源码enum和zh_CN验证。ReactTestInstance.children包含函数组件，验证实际字段应遍历toJSON的host树；VM中的Error若与外部mock错误不同realm，源码instanceof Error分支会误走兜底，提供同一Error构造器后验证实际错误提示。追单价格/余量断言使用精确十进制标准化，不用Number把大整数或极小值差异合并。均为测试夹具修正，未归因产品缺陷。",
+      "confidence": 1
+    },
+    {
+      "id": "K-336",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "同一手动行的部分实机通过不能借另一测试新增的完整断言升级",
+      "details": "覆盖脚本原先只检查手动行当前有完整candidate、最新运行passed及依赖指纹，未检查该次rowResult.complete和对应testId。离线反例证明旧部分测试或不同测试ID的passed会被误判整行完整。现还要求运行complete=true且同testId有candidateComplete=true；未知complete保守拒绝。4项统计门禁回归旧版2失败、修复后全通过，保留红绿日志。当前所有完整UI仍待公共helper变更后复验，未把本修复伪装成产品失败。",
+      "confidence": 1
+    },
+    {
+      "id": "K-337",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "复制断言需先设置不同剪贴板值，避免原值恰好相同导致假通过",
+      "details": "链上收款合约复制脚本若只点复制后读回目标值，在用户原剪贴板已是同一合约时无法证明发生复制。新增步骤先保存原文本、写入与目标不同的哨兵并读回，再真实点复制、轮询完整目标地址并独立对照已接受手动参考，finally恢复原文本并读回；恢复失败标fatalRestore。合约地址同时必须与存款地址不同，不能只按0x格式通过。新脚本尚未TF实机；不能把离线源处理函数spy通过记为真实系统剪贴板通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-338",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "隔离host树props可能含ReactElement循环引用，文本扫描只能走实际children",
+      "details": "链上收款最低金额隔离用例第一轮JSON.stringify(tree.toJSON())因Popover.renderContent/renderTrigger props保留ReactElement._owner→Fiber循环失败；堆栈明确指向测试序列化。改为仅递归已渲染host children收集文本，不扫描未渲染props，3项真实源组件用例通过；同时核对实际DashText.tooltip全文和$3→$10切换，不把渲染夹具失败当产品bug。",
+      "confidence": 1
+    },
+    {
+      "id": "K-339",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "memo组件的隔离hook夹具必须显式触发订阅变化，否则账户竞态会假失败",
+      "details": "AddPositionForm用memo包裹，测试仅改外部state.active/positions再tree.update相同props不会重新渲染；真实atom会触发订阅。首次竞态用例未更新production refs导致隔离订单sink被调用。通过给refresh提供新onClose引用触发memo render，先确认新账户/持仓进入实际组件，再检查异步等待后的refs；不要删除账户断言来消除失败。host抛出的Error还需以同一Error构造器注入VM，避免instanceof跨realm落到兜底翻译。24项含正向对照全部通过，无OneKey/CDP/网络连接。",
+      "confidence": 1
+    },
+    {
+      "id": "K-340",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "手动预期完整性必须显式逐项审核，candidate默认complete不证明整行覆盖",
+      "details": "此前collector默认row.complete!==false，再由台账any完整候选升级，无法证明每个预期均有断言。新增逐预期清单和审核门禁：保留原预期文字与手动行/投影指纹，每项明确desktop-ui或source-isolated、完整声明、审查说明、代码锚点及文件指纹；缺任一预期或文件变化需重审，源码隔离不能自动当Desktop交互。旧标记单列暂定，不冒充全量逐预期审核；缺样本独立记录执行前置。9项门禁含缺项、隐式完整、源码冒充UI和代码变化等反例。",
+      "confidence": 1
+    },
+    {
+      "id": "K-341",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "分支样本要在该分支断言成功后计入集合，同方向多样本不能充当多方向",
+      "details": "D13-72追单预览原来循环全部现有委托，但没有检查做多/做空/平多/平空是否齐全；仅跑4笔同方向会遗漏3类。现只在该笔实际预览六字段/颜色/剩余量检查成功后记录方向，结束验证完整方向集合；缺方向抛SampleUnavailable并列具体缺失，不创建真实订单补样本。与D13-71冻结目标提交价未观察的代码缺口拆分。辅助正反例验证四笔同方向仍有缺口，完整集合不受顺序和重复影响。",
+      "confidence": 1
+    },
+    {
+      "id": "K-342",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "多语言断言使用真实翻译枚举、资源和严格ICU，不让键名fallback掩盖缺译",
+      "details": "BBO旧隔离夹具对未知翻译直接返回String(id)，只能证明指定两项，不能证明无未翻译键名。新增Desktop多语言测试加载固定源码enum、zh_CN/en_US与真实createIntl，onError直接抛出；同实例zh→en→zh精确核对四选项、5档、标题及当前值。SizeInput三单位同时校验Min附件、Toast标题与Fill Minimum Amount按钮。首轮失败为测试预期遗漏固定5位/2位精度；对照实际toFixed规则后写独立精确预期0.10000 BTC/$10.00/$1.00，10项通过。仅组件隔离，不等同实际设置页切语言。",
+      "confidence": 1
+    },
+    {
+      "id": "K-343",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "最小金额数值规整比较不能代替显示精度，重触发场景必须实际修改输入",
+      "details": "minimumToastAmount会把10、10.00归一为10，旧UI断言可能接受错误精度。补assertMinimumToastDisplay，用独立固定价格/杠杆算得的标签精确匹配标题，拒绝少/多小数位、错误资产、额外单位和错误金额。D15-100在关闭真实X后轮询活动Toast为0，再实际输入0.001触发新的币种提示；不再仅切单位冒充修改输入。辅助正反例3项通过，修改后的UI断言本批尚未实机。D15-86仍缺Electron后台请求观察，不以renderer无请求/委托不变断言整行完整。",
+      "confidence": 1
+    },
+    {
+      "id": "K-344",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "部分覆盖审查也要校验代码指纹，不能仅对完整断言失效重审",
+      "details": "逐预期门禁先过滤complete!=true，会漏掉部分断言文件变化：旧的缺口结论仍显示已逐项审核。新增回归先复现失败，再将引用文件/锚点/指纹验证移到完整性过滤前；完整与部分审查均随代码变化失效，只有显式complete=true可计完整。10项统计门禁回归通过，保留红绿日志；不把此修复混算为产品或实机通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-345",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TWAP当前行与历史行要独立挂载断言，公共计时工具通过不能证明历史列渲染",
+      "details": "真实TwapActiveRow运行时间来自baseInfo.runningTimeText，TwapHistoryRow的Desktop运行时间列来自historyDisplayInfo.totalRuntime；不能将公共getTwapBaseInfo终态冻结测试当作历史行所有计时预期已覆盖。价格列分别挂载两行验证有值→空值→换资产，不复用快照。价格校验先trim可选字段，纯空白相当未设置；超精度变成相等边界及极小值格式化undefined都需实际回调拒绝。中文完整提示应对照固定官方翻译，不能用手动用例摘要冒充逐字UI文案。新46项固定源码/组件检查通过，真实推送、确认弹窗及重连成交量合并另列缺口，未连接OneKey。",
+      "confidence": 1
+    },
+    {
+      "id": "K-346",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TWAP确认与表单估算要独立挂载，并按原预期保留缺行情差异",
+      "details": "固定源码表单useMemo及renderTwapChildOrderSizeRow与OrderConfirmContent分别核对100中间价、5分钟、总数量1/11，均显示≈0.1/1 BTC及完整tooltip。缺行情后表单变-- ETH，确认却移除整行；永续/现货各保留严格占位TODO失败，不把无旧数值等同显示占位。估算5分钟有11个子段，数量2显示0.1818，不能猜测小数精度。",
+      "confidence": 1
+    },
+    {
+      "id": "K-347",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TWAP历史终态不复活不能代替活跃成交量单调性",
+      "details": "隔离执行实际updateTwapStates/updateTwapHistory/loadTwapData及账户范围hook：终态可滤除较早活跃快照，短历史推送保留完整HTTP历史；但活跃1.5成交量再收到0.5快照会直接回退。严格断言标TODO失败，尚未证明真实推送允许该时序，需确认SDK契约与TF表现。缺激活时间的实际Desktop历史列仍显示总时长，独立保留占位差异。",
+      "confidence": 1
+    },
+    {
+      "id": "K-348",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "跨VM对象需只归一序列化边界，不能放宽真实字段断言",
+      "details": "源码隔离夹具的VM对象/数组与宿主不同prototype，deepStrictEqual会对同结构值失败。先确认每字段相同，再仅对可序列化记录做JSON归一后严格比较；保留所有字段与顺序，不改业务期待。控制器应挂实际PriceInput→TradingFormInput、实际进阶Checkbox.onChange与本地订单sink，未知import拒绝；不能仅改夹具状态冒充操作了进阶开关。",
+      "confidence": 1
+    },
+    {
+      "id": "K-349",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TWAP成交数据合并必须继续核对真实子单行及加权均价",
+      "details": "分别挂载实际TwapFillRow，读取固定源码formatTwapDateTime和dateUtils、真实numberFormat，独立核对日期/时分秒/价格/不等量数量。用2笔0.5×100+1×110=160、3笔0.25×90+0.25×110+0.5×110=105核对历史已成交1.5/1及实际加权106.67/105，不以简单平均、估算或固定笔数代替。复制短推送仍不增笔数；换订单ETH及时戳无BTC旧值。日期样本用本地构造08:00:01避免机器时区猜测；未覆盖显式时区分支直接抛出，不安装或拉取额外依赖。",
+      "confidence": 1
+    },
+    {
+      "id": "K-350",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "逐项审核的代码锚点必须实际存在，不能把复合标题缩写展开后直接作锚点",
+      "details": "测试标题D11-205/229可被候选collector展开为205和229，但代码没有字面D11-229，若审查引用用该字面锚点会使部分审核失效。最终manifest门禁要求所有已写审核记录均无失效状态，捕获该问题后改为实际D11-205/229锚点，保留229部分覆盖。候选行号与可定位代码锚点是不同证据，不能删指纹检查绕过失败。",
+      "confidence": 1
+    },
+    {
+      "id": "K-351",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TWAP最小金额要驱动实际快捷回调，独立检查截断后100及确认一致",
+      "details": "用价33、精度2、杠杆7、最低100，零值及3.0305（截断3.03只有99.99）触发实际TWAP校验。实际SizeInput→Toast action.onPress填3.04 BTC/100.32 USD/14.34成本，实际回调token3.04；下一lot3.03不够100，实际确认组件显示3.04 BTC/$100.32。与普通最小金额分支的文案不同，TWAP使用perp.size_least即最小{amount}；隔离validate回调须把onRequestSizeInputFocus定义在VM globals，不是仅传SizeInput props。12项双向/三单位通过，无真实订单。",
+      "confidence": 1
+    },
+    {
+      "id": "K-352",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TWAP分页必须挂实际公共表格并排除固定右列重复",
+      "details": "本轮离线将固定源码PerpTwapList→CommonTableListView→PaginationFooter及Input、OrderInfoSubTabs全部挂载；历史21/40/45条逐页及返回，成交0/1/20/21/45条核对完整ID序列，tid=0有效。表格固定右列会重复渲染同一记录，核对逻辑行时排除renderMode=right；不能把数组合并测试当实际分页覆盖。Desktop页码/左右按钮均需确认React归属当前TWAP表格和PaginationFooter，避免通用testid命中其他组件。",
+      "confidence": 1
+    },
+    {
+      "id": "K-353",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "隔离真实组件须补本地atom通知，不能把旧画面误判产品缺陷",
+      "details": "只读状态stub不会像Jotai一样自动通知React；挂主页签计数后发现列表自身更新而主计数仍旧。新夹具对active/orders/history/fills加本地通知adapter并用useSyncExternalStore触发Screen，只替换容器不替换业务逻辑；外部状态写入/延迟响应resolve在act内进行，关闭时恢复属性。真实历史行等待/活跃事件的已成交列为--；英文状态大小写和TWAP Orders标题按固定翻译资源核对，不猜文案。",
+      "confidence": 1
+    },
+    {
+      "id": "K-354",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TWAP跨账户保留失效页码的严格断言应保留TODO",
+      "details": "固定源码6fe766b中A历史45条在第3页，切B历史21条后currentListPage仍3，实际逻辑行0条；PerpTwapList仅activeTab变化时归1，没有账户变化归1或公共表格越界修正。严格断言已执行失败并标TODO，不计通过；需要TF复验，尚不能认定本次新引入。不修改产品或放宽手动预期。",
+      "confidence": 1
+    },
+    {
+      "id": "K-355",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TWAP成交列净盈亏与方向措辞分别核对，不从列名猜公式",
+      "details": "本轮挂实际12/11/8列核对每列值。固定源码USDC closedPnl=2、fee=0.05显示$1.95，负值-2减0.1显示-$2.10；非USDC手续费0.01 BTC保留单位且不从美元closedPnl扣除。实际Open Long/Open Short使用perp_long/perp_short资源为做多/做空，规则§6.5仍写开多/开空，该文案对齐点单列待确认，不冒称本次新引入bug，也未改手动原预期。",
+      "confidence": 1
+    },
+    {
+      "id": "K-356",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "报告全文搜索用例ID可能同时命中引用行，回归需核对目标行标题",
+      "details": "覆盖报告搜索是JSON全文匹配，D11-206会同时命中引用D11-206/231的另一行，不能假定搜索后只有1行。Report UI回归先按相同全文规则核对命中总数，再用article h3的精确ID锚定唯一目标，逐项检查预期表格/TODO/源码隔离状态；不为通过测试改变报告搜索行为，也不让引用行替目标行满足断言。",
+      "confidence": 1
+    },
+    {
+      "id": "K-357",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "BBO边界样本先匹配szDecimals的有效价格网格，再判产品计算",
+      "details": "2026-10-31离线BBO首轮23/24通过，低价0.001/0.00101与szDecimals=4组合不合法（永续价格最多6-4=2位）；独立网格oracle在进入计算对账前拒绝。改为szDecimals=0的合法样本后24/24通过，不能放宽oracle或把非法fixture当产品bug。",
+      "confidence": 1
+    },
+    {
+      "id": "K-358",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "BBO跨模式保留行为逐方向读回，禁止切换后重选掩盖真实状态",
+      "details": "固定源码6fe766b实际actions隔离运行确认：changeActiveSpotAsset显式重置type=market及bboPriceMode=null；changeActiveAsset从现货切回永续时保留当前limit/BBO，同模式切币也保留。D01-106手动预期允许隔离或保留，测试需在任何chooseMode/enable/select之前读回实际状态，再分别用目标模式独立盘口计算。规则§1.1.1笼统双向清空与该分支不同，单列待对齐，未改写手动预期。",
+      "confidence": 1
+    },
+    {
+      "id": "K-359",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "TWAP逐列对账必须包含固定右列、均价千分位、资产别名及实际主题颜色",
+      "details": "2026-10-31新增实际Desktop行28项中英文隔离检查确认：历史均价需要千分位，本地UBTC/USDC需显示BTC/USDC，基础币手续费也需显示别名且不能从USDC净盈亏中扣除。独立预期首轮遗漏这些格式，修正oracle后28项通过，未放宽为包含文本。Desktop读取left/right两段实际DOM，检查12/11/8列、每列完整文本、原始记录身份；颜色同时检查语义token、主题CSS变量与computed color，单有props.color不算屏幕颜色证明。组件隔离CSS为显式受控边界，不冒充实际CSS或TF通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-360",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Desktop无下单请求断言需先核对业务后台作用域，再校准独立Network事件流",
+      "details": "固定6fe766b实际backgroundApiProxy在Desktop本地初始化，_callBackgroundMethodAsync直接调用本地service；实际appRestart说明非Native单JS上下文。固定package依赖@nktkas/hyperliquid0.33.3，本机安装0.32.2不能作证据；取得0.33.3发布包HTTP源码并保留LICENSE/sha，实际HttpTransport用本地fake fetch隔离运行，确认exchange路径；产品patch未改HTTP。Desktop观察器绑定精确file页面target，先data URL校准Network事件，再执行无效输入并观察，页面重载/崩溃/缺校准均失败；不读取请求body/签名，不把委托ID未变当无请求证明。此作用域仅固定Desktop基线，TF待复验。",
+      "confidence": 1
+    },
+    {
+      "id": "K-361",
+      "category": "locator",
+      "platform": "desktop",
+      "pattern": "系统语言使用实际Preferences入口与Select，必须读原持久化语言并finally恢复",
+      "details": "固定源码MoreActionButton使用more-action-desktop，Preferences组件trackID=wallet-preferences；语言trigger=setting-language，不能复用旧脚本首行索引或global.setting。实际LanguageListItem→useLanguageSelector→setLocale→restartApp(All)触发Desktop reload。脚本读committed Select及Jotai设置hook的locale并仅导出locale；legacy en-US会显示en但不可选en-US，不能默默改成en后称恢复，非可恢复中英基线先跳过。每次切换验证performance.timeOrigin变更、重新打开设置读回，最终恢复原语言并独立读回；TF尚未执行。",
+      "confidence": 1
+    },
+    {
+      "id": "K-362",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "签名推荐码使用实际Footer与服务判断，文案标点差异不能静默放宽",
+      "details": "MessageConfirmActions真实Checkbox的host父级之间还有函数组件wrapper，测试须找到最近实际Stack/FooterActions而不是假设parent.type为字符串。固定6fe766b英文资源使用OneKey’s，原手动文案为OneKey's；分别保留当前资源正向断言和原文严格TODO，不修改原行指纹或冒称完整覆盖。原ApproveAgent拒绝不记snooze，后续推荐签名拒绝才记两周，隔离夹具通过实际Footer→hook→eligibility/snooze service验证，所有签名/网络均本地sink。",
+      "confidence": 1
+    },
+    {
+      "id": "K-363",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "隔离夹具必须加载真实枚举，空对象会使实际业务分支失真",
+      "details": "固定源码ServiceHyperliquid授权检查依赖EHyperLiquidAbstractionMode。原perpsUtils夹具传空枚举会将不同状态都解析为undefined，实际abstraction检查因此失真；现加载固定源码真实enum并加入actual EnableTrading八项链路检查。不得用空enum默认值替代真实业务分支。",
+      "confidence": 1
+    },
+    {
+      "id": "K-364",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "最小金额使用实际最小lot，重复命名callback需按组件作用域提取",
+      "details": "固定价格33333、szDecimals5、20倍成本的实际最小token为0.00031，名义10.33323，建议成本0.52；独立预期不能套用10/20而写0.50。SideButton包含多个同名buttonText/buttonDisabled callback，AST必须限定SideButtonInternal且唯一命中，避免取到空数量分支产生假阳性。",
+      "confidence": 1
+    },
+    {
+      "id": "K-365",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "投资组合隔离测试区分实际UI颜色token、金额单位和图表边界",
+      "details": "实际getPerpsValueColor返回$green11/$red11/$text，非$textSuccess/$textCritical；实际保证金显示美元金额，仪表percentage才是账户占比。统计标题按真实locale资源精确比较，例如总交易次数、Total P&L。Chart host props及虚拟onLayout只证明配置/边界计算，不替代实际画布、TF视觉和风险色验证。",
+      "confidence": 1
+    },
+    {
+      "id": "K-366",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "固定源码审查不得以当前工作树片段补齐夹具依赖",
+      "details": "app-monorepo工作树可在审查期间继续变更；本次FavoriteButton工作树与固定6fe766b分支不同，固定源码仍包含isExtensionUi门禁。所有实际代码片段和依赖必须通过readSource/git show同一SHA取得；遗漏platformEnv或SPOT_TOKEN_DISPLAY_MAP时先收集ReferenceError和固定源码依赖证据再修正夹具，不能改变产品逻辑。",
+      "confidence": 1
+    },
+    {
+      "id": "K-367",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "资金费查询生命周期与缓存必须执行实际Hook及真实缓存实现",
+      "details": "单独mock query结果不能证明非活跃不请求/小时刷新。现组合actual usePromiseResult+usePerpUserFundingHistory，使用虚拟时钟验证3599999/3600000毫秒、手动刷新重置、卸载取消、迟到A隔离及同账户失败保留。ServiceHyperliquid使用实际cacheUtils+memoizee验证299999/300000ms、in-flight合并和force；不以配置常量存在代替真实缓存到期执行。",
+      "confidence": 1
+    },
+    {
+      "id": "K-368",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "搜索别名预期按查询词字符类型选择前缀/包含，长列表先滚动露出目标",
+      "details": "固定源码findTokensByAlias对1~2位ASCII字母数字查询使用alias.startsWith(query)，其他查询（含单个中文/标点）使用includes；不能按alias长度判断。Desktop独立搜索oracle曾误用alias长度，已增加短英文/数字、长英文、中日文和标点反例回归。混合搜索collectSearchRows遍历虚拟列表后点击收藏前，必须revealSearchMarket露出原搜索中的精确coin/name；不能把搜索词改为目标币后仍声称覆盖混合搜索。",
+      "confidence": 1
+    },
+    {
+      "id": "K-369",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "键盘IME用例要排除无关门禁造成的假阳性",
+      "details": "实际picker方向键会先检查修饰键；IME导航若同时设置metaKey，会被修饰键guard提前拦截，不能证明IME分支。IME导航单独不带修饰键，收藏快捷键才加meta，并分别测试isComposing/keyCode229/which229。局部实际callback与JSDOM只证明逻辑，不等于完整SearchBar Enter、焦点或真实视口覆盖。",
+      "confidence": 1
+    },
+    {
+      "id": "K-370",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "投资组合周期对账要读取原始账户历史而不是复用图表props",
+      "details": "Desktop oracle仅允许实际PerpPortfolioContentComponent的原始portfolio历史tuple，拒绝仅含已计算chart.data的对象与多个冲突原始响应；按原始时间毫秒独立投影秒，校验全部点/顺序/值，保留完整周期身份。只比最后一点或控件选中不能证明历史切换完整，空原始数据需列样本前置。",
+      "confidence": 1
+    },
+    {
+      "id": "K-371",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "资金提交回调隔离验证不等于输入和资金闭环已通过",
+      "details": "DepositWithdrawContent的实际校验/handleMaxPress/handleConfirm可用本地签名、转账、withdraw记录sink验证参数、旧quote阻断、取消/失败无伪历史及finally释放。必须保留完整modal和真实广播到账缺口；原输入负号清理为正数仍是独立差异，不能以直接调用负值校验被拒绝就升级该整行。VM对象先只序列化JSON边界再deepEqual，实际中文提示为输入代币数量/最低提现金额，不凭近义词编造精确预期。",
+      "confidence": 1
+    },
+    {
+      "id": "K-372",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "CCTP目标域与签名链ID分开，空态夹具和富文本要完整取值",
+      "details": "实际sendToEvmWithData.destinationChainId采用CCTP domain 0/1/2/3/6，SDK签名域才是EVM signatureChainId；不能用EVM链ID替代CCTP目标domain。实际withdraw在配置刷新后核对reviewed route/fee，所有异步准备结束再查legacy开关。隔离测试中空fills仍可能有非空portfolio history/vlm；只有无历史前置才能断言所有统计空态。含绿色全部子节点的说明必须递归拼完整文本，仅读直接文本children会漏掉嵌套链接而产生假失败。",
+      "confidence": 1
+    },
+    {
+      "id": "K-373",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "资金报价与提现路由要执行实际异步Hook及零延迟初始轮询",
+      "details": "固定6fe766b的usePerpDeposit与useUsdcWithdrawRouting接实际usePromiseResult。初次pollingInterval变更会安排0ms任务，测试应先flush本地0ms队列再检查后续30000ms，不把该次当重复请求bug。逐一验证账户地址/金额/网络旧响应隔离、submitting冻结与签名期间不刷新；六个目标网必须按源码Arb/CCTP/HyperEVM核对，不能猜含Polygon。此处全本地deferred，未证明设备或真实资金到账。",
+      "confidence": 1
+    },
+    {
+      "id": "K-374",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "反手确认市场缺失应保留严格失败预期，不以已有metadata推定行情就绪",
+      "details": "固定ReversePositionContent完整组件在symbolMeta已加载但mid=0或isMarketDataReady=false时，确认仍未禁用且无重试入口；D18-63两项严格TODO与当前行为阳性对照并存。实际TradingGuardWrapper只处理交易授权，不补行情门禁。实际timerUtils须连同getTimeDurationMs默认导出及常量加载，crossAvailable返回BigNumber；不以夹具依赖缺失误报产品。未执行TF或真实反手。",
+      "confidence": 1
+    },
+    {
+      "id": "K-375",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "图表标记与操作回调必须分别验证订阅生命周期和异步作用域",
+      "details": "实际NativeChartMarks先订阅再loadHistory，账户/交易对请求对象切换应立即隐藏旧标记并拒绝迟到响应。反手/清算方向不能按long/short子串归类，翻译枚举必须取真实值。实际ChartLineActions改价成功保留预览10秒等订单流，同ID去重、异步enable后再查账户/原价、不同订单独立pending。真实formatHlPrice现货允许小数位=8-szDecimals，不能凭猜测写预期。所有交易动作仅本地sink，不计真实改单或撤单通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-376",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "SearchBar的IME锁和去抖需与picker回调组合，不用孤立事件替代",
+      "details": "已执行实际SearchBar+真实IME hook+安装use-debounce与picker真实callback，Input渲染/过滤原子仍显式边界。输入raw change立即使旧选项失效，300ms去抖后仍要等filteredQuery一致；compositionend同一轮Enter仍应拦截，0ms解锁后才允许下一次。React act返回thenable，assert.rejects须传async函数完整await，不能直接传act返回对象导致未处理rejection和后续级联假失败。局部链路不等于完整弹层、真实焦点或像素已通过。",
+      "confidence": 1
+    },
+    {
+      "id": "K-377",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "现货持有列表计数不能把未过滤余额数当作可见行数",
+      "details": "固定源码useVisibleSpotHoldingsCount明确独立于hideSmallSpotHoldings，D10-107严格TODO保留原可见数预期，当前行为阳性对照同时记录。SpotBalanceList和BalanceRow实际计算USDC经典/统一账户、mark估值与成本盈亏，合约展示用metadata.tokenId而不是evmContract.address。实际metadata重试500ms退避最多10次；精确文案与金额需读真实中文资源/numberFormat，余额格式会裁尾零，不沿用投资组合固定两位小数假设。",
+      "confidence": 1
+    },
+    {
+      "id": "K-378",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "切账户旧请求finally可能取消新账户加载结束定时器",
+      "details": "固定ServiceHyperliquid.changeActivePerpsAccount：B地址解析迟到且已被C覆盖时，finally仍清除共享hideSelectAccountLoadingTimer，改建旧B定时器；旧定时器因requestId过期立即返回，C加载态保留。严格TODO D10-102要求最终false，阳性对照验证C数据归属无串账但loading=true且时钟无剩余任务；不把数据隔离通过等同于加载状态已恢复。",
+      "confidence": 1
+    },
+    {
+      "id": "K-379",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "账户历史失败态和资金费真实重试链要同挂载验证",
+      "details": "已用actual PerpAccountList/AccountRow/usePerpDepositOrder/loadLedgerUpdatesByRest/clearMatchedDepositOrders组合检查当前owner、REST+WS合并、哈希去重和动态fee。actual catch只记日志，isLoaded=false且无错误/重试状态，D20-79严格TODO保留；本地force可恢复并不证明UI有重试入口。资金费actual content接真实query/usePromiseResult，分别实际点击图表和分布卡重试，三汇总/图/分布同时恢复；仅函数单测不可替代。金额/日期断言显式固定Asia/Shanghai，date-fns-tz未安装且未走显式timeZone路径时使用抛错边界，不冒充真实时区转换已测。",
+      "confidence": 1
+    },
+    {
+      "id": "K-380",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "完整菜单/历史列表隔离要接正式枚举资源与真实回调，刷新后重算价格门槛",
+      "details": "设置菜单与历史列表已组合actual button/popover/menu/updater及toolbar/useTradeHistoryFilters/usePerpTradesHistory/list/row。ETranslations枚举值不总等于成员名，禁止Proxy成员名冒充实际翻译key；中文资源路径为zh_CN.json。实际filter hook返回onMarketOptionsChange而非setMarketOptions。微小负净盈亏显示-< $0.01，不能猜为-$0.01或去掉负号；Desktop无详情行点击回调，不能使用移动详情当Desktop覆盖。实际现货成交行仍只显示base，BASE/QUOTE严格失败保留。持有币种reload后价格可跨$5，应重新读未过滤原数量和价格计算，不用旧价格快照误报；空态和分页样本不足保留未执行分支，不造真实订单。",
+      "confidence": 1
+    },
+    {
+      "id": "K-381",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Desktop轮播/分享隔离须订阅真实atom形状，memo父重渲染不能代替外部store通知",
+      "details": "source fixture用useSyncExternalStore通知memo ticker的atom更新，不仅改plain state+重渲染Root。收藏顺序sequence为{mode,coinName}数组，非字符串；React memo实例type为内层function，从实际button父props读身份。热门现货BASE/QUOTE已知B02继续严格TODO。中文购买/出售、平均成本价格按正式资源核对；DEX图标路径xyzBTC.png无冒号且不能降级裸BTC。ShareContentRenderer旧图片onLoad闭包在data切换后仍可回报旧expectedSources=true，已增加严格TODO候选；尚未证明完整Desktop生成器受影响，不能称TF已复现或新引入。",
+      "confidence": 1
+    },
+    {
+      "id": "K-382",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Desktop分享需沿真实画布入口；TS AST按扩展名解析，严格失败不能放宽为源码现状",
+      "details": "已确认Desktop使用ShareImageGenerator.tsx直接画布与实际QR编码，不使用ShareContentRenderer的图片ready回调；K-381旧回调现象不算Desktop缺陷，已移除该离线测试和候选计数。source.mjs将.ts当TSX会把timeout<T>后的sleepUntil解析吞掉，现按.ts/tsx区分并用实际sleepUntil行为验证。Desktop实际QR编码失败会被局部catch吞掉后继续toDataURL，可能导出白色二维码；超长美元金额线性缩字体可<=0，均保留严格TODO为源码候选，不称TF已复现或新引入。分享邀请码样本须遵守服务端码格式；特殊币名编码和完整分享URL可单独验证，不把任意含空格邀请码当真实契约。真实画布/QR操作命令测试不等于像素PNG截图，OS下载/复制/分享仍单独验证。",
+      "confidence": 1
+    },
+    {
+      "id": "K-383",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "条件单有效价、正式文案和Desktop资金费空态须沿完整宿主验证",
+      "details": "条件市价单最小金额/slider有效价取当前mid/mark，triggerPrice仅激活条件；条件限价取executionPrice。exchange价格格式按源码截断有效位，如123.456789→123.45，不能按四舍五入写oracle。正式中文执行价提示为输入价格、资金费表头为费率，英文为Side/Payment/Rate。PerpFundingHistoryList的emptySubMessage虽然传筛选提示，CommonTableListView的Desktop分支实际只渲染PerpDesktopEmptyState标题+插图，不能只看list props误报Desktop副文案bug。完整form应运行真实tradingFormAtom初始对象及真实updateTradingForm，不把有历史draft时reduce=false当默认值bug；Popover夹具须保留原trigger onPress。actual confirmation先close随后失败onError再close，局部不卸载的host可能计两次，不能推断重复订单。受控order/fill原子到达只证明显示，不证明后端触发/撮合。",
+      "confidence": 1
+    },
+    {
+      "id": "K-384",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Unifold完整tracker须运行真实Promise轮询；初次错误和恢复界面正确不代表无未处理异常",
+      "details": "固定源码6fe766b的UnifoldTrackerContent请求catch设置loadFailed后rethrow，usePromiseResult未启用keepResultIfError/undefinedResultIfError，自动run可产生unhandledRejection。独立子进程复现首次local timeout，同时网络错误空态正确、3秒轮询恢复、后续失败保留旧列表；以严格TODO保存异常候选，不改应用源码，不称TF复现或新引入。React host Token必须渲染cornerBadge才能验证真实状态角标；正式中文空态为暂无存款，英文intro为Transfer Crypto activity。离线本地RPC/时钟/剪贴板替身不证明真实到账、系统复制和浏览器跳转。",
+      "confidence": 1
+    },
+    {
+      "id": "K-385",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "Unifold两分钟计数须区分首屏缓存处理中和挂载后到达，presentation ack允许幂等重调用",
+      "details": "真实UnifoldTransferContent AST切片运行state/ref/effect/memo：终态恰好120000ms仍计数，120001ms排除；处理中无限制，重复executionId只计一次，账户切换清observedAt和timer。挂载时已有处理中记录时，后置recipient reset effect会清掉前置effect刚记录的previous map，使首次终态转换不被观察；旧createdAt样本立即不计数，保留严格TODO候选，完整转入屏实际session时序尚待TF。挂载后异步到达的处理中记录正常。初始recipient清理使ack effect可调用两次，需验证幂等完整链，不能将本地sink调用次数直接当重复toast缺陷。",
+      "confidence": 1
+    },
+    {
+      "id": "K-386",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "数量联动要串真实滑块回调与atom action；只减仓无反向持仓不应猜数量为0",
+      "details": "实际PerpTradingForm滑块handler→updateTradingForm→SizeInput与useTradingCalculationsForSide组合执行。分段只减仓无反向持仓时getReduceOnlyPositionMaxSize返回undefined，100%仍是可下单最大，再由确认守卫阻断，与现有手动用例一致，不能把0写成oracle；反向35场景才上限35。单位转换经真实handleModeChange，数量/美元/成本去尾零，不统一补2位。TWAP现货100USDC/11按精度2截断为9.09，订单值99.99仍低于raw100最低额，不能按显示100四舍五入放行。服务替身如需验证null响应，必须用hasOwn保留null，不能用??默认正常响应导致伪产品失败。",
+      "confidence": 1
+    },
+    {
+      "id": "K-387",
+      "category": "assertion",
+      "platform": "desktop",
+      "pattern": "投资组合空账户不能只点击后等待；只读零余额不等同可存款空账户",
+      "details": "固定源码PerpsHeaderRight DepositButton对零余额且!isDepositDisabled才使用存款入口；isUnifoldDepositAccountDisabled阻止观察账户。旧portfolio脚本用默认空观察地址，却只sleep后返回通过，未证明充值引导。现在精确入口、真实弹层及method chooser/USDC表单、无投资组合chart/title逐项断言；仅配置明确isReadOnly=true时将不适用样本记SKIP，普通空账户错误入口必须失败，不能把所有非存款状态都误归前置。有资产入口另核对唯一正式标题/图表/总交易次数，连续3次要求恰好1个弹层，关闭后0可见dialog。仅离线改脚本，未TF验证。",
+      "confidence": 1
+    },
+    {
+      "id": "K-388",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "分时/分段独立估值与Desktop滑块定位要区分价格来源及实际DOM",
+      "details": "固定6fe766b源码中，TWAP数量与orderValue使用市场标记价，不是effectivePriceBN中间价，也不盲用账户activeAssetData.markPx；分段用区间中点。新Desktop只读投影保留两种原始输入，31项本地正负例检验缺侧、错账户/数量/估值/DOM会失败。PerpTradingForm实际SegmentSlider没有perp-size-slider testID，旧注册项不能套用；改表单内唯一role=slider并核对aria范围/禁用/当前值。轨道左右各8px，标记点击有24px命中区，采用按住拖动再读回百分比。未连接TF，负例通过不等于真实拖动通过。D11-181原文按标记价，而实现分段单位换算用区间参考价，保留部分覆盖及差异说明，不用参考价100样本抹平口径。知识库categoryIndex是逗号分隔字符串，追加前必须按现有schema读取，不能假设为数组。"
+    },
+    {
+      "id": "K-389",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "链上收款复制与明细必须独立取证，范围提示不能替代必填提示",
+      "details": "固定6fe766b实际UnifoldTransferContent的第三方手续费0.25%和最大滑点默认0.25%是不同DetailRow；全弹窗搜0.25%会误过，Desktop改为每个label自己的两行可见DOM，fee逐字核对，缺/错fee负例必须失败。网络最低$3的旧正则允许小数点误吃$3.99，改完整网络名/最低存款整行，$3.99/$30/$3.001负例均拒绝。地址复制先写不同sentinel并读回，再点实际地址并等待等于显示地址，finally恢复并读回，防止原剪贴板已为地址时假通过。实际TWAP空/undefined时长与0/4统一提示分时委托时长需为5-10080分钟；手动要求必填提示，须保留差异，不用宽正则记完整。组合完整TransferContent/sourceSelector/QR/history时必须读取正式locale：英文Selected chain/Track your deposit progress，中文转入加密货币，不能按菜单文案猜页面标题。portfolio入口新增正式标题/chart/统计断言后，旧mock须覆盖缺标题/重复chart等拒绝路径，不能用过时mock失败当产品问题。以上均离线，未TF执行；手动/API规范未改，差异仅回写审计台账。"
+    },
+    {
+      "id": "K-390",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "加仓比例必须断言原始数量；异步任务夹具避免重叠React act",
+      "details": "D13-35旧Desktop滑杆只核对百分比和成本，未直接比较实际token数量；现补s.quantity===独立BigInt比例结果并限定方向最大值。完整AddPositionForm离线夹具多空×限价80/100/120×50/100核对实际slider→本地输出size，成本必须锚定成本DashText所属XStack的唯一NumberSizeableText，不能任意美元字段some匹配。React renderer host与wrapper可能同props，最近parent未必真实XStack，应按host类型向上定位。追单真实resolver/press/handle与actual useChasingOrderTask组合时，pending请求使用begin/finish在独立act范围创建和释放，不重叠两个await长请求的act；否则跨测试act队列可污染后续Probe。AST只提取canChase函数需显式真实BigNumber依赖；VM错误payload在本地事件边界转普通对象，避免原型差异假失败。买追单仅ask有效时另一侧NaN不会被当作相关侧无效，负例应明确测试相关侧ask；不据假设将该行为报bug。以上新链路完全离线，本地order/amend sinks不等于真实下单或Desktop实机。"
+    },
+    {
+      "id": "K-391",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "追单任务释放必须同树核对真实按钮，取消预览需先校准请求观察",
+      "details": "仅测试useChasingOrderTask的Set为空不能证明列表按钮恢复；离线现组合固定6fe766b完整PerpOpenOrdersList/OpenOrdersRow/actual任务hook与真实resolver，同挂载核对oid按钮onPress、cursor和textcolor，在null/空/零/NaN/transport拒绝后精确Toast、零amend与下一次真实row点击重开预览。旧排队回调也必须被ref锁阻断；多个oid互不阻塞；本地amend成功/失败finally均恢复。Desktop取消和×的D13-73现在一个独立校准的Chromium Network观察覆盖打开、两路径关闭、finally快照核对及末尾观察窗口，0exchange与0dialog缺一即失败，不能从订单快照不变推断没发请求。以上仅离线脚本及组件/本地sink验证，未连接OneKey或TF，未执行真实改单。"
+    },
+    {
+      "id": "K-392",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "Unifold入口图标按原始来源目录核对，编号和授权流程使用正式组件链",
+      "details": "网络提示的+N按非空icon URI去重后总数减4，Bitcoin优先，不按代币数或原始chain条数算。Desktop从实际TransferChainHintLogos当前hook只读支持目录，与Token原始URI、真实加载img及独立+N逐项对账，未知/多份目录拒绝。固定源码Toast使用正式locale的充值失败/Deposit fail与联系支持团队 · 参考编号/Contact support · Ref，不按自然语言猜文案；详情复制入口为role=button的XStack，非不存在的IconButton testID。完整terminal container与actual tracker detail共用同笔execution，核对sessionId和executionId不同，缺会话编号时不回退执行编号，ACK重试不重复Toast。AddPositionForm已组合actual TradingGuardWrapper、完整EnableTradingStepsDialog和actual fallback hooks，取消条款、password/status/enable失败均零order，启用成功仍需另点加仓确认才进入local sink；密码/签名/服务和portal都是本地边界，不代表TF或真实授权。remote开关关闭实际直接打开wallet form，原用例中还可点击钱包菜单入口的表述不据此宣称已满足。"
+    },
+    {
+      "id": "K-393",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "Unifold通知不能只检查foreground finalize参数，必须组合后台新鲜状态复查与Toast ACK",
+      "details": "固定6fe766b实际session关闭先handoff pending，actual ServiceUnifoldDeposit finalize/claim/settle/serialized mutate/runTrackingIteration/terminal claims/ACK与actual TerminalDeliveryContainer用同一本地atom、clock、bus组合后，pending关闭后success恰一条存款成功/$3.40，ACK移除pending并写knownIds，下一10秒poll不复活；前台已呈现执行actualack后再关闭全程0后台Toast。追加传输await期间前台settle竞态，最终functional ledger复查抑制旧snapshot候选。不要把仅finalize local sink或已不见订单当作通知去重完整证据；persisted atom本地内存边界不代表磁盘恢复/TF通过。正式成功标题是存款成功，失败标题是充值失败，不能对称猜测。UI/API/手动规范无改动，本批为UI源码隔离证据。"
+    },
+    {
+      "id": "K-394",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "独立镜像断言必须分别初始化前置集合，不能将夹具缺数据当同步缺陷",
+      "details": "D03-131补market mirror精确断言时，全量回归发现favoritesFlowFixture默认market=[]而本case预设perp=[BTC,ETH]。取消BTC仅同步remove BTC，不能自动补出从未在镜像中的ETH。根因是夹具前置数据不一致；仅该case显式预设独立market=[BTC,ETH]并先核对，再断言移除永续BTC后mirror仅ETH、现货BTC/USDC仍在，移除spot也不改mirror。不得删除新断言、弱化为集合非空或报产品bug；其他需要错位镜像的case不改默认。"
+    },
+    {
+      "id": "K-395",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "搜索完整集合与跨分类断言不能只检查阳性项，读取状态先解析committed分支",
+      "details": "Desktop原特殊字符只断言返回行都匹配，无法发现漏项；现用独立原始perp universe和配置别名构造完整集合，允许真正0匹配但拒绝缺原始目录、漏项/重复/额外/错误现货身份。跨分类改枚举当前全部可见分类，BTC/ETH带词切下一分类再返回、完整集合精确核对、清空恢复各自独立基线；BT也逐分类完整对账。若所有分类自然包含BTC/ETH则分类外样本缺失应SKIP。200字符读取必须先committedFiber，再限定BasePerpTokenSelectorContent，不接受旧alternate或无关owner的同值；34/35流程独立pageerror监听，finally移除且保留原监听器。本地负例验证漏项、陈旧分支和pageerror确实失败；未连接TF。手动/API规范不改，本批仅UI断言与审计映射。"
+    },
+    {
+      "id": "K-396",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "搜索分类只有全部固定，热门与新上架来自服务端配置且不能重复追加",
+      "details": "逐源码核对固定6fe766b tokenSelectorTabs.ts发现旧Desktop断言硬编码全部/热门/新上架再追加dynamic config，真实buildPerpTokenSelectorCategoryTabs只有全部固定，热门/新上架也属于serverTabs，配置调整会误报或重复计数。现从独立发布目录保留有效首个tabId、trim名称/ID、排除reserved、按服务端顺序组成全部+dynamic，不凭历史UI猜名称；列表membership按trim后的token集合交集，不重复计数。跨分类测试若仅剩全部明确缺样本SKIP，不能断言>=3分类。actual配置函数覆盖null/empty/hot-new/重命名排序/下架/无效重复reserved，本地membership函数覆盖配置变更/空分类/两种排序/带词不再二次收缩。未操作后台发布或TF；已核对手动用例要求按配置显示，未修改手动或API预期。"
+    },
+    {
+      "id": "K-397",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "观察缓存必须组合真实作用域hook，纯常量AST依赖不隐式模拟default export",
+      "details": "固定6fe766b实际display snapshot getter与usePerpsAccountScopedCacheAddress组合真实委托列表/row：无active交易账户可读缓存但无追单，钱包未ready/选中另一钱包/缓存过期则无旧row，恢复active地址后阳性追单入口出现。提取perpCache常量依赖actual timerUtils.getTimeDurationMs与7个MS常量，直接AST注入纯函数，不加载调度器；缺import和default导出适配引起的本地夹具失败不是产品bug。专用TWAP列表真实买卖两行独立验证无追单，普通GTC阳性对照存在；不将本地cache路径等同完整观察钱包切换或TF通过。"
+    },
+    {
+      "id": "K-398",
+      "category": "process",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "Perps执行按是否最终提交分组，执行时再索取本批目标而非沿用历史账户",
+      "details": "用户2026-11-02要求：不下单组执行时提供观察地址或钱包账户用于数据对比、输入校验；真实订单组到执行时再提供钱包账户。账户授权/杠杆/远端碎币设置与资金操作单独排队。按916原行逐项保留：729观察/42账户设置签名/129订单/16资金；旧114订单标签另有15行实际最终提交或交易竞态，即使预期拒绝或0订单仍归订单队列。分类不改历史802审核分母，不删预期。计划入口只校验行指纹、单队列、明确rowIds及本批目标，输出脱敏且不自动运行候选混合脚本；普通Runner/Dashboard尚不具备全局分组拦截。既有样本不足跳过，禁止自动下单造数据。实施规范见docs/qa/automation/Perps-执行分组与账户前置.md；手动/API业务预期未放宽。"
+    },
+    {
+      "id": "K-399",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "充值完整流程必须跟随实际入口与异步挂载时序",
+      "details": "固定6fe766b实际存款hook设置showTrackerAction=false，不能臆造菜单tracker入口；实际transfer history-card才打开tracker。组合真实session/transfer/tracker/detail后，tracker实际usePromiseResult须在本地clock tick1后读row；activation重试须两次独立5000ms act提交，不能一次10000ms代替中间React effect。旧地址缓存预热后disabled/geoBlocked/sanctioned/unavailable/accountMismatch重新挂载两次始终无QR/地址，sanctioned参考号精确sessionId。菜单与真实转入/记录/详情中英文逐字核对；portal/内存缓存/读接口是本地边界，不能称TF或磁盘恢复。UI自动化证据补充，手动/API业务预期不改。"
+    },
+    {
+      "id": "K-400",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "观察账户权限不能用地址匹配或授权失败代替入口不可用",
+      "details": "新组合真实selectPerpsAccount回调→changeActivePerpsAccount→actual derived status→useEnsureTradingEnabled/action→完整委托列表，watching账户accountNotSupport=true/canTrade=false，但固定6fe766b列表canMutateScopedOrders仅检查地址，仍有可点击追单并打开预览。确认时actual ensure因agent未ready并条款拒绝阻止改单；保留严格入口不可用TODO，不删除断言，不把0amend等同用例完整通过。此为源码候选/用例差异待TF及产品确认，尚无新引入版本证据。钱包选择通知、状态RPC和签名均本地隔离；不修改产品代码、不操作真实订单。"
+    },
+    {
+      "id": "K-401",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "完整表单组合夹具必须深合并部分行情patch并保留真实分类tokens顺序",
+      "details": "组合保证金selector/modal/实际交易表单与calc时，BBO fixture的顶层patch会整对象替换assetData。先传rest后在默认assetData上合并部分patch，防止coin/leverage/maxTradeSzs缺失造成按钮disabled、slider数量0并误报产品bug。真实模式确认action返回不意味着live模式已变；必须actual Service.updateActiveAssetData通过coin/user guard写回后再观察label/env/calc，拒绝和错误coin feed不能改草稿。动态分类默认实际按配置tokens顺序，不能臆断按universe顺序；测试用独立指定顺序核对。手动/API预期不放宽，UI源码隔离边界不计TF。"
+    },
+    {
+      "id": "K-402",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "VM源码对象直接暴露到原生深相等断言会造成同结构不同原型误报",
+      "details": "本轮BBO fixture新增availableToTrade观测对象由VM源码返回，而既有测试before经JSON变成本地Object；deepStrictEqual报Values have same structure but are not reference-equal。定位为跨VM原型而非计算值变化；该对象无新断言消费者，删除多余输出而保留primitive maxTradeSize。既有size/n-only pushes整体稳定断言未弱化；BBO/保证金/观察权限26项定点25通过1严格TODO。测试夹具部分数据patch与额外观测字段必须全量回归，不靠定点通过宣称完毕。UI证据维护，手动/API逻辑未改。"
+    },
+    {
+      "id": "K-403",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "Perps公开配置对账必须携带实际Desktop版本与构建号，不能只复用URL和UA",
+      "details": "2026-11-02 TF 6.7.0(20261102200)首次D05-45/47误报热门/新上架额外分类。独立对照同URL assetTypeVersion=3、同configVersion=5180：仅UA+Locale返回9个动态分类；补X-Onekey-Request-Platform=desktop、Version=6.7.0、Build-Number=20261102200后返回11个，包含hot/newList。App源码Interceptor实际注入这些头，故根因为oracle客户端上下文缺失而非固定分类或产品bug。修复从ONEKEY_BIN的Info.plist读取version/build、核对运行UA并把非敏感请求头写入oracle证据；缺元数据或版本不一致拒绝，不硬编码最新版本，不放宽分类集合断言。6项定点本地检查通过，修复后TF另记结果；首次失败保留。手动/API业务预期不变，其他接口oracle应检查同类版本平台门禁。"
+    },
+    {
+      "id": "K-404",
+      "category": "timing",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "热门分类成员是动态快照，对账前后必须验证服务端与已应用原始配置同窗",
+      "details": "TF分类遍历先独立取配置再完整滚动市场，实机期间热门名单发生变化，出现CASHCAT/HYPE差异；之后raw atom已再次含DOGE/para:COHR，不能以同configVersion推断成员未变。实际BasePerpTokenSelectorContent原始perpTokenSelectorTabsAtom位于约第414个hook，300上限会读不到，需限定committed owner和named raw atom，不读derived列表当oracle。新增每类serverBefore/serverAfter及appliedBefore/appliedAfter精确配置窗；稳定窗内缺项/多项仍严格失败，配置未收敛只有限3次采样并明确SampleUnavailable，不当通过。保存每次raw快照与实际集合；三项本地正反例通过，TF复验另记。禁止改成包含任意热门币即通过；手动/API规则不变。"
+    },
+    {
+      "id": "K-405",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "HIP-3表单就绪必须组合ticker的DEX标签与显示名，还原canonical coin",
+      "details": "TF SOXLUSDC header实际有perp-active-dex-badge=xyz，committed instrument/native都是xyz:SOXL；旧守卫只去掉USDC得SOXL，误报fatalRestore。不是保留spot @1187造成，原逻辑已忽略非当前模式atom。独立snapshot实际表单与原SOXL基线完全相等；新增当前ticker DEX locator并重建映射，ready用xyz:SOXL精确比较form/native，错误DEX、缺badge、错native仍失败，稳定窗包含DEX且失效后重置。4项正反例通过；独立TF恢复读回及Network校准0exchange通过，原整组fatal结果保留，整组需重新跑不能回填通过。手动/API规则不改。"
+    },
+    {
+      "id": "K-406",
+      "category": "timing",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "公开市场目录只缓存成功或进行中的读取，不永久缓存失败Promise",
+      "details": "TF现货搜索第一行的serverConfig fetch失败后，catalogByPage继续持有rejected Promise，后续两个row原样复用首行stack，形成同一基础读失败的级联。新增readCachedCatalog：并发请求共享一次读取，失败立即evict且仅删同一promise，后续步骤可重新读取；成功仍缓存。原失败步骤不会被吞掉，不自动重试或改成通过。正反例并发两次失败只调用一次、后续恢复一次、成功后不再调用通过；辅助249项全通过。缓存修复在本轮UI批次后落地，尚未再次TF复验；既有7行fetch failed保持失败，传输根因未定，不能称7个产品bug。手动/API预期不变。"
+    },
+    {
+      "id": "K-407",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "TWAP现货均价的有效精度先截断取网格，再独立四舍五入显示，不能先舍入再删零",
+      "details": "2026-11-03 TF 6.7.0(20261102200) D11-249首轮误报avgPx 80.240与80.24。只读twapHistory原始记录2222390为executedNtl=199.79738、executedSz=2.49，商80.239911…；PerpTwapList先getValidSpotPriceDecimals从截断网格80.239取3位，再avgPrice.toFixed(3)显示80.240。独立oracle原先先舍入80.240再删零成2位，根因为测试精度选择顺序错误。修复用BigInt先截断选择位数，再保留显示位数舍入，不调用产品formatter、不放宽为数值近似。新增历史实测样本及错误尾零反例，先失败后6项全部通过；TF修复后复验单独记，初始失败保留。只影响UI oracle，手动/API均价和精度业务预期未改；不为补六状态样本创建或终止订单。"
+    },
+    {
+      "id": "K-408",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "历史现货基础币聚合须保留每笔报价币；实际资产列只显示基础币不能判完整通过",
+      "details": "2026-11-03 TF 6.7.0(20261102200) D17-18验证599条既有成交类型/方向/市场交集，D17-19同名io:SNDK与xyz:SNDK隔离通过；D17-20多报价聚合后实际DOM资产列HYPE，独立元数据对应HYPE/USDE，与手动“完整BASE/QUOTE”预期不符。TradesHistoryRow.tsx资产symbol使用spotDisplayMap基础币/回退split(/)[0]，源码可解释现象。按疑似产品展示缺陷报告，不能删报价币断言或把聚合结果正确当整行通过；无修复产品代码，尚无旧TF对照无法认定新引入。三线影响：手动预期保留，API筛选和元数据正确不等于UI展示正确。恢复筛选、交易对、表单及账户持仓委托读回一致，网络观察0exchange；原始result与恢复前截图已存Nov3不可变批次。"
+    },
+    {
+      "id": "K-409",
+      "category": "process",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "持仓图表预览先选择已有仓位市场，不能把当前无持仓币种当成账户缺样本",
+      "details": "Nov3只读批次当前ticker为xyz:SOXL，但用户明确账户已有BTC多仓0.02194。原desktop-tpsl-preview只在当前instrument里找position，会三行误跳过。补selectPreviewPosition：保留当前已有仓位，否则优先既有原生多仓/原生其他仓位，经过真实市场选择和canonical instrument读回；不擦DEX前缀猜市场，无可选样本明确跳过。切币在TradingView初始化前完成；外层row transaction恢复原市场和表单。已选DEX仍按完整coin对应dex的只读clearinghouseState核对，源码ServiceHyperliquid明确{user,dex}。新增当前SOXL→已有BTC、保留ETH空仓、无仓、零仓及不误认xyz:BTC的本地检查，先红后绿2项通过；TF待本批队列执行。手动/API业务预期不变，仅补UI前置，不授权/下单造数据。"
+    },
+    {
+      "id": "K-410",
+      "category": "process",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "共享交易表单的跨币种中间快照不是独立草稿，恢复必须核对入口基线",
+      "details": "Nov3 TF BBO D01-35执行检查后，旧恢复器逆序重放BTC限价70.972快照；BTC szDecimals=5只能一位小数，真实PriceInput拒绝fill，读回仍76794，fatalRestore正确停止队列。源码PerpTradingForm读取单个tradingFormAtom，changeActiveAsset会更新共享price，spot切换清空共享字段；故不同pair:mode快照不代表独立保存草稿。保留原失败和全部中间快照，恢复只重放进入本行前的用户可见基线，并新增全snapshot深等读回；未采集隐藏字段不声称恢复。辅助回归覆盖拒绝外币种中间价格、非空原始草稿、读回开关/价格错误必须失败以及异常传递。独立恢复原SOXL市价/USD/空数量及账户订单持仓通过，校准Network 0exchange；整组BBO另重新执行，不能回填原fatal行。三线影响：UI恢复机制修正，手动/API业务预期不改；隐藏草稿恢复不计完整覆盖。 恢复原交易对后先等待canonical instrument提交；advanced记忆标签和当前模式已正确时不再无条件激活高级页，避免恢复本身额外改共享草稿，最终完整snapshot深等守卫仍保留。"
+    },
+    {
+      "id": "K-411",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "滑杆0%使用空数量按钮，不应要求不存在的最大可开订阅",
+      "details": "Nov3 TF D11-62/78第一步twap/0误报max feed 0!==1。独立只读fiber现场为EmptySizeSideButton，raw无maxTradeSzs；源码TradingButtonGroup按有无数量分EmptySize与Live，空数量分支没有max feed订阅。零百分比独立预期是数量0、估值0、无金额估算，数学上不依赖账户最大可开。将这三个严格断言移到max订阅检查之前；20%至100%仍要求完整账户+coin+杠杆+双向max原始数据，保留精确舍入和DOM估值，不以取消账户校验放宽正百分比。固定fixture删max feed复现先红，修复后本地通过；TF需重跑整组，原始失败保留。手动/API零数量预期不改，不创造授权或订单前置。"
+    },
+    {
+      "id": "K-412",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "React memo的真实组件名可能仅在fiber.elementType上，不能漏掉匿名强平价leaf",
+      "details": "Nov3 TF D01-45金额成本已读到但liquidation leaf为0，不能判断产品缺字段。独立读取当前安装包app.asar构建29639.21f019e71f.chunk.js，SideButtonInternal确实渲染eg=React.memo(匿名arrow)，eg.displayName=EstLiqPriceLeaf；运行组件列表漏名，旧name仅读fiber.type忽略elementType。补elementType.displayName后，新增真实memo结构反例先红后绿，旧账户/方向/mark/精度及缺叶/重复叶反例保留。修复后TF需整组重跑；原始失败和安装包源码证据留存。不修改产品或弱化强平算术预期，手动/API不变。"
+    },
+    {
+      "id": "K-413",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "最大可开原始数据的当前账户字段为accountAddress，兼容别名必须拒绝冲突",
+      "details": "Nov3 TF sizing在20%仍无原始max feed；独立PerpTradingForm hook414读到coin,leverage,maxTradeSzs,availableToTrade,markPx,accountAddress,assetId完整对象，旧projectSizingSide只接受user导致漏读。补accountAddress优先及旧user兼容，两者共存不同即抛错，后续实际coin/账户/杠杆/mark/max双向数量校验不变。真实数据结构固定样本及冲突身份反例先红后绿2项通过；TF待重跑，原失败不改。0%空数量分支另见K-411，不能将正百分比无订阅直接当0%通过。手动/API账户隔离预期不变。"
+    },
+    {
+      "id": "K-414",
+      "category": "locator",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "限价说明文本包含嵌套了解更多，精确整节点文本定位会漏掉已显示tooltip",
+      "details": "Nov3 TF D12-46真实hover截图清楚显示完整限价说明及绿色了解更多。源码OrderTypeInfoContent在同个SizableText内放description、空格、嵌套SizableText了解更多；getByText(description,exact:true)因此超时。改可见description包含定位但随后严格核对直接文本节点等于完整说明、唯一了解更多，并比较主表单与预览弹窗完整innerText；隐藏后仍断言tooltip消失，不点击外链。TF需重跑，旧失败留存；手动/API业务文案未改。"
+    },
+    {
+      "id": "K-415",
+      "category": "timing",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "Escape关闭选择器需先等提交；遮罩detach仅在弹层确实消失后才算成功",
+      "details": "Nov3 TF FAVORITES-007 D03-103空收藏主体、原收藏顺序恢复均通过，restoreSelectorPreferences最后closePairs失败：Escape后立即count仍见旧遮罩，Playwright点击时它被卸载，15秒后超时；fatalRestore正确停止，009未执行。closePairs改为先等Escape关闭500ms，仍打开才点当前scoped遮罩；点击detach只在独立isOpen为false时接受，否则继续抛错，最终hidden守卫不删除。新增异步Escape、不点已消失遮罩、detach但仍打开严格失败2项回归通过。独立TF恢复检查原分类排序、完整收藏顺序、表单和全批账户订单持仓一致，Network已校准0exchange；原fatal不可回填，整组007须重跑。手动/API预期不改。"
+    },
+    {
+      "id": "K-416",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "展示信息对象也含mode/coin/assetId，完整instrument必须含universe",
+      "details": "Nov3 TF D01-106即使补canonical boundary等待仍报1form/2instrument，说明不是等待不足。停止该猜测，独立只读探测切到HYPE/USDC：raw hook40为mode=spot,coin=@107,assetId10107,universe；hook245 root.0是memoized展示对象，含displayName/baseName/rawBaseName/dexLabel等但无universe。旧projectBboFormState按mode/coin/assetId把两者都算instrument。限定完整universe，与已有instrumentProjection标准一致；保留真实coin/模式/资产ID严格身份和多标的拒绝，加入真实display memo反例先红后绿，未按方便身份去重或抹DEX。探测finally原表单/账户持仓委托恢复，校准Network 0exchange；整组BBO008另重跑。三线业务规则均不改。"
+    },
+    {
+      "id": "K-417",
+      "category": "timing",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "启动时欢迎页可先于可见密码框，前置阻塞后需重取锁屏状态",
+      "details": "2026-11-03 单条 TF demo：启动后 unlockWalletIfNeeded 看到欢迎回来/忘记密码但可见密码输入为0，前置立即停止，未点击底层。之后独立 DOM/截图显示欢迎页已消失且钱包首页可见，再重跑前置成功。锁层消失的原因未确认，不推断密码错误或自动解锁，也未修改解锁 helper；后续执行必须依据当下可见密码框/锁层重新判定，存在密码框时仍按既定密码规则提交并确认消失。证据 shared/reports/perps-demo-2026-11-03/launch-lock-state.json、launch-lock.png、preflight.json。仅执行环境知识，手动产品规则和API断言无变更。"
+    },
+    {
+      "id": "K-418",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "交易表单标的正确不代表K线已同步，输入断言与图表身份必须分别记录",
+      "details": "Nov3 13条输入demo全部通过，外层恢复及账户快照一致、校准0exchange；但实际screencast选出的poster帧中页头BTCUSDC永续、图表标题HYPE/USDC。保留 shared/reports/perps-demo-inputs-2026-11-03/chart-observation.json 与poster.jpg原帧。此为已观察的UI标的不一致，不推断成因、持续时间或新增版本；未执行图表同步断言，不能由输入用例通过宣称K线切换通过。此前图表预览已增加canonical chart symbol等待，相关TF专项仍应独立复核，不在本次输入demo里放宽断言或改产品。三线影响：输入用例及手动/API预期不变，额外图表观察单列。"
+    },
+    {
+      "id": "K-419",
+      "category": "recording",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "实机断言通过不代表Demo看得清；固定fps抽帧会丢短暂但真实的界面状态",
+      "details": "用户指出13条输入demo看不到6h/12h/24h/7d点击。逐帧核对PERPS-FORM-006：raw frame02089=6h@65.570591s、02090/02091=12h、02092=24h@65.645305s、02093=168h@65.670603s；原25fps concat未引用02089/02092，解码截图也确无6h/24h。根因是4次原生click/DOM读回在约0.1秒完成，额外25fps抽帧丢状态，且无鼠标可视指示。改为VFR保留全部5326原帧，解码帧数5326并目视核对6/12/24/168，另提供原始间隔40倍慢放，明确非重跑、非补造点击；原视频与结果不改。证据shared/reports/perps-demo-inputs-2026-11-03/twap-frame-audit/evidence.json。未来录制需核对关键状态真实出现在成片；自动化快速执行与面向人的演示可见性分开验收。手动/API/产品预期均未修改。 全四段导出审计补充：原始/初次导出未使用帧分别为限价1857/1372、收藏3207/142、综合6100/14、输入5326/1487；所有修正视频解码帧数与原始清单一一计数一致。原录制everyNthFrame分别1/4/6/3，导出保全不能宣称补回采集前被跳过的渲染或所有点击可见。除TWAP 6/24h外未逐项判定遗漏帧的业务含义。证据shared/reports/Perps-Demo录像抽帧核查-2026-11-03.html/json。"
+    },
+    {
+      "id": "K-420",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "顶部收藏切换必须独立核对价格与图表，并在移开指针后比较无选中样式",
+      "details": "D03-66此前只查currentPair与顶部顺序，无法拒绝页头已ETH但图表仍BTC/HYPE。新增TickerBar原始coin/markPrice与真实DOM价格、TradingView canonical symbol或原生canvas source/points/bitmap的分别核对；实际BTC基线→顶部点击ETH后对比完整顺序、背景/边框/轮廓，先移开hover，忽略无可见边框的currentColor变化及行情文字涨跌颜色。本轮仅离线新增，TF尚未执行，不将辅助反例通过当实机通过。源码6fe766b的价格组件无稳定displayName；改用真实DebugRenderTracker name定位并向上找最近raw quote hook owner。重复owner反例首轮由于第二节点缺quote上下文先被另一项门禁拒绝，已补有效重复节点，严格Unique断言保留并新增匿名生产结构测试；红绿证据shared/reports/perps-offline-scripts-2026-11-03/ticker-fixture-{red,green}.tap。"
+    },
+    {
+      "id": "K-421",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "下单类型切换的清空断言必须从已填草稿开始，同时读回内部字段、数量模式和真实选中样式",
+      "details": "D08-16补市价/限价×manual/slider×四高级类型16组UI草稿编排；先实际输入TP120/SL80、数量0.5或滑块50%，限价实际启用BBO，然后检查committed双侧ref中所有TP/SL字段及BBO被清空，数量/百分比/方向/价格保留，返回市价和限价逐项比较完整投影。只看隐藏输入框不足以证明内部清理。另查三tab唯一实际下划线、文字颜色、下拉唯一勾属于当前文案。正式执行仍由suite finally恢复原可见表单且独立读回；未点击订单按钮，不做授权。新16项固定源回调与守卫联测属于源码隔离，不能替代TF DOM执行；本轮真实TF执行0。"
+    },
+    {
+      "id": "K-422",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "代码用例审查与实机回归独立触发；源码推导先交付提案，逐项确认后才维护用例",
+      "details": "触发场景：对比最新分支与手动用例、补充代码推导场景或按实机行为维护预期。2026-11-03 用户明确两项独立任务：A 审查代码与用例并报告 bug / 差异 / 用例建议；B 按最新已确认用例生成维护脚本，实机执行并单独汇报。A 不自动启动 B。用户进一步纠正：不盲信代码，先列出代码事实、旧预期和具体维护建议，确认后才更新原有或新增用例；即便标【代码推导/待确认】也不先入用例库。确认 bug、提供账户或说继续审查不等于批准改预期。只应用已确认范围，源码、辅助检查与实机结果分别统计。隔离旧流程测试观察到代理把未确认的25个收藏上限写进用例副本，证实旧标签机制不等于应用前确认。新入口 onekey-code-case-review / onekey-ui-regression，规范见 docs/qa/rules/code-review-and-ui-regression.md；该记录细化 K-207，不能扩大历史已确认范围。"
+    },
+    {
+      "id": "K-423",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "两项QA流程提供中文短口令，询问口令用法不等于要求执行",
+      "details": "2026-11-03 用户认为长skill指令复杂，要求简单指令触发。新增“审查 perps”→onekey-code-case-review、“回归 perps”→onekey-ui-regression，并支持替换模块名、忽略大小写。Perps审查默认Desktop/最新x，只交付差异及提案，用户确认后才维护用例；回归默认计划Desktop TF只读输入预览及可恢复本地偏好，首次平台选择、本批目标和副作用授权边界不变。真实交易/远端设置/资金另确认。询问怎么触发、引用示例或修改入口时不实际启动审查或App。目录、镜像、元数据及路由规则已验证，其他客户端自动选择未实测。"
+    },
+    {
+      "id": "K-424",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "现货持有数据和分享必须使用原始余额/成本/行情独立对账，现货PNG不得沿用永续标签断言",
+      "details": "2026-11-03 离线维护：原有分享OCR辅助器固定要求做多/做空+杠杆X、开仓价格/标记价格，不能复用于现货。现货分支应验证买入/卖出、平均成本价格/当前价格，并显式拒绝合约杠杆和多空标签；保留永续原断言，加入正反例。持有列表不得拿派生usdcValue/pnl作预期，需从同一committed owner读取原始balances(total/hold/entryNtl)、原始markPx和市场身份，以独立精确小数计算核对实际DOM单元格。USDC跨账户模式合并需额外独立账户摘要，现阶段保留部分覆盖；缺价、零成本、稳定币、零余额均需现有样本，缺分支不计整条通过。复制验证先写不同哨兵，finally还原并读回剪贴板；过滤及分页还原。现货卡片数据无quantity字段仅为代码线索，原手动用例数量要求不得自行删除。本次辅助279项通过，未连接TF，未形成实机通过证据。"
+    },
+    {
+      "id": "K-425",
+      "category": "process",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "执行计划的运行索引不可依赖可清理的历史报告目录",
+      "details": "2026-11-04 用户授权清理历史报告与证据。发现scripts/plan-perps-desktop.mjs从shared/reports读取台账，直接清理会导致执行计划和execution-profiles辅助检查失效。清理前仅迁移运行必需的916条Desktop手动行身份/指纹、原预期、操作分类与自动化ID到src/tests/shared/perps/data/desktop-execution-cases.json，改为从该测试数据读取；不保留历史执行结果、账户数据、覆盖率证明或报告内辅助脚本。原报告删除后断言审核状态保守标记待复核。清理包含未跟踪及被ignore的报告/媒体文件，保持37个Git已跟踪报告原内容不变。删除后必须重新运行执行计划及相关辅助测试，不能重新生成报告抵消用户清理请求。"
+    },
+    {
+      "id": "K-426",
+      "category": "assertion",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "Perps原生图表整套指标重置后必须显示默认VOL，首次初始化不能代替重置回归",
+      "details": "触发场景：编写或执行Perps原生主图/全页图整套指标重置断言。2026-11-04用户确认“重置之后也需要把默认的vol显示，已提交bug”，编号未提供。x/6175fef8中Perps初始指标atom含active VOL，但整套重置经showTradingViewNativeIndicatorSettingsDialog→createTradingViewNativeIndicatorSettingsValue→通用空指标工厂，不得采用空副图作为需求。测试先手动关闭VOL并核对实际副图消失，再整套重置并确认，独立核对VOL选中及实际副图；补重复重置和返回后不重复、不丢失。单指标参数重置、视图还原、布局重置分开；compact不强加VOL。正式口径见perps-rules.md §13与2026-11-04_Perps-原生图表.md。本轮仅本地需求/规则/用例及审核稿维护，未修产品、未写Jira、未跑TF；其他提案不视为获批。"
+    },
+    {
+      "id": "K-427",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "Perps由Jira补用例时写常规功能，不把原bug现象逐条写成用例；用户已确认的端差异不可继续列疑似缺陷",
+      "details": "2026-11-04用户说明OK-66403是重置时图表闪烁，要求所有相关Jira问题按正常功能场景覆盖，编号/现象留审查证据；不写“重置不闪烁”的专门复现条款。确认移动端也默认原生；TV/原生绘图独立，切换不破坏另一套，不要求迁移；不支持周期回退与Desktop/移动数字输入差异为预期。Q02/Q03确认按K线时间定位、价格在提示，单根最多10个；不得套TV成交价坐标要求。加载阈值由用户授权QA先定义为项目标准v1，须按实际独立计时采样，不是实测成绩。已写perps-rules.md §13、perps-native-chart-performance.md与原生图表32条常规用例，其他17类默认参数仍待审核。未改产品或脚本、未写Jira、未执行TF。"
+    },
+    {
+      "id": "K-428",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "手动用例标准化后核对源文档、结构化数据与真实剪贴板；报告标题锚点不能复用目录计数",
+      "details": "触发场景：生成或整理手动用例及关联HTML报告。2026-11-05原生图表已确认场景整理为36行、7组、36张独立四列表：首次/已有偏好、非法输入/边界、切币/切周期、引擎/全屏分别执行；参数组先恢复有效基线。Markdown、formal_cases、HTML及实际复制粘贴逐单元格比对，元数据留复制区外。关联审核报告的渲染器用len(toc)给所有标题编号，但h1不进入toc，使h1和首个h2同为section-0；链接唯一性断言实测失败2!=1。页标题改用page-title，保留章节锚点及旧链接；重跑后36行复制和16个本地链接通过，另校验所有id唯一。此为文档验证，不等同TF执行、性能通过或新增自动化覆盖；未确认的指标默认数值仍不入库。"
+    },
+    {
+      "id": "K-429",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "原生图表补例先建立功能目录与跨文档覆盖对照，绘图引擎隔离不能替代绘图生命周期",
+      "details": "2026-11-05用户指出原生图表36条缺绘图项。核对后该文档仅有双引擎绘图隔离，旧TV文档§10另有原生绘图权限/概括增删，TV§1–9明确只跑TV，不能当原生工具已覆盖。固定官方x/1f0e9912沿PerpCandles enableDrawings→Canvas DrawingToolbar→共享控制器追踪；AST核验90个工具条目、8组，其中measure为临时测量，不是90个永久对象；预测多空图形也不是下单。新增独立审查报告20个功能域、52条待确认建议，含生命周期/编辑/键盘/锁定/对象树/数据窗口/保存，以及类型/外观/指标/轴/日历/历史/恢复/隔离。画线下单§5原生菜单5条及布局文档已有项单列复用，不算全缺。iOS/Android Perps绘图关闭，compact无完整工具；通用源码中未接入Perps的能力排除。具体新预期和200对象/2000点/50撤销等实现上限先等审核，正式36条及可复制版不变，未改Jira或跑TF。报告：shared/reports/perps-native-chart-gap-review-2026-11-05/。"
+    },
+    {
+      "id": "K-430",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "原生图表确认补例后按独立操作去重拆分，简化描述不减少参数或预期",
+      "details": "2026-11-05用户确认20功能域52条补充建议并要求简化内容。正式原生图表由36维护为91条、净增55条：同义全屏场景合并，文本与坐标、容量与存储失败、真实改单/撤单/拒签失败回滚分别拆分。90工具保留8组逐项参数，测量尺临时显示，移动端不开放绘图；200对象/单对象2000点/50撤销及文字500/名称100边界入库。0和负有限绘图坐标不套下单正价限制，日历反向区间按先后规整。公共前置与性能计时集中说明，各场景保留可观察预期。17指标具体默认数值仍待确认。原始提案与维护前文件保存在gap-review的before-application，changes.json逐行映射；手动补齐不算UI/API覆盖或通过。本批不连TF、不提交交易、不写Jira。内容简化已由qa-rules§7.45/§7.47.4覆盖，无需新增通用规则。"
+    },
+    {
+      "id": "K-431",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "同批报告存在同名changes.json时，维护前快照按来源区分命名并校验结构",
+      "details": "2026-11-05维护原生图表用例，审计备份按basename写入且已存在时跳过，导致两份changes.json只保留了上一轮审核文件。验证通过status及formal_cases发现来源冲突，确认正式用例无影响后将其命名为review-changes.json，添加manifest说明来源和哈希；本轮52条原始提案保留于原始HTML/MD，当前changes.json保留原建议及逐项应用结果，不伪称存在未保存的原始JSON。后续备份应保留相对路径或来源前缀，不以basename作为唯一键。"
+    },
+    {
+      "id": "K-432",
+      "category": "assertion",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "原生图表用例审查区分选择删除、批量清除、布局保存和代理签名路径",
+      "details": "2026-11-05审查91条原生图表用例，x@1f0e991：removeSelected仅删除选中且未锁定对象，clear删除全部未锁定对象，不能共用“未选中对象保留”预期；移动布局外观onChange即时保存且无桌面取消/确认/重置页脚，必须区分布局和返回行为；已授权代理可自动签署改单/撤单，不保证出现用户拒签入口，拒签用例须明确交互签名路径，提交失败另设可控注入。源片段离线验证clear和同key存储串行队列，不以此替代实机。审查仅提出建议，不以代码差异覆盖已确认产品预期，正式用例及Jira未修改。"
+    },
+    {
+      "id": "K-433",
+      "category": "assertion",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "原生图表审查修正使用独立固定数据，代理路径取消启用与订单失败分开",
+      "details": "2026-11-05用户要求全部修改完善，R01–R09由91维护为99条（净增8）：选择删除/清除未锁定分开，Desktop宽屏草稿与移动外观即时保存分开；不虚构代理改单人工拒签窗口，改为未启用时取消启用及提交前受控失败；补齐同key队列与跨key独立保存、对象层级、普通限价/条件单属性和跨模块当前周期隔离。docs/qa/test-data/perps/native-chart-v1保存17指标×普通/短历史/零量独立算术、90工具坐标映射及容差；1470点与固定源交叉验证但不替代UI通过。探针OBV调用曾把参数对象传给数字period导致预热错判，按函数签名传movingAveragePeriod后一致，不按错误调用结果改预期。官方x已到78b0205，origin为fork，核对主干必须直接使用OneKeyHQ地址；相关图表未变。99条MD/JSON/HTML及实际剪贴板和60链接校验通过；Jira目标OK-26451只读核实并登记description映射，未写Jira或操作OneKey；17默认参数仍排除。"
+    },
+    {
+      "id": "K-434",
+      "category": "assertion",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "Jira用例同步逐格校验编号换行，区分富文本包装与正文丢失",
+      "details": "2026-11-05用户授权将99条原生图表用例同步OK-26451 description，写入一次后独立回读原始及renderedFields HTML，99场景/27功能章节/四列全部一致。Jira给单元格添加p、渲染给table添加DIV，整页innerText或body.children直接比较会把布局换行误报为正文差异。验证必须逐格保留非空编号行、逐项核对章节及表外段落；只有删除table后无任何其他文本的容器才可忽略，不能全局压平换行掩盖步骤丢失。确认通过后才登记last_synced_at与源/远端哈希；本次未写Xray结构化Steps，历史本地维护事件的jira_writes=0不追改，另追加本次sync记录。"
+    },
+    {
+      "id": "K-435",
+      "category": "assertion",
+      "platform": "desktop",
+      "confidence": 1,
+      "pattern": "用例锚点按唯一完整行指纹重定位，部分执行不计整组通过",
+      "details": "2026-11-05提交前独立审查复现：TV文档新增顶部说明及用例导致61个旧行号漂移，原始SHA256行内容均唯一不变。plan-perps-desktop仅在原行失配时按同文件唯一完整行哈希重定位并返回当前line；0或多处匹配继续拒绝，绝不更新预期以迎合代码。desktop-row-suite此前忽略complete:false且混合缺样本仍passed，现任一子场景skipped或未完整断言即整组skipped并标partial，失败保持优先；Dashboard保留rowResults、missing与partial，CLI同口径汇总。真实suite的VM离线测试覆盖单行partial、混合缺样本、全通过及失败优先；不代表TF实机已复验。报告与Python缓存按用户授权清理，不写入本批PR。"
+    },
+    {
+      "id": "K-436",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "提交自动化前从Git归档复验，固定二维码样本不能被截图忽略规则过滤",
+      "details": "2026-11-05将Perps拆成独立PR时，工作区285条离线通过，但Git archive后的自动化分支5处失败：3个测试从相邻app-monorepo借用jsdom，2个二维码PNG输入被全局*.png忽略。将jsdom20.0.3登记为本项目开发依赖并直接导入，只豁免两个合成二维码样本路径；报告与运行截图仍不提交。复验必须使用已提交树及本项目依赖，不能把工作区临时文件/邻仓库依赖当作干净拉取可复现的证据。"
+    },
+    {
+      "id": "K-437",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "Node16 TypeScript导入使用输出扩展名，MJS辅助模块以同名d.mts声明保持严格类型检查",
+      "details": "触发场景：CLI或Dashboard编译出现TS5097/TS7016。2026-11-05复现10处.ts导入及extension-cdp.mjs缺声明共11条错误；按项目Node16既有约定将导入写为.js，由tsc/tsx解析对应.ts且编译后Node可解析，未开启allowImportingTsExtensions或关闭strict。MJS旁新增extension-cdp.d.mts，按真实5个导出声明number|null及Playwright Browser/Page等类型，不使用any通配声明。修复后tsc --noEmit、pnpm build、源码及编译后CLI帮助/handler导入检查通过，285条Perps离线测试通过；未调用连接函数，不代表TF实机通过。"
+    },
+    {
+      "id": "K-438",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "JSON.stringify不是脚本上下文转义，图表探针数据须编码后整体传入",
+      "details": "触发场景：TradingView脚本拼接或CodeQL js/bad-code-sanitization。2026-11-05 PR129告警24/25/26均来自waitDrawingSaved把ids、removed及首个ID直接插入含函数的脚本文本。仅JSON.stringify不能防止数据含脚本结束标签时突破HTML脚本边界；现把ids/removed/width整体序列化，对尖括号及U+2028/U+2029编码为Unicode转义，脚本内部解构取值，不过滤或改写原ID。新增真实builder离线测试：旧写法2条反例在jsdom脚本上下文触发注入，修复后保留特殊字符、无额外脚本，另核对缺ID/删除未完成/线宽不符仍拒绝通过；完整288条离线测试及类型检查/构建通过。该反例验证脚本上下文安全，不宣称现有CDP传输已发生HTML利用；远端CodeQL是否消除须查本次SHA的扫描结果，不能以任务绿灯或直接dismiss代替修复。"
+    },
+    {
+      "id": "K-440",
+      "category": "process",
+      "platform": "desktop",
+      "pattern": "Perps 自动化交付必须完善真实脚本；重复执行计划索引不计入覆盖",
+      "details": "2026-11-05 用户纠正：需要完善现有自动化操作与断言，不需要将1.39万行执行计划索引当作成果。排查确认916行JSON只服务离线plan入口，不参与UI操作或断言；本次删除JSON及其专用分类器、命令和辅助测试，仅在真实脚本保留手动来源。旧CLI --plan等额外参数必须在发现/导入测试前拒绝，避免删除分支后误跑整组。BBO D01-20已补实际系统语言切换、重载、四项中英文、顺序、选中标识及实际mode映射；结束独立读回原语言，恢复失败停止。离线正反例校验脚本断言可靠性，不代表TF实机通过；其他complete:false和缺样本保持原状。历史K-425/K-435中计划索引相关说明以本条为准，账户/资金/授权等真实执行边界仍遵循项目文档。",
+      "confidence": 0.99
+    },
+    {
+      "id": "K-441",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "提交精简：执行产物自动排除，实际脚本和必要固定输入保留",
+      "details": "2026-11-05 用户要求仓库仅保留与用例和自动化直接相关的内容，提交时自动排除报告、截图、录像、运行结果与缓存。已写入共享CLAUDE提交规则，并为报告/截图/视频及常见运行产物目录补充gitignore。已跟踪产物不受ignore约束，AI在每次提交前检查暂存区，对新增/修改产物取消暂存但保留本地；用户明确授权的历史产物删除允许提交。固定二维码等实际断言输入、正式用例及可复制版保留；本次仅规范和忽略策略变更，不修改三条QA线的业务预期或执行真机。"
+    },
+    {
+      "id": "K-444",
+      "category": "process",
+      "platform": "all",
+      "pattern": "Perps源码隔离套件已移除，回归直接维护实际UI脚本",
+      "details": "用户要求精简 PR #129，并明确可以删除扩展的源码隔离测试与样本。核对外部消费者后，移除153个 isolated 文件、独立源码运行入口及两份历史结果说明；这些均为本PR新增，不影响实际UI脚本导入。保留实际操作、断言、定位器以及它们必要的辅助测试和合成二维码输入。此前知识条目提到的 isolated 路径、源码运行命令和隔离通过数字仅为历史记录，不再是可执行入口，也不计Desktop覆盖或实机通过。新增场景直接完善目标平台脚本；本次不改变手动用例/API业务预期，不连接设备或执行交易。",
+      "confidence": 1
+    },
+    {
       "id": "K-439",
       "category": "process",
       "platform": "all",
@@ -1730,6 +3609,14 @@
       "confidence": 1,
       "pattern": "Jira用例映射并发追加按完整记录合并，不能择一丢弃另一分支",
       "details": "2026-11-05 PR130与main的PR127均在mappings末尾追加不同Test，导致jira-test-mapping.json文本冲突而检查未失败。合并时按file/issue_key核对唯一性，保留OK-26451原生图表99条与OK-23878设置偏好23条的全部元数据、同步时间及原SHA，不重新写Jira或伪造同步时间；校验两边其余映射与顶层字段无丢失、两份源文件哈希和条数匹配后提交。只处理Git冲突，不修改用例预期或增加报告、截图、缓存。"
+    },
+    {
+      "id": "K-445",
+      "category": "process",
+      "platform": "all",
+      "pattern": "知识JSON并发追加按ID三方合并，保留单边修订和双方新增",
+      "details": "处理PR #129与main的知识库冲突时，以共同基线逐ID合并：保留自动化分支的K-027补充及全部新增，同时保留main的K-439/K-442和分类索引。相同ID只有一边改动时保留修订，两边不同改动需人工核实，不能整文件择一覆盖。合并不恢复已删除的源码隔离套件，不改变用例或脚本业务预期；提交前验证唯一ID、双方新增及索引，并运行相关辅助测试。",
+      "confidence": 1
     }
   ]
 }

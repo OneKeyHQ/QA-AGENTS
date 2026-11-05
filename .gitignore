@@ -33,10 +33,16 @@ superpowers-meta/
 superpowers/
 # 测试执行产物（截图、结果 JSON）
 shared/results/
+shared/reports/
+docs/skills/smoke-test/reports/
+screenshots/
+videos/
+test-results/
+playwright-report/
+coverage/
 /tmp/chrome-*
 docs/superpowers/
 shared/recordings/
-shared/results/
 # 每个 tester 本地的钱包账户配置（含个人地址，不入库）
 shared/runtime-config.json
 # Playwright MCP 调试时生成的截图/快照，不入库
@@ -48,3 +54,14 @@ simulators/pro2-sim/build/
 simulators/pro2-sim/out/
 # 模拟器资产图片豁免（上面全局 *.png 忽略规则的例外）
 !simulators/pro2-sim/**/*.png
+
+# Perps per-batch target configuration (separate from Transfer runtime config)
+shared/perps-execution-request.local.json
+
+# Python bytecode caches
+__pycache__/
+*.py[cod]
+
+# Synthetic QR fixtures are test inputs, not execution screenshots
+!src/tests/shared/perps/tests/fixtures/qr-dotted.png
+!src/tests/shared/perps/tests/fixtures/qr-share-small.png

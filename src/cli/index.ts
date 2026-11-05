@@ -181,7 +181,7 @@ program
   .argument('<ids...>', 'Test case IDs (e.g. SEARCH-001 SEARCH-002)')
   .option('--json', 'Output JSON to stdout (default: true)', true)
   .action(async (ids: string[], options: { json: boolean }) => {
-    const { runCases } = await import('./run-handler.ts');
+    const { runCases } = await import('./run-handler.js');
     const result = await runCases(ids, options.json);
     if (options.json) {
       process.stdout.write(JSON.stringify(result, null, 2) + '\n');
@@ -205,7 +205,7 @@ program
   .argument('<filter>', 'Filter: platform (desktop), category (perps), or path prefix (desktop/perps)')
   .option('--json', 'Output JSON to stdout (default: true)', true)
   .action(async (filter: string, options: { json: boolean }) => {
-    const { resolveIds, runCases } = await import('./run-handler.ts');
+    const { resolveIds, runCases } = await import('./run-handler.js');
     let ids: string[];
     try {
       ids = await resolveIds(filter);
@@ -246,7 +246,7 @@ program
   .option('--ids <ids>', 'Comma-separated test case IDs to check preconditions for')
   .option('--json', 'Output JSON to stdout (default: true)', true)
   .action(async (options: { ids?: string; json: boolean }) => {
-    const { runPreflight } = await import('./preflight-handler.ts');
+    const { runPreflight } = await import('./preflight-handler.js');
     const caseIds = options.ids ? options.ids.split(',').map(s => s.trim()) : [];
     const result = await runPreflight(caseIds, options.json);
     if (options.json) {
@@ -276,7 +276,7 @@ program
   .action(async (options: { verbose: boolean; json: boolean }) => {
     if (options.json) {
       // Return executor state as JSON
-      const { getState } = await import('../dashboard/test-executor.ts');
+      const { getState } = await import('../dashboard/test-executor.js');
       const state = getState();
       process.stdout.write(JSON.stringify(state, null, 2) + '\n');
       return;
@@ -357,7 +357,7 @@ program
   .option('--last <n>', 'Show only last N results', parseInt)
   .option('--json', 'Output JSON to stdout (default: true)', true)
   .action(async (options: { id?: string; last?: number; json: boolean }) => {
-    const { queryResults } = await import('./result-handler.ts');
+    const { queryResults } = await import('./result-handler.js');
     const result = queryResults({ id: options.id, last: options.last });
     if (options.json) {
       process.stdout.write(JSON.stringify(result, null, 2) + '\n');
@@ -380,7 +380,7 @@ program
   .option('--last <n>', 'Show only last N reports', parseInt)
   .option('--json', 'Output JSON to stdout (default: true)', true)
   .action(async (options: { last?: number; json: boolean }) => {
-    const { queryReports } = await import('./report-handler.ts');
+    const { queryReports } = await import('./report-handler.js');
     const result = queryReports(options.last);
     if (options.json) {
       process.stdout.write(JSON.stringify(result, null, 2) + '\n');
