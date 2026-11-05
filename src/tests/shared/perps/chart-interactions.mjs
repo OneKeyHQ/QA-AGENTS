@@ -115,7 +115,21 @@ export function chartInteractions(tvEval) {
     return wait(page,`return chart.getAllShapes().find(s=>s.name===${JSON.stringify(shape)}&&!${JSON.stringify(before)}.includes(s.id))?.id;`);
   }
   async function waitDrawingSaved(page,ids,{removed=[],width}={}) {
-    return wait(page,`const symbol=chart.symbol().replace(/[^a-zA-Z0-9-_]/g,'_').toLowerCase().substring(0,50);const stored=JSON.parse(doc.defaultView.localStorage.getItem('tradingview_drawings_perps_'+symbol)||'null');const entries=new Map(stored?.sources||[]);const hasWidth=(v)=>v&&typeof v==='object'&&(v.linewidth===${width??-1}||Object.values(v).some(hasWidth));return ${JSON.stringify(ids)}.every(id=>entries.get(id)!=null)&&${JSON.stringify(removed)}.every(id=>!entries.get(id))&&(${width===undefined?'true':`hasWidth(entries.get(${JSON.stringify(ids[0])}))`})&&{timestamp:stored?.timestamp,savedIds:[...entries].filter(([,v])=>v!=null).map(([id])=>id)};`,20000);
+    // JSON quoting alone does not protect a script context from </script> or
+    // line separators. Keep IDs and width in one escaped data literal.
+    const data=JSON.stringify({ids,removed,width})
+      .replace(/</g,'\\u003c').replace(/>/g,'\\u003e')
+      .replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
+    return wait(page,`
+      const {ids,removed,width}=${data};
+      const symbol=chart.symbol().replace(/[^a-zA-Z0-9-_]/g,'_').toLowerCase().substring(0,50);
+      const stored=JSON.parse(doc.defaultView.localStorage.getItem('tradingview_drawings_perps_'+symbol)||'null');
+      const entries=new Map(stored?.sources||[]);
+      const hasWidth=v=>v&&typeof v==='object'&&(v.linewidth===width||Object.values(v).some(hasWidth));
+      return ids.every(id=>entries.get(id)!=null)&&removed.every(id=>!entries.get(id))&&
+        (width===undefined||hasWidth(entries.get(ids[0])))&&
+        {timestamp:stored?.timestamp,savedIds:[...entries].filter(([,v])=>v!=null).map(([id])=>id)};
+    `,20000);
   }
   async function drawingFixture(page,shape='trend_line',offset=0) {
     return api(page,`const r=chart.getVisibleRange(),p=chart.getVisiblePriceRange();const points=[{time:Math.round(r.from+(r.to-r.from)*.3),price:p.from+(p.to-p.from)*(.3+${offset})},{time:Math.round(r.from+(r.to-r.from)*.6),price:p.from+(p.to-p.from)*(.6+${offset})}];return Promise.resolve(chart.createMultipointShape(${JSON.stringify(shape)}==='horizontal_line'?points.slice(0,1):points,{shape:${JSON.stringify(shape)}}));`);
