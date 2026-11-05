@@ -490,6 +490,29 @@
       "last_synced_at": "2026-10-28T14:24:55+08:00",
       "last_synced_source_sha256": "94f565f7e91e6a14c8c6962fbdd82dfb65fdb915c7f119a96060da98f867f609",
       "last_synced_remote_description_sha256": "998a4b2f5b431962edc0f6b199446587e70086018e5715c697c4f3b7a47a85cc"
+    },
+    {
+      "file": "docs/qa/testcases/cases/utility/2026-11-05_通用-设置-偏好.md",
+      "issue_key": "OK-23878",
+      "issue_id": "34620",
+      "remote_summary": "设置-偏好",
+      "issue_type": "Test",
+      "body_field": "description",
+      "identity_verified_on": "2026-11-05",
+      "identity_evidence": "已读取 Jira Test 标题「设置-偏好」、类型 Test、负责人 Dango 及完整描述，与源文件主题及场景范围核对；Xray 目录归属未验证。",
+      "remote_updated_at": "2026-11-05T10:52:40.512+0800",
+      "comparison": {
+        "checked_on": "2026-11-05",
+        "local_case_count": 23,
+        "remote_case_count": 23,
+        "table_text_equal_ignoring_format": true,
+        "exact_table_cells_equal": true,
+        "local_file_sha256": "88a9d205cb7b6485514c82557c1c21be62c9e19160b38cb948239031a078cebe",
+        "remote_description_sha256": "3b2b4ef8715b154f0487750474fb76dc2de9500c975b7d9ca637e6c26b94f13e"
+      },
+      "last_synced_at": "2026-11-05T02:52:00Z",
+      "last_synced_source_sha256": "88a9d205cb7b6485514c82557c1c21be62c9e19160b38cb948239031a078cebe",
+      "last_synced_remote_description_sha256": "3b2b4ef8715b154f0487750474fb76dc2de9500c975b7d9ca637e6c26b94f13e"
     }
   ],
   "unmapped_remote_tests": [],
