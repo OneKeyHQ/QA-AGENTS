@@ -1,5 +1,5 @@
 // Non-order CDP cases. No Buy/Sell/submit/sign/cancel-order handler is called.
-// Source: docs/qa/rules/perps-rules.md; pinned source ledger in isolated/source.mjs.
+// Source: docs/qa/rules/perps-rules.md and the confirmed manual Perps cases.
 // fill() deliberately exercises paste/whole-value validation; typed flows use pressSequentially elsewhere.
 import assert from "node:assert/strict";
 import { isDeepStrictEqual } from "node:util";
