@@ -1,0 +1,263 @@
+{
+  "version": 1,
+  "anchors": [
+    {
+      "name": "A",
+      "time_utc": "2026-01-01T00:00:00+00:00",
+      "price": 100
+    },
+    {
+      "name": "B",
+      "time_utc": "2026-01-01T00:02:00+00:00",
+      "price": 120
+    },
+    {
+      "name": "C",
+      "time_utc": "2026-01-01T00:04:00+00:00",
+      "price": 110
+    },
+    {
+      "name": "D",
+      "time_utc": "2026-01-01T00:06:00+00:00",
+      "price": 130
+    },
+    {
+      "name": "E",
+      "time_utc": "2026-01-01T00:08:00+00:00",
+      "price": 105
+    },
+    {
+      "name": "F",
+      "time_utc": "2026-01-01T00:10:00+00:00",
+      "price": 125
+    },
+    {
+      "name": "G",
+      "time_utc": "2026-01-01T00:12:00+00:00",
+      "price": 115
+    },
+    {
+      "name": "H",
+      "time_utc": "2026-01-01T00:14:00+00:00",
+      "price": 135
+    }
+  ],
+  "fixture_projection": {
+    "purpose": "仅用于几何独立计算；实机按当前轴映射换算，不调整窗口尺寸",
+    "x_at_A": 100,
+    "pixels_per_minute": 40,
+    "y_at_price_160": 0,
+    "pixels_per_price_unit": 6
+  },
+  "examples": {
+    "A_to_B": {
+      "duration_seconds": 120,
+      "bars_between_start_times": 2,
+      "price_delta": 20,
+      "percent_change": 20,
+      "midpoint_utc": "2026-01-01T00:01:00+00:00",
+      "midpoint_price": 110,
+      "x_delta": 80,
+      "y_delta": -120,
+      "screen_angle_degrees": 56.309932474020215
+    },
+    "rectangle_A_B": {
+      "price_min": 100,
+      "price_max": 120,
+      "left_utc": "2026-01-01T00:00:00+00:00",
+      "right_utc": "2026-01-01T00:02:00+00:00",
+      "center_price": 110
+    },
+    "parallel_A_B_through_C": {
+      "base_price_per_minute": 10,
+      "base_price_at_C_time": 140,
+      "parallel_price_at_C_time": 110,
+      "price_offset": -30
+    },
+    "fib_retracement_A_B": {
+      "orientation": "0标在B，1标在A；反向时两端对调",
+      "level_prices": {
+        "0": 120,
+        "0.236": 115.28,
+        "0.382": 112.36,
+        "0.5": 110.0,
+        "0.618": 107.64,
+        "0.786": 104.28,
+        "1": 100
+      }
+    },
+    "fib_extension_A_B_C": {
+      "formula": "C.price + (B.price-A.price) * ratio",
+      "level_prices": {
+        "0": 110,
+        "0.618": 122.36,
+        "1": 130,
+        "1.618": 142.36,
+        "2.618": 162.36
+      }
+    },
+    "fib_time_A_B": {
+      "formula": "A.time + (B.time-A.time) * ratio",
+      "minutes_from_A": {
+        "0": 0,
+        "1": 2,
+        "2": 4,
+        "3": 6,
+        "5": 10,
+        "8": 16
+      }
+    },
+    "gann_box_A_B": {
+      "horizontal_midpoint_price": 110,
+      "vertical_midpoint_utc": "2026-01-01T00:01:00+00:00"
+    },
+    "triangle_A_B_C": {
+      "vertices": [
+        "A",
+        "B",
+        "C"
+      ],
+      "price_min": 100,
+      "price_max": 120,
+      "time_span_seconds": 240
+    },
+    "circle_A_B": {
+      "purpose": "A为圆心、B为圆周控制点，按冻结投影核对；实机使用当前轴换算",
+      "screen_radius": 144.22205101855957
+    },
+    "long_short_drawing": {
+      "entry": 110,
+      "target": 120,
+      "stop": 100,
+      "long_profit": 10,
+      "long_loss": 10,
+      "reward_risk_ratio": 1,
+      "short_target": 100,
+      "short_stop": 120,
+      "creates_order": false
+    },
+    "text": {
+      "value": "原生 Chart 123\n第二行 !@#",
+      "anchor": "A",
+      "name": "图形A"
+    },
+    "overlap_order": {
+      "initial_bottom_to_top": [
+        "红A",
+        "绿B",
+        "蓝C"
+      ],
+      "move_B_forward": [
+        "红A",
+        "蓝C",
+        "绿B"
+      ],
+      "move_B_backward_from_initial": [
+        "绿B",
+        "红A",
+        "蓝C"
+      ]
+    },
+    "volume_A_B": {
+      "bars_inclusive": 3,
+      "volume_sum": 330,
+      "anchored_vwap_at_B": 101.27272727272727
+    }
+  },
+  "tool_defaults": {
+    "numeric_reference": "坐标按anchors原值读回；自由路径沿A至H，逐点记录；单位与坐标容差见README。",
+    "permanent": true
+  },
+  "tools": [
+    {"tool": "trend", "label": "趋势线", "group": "Lines", "input_anchor_count": 2},
+    {"tool": "ray", "label": "射线", "group": "Lines", "input_anchor_count": 2},
+    {"tool": "extended", "label": "延长线", "group": "Lines", "input_anchor_count": 2},
+    {"tool": "horizontal", "label": "水平线", "group": "Lines", "input_anchor_count": 1},
+    {"tool": "horizontalRay", "label": "水平射线", "group": "Lines", "input_anchor_count": 1},
+    {"tool": "vertical", "label": "垂直线", "group": "Lines", "input_anchor_count": 1},
+    {"tool": "cross", "label": "十字线", "group": "Lines", "input_anchor_count": 1},
+    {"tool": "arrow", "label": "箭头", "group": "Lines", "input_anchor_count": 2},
+    {"tool": "info", "label": "信息线", "group": "Lines", "input_anchor_count": 2},
+    {"tool": "angle", "label": "趋势线角度", "group": "Lines", "input_anchor_count": 2},
+    {"tool": "channel", "label": "平行通道", "group": "Lines", "input_anchor_count": 3},
+    {"tool": "fib", "label": "斐波那契回撤", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "fibExtension", "label": "斐波那契趋势扩展", "group": "Fibonacci", "input_anchor_count": 3},
+    {"tool": "fibChannel", "label": "斐波那契通道", "group": "Fibonacci", "input_anchor_count": 3},
+    {"tool": "fibFan", "label": "斐波那契速度阻力扇", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "fibTime", "label": "斐波那契时区", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "rectangle", "label": "矩形", "group": "Shapes", "input_anchor_count": 2},
+    {"tool": "ellipse", "label": "椭圆形", "group": "Shapes", "input_anchor_count": 2},
+    {"tool": "triangle", "label": "三角形", "group": "Shapes", "input_anchor_count": 3},
+    {"tool": "brush", "label": "笔刷", "group": "Shapes", "input_anchor_count": 2, "anchors": ["A", "B", "C", "D", "E", "F", "G", "H"], "input_mode": "连续轨迹，最少2点；样本执行A至H全部点"},
+    {"tool": "highlighter", "label": "荧光笔", "group": "Shapes", "input_anchor_count": 2, "anchors": ["A", "B", "C", "D", "E", "F", "G", "H"], "input_mode": "连续轨迹，最少2点；样本执行A至H全部点"},
+    {"tool": "text", "label": "文字", "group": "Text", "input_anchor_count": 1},
+    {"tool": "callout", "label": "标注", "group": "Text", "input_anchor_count": 2},
+    {"tool": "priceLabel", "label": "价格标签", "group": "Text", "input_anchor_count": 1},
+    {"tool": "measure", "label": "测量", "group": "Measure", "input_anchor_count": 2, "permanent": false},
+    {"tool": "priceRange", "label": "价格范围", "group": "Forecasting", "input_anchor_count": 2},
+    {"tool": "dateRange", "label": "日期范围", "group": "Forecasting", "input_anchor_count": 2},
+    {"tool": "datePriceRange", "label": "日期和价格范围", "group": "Forecasting", "input_anchor_count": 2},
+    {"tool": "regression", "label": "回归趋势线", "group": "Lines", "input_anchor_count": 2},
+    {"tool": "flatChannel", "label": "平滑顶/底", "group": "Lines", "input_anchor_count": 3},
+    {"tool": "disjointChannel", "label": "不相交通道", "group": "Lines", "input_anchor_count": 4},
+    {"tool": "pitchfork", "label": "分叉线", "group": "Lines", "input_anchor_count": 3},
+    {"tool": "schiffPitchfork", "label": "希夫分叉线", "group": "Lines", "input_anchor_count": 3},
+    {"tool": "modifiedPitchfork", "label": "调整希夫分叉线", "group": "Lines", "input_anchor_count": 3},
+    {"tool": "insidePitchfork", "label": "内部分叉线", "group": "Lines", "input_anchor_count": 3},
+    {"tool": "fibTrendTime", "label": "斐波那契趋势时间", "group": "Fibonacci", "input_anchor_count": 3},
+    {"tool": "fibCircles", "label": "斐波那契圈", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "fibSpiral", "label": "斐波那契螺旋", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "fibArcs", "label": "斐波那契速度阻力弧", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "fibWedge", "label": "斐波那契楔形", "group": "Fibonacci", "input_anchor_count": 3},
+    {"tool": "pitchfan", "label": "倾斜扇形", "group": "Fibonacci", "input_anchor_count": 3},
+    {"tool": "gannBox", "label": "江恩箱", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "gannSquareFixed", "label": "固定江恩正方", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "gannSquare", "label": "江恩正方", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "gannFan", "label": "江恩角度线", "group": "Fibonacci", "input_anchor_count": 2},
+    {"tool": "xabcd", "label": "XABCD 形态", "group": "Patterns", "input_anchor_count": 5, "point_labels": ["X", "A", "B", "C", "D"]},
+    {"tool": "cypher", "label": "赛福形态", "group": "Patterns", "input_anchor_count": 5, "point_labels": ["X", "A", "B", "C", "D"]},
+    {"tool": "headShoulders", "label": "头肩形", "group": "Patterns", "input_anchor_count": 7},
+    {"tool": "abcd", "label": "ABCD 形态", "group": "Patterns", "input_anchor_count": 4, "point_labels": ["A", "B", "C", "D"]},
+    {"tool": "trianglePattern", "label": "三角形态", "group": "Patterns", "input_anchor_count": 4},
+    {"tool": "threeDrives", "label": "三驱形态", "group": "Patterns", "input_anchor_count": 6},
+    {"tool": "elliottImpulse", "label": "艾略特推动浪（12345）", "group": "Patterns", "input_anchor_count": 6, "point_labels": ["0", "1", "2", "3", "4", "5"]},
+    {"tool": "elliottCorrection", "label": "艾略特调整浪（ABC）", "group": "Patterns", "input_anchor_count": 4, "point_labels": ["0", "A", "B", "C"]},
+    {"tool": "elliottTriangle", "label": "艾略特三角浪（ABCDE）", "group": "Patterns", "input_anchor_count": 6, "point_labels": ["0", "A", "B", "C", "D", "E"]},
+    {"tool": "elliottDouble", "label": "艾略特双重组合浪（WXY）", "group": "Patterns", "input_anchor_count": 4, "point_labels": ["0", "W", "X", "Y"]},
+    {"tool": "elliottTriple", "label": "艾略特三重组合浪（WXYXZ）", "group": "Patterns", "input_anchor_count": 6, "point_labels": ["0", "W", "X", "Y", "X", "Z"]},
+    {"tool": "cyclicLines", "label": "循环线", "group": "Patterns", "input_anchor_count": 2},
+    {"tool": "timeCycles", "label": "时间周期", "group": "Patterns", "input_anchor_count": 2},
+    {"tool": "sineLine", "label": "正弦线", "group": "Patterns", "input_anchor_count": 2},
+    {"tool": "longPosition", "label": "多头", "group": "Forecasting", "input_anchor_count": 1},
+    {"tool": "shortPosition", "label": "空头", "group": "Forecasting", "input_anchor_count": 1},
+    {"tool": "forecast", "label": "预测", "group": "Forecasting", "input_anchor_count": 2},
+    {"tool": "barsPattern", "label": "复制 K 线", "group": "Forecasting", "input_anchor_count": 2},
+    {"tool": "ghostFeed", "label": "模拟 K 线", "group": "Forecasting", "input_anchor_count": 2},
+    {"tool": "projection", "label": "投影", "group": "Forecasting", "input_anchor_count": 3},
+    {"tool": "anchoredVwap", "label": "锚定 VWAP", "group": "Forecasting", "input_anchor_count": 1},
+    {"tool": "volumeProfile", "label": "固定范围成交量分布图", "group": "Forecasting", "input_anchor_count": 2},
+    {"tool": "arrowMarker", "label": "箭头标记", "group": "Shapes", "input_anchor_count": 2},
+    {"tool": "arrowUp", "label": "向上箭头", "group": "Shapes", "input_anchor_count": 1},
+    {"tool": "arrowDown", "label": "向下箭头", "group": "Shapes", "input_anchor_count": 1},
+    {"tool": "arrowLeft", "label": "向左箭头", "group": "Shapes", "input_anchor_count": 1},
+    {"tool": "arrowRight", "label": "向右箭头", "group": "Shapes", "input_anchor_count": 1},
+    {"tool": "rotatedRectangle", "label": "旋转矩形", "group": "Shapes", "input_anchor_count": 3},
+    {"tool": "path", "label": "路径", "group": "Shapes", "input_anchor_count": 2, "anchors": ["A", "B", "C", "D", "E", "F", "G", "H"], "input_mode": "连续轨迹，最少2点；样本执行A至H全部点"},
+    {"tool": "circle", "label": "圆", "group": "Shapes", "input_anchor_count": 2},
+    {"tool": "polyline", "label": "折线", "group": "Shapes", "input_anchor_count": 2, "anchors": ["A", "B", "C", "D", "E", "F", "G", "H"], "input_mode": "连续轨迹，最少2点；样本执行A至H全部点"},
+    {"tool": "arc", "label": "弧形", "group": "Shapes", "input_anchor_count": 3},
+    {"tool": "curve", "label": "曲线", "group": "Shapes", "input_anchor_count": 3},
+    {"tool": "doubleCurve", "label": "双曲线", "group": "Shapes", "input_anchor_count": 4},
+    {"tool": "anchoredText", "label": "锚点文字", "group": "Text", "input_anchor_count": 1},
+    {"tool": "note", "label": "note", "group": "Text", "input_anchor_count": 1},
+    {"tool": "priceNote", "label": "价格注释", "group": "Text", "input_anchor_count": 2},
+    {"tool": "pin", "label": "图钉", "group": "Text", "input_anchor_count": 1},
+    {"tool": "table", "label": "表格", "group": "Text", "input_anchor_count": 1},
+    {"tool": "comment", "label": "评论", "group": "Text", "input_anchor_count": 1},
+    {"tool": "signpost", "label": "指示牌", "group": "Text", "input_anchor_count": 2},
+    {"tool": "flag", "label": "旗标", "group": "Text", "input_anchor_count": 1},
+    {"tool": "emoji", "label": "表情符号", "group": "Icons", "input_anchor_count": 1},
+    {"tool": "sticker", "label": "贴纸", "group": "Icons", "input_anchor_count": 1},
+    {"tool": "icon", "label": "图标", "group": "Icons", "input_anchor_count": 1}
+  ]
+}

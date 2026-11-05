@@ -513,6 +513,37 @@
       "last_synced_at": "2026-11-05T02:52:00Z",
       "last_synced_source_sha256": "88a9d205cb7b6485514c82557c1c21be62c9e19160b38cb948239031a078cebe",
       "last_synced_remote_description_sha256": "3b2b4ef8715b154f0487750474fb76dc2de9500c975b7d9ca637e6c26b94f13e"
+    },
+    {
+      "file": "docs/qa/testcases/cases/perps/2026-11-04_Perps-原生图表.md",
+      "issue_key": "OK-26451",
+      "issue_id": "37586",
+      "remote_summary": "Perps - 原生图表",
+      "issue_type": "Test",
+      "body_field": "description",
+      "identity_verified_on": "2026-11-05",
+      "identity_evidence": "用户明确提供目标；核实Test类型、标题、项目、描述及更新时间，仅更新description；独立回读原始及渲染HTML核对99条。Xray结构化Steps及目录成员未修改或验证。",
+      "remote_updated_at": "2026-11-05T10:08:35.514+0800",
+      "comparison": {
+        "checked_on": "2026-11-05",
+        "local_case_count": 99,
+        "remote_case_count": 99,
+        "remote_description_case_count": 99,
+        "remote_description_empty": false,
+        "table_text_equal_ignoring_format": true,
+        "exact_table_cells_equal": true,
+        "numbered_cell_lines_equal": true,
+        "non_table_blocks_equal": true,
+        "local_file_sha256": "1a9449fb448b9a2d0341e0f3e600dfcc8f019a1d309261232c5e5ef4d08ee057",
+        "remote_description_sha256": "c668db2a48d74e65a44db8e1fe911105a3220988dcf6f8140273b156cd3e6838",
+        "remote_rendered_html_sha256": "e160a91c2081a6cde1c9806f2d49b5948ff0ee9f88edb5741b2aee62e166e0de",
+        "structured_steps_checked": false,
+        "verification_method": "Compare raw and rendered HTML headings, all four-column cell lines and non-table blocks. Normalize NBSP, source whitespace, empty paragraphs and table-only rendering wrappers; preserve numbered cell lines.",
+        "evidence_retention": "2026-11-05按用户要求清理本地报告及回读快照；保留同步时间、逐格验证结论及源/远端哈希，不保留快照链接。"
+      },
+      "last_synced_at": "2026-11-05T02:12:34.122Z",
+      "last_synced_source_sha256": "1a9449fb448b9a2d0341e0f3e600dfcc8f019a1d309261232c5e5ef4d08ee057",
+      "last_synced_remote_description_sha256": "c668db2a48d74e65a44db8e1fe911105a3220988dcf6f8140273b156cd3e6838"
     }
   ],
   "unmapped_remote_tests": [],
