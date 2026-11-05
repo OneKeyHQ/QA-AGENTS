@@ -1,3 +1,4 @@
+// D09 手动用例：docs/qa/testcases/cases/perps/2026-03-26_Perps-投资组合&盈亏.md
 // Existing funding history and local CSV exports; no financial submissions.
 import assert from "node:assert/strict";
 import {resolve} from 'node:path';

@@ -1,3 +1,4 @@
+// D12 手动用例：docs/qa/testcases/cases/perps/2026-07-01_Perps-画线下单.md
 // Actual right-click menu and limit preview only. No order/approval action.
 import assert from "node:assert/strict";
 import { locator, typeInput, currentPair } from "../../helpers/perps-ui.mjs";

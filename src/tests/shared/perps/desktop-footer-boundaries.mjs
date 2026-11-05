@@ -1,3 +1,4 @@
+// D06 手动用例：docs/qa/testcases/cases/perps/2026-03-05_Perps-首页底部状态.md
 // Desktop manual footer chapters 2/3/4. A changed ticker preference is always
 // restored by clicking its original visible option and reading it independently.
 import assert from "node:assert/strict";

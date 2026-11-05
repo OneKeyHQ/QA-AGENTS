@@ -1,3 +1,5 @@
+// D03 手动用例：docs/qa/testcases/cases/perps/2026-01-20_Perps-收藏功能测试.md
+// D06 手动用例：docs/qa/testcases/cases/perps/2026-03-05_Perps-首页底部状态.md
 // Desktop manual favorites chapters. All mutations use visible controls and
 // the enclosing suite restores the original complete ordered favorite set.
 import assert from "node:assert/strict";

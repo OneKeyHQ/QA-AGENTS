@@ -1,3 +1,4 @@
+// D03 手动用例：docs/qa/testcases/cases/perps/2026-01-20_Perps-收藏功能测试.md
 // Real list fixtures are built only by clicking stars. No membership atoms or
 // local storage are injected. A complete small original set is saved/restored
 // by the enclosing row suite, including on a performance assertion failure.

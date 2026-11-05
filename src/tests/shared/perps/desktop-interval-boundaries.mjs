@@ -1,3 +1,4 @@
+// D04 手动用例：docs/qa/testcases/cases/perps/2026-01-21_Perps-TV图表功能与设置.md
 // Desktop chart interval preferences: real clicks, model resolution, real reload.
 import assert from "node:assert/strict";
 import { locator, setChartMode } from "../../helpers/perps-ui.mjs";

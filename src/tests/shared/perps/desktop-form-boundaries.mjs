@@ -1,3 +1,5 @@
+// D08 手动用例：docs/qa/testcases/cases/perps/2026-03-20_Perps-条件单模式合并测试.md
+// D11 手动用例：docs/qa/testcases/cases/perps/2026-06-03_Perps-分时分段委托下单.md
 // Manual BBO §1/8, conditional §1/2 and TWAP/Scaled non-submit boundaries.
 // Latest official source verified at 6fe766b; live financial operations excluded.
 import assert from "node:assert/strict";

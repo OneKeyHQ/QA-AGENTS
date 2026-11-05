@@ -1,3 +1,4 @@
+// D20 手动用例：docs/qa/testcases/cases/perps/2026-10-28_Perps-Native存取款.md
 // Desktop Native funds: navigate, search, edit and inspect only. Never submit.
 // D20 §1/2/4; dependent multi-account/quote-failure facets remain explicit.
 import assert from "node:assert/strict";

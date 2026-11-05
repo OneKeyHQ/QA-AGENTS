@@ -1,3 +1,4 @@
+// D12 手动用例：docs/qa/testcases/cases/perps/2026-07-01_Perps-画线下单.md
 // D12 §4: actual TradingView preview edits preserve existing chart drawings
 // and the main order form. Never create, modify or delete a user drawing.
 import assert from "node:assert/strict";

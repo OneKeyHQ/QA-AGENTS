@@ -1,3 +1,4 @@
+// D15 手动用例：docs/qa/testcases/cases/perps/2026-08-03_Perps-交易.md
 // Desktop minimum toast shortcuts on strictly empty/zero quantities only.
 // Filled valid quantities are inspected, then cleared; never submitted.
 import assert from "node:assert/strict";

@@ -1,3 +1,4 @@
+// D04 手动用例：docs/qa/testcases/cases/perps/2026-01-21_Perps-TV图表功能与设置.md
 // Desktop TradingView: real indicator-menu clicks, read-only chart model oracle.
 // Preserve the existing study set and engine; never create/modify orders.
 import assert from "node:assert/strict";

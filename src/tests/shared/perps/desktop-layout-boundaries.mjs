@@ -1,3 +1,4 @@
+// D16 手动用例：docs/qa/testcases/cases/perps/2026-08-28_Perps-K线布局设置.md
 // Desktop split panes: actual pointer drags, saved state is read-only diagnostic
 // evidence. Restore through reset/drag/book controls; never write the atom.
 import assert from "node:assert/strict";

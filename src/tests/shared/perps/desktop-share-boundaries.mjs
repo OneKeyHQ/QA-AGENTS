@@ -1,3 +1,5 @@
+// D10 手动用例：docs/qa/testcases/cases/perps/2026-04-21_Perps-现货交易.md
+// D21 手动用例：docs/qa/testcases/cases/perps/2026-10-28_Perps-分享.md
 // D21 current-position sharing. Opens existing data only; no signing, publishing,
 // system recipient selection or financial actions. Actual PNG text is recognized
 // locally and checked independently; remaining visual clauses stay partial.

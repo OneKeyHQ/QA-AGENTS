@@ -1,3 +1,4 @@
+// D10 手动用例：docs/qa/testcases/cases/perps/2026-04-21_Perps-现货交易.md
 // Desktop holdings view/settings only. No trading, authorization or funds API.
 import assert from "node:assert/strict";
 import { locator } from "../../helpers/perps-ui.mjs";

@@ -1,3 +1,4 @@
+// D09 手动用例：docs/qa/testcases/cases/perps/2026-03-26_Perps-投资组合&盈亏.md
 // Current-account Desktop portfolio controls. Financial field fixtures and
 // permissions are reported separately; no account or position is mutated.
 import assert from "node:assert/strict";

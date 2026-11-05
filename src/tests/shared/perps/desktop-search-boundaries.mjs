@@ -1,3 +1,5 @@
+// D03 手动用例：docs/qa/testcases/cases/perps/2026-01-20_Perps-收藏功能测试.md
+// D05 手动用例：docs/qa/testcases/cases/perps/2026-02-03_Perps-搜索功能.md
 import assert from "node:assert/strict";
 import { aliasMatches } from "./search-alias-oracle.mjs";
 import {

@@ -1,9 +1,13 @@
+// D01 手动用例：docs/qa/testcases/cases/perps/2026-01-03_Perps-限价单最优价格BBO.md
 // Desktop BBO controls. No submit/confirm handler is invoked.
 // Manual D01 §1/2/8; amounts/actual live-order prices are separately scoped.
 import assert from "node:assert/strict";
 import { locator, restorePair } from "../../helpers/perps-ui.mjs";
 import { chooseMode, priceInput, closePop, pollForm } from "./non-order-ui.mjs";
-import { createDesktopRowSuite } from "./desktop-row-suite.mjs";
+import { createDesktopRowSuite, SampleUnavailable } from "./desktop-row-suite.mjs";
+import { openLanguage, changeLocale } from "./language-settings.mjs";
+import { reloadPerps, markRestoreFailure } from "./runtime.mjs";
+import { unlockWalletIfNeeded } from "../../helpers/index.mjs";
 import { projectReactAll } from "./react-projection.mjs";
 import { assertBboPriceState } from "./bbo-price-evidence.mjs";
 import {
@@ -113,30 +117,30 @@ async function enabled(p, value) {
     "BBO toggle",
   );
 }
-async function options(p, selected) {
+async function options(p, selected, expected = labels) {
   await selector(p).click();
   await panel(p)
-    .getByText(labels[0], { exact: true })
+    .getByText(expected[0], { exact: true })
     .waitFor({ state: "visible" });
   const text = (await panel(p).innerText())
     .split("\n")
     .map((x) => x.trim())
     .filter(Boolean);
-  assert.deepEqual(text, labels);
+  assert.deepEqual(text, expected, "Four translated BBO options in manual-case order");
   const checked = await panel(p)
     .locator('svg[data-sentry-component="SvgCheckLarge"]')
     .evaluateAll((es) => es.map((e) => e.parentElement.innerText.trim()));
   assert.deepEqual(checked, [selected]);
 }
-async function select(p, label) {
-  await options(p, (await selector(p).innerText()).split("\n").at(-1).trim());
+async function select(p, label, expected = labels) {
+  await options(p, (await selector(p).innerText()).split("\n").at(-1).trim(), expected);
   await panel(p).getByText(label, { exact: true }).click();
   await panel(p).waitFor({ state: "hidden" });
   assert.equal(
     (await selector(p).innerText()).split("\n").at(-1).trim(),
     label,
   );
-  await options(p, label);
+  await options(p, label, expected);
   await closePop(p);
 }
 const row = (ids, name, check, extra = {}) => ({
@@ -158,6 +162,58 @@ export const bboBoundaryDefinitions = [
         await options(p, labels[0]);
         await closePop(p);
         return "默认对手价1；四个选项数量/顺序与唯一勾选逐项核对";
+      }),
+      row("D01-20", "系统中英切换后四选项文案及逐项勾选", async (p) => {
+        const instrument = (await readBboForm(p)).instrument;
+        const initial = await openLanguage(p);
+        const navigate = async (page) => {
+          await unlockWalletIfNeeded(page);
+          await locator(page, "global.sidebar.perps").click();
+          await locator(page, "perps.form.root").waitFor({ state: "visible", timeout: 45000 });
+        };
+        const reload = (page) => reloadPerps(page, { navigate, ready: async () => {} });
+        const context = { navigate, reload };
+        if (!["zh-CN", "en"].includes(initial.rawLocale)) {
+          await reload(p);
+          throw new SampleUnavailable("本行仅验证中英文；保留其他系统语言，不推断其翻译预期");
+        }
+        let primary;
+        try {
+          for (const [locale, tab, expected] of [
+            ["zh-CN", "限价单", labels],
+            ["en", "Limit", ["Counterparty 1", "Counterparty 5", "Queue 1", "Queue 5"]],
+          ]) {
+            await changeLocale(p, locale, context);
+            await locator(p, "perps.form.root").getByText(tab, { exact: true }).click();
+            const current = await pollForm(() => readBboForm(p), s => s.form.type === "limit", "Localized limit form ready");
+            assert.equal(current.instrument.coin, instrument.coin, "Language reload preserves active coin");
+            assert.equal(current.instrument.mode, instrument.mode, "Language reload preserves spot/perp mode");
+            await enabled(p, false);
+            await enabled(p, true);
+            await options(p, expected[0], expected);
+            await closePop(p);
+            for (const [i, label] of expected.entries()) {
+              await select(p, label, expected);
+              const form = (await readBboForm(p)).form;
+              assert.deepEqual(form.bboPriceMode, {
+                type: i < 2 ? "counterparty" : "queue",
+                offsetTicks: i % 2 ? 5 : 0,
+              }, "Translated selection must update the corresponding actual BBO mode");
+            }
+          }
+          return "实际系统语言切换与重载；中英四项文案/数量/顺序、5档及逐项唯一勾选；不点击交易按钮";
+        } catch (error) {
+          primary = error;
+          throw error;
+        } finally {
+          try {
+            await changeLocale(p, initial.rawLocale, context);
+            assert.equal((await openLanguage(p)).rawLocale, initial.rawLocale, "Original language read back after restoration");
+            await reload(p);
+          } catch (error) {
+            throw markRestoreFailure(primary, error, "恢复原系统语言");
+          }
+        }
       }),
       ...modes.map((mode, i) =>
         row(

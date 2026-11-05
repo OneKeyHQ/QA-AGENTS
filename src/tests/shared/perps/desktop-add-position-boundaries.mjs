@@ -1,3 +1,4 @@
+// D13 手动用例：docs/qa/testcases/cases/perps/2026-07-27_Perps-加仓与追单.md
 // D13 chapters 1–3. Existing positions only; no valid-size submit is allowed.
 import assert from "node:assert/strict";
 import { locator, typeInput } from "../../helpers/perps-ui.mjs";

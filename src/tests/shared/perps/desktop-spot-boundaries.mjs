@@ -1,3 +1,4 @@
+// D10 手动用例：docs/qa/testcases/cases/perps/2026-04-21_Perps-现货交易.md
 // Desktop spot views and editable drafts only. Never click a trade button.
 import assert from "node:assert/strict";
 import { locator, restorePair, currentPair } from "../../helpers/perps-ui.mjs";

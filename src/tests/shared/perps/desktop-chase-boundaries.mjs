@@ -1,3 +1,4 @@
+// D13 手动用例：docs/qa/testcases/cases/perps/2026-07-27_Perps-加仓与追单.md
 // Inspect existing GTC orders, open previews only with a synchronous event gate.
 // No confirm, cancel-order or modify-service call exists in this module.
 import assert from "node:assert/strict";

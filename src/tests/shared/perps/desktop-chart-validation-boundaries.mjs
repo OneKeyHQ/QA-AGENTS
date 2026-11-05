@@ -1,3 +1,4 @@
+// D12 手动用例：docs/qa/testcases/cases/perps/2026-07-01_Perps-画线下单.md
 // D12 §2.4. Actual chart preview validation on empty quantities only.
 // Independent calibrated CDP Network observation includes Desktop's co-located
 // background HttpTransport; invalid inputs are checked again before each click.

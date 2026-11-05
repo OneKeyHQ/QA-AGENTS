@@ -1,3 +1,4 @@
+// D12 手动用例：docs/qa/testcases/cases/perps/2026-07-01_Perps-画线下单.md
 // Complete Desktop limit preview fields and actual hover help; no order click.
 import assert from "node:assert/strict";
 import { locator, restorePair } from "../../helpers/perps-ui.mjs";

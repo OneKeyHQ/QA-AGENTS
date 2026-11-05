@@ -1,3 +1,4 @@
+// D04 手动用例：docs/qa/testcases/cases/perps/2026-01-21_Perps-TV图表功能与设置.md
 // Native drawing lifecycle through real toolbar and pointer input. Never touch
 // pre-existing drawings: identify our own new object before deleting it.
 import assert from "node:assert/strict";

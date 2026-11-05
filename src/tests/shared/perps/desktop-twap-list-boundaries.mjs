@@ -1,3 +1,4 @@
+// D11 手动用例：docs/qa/testcases/cases/perps/2026-06-03_Perps-分时分段委托下单.md
 // Existing TWAP records only. Never terminate, authorize, sign or create orders.
 import assert from "node:assert/strict";
 import {

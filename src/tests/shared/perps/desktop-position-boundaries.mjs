@@ -1,3 +1,5 @@
+// D13 手动用例：docs/qa/testcases/cases/perps/2026-07-27_Perps-加仓与追单.md
+// D18 手动用例：docs/qa/testcases/cases/perps/2026-10-27_Perps-反手与持仓按钮设置.md
 // Inspect existing positions only. This module has no submit/confirm locator.
 import assert from "node:assert/strict";
 import { locator } from "../../helpers/perps-ui.mjs";

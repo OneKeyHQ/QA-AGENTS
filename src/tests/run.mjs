@@ -41,11 +41,10 @@ async function runTest(test) {
 }
 
 async function main() {
-  if (process.argv[2] === "desktop/perps" && process.argv[3] === "--plan") {
-    const { main: planPerps } =
-      await import("../../scripts/plan-perps-desktop.mjs");
-    planPerps(process.argv.slice(4));
-    return;
+  // Never silently treat obsolete planning flags as permission to run a suite.
+  const args = process.argv.slice(2);
+  if (args.length > 1 || args.some(arg => arg.startsWith("-"))) {
+    throw new Error("Unexpected arguments. Usage: node src/tests/run.mjs [test-name-or-folder]");
   }
   const filter = process.argv[2];
   const tests = await discoverTests();

@@ -1,3 +1,4 @@
+// D04 手动用例：docs/qa/testcases/cases/perps/2026-01-21_Perps-TV图表功能与设置.md
 // Desktop native chart evidence uses the real canvas, committed market inputs,
 // independent public closed candles, and an actual Electron shell refresh.
 import assert from "node:assert/strict";

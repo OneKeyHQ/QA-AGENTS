@@ -1,3 +1,4 @@
+// D05 手动用例：docs/qa/testcases/cases/perps/2026-02-03_Perps-搜索功能.md
 // Desktop picker interactions; Enter is only sent to a focused picker input.
 // No order/signature/authorization action. The shared suite restores drafts,
 // full favorites and financial snapshots, including on assertion failures.

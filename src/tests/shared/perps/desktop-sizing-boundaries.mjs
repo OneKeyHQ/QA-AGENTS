@@ -1,3 +1,4 @@
+// D11 手动用例：docs/qa/testcases/cases/perps/2026-06-03_Perps-分时分段委托下单.md
 // Desktop advanced sizing by actual input/slider/mode controls. Positive
 // amounts never reach a preview, Buy/Sell, confirm or signing callback.
 import assert from "node:assert/strict";

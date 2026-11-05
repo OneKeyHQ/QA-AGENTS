@@ -1,3 +1,4 @@
+// D17 手动用例：docs/qa/testcases/cases/perps/2026-10-27_Perps-历史成交筛选详情与分享.md
 // History UI only; reads existing trades, never creates a sample order.
 import assert from "node:assert/strict";
 import { recordBeforeRestore } from "./restore-diagnostics.mjs";

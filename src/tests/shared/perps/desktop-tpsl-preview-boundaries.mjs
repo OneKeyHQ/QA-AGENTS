@@ -1,3 +1,4 @@
+// D12 手动用例：docs/qa/testcases/cases/perps/2026-07-01_Perps-画线下单.md
 // Existing position TP/SL preview. Never click confirm, authorize or cancel an
 // existing exchange order. Independent public account state supplies estimates.
 import assert from "node:assert/strict";
