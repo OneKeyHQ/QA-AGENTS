@@ -1,9 +1,11 @@
 """Independent arithmetic fixture builder; never imports or calls OneKey code.
 
-Run: python3 docs/qa/test-data/perps/native-chart-v1/generate.py [--check]
+Default: verify frozen fingerprints without writing files.
+Use --output <temporary-directory> to expand both JSON datasets locally.
 Parameters are chosen test inputs, not assertions about product defaults.
 """
 import argparse
+import hashlib
 import json
 import math
 from datetime import datetime, timezone
@@ -196,16 +198,51 @@ def self_check(data):
     json.dumps(data, allow_nan=False)
 
 
+def build_drawings():
+    data = json.loads((BASE/'drawings.json').read_text())
+    defaults, tools = data.pop('tool_defaults'), data.pop('tools')
+    anchors = [a['name'] for a in data['anchors']]
+    data['tool_oracles'] = [
+        {**defaults, **tool,
+         'anchors': tool.get('anchors', anchors[:tool['input_anchor_count']])}
+        for tool in tools
+    ]
+    return data
+
+
+def fingerprint(value):
+    # Ignore binary floating-point tail differences across Python platforms;
+    # 12 significant digits remain stricter than the documented 1e-8 tolerance.
+    def stable(v):
+        if isinstance(v, float):
+            return float(format(v, '.12g'))
+        if isinstance(v, list):
+            return [stable(x) for x in v]
+        if isinstance(v, dict):
+            return {k: stable(x) for k, x in v.items()}
+        return v
+    text = json.dumps(stable(value), ensure_ascii=False, sort_keys=True, allow_nan=False)
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--check', action='store_true')
+    parser = argparse.ArgumentParser(description=__doc__)
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--check', action='store_true', help='verify only (default)')
+    mode.add_argument('--output', type=Path, help='write expanded data outside this source directory')
     args = parser.parse_args()
+    if args.output and (args.output.resolve() == BASE.resolve() or
+                        BASE.resolve() in args.output.resolve().parents):
+        parser.error('Output must be outside the compact fixture source directory')
     data = build()
     self_check(data)
-    text = json.dumps(data, ensure_ascii=False, indent=2, allow_nan=False)+'\n'
-    path = BASE/'indicators.json'
-    if args.check:
-        assert path.read_text() == text, 'fixture differs from the independent generator'
-    else:
-        path.write_text(text)
-    print('17 indicators × 3 variants; independent arithmetic and frozen data match')
+    datasets = {'indicators.json': data, 'drawings.json': build_drawings()}
+    frozen = json.loads((BASE/'fingerprints.json').read_text())
+    for name, value in datasets.items():
+        if fingerprint(value) != frozen[name]:
+            parser.error(f'{name} differs from frozen values; review expectations before updating fingerprints')
+    if args.output:
+        args.output.mkdir(parents=True, exist_ok=True)
+        for name, value in datasets.items():
+            (args.output/name).write_text(json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False)+'\n')
+    print('17 indicators × 3 variants and 90 drawing tools match frozen values')
