@@ -479,6 +479,13 @@ node scripts/build-locator-map.mjs --check
 - **用户纠正自动沉淀（强制）**：当用户纠正了 AI 生成的用例/脚本/规则内容时，AI 必须在任务完成后主动执行：①列出被纠正的具体内容 ②检查是否已写入对应规范文件（qa-rules.md / module-rules.md / CLAUDE.md 等）③对未覆盖的纠正点，**主动询问用户是否写入规范**。详见 `docs/qa/rules/qa-workflow-rules.md` 「用户纠正自动沉淀机制」章节。
 - **提交前 QA 审查**：commit / PR 前自动执行 `/qa-review`（别名 `/onekey-qa-review`，触发词：`审查提交`/`审查用例`/`review 用例`/`检查提交`），检查用例、规则、脚本、Skill 的规范性、一致性和安全性。安全问题硬拦截（不可跳过），其他 block 问题软拦截（可确认跳过）。审查报告保存到 `shared/reports/review-*.md`。Claude Code 加载 `.claude/skills/onekey-qa-review/SKILL.md`；Cursor 加载 `.cursor/rules/onekey-qa-review.mdc`（两份内容保持双写一致）
 
+### 提交内容精简（强制）
+
+- 仓库只保留与用例、实际自动化或其必要维护直接相关的代码、规范和固定测试输入；不复制整份用例生成执行计划，不把计划或样本数量算作脚本覆盖。
+- 报告、截图、录像、运行结果、临时快照与缓存仅保存在本地，默认通过 `.gitignore` 排除。生成和展示报告仍可进行，不能因需要交付报告而将其加入提交。
+- 每次 commit / PR 前检查 `git diff --cached --name-status`。已跟踪文件不受 `.gitignore` 影响；发现暂存的新增或修改执行产物时，自动取消该文件的暂存，保留本地文件，且不连带取消同次提交的用例或脚本。用户明确要求的历史产物删除可提交，不因清理而重新生成。
+- 断言依赖的固定输入（如二维码、边界数据）属于测试源码，保留明确的忽略例外；正式用例及可复制版不按执行报告处理。无关改动不加入本次提交，例外提交产物须有用户明确要求。
+
 ## Default Workflow（写新用例时必须遵循，不要再问）
 
 ### Phase 0 — 写脚本/用例前必读 knowledge + rules（强制 ⚠️ 不能跳过）
