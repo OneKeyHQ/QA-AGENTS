@@ -3,7 +3,7 @@
 ## 范围与依据
 
 - 对应 Jira Test：[OK-11789](https://onekeyhq.atlassian.net/browse/OK-11789)，保留钱包存款、提现及账户历史的原有范围，重排为四列手动用例。
-- 源码基准：2026-10-28，OneKeyHQ/app-monorepo `x@a3c2d6f4e8276733a278289de2c122ffb170fe64`。重点为 `DepositWithdrawModal.tsx`、`DepositTokenSelectionContent.tsx`、`useShowDepositWithdrawModal.ts`、`usePerpDeposit.ts`、`useUsdcWithdrawRouting.ts`、`depositTokenListUtils.ts`、`perp.constants.ts`、`PerpAccountList.tsx`、`AccountRow.tsx`。审查基准及文件哈希见 [源码清单](../../../shared/reports/jira-perps-batch-sync-2026-10-28/source-manifest.json)，可按上述提交在 app-monorepo 中复查。
+- 源码基准：2026-10-28，OneKeyHQ/app-monorepo `x@a3c2d6f4e8276733a278289de2c122ffb170fe64`。重点为 `DepositWithdrawModal.tsx`、`DepositTokenSelectionContent.tsx`、`useShowDepositWithdrawModal.ts`、`usePerpDeposit.ts`、`useUsdcWithdrawRouting.ts`、`depositTokenListUtils.ts`、`perp.constants.ts`、`PerpAccountList.tsx`、`AccountRow.tsx`。临时源码清单按用户要求清理，可按上述固定提交及文件路径在 app-monorepo 中复查。
 - Desktop / Web / Extension / Android / iOS 按支持的账户与签名能力执行。观察账户不发起钱包签名交易；不把不支持平台的外部钱包连接作为通用前提。
 
 ## 钱包存款
