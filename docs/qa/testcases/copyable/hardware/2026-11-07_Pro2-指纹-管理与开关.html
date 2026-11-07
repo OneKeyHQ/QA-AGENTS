@@ -1,0 +1,40 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pro2 - 指纹管理（多指纹 / 移除 / 解锁设备开关） · 可复制版</title><style>body{font:15px/1.65 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#172033;background:#f5f6f8;margin:0}main{max-width:1440px;padding:28px;margin:auto}header,article{background:white;border:1px solid #dce1e8;border-radius:12px;padding:24px;margin-bottom:24px}h1{font-size:26px;margin:0 0 8px}h2{font-size:23px}h3{margin-top:28px;font-size:19px}table{border-collapse:collapse;table-layout:fixed;width:100%;margin:16px 0 24px}th,td{border:1px solid #cad2dd;padding:12px;vertical-align:top;text-align:left;overflow-wrap:anywhere}th{background:#eef2f7}th:first-child{width:8%}th:nth-child(2){width:19%}th:nth-child(3){width:31%}td p+p{margin-top:5px!important}.note{color:#526074;margin:4px 0;font-size:13px}.actions{display:flex;align-items:center;gap:12px;justify-content:flex-end}button{border:0;background:#146959;color:white;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:14px}button:focus-visible{outline:3px solid #6bb9ed;outline-offset:2px}a{color:#146959}#status{min-height:24px;color:#146959}article .actions{position:sticky;top:8px;background:#fff;padding:8px;z-index:1}@media(max-width:700px){main{padding:10px}article,header{padding:12px}table{min-width:850px}.copy-content{overflow-x:auto}}@media print{.actions,header{display:none}article{border:0;padding:0}}table.reference th:first-child{width:15%}table.reference th:nth-child(2){width:auto}td p,th p{margin:0}h4{font-size:17px}</style></head><body><main><header><h1>Pro2 - 指纹管理（多指纹 / 移除 / 解锁设备开关）</h1><div id="status" role="status" aria-live="polite"></div></header><article id="doc0"><div class="actions"><button data-copy="doc0">复制本份用例</button></div><div class="copy-content"><h3>前置条件</h3>
+<p>1. Pro2 专用测试设备已初始化并已备份，PIN 已知，语言设为简体中文；默认开关场景使用新初始化设备。</p>
+<p>2. 准备两根不同手指及一根未录入手指；进入设备设置→安全→指纹先完成 PIN 验证。</p>
+<p>3. 日常指纹解锁前已完成重启后的首次 PIN 解锁，并开启“解锁设备”；开关场景按步骤切换。</p>
+<p>4. 断电恢复仅在专用测试设备执行；重启后核对指纹能力需先 PIN 解锁，再锁屏验证。</p>
+<h3>1. 列表与数量上限</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>P1</p></td><td><p>一个指纹列表及添加入口</p></td><td><p>1. 仅录入一个指纹，进入指纹页</p></td><td><p>1. 列表显示一条指纹，默认名称为“指纹 1”</p><p>2. 显示“添加”</p></td></tr>
+<tr><td><p>P1</p></td><td><p>两个指纹达到上限</p></td><td><p>1. 录入两个不同手指，进入指纹页</p></td><td><p>1. 列表显示两条指纹，默认名称为“指纹 1”“指纹 2”</p><p>2. 不显示“添加”</p></td></tr>
+<tr><td><p>P1</p></td><td><p>条目操作入口</p></td><td><p>1. 点击一个已录入指纹条目</p></td><td><p>1. 显示“重命名”“移除”操作入口，指向所点击指纹</p></td></tr>
+</table>
+<h3>2. 多指纹解锁</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>两个指纹分别解锁</p></td><td><p>1. 录入两个不同手指</p><p>2. 分别锁屏后使用指纹1、指纹2轻触电源键</p></td><td><p>1. 两次均解锁至主屏幕，单次响应时间小于2秒</p></td></tr>
+</table>
+<h3>3. 移除与确认</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>移除一个并保留另一个</p></td><td><p>1. 已有两个指纹，点击指纹1→移除→确认移除</p><p>2. 锁屏，先用指纹1，再用指纹2轻触</p></td><td><p>1. 列表仅保留指纹2，恢复“添加”</p><p>2. 指纹1不能解锁，显示“指纹不匹配，请重试。”</p><p>3. 指纹2可解锁</p></td></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>移除全部指纹</p></td><td><p>1. 逐一移除所有指纹并确认</p><p>2. 锁屏后使用先前录入的手指</p></td><td><p>1. 列表为空，显示“添加”</p><p>2. 锁屏不显示指纹标识，所有原指纹均无法解锁</p><p>3. 输入 PIN 可解锁</p></td></tr>
+<tr><td><p>P1</p></td><td><p>移除确认与取消</p></td><td><p>1. 通过 PIN 进入指纹页，点击任一条目→移除</p><p>2. 查看确认框后点击“取消”，再重新打开确认框</p></td><td><p>1. 显示“移除指纹？”“此指纹将无法再用于解锁您的设备。”及“取消”“移除”</p><p>2. 取消后原条目保留且仍可解锁</p><p>3. 本次已通过管理入口 PIN 验证，不在每次移除时重复要求 PIN</p></td></tr>
+</table>
+<h3>4. 移除中断恢复</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>一个或两个指纹移除期间断电</p></td><td><p>1. 分别在仅一个指纹移除该指纹、两个指纹移除指纹2时，在移除处理过程中断电</p><p>2. 重启先用 PIN 解锁，查看列表；再次锁屏逐条验证</p></td><td><p>1. 目标指纹要么已移除，要么条目保留且可解锁，不出现损坏中间态</p><p>2. 两个指纹场景中，未被移除的指纹1仍可解锁</p><p>3. 重启首次解锁必须 PIN</p></td></tr>
+</table>
+<h3>5. 解锁设备开关</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>关闭解锁设备</p></td><td><p>1. 确认开关开启且有指纹，将“解锁设备”关闭</p><p>2. 锁屏并用已录入手指轻触，随后输入 PIN</p></td><td><p>1. 开关关闭，列表中的指纹未删除</p><p>2. 锁屏不显示指纹标识，指纹无法解锁</p><p>3. PIN 可解锁</p></td></tr>
+<tr><td><p>P1</p></td><td><p>默认开启</p></td><td><p>1. 在新完成初始化的专用设备进入指纹页；分别覆盖已录入和跳过录入</p></td><td><p>1. 显示“解锁设备”，默认开启</p><p>2. 跳过录入时列表无指纹；开关开启不产生可用指纹</p></td></tr>
+<tr><td><p>P1</p></td><td><p>重新开启恢复解锁</p></td><td><p>1. 开关关闭且原指纹仍在，重新打开“解锁设备”</p><p>2. 锁屏并用原指纹轻触</p></td><td><p>1. 开关开启，原条目保留</p><p>2. 锁屏恢复指纹标识，原指纹可解锁</p></td></tr>
+</table></div></article></main><script>function tableText(content){const result=[];for(const node of content.children){if(node.tagName==='TABLE'){for(const row of node.rows){result.push(Array.from(row.cells,cell=>{const value=Array.from(cell.children,p=>p.textContent).join('\n');return /[\t\n"]/.test(value)?'"'+value.replaceAll('"','""')+'"':value}).join('\t'))}result.push('')}else result.push(node.innerText)}return result.join('\n')}
+function richTable(content){const copy=content.cloneNode(true);for(const table of copy.querySelectorAll('table')){table.setAttribute('border','1');table.style.borderCollapse='collapse'}for(const td of copy.querySelectorAll('td,th')){td.style.verticalAlign='top';td.style.padding='8px'}return '<html><head><meta charset="utf-8"></head><body>'+copy.innerHTML+'</body></html>'}
+function legacyCopy(content,text,rich){const selection=window.getSelection();const old=Array.from({length:selection.rangeCount},(_,i)=>selection.getRangeAt(i).cloneRange());const range=document.createRange();range.selectNodeContents(content);selection.removeAllRanges();selection.addRange(range);const handler=e=>{e.clipboardData.setData('text/plain',text);e.clipboardData.setData('text/html',rich);e.preventDefault()};document.addEventListener('copy',handler);let ok=false;try{ok=document.execCommand('copy')}finally{document.removeEventListener('copy',handler);selection.removeAllRanges();for(const r of old)selection.addRange(r)}return ok}
+for(const button of document.querySelectorAll('[data-copy]'))button.addEventListener('click',async()=>{const content=document.getElementById(button.dataset.copy).querySelector('.copy-content');const text=tableText(content),rich=richTable(content);let ok=false;try{await navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([text],{type:'text/plain'}),'text/html':new Blob([rich],{type:'text/html'})})]);ok=true}catch{ok=legacyCopy(content,text,rich)}document.getElementById('status').textContent=ok?'已复制，可直接粘贴。':'浏览器未允许复制，请选中下方表格后复制。'});
+</script></body></html>

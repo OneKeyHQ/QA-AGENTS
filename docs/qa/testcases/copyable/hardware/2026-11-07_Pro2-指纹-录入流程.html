@@ -1,0 +1,61 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pro2 - 指纹录入流程与异常恢复 · 可复制版</title><style>body{font:15px/1.65 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;color:#172033;background:#f5f6f8;margin:0}main{max-width:1440px;padding:28px;margin:auto}header,article{background:white;border:1px solid #dce1e8;border-radius:12px;padding:24px;margin-bottom:24px}h1{font-size:26px;margin:0 0 8px}h2{font-size:23px}h3{margin-top:28px;font-size:19px}table{border-collapse:collapse;table-layout:fixed;width:100%;margin:16px 0 24px}th,td{border:1px solid #cad2dd;padding:12px;vertical-align:top;text-align:left;overflow-wrap:anywhere}th{background:#eef2f7}th:first-child{width:8%}th:nth-child(2){width:19%}th:nth-child(3){width:31%}td p+p{margin-top:5px!important}.note{color:#526074;margin:4px 0;font-size:13px}.actions{display:flex;align-items:center;gap:12px;justify-content:flex-end}button{border:0;background:#146959;color:white;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:14px}button:focus-visible{outline:3px solid #6bb9ed;outline-offset:2px}a{color:#146959}#status{min-height:24px;color:#146959}article .actions{position:sticky;top:8px;background:#fff;padding:8px;z-index:1}@media(max-width:700px){main{padding:10px}article,header{padding:12px}table{min-width:850px}.copy-content{overflow-x:auto}}@media print{.actions,header{display:none}article{border:0;padding:0}}table.reference th:first-child{width:15%}table.reference th:nth-child(2){width:auto}td p,th p{margin:0}h4{font-size:17px}</style></head><body><main><header><h1>Pro2 - 指纹录入流程与异常恢复</h1><div id="status" role="status" aria-live="polite"></div></header><article id="doc0"><div class="actions"><button data-copy="doc0">复制本份用例</button></div><div class="copy-content"><h3>前置条件</h3>
+<p>1. 准备已备份的专用 Pro2 测试设备，分别具备未初始化、已初始化零个指纹、已初始化一个指纹的状态；设备语言设为简体中文。</p>
+<p>2. PIN 已知，并准备一组错误 PIN；准备已录入手指及不同的未录入手指。</p>
+<p>3. 日常解锁验证先完成开机首次 PIN 解锁，并开启“解锁设备”；初始化场景依步骤单独准备。</p>
+<p>4. 采样异常使用可清洁、无损的污渍及不同覆盖、移动方式；断电仅在专用测试设备执行。</p>
+<h3>1. 初始化录入入口</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>初始化时完成录入</p></td><td><p>1. 在引导页点击“添加”，按提示采集指纹</p><p>2. 完成页点击“完成”，继续初始化</p></td><td><p>1. 进入录入流程</p><p>2. 完成页显示“指纹已添加”和“指纹数据受安全芯片保护。”</p><p>3. 继续初始化，指纹列表新增一条</p></td></tr>
+<tr><td><p>P1</p></td><td><p>设置 PIN 后显示指纹引导</p></td><td><p>1. 未初始化设备设置并确认 PIN</p></td><td><p>1. 显示“指纹解锁”</p><p>2. 说明为“使用指纹更快解锁您的设备。您仍可随时使用 PIN。”</p><p>3. 显示“添加”和“暂不”</p></td></tr>
+<tr><td><p>P1</p></td><td><p>暂不录入</p></td><td><p>1. 在指纹引导页点击“暂不”</p><p>2. 完成初始化并锁屏</p></td><td><p>1. 继续初始化，不新增指纹</p><p>2. 锁屏无指纹解锁标识，仍可输入 PIN</p><p>3. 不将跳过录入等同于关闭“解锁设备”开关</p></td></tr>
+</table>
+<h3>2. 设置录入入口</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>进入指纹设置需要 PIN</p></td><td><p>1. 在设备设置→安全→指纹进入验证页</p><p>2. 输入设备 PIN</p></td><td><p>1. 验证前不能进入指纹管理</p><p>2. PIN 验证后进入指纹页，未满两个时显示“添加”</p></td></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>设置内完成录入</p></td><td><p>1. 在指纹页点击“添加”，按提示完成采集</p><p>2. 在完成页点击“完成”</p></td><td><p>1. 显示“指纹已添加”和“指纹数据受安全芯片保护。”</p><p>2. 返回指纹设置页，仅新增一条指纹</p></td></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>录入后验证解锁</p></td><td><p>1. 完成录入后锁定设备</p><p>2. 使用新录入手指轻触电源键</p></td><td><p>1. 设备解锁并进入主屏幕</p></td></tr>
+</table>
+<h3>3. 新版分段采集</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>P1</p></td><td><p>轻触引导与内圈采集</p></td><td><p>1. 进入录入页，观察引导</p><p>2. 轻放手指，每次采样后抬起，再调整位置轻触</p></td><td><p>1. 初始显示“轻触电源键”“将手指轻放在电源键上。”</p><p>2. 采集期间按进度显示“将手指放在电源键上并保持静止。”；提示指尖时显示“将手指指尖放在电源键上。”</p><p>3. 有效采样使指纹图形进度递增，持续贴住不重复累计</p></td></tr>
+<tr><td><p>P1</p></td><td><p>调整握持与边缘采集</p></td><td><p>1. 完成第一段采集</p><p>2. 看到调整握持引导后换姿势，按提示采集边缘</p></td><td><p>1. 显示“调整握持姿势”“继续操作，采集指纹边缘。”</p><p>2. 继续采集后进入完成页，不要求固定左、右两个独立阶段</p></td></tr>
+<tr><td><p>P1</p></td><td><p>采集与完成动画</p></td><td><p>1. 录入过程中观察采样反馈</p><p>2. 采集完成后等待完成页动画</p></td><td><p>1. 有效采样时显示指纹图形填充及扫描反馈</p><p>2. 完成页勾选动画播放一次并停在末帧，随后显示“完成”按钮</p></td></tr>
+</table>
+<h3>4. 采样异常与恢复</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>重复录入已有指纹</p></td><td><p>1. 已录入一个指纹，点击“添加”</p><p>2. 使用已录入手指采集，出现重复提示后换未录入手指完成</p></td><td><p>1. 显示“此指纹已录入，调整您的手指位置后重试。”</p><p>2. 本次采集重新开始，不新增重复条目</p><p>3. 新手指完成后共两条；原指纹仍能解锁</p></td></tr>
+<tr><td><p>P1</p></td><td><p>移动过快或采样质量不足</p></td><td><p>1. 采集时快速划过或移动手指，触发无效采样提示</p><p>2. 抬起并重新放置手指</p></td><td><p>1. 显示“抬起手指，换个位置重试。”</p><p>2. 无效采样不增加进度，重新放置后可继续采集</p></td></tr>
+<tr><td><p>P1</p></td><td><p>覆盖传感器不足</p></td><td><p>1. 仅以少量指腹接触传感器，触发覆盖不足提示</p><p>2. 增加覆盖面积后再次轻触</p></td><td><p>1. 显示“让手指覆盖更多传感器区域。”</p><p>2. 无效采样不增加进度，调整后可继续采集</p></td></tr>
+<tr><td><p>P1</p></td><td><p>同一区域反复采集</p></td><td><p>1. 反复用相同位置采样，触发调整位置提示</p><p>2. 更换手指接触位置继续</p></td><td><p>1. 显示“抬起手指，换个位置重试。”，不把此情况描述为已录入另一条指纹</p><p>2. 无效采样不增加进度，调整后可继续采集</p></td></tr>
+<tr><td><p>P1</p></td><td><p>录入时按下电源键</p></td><td><p>1. 录入过程中按下电源键</p><p>2. 松开后轻触，继续采集</p></td><td><p>1. 显示“轻触电源键。不要按压。”</p><p>2. 已完成采样保留，后续轻触可继续采集</p></td></tr>
+<tr><td><p>P1</p></td><td><p>传感器脏污</p></td><td><p>1. 传感器存在污渍并触发清洁提示</p><p>2. 清洁、擦干后重新采集</p></td><td><p>1. 显示“清洁电源键后重试。”</p><p>2. 无效采样不增加进度，清洁后可继续采集</p></td></tr>
+<tr><td><p>P1</p></td><td><p>采集时手指抖动</p></td><td><p>1. 轻触后移动手指，触发保持静止提示</p><p>2. 调整为静止轻触</p></td><td><p>1. 显示“保持手指静止。”</p><p>2. 无效采样不增加进度，静止后可继续采集</p></td></tr>
+<tr><td><p>P1</p></td><td><p>过度施压导致覆盖提示</p></td><td><p>1. 采集时过度施压但不按下电源键，触发覆盖提示</p><p>2. 减轻力度并调整接触范围</p></td><td><p>1. 显示“让手指覆盖更多传感器区域。”</p><p>2. 不新增指纹或增加无效采样进度；调整后可继续</p></td></tr>
+</table>
+<h3>5. 超时与失败</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>P1</p></td><td><p>录入超时后重试</p></td><td><p>1. 录入一部分后长时间不触摸，直到显示超时结果页</p><p>2. 点击“重试”后重新采集</p></td><td><p>1. 显示“指纹超时”“我们无法检测到您的手指，调整您的手指位置后重试。”及“重试”</p><p>2. 重新从录入起点采集，不续接原进度</p><p>3. 完成前列表不新增条目</p></td></tr>
+<tr><td><p>P1</p></td><td><p>连续无效采样后重试</p></td><td><p>1. 连续触发无效采样，直到显示录入失败结果页</p><p>2. 点击“重试”，按提示重新采集</p></td><td><p>1. 显示“添加指纹失败”“调整您的手指位置后重试。”及“重试”</p><p>2. 重新从录入起点采集，不续接原进度</p><p>3. 完成后仅新增一条指纹</p></td></tr>
+<tr><td><p>P1</p></td><td><p>关闭超时或失败结果页</p></td><td><p>1. 分别从初始化与设置入口触发超时或失败</p><p>2. 点击结果页关闭按钮</p></td><td><p>1. 初始化入口继续初始化，设置入口返回指纹列表</p><p>2. 未完成采集不写入指纹列表，原有指纹保留</p></td></tr>
+</table>
+<h3>6. 错误 PIN 与采集中退出</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>进入指纹设置输入错误 PIN</p></td><td><p>1. 设备设置→安全→指纹</p><p>2. 在验证页输入一组错误 PIN</p></td><td><p>1. 显示“PIN 错误”及剩余次数提示</p><p>2. 停留在 PIN 验证页，不进入指纹管理</p></td></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>内圈或外圈采集中退出</p></td><td><p>1. 已有一个指纹，分别在新增指纹的内圈、调整握持后外圈采集中关闭退出</p><p>2. 返回列表后锁屏，分别使用未完成手指和原手指</p></td><td><p>1. 列表保留原指纹，不新增未完成条目</p><p>2. 未完成手指不能解锁；原手指可解锁</p></td></tr>
+</table>
+<h3>7. 录入中断与重启加载</h3>
+<table class="cases">
+<tr><th><p>优先级</p></th><th><p>场景</p></th><th><p>操作步骤</p></th><th><p>预期结果</p></th></tr>
+<tr><td><p>❗️❗️P0❗️❗️</p></td><td><p>录入期间断电恢复</p></td><td><p>1. 分别在零个指纹录入第一个、已有一个录入第二个时，在采集或保存过程中断电</p><p>2. 重启后先用 PIN 解锁，查看列表；再次锁屏核对每条指纹</p></td><td><p>1. 新指纹要么未写入，要么完整写入且能解锁，不出现有条目但无法识别的中间态</p><p>2. 录入第二个时，原指纹仍可解锁</p><p>3. 重启首次解锁必须 PIN</p></td></tr>
+<tr><td><p>P1</p></td><td><p>一个或两个指纹重启加载</p></td><td><p>1. 分别准备一个、两个已录入指纹，重启并使用 PIN 完成首次解锁</p><p>2. 记录指纹加载画面出现到消失的时间；再次锁屏并逐个验证指纹</p></td><td><p>1. 一个指纹加载时间≤2秒；两个指纹≤4秒</p><p>2. 进入主屏幕后再次锁屏，各已录入指纹均可解锁</p><p>3. 不以开机后直接指纹解锁替代首次 PIN 验证</p></td></tr>
+</table></div></article></main><script>function tableText(content){const result=[];for(const node of content.children){if(node.tagName==='TABLE'){for(const row of node.rows){result.push(Array.from(row.cells,cell=>{const value=Array.from(cell.children,p=>p.textContent).join('\n');return /[\t\n"]/.test(value)?'"'+value.replaceAll('"','""')+'"':value}).join('\t'))}result.push('')}else result.push(node.innerText)}return result.join('\n')}
+function richTable(content){const copy=content.cloneNode(true);for(const table of copy.querySelectorAll('table')){table.setAttribute('border','1');table.style.borderCollapse='collapse'}for(const td of copy.querySelectorAll('td,th')){td.style.verticalAlign='top';td.style.padding='8px'}return '<html><head><meta charset="utf-8"></head><body>'+copy.innerHTML+'</body></html>'}
+function legacyCopy(content,text,rich){const selection=window.getSelection();const old=Array.from({length:selection.rangeCount},(_,i)=>selection.getRangeAt(i).cloneRange());const range=document.createRange();range.selectNodeContents(content);selection.removeAllRanges();selection.addRange(range);const handler=e=>{e.clipboardData.setData('text/plain',text);e.clipboardData.setData('text/html',rich);e.preventDefault()};document.addEventListener('copy',handler);let ok=false;try{ok=document.execCommand('copy')}finally{document.removeEventListener('copy',handler);selection.removeAllRanges();for(const r of old)selection.addRange(r)}return ok}
+for(const button of document.querySelectorAll('[data-copy]'))button.addEventListener('click',async()=>{const content=document.getElementById(button.dataset.copy).querySelector('.copy-content');const text=tableText(content),rich=richTable(content);let ok=false;try{await navigator.clipboard.write([new ClipboardItem({'text/plain':new Blob([text],{type:'text/plain'}),'text/html':new Blob([rich],{type:'text/html'})})]);ok=true}catch{ok=legacyCopy(content,text,rich)}document.getElementById('status').textContent=ok?'已复制，可直接粘贴。':'浏览器未允许复制，请选中下方表格后复制。'});
+</script></body></html>
