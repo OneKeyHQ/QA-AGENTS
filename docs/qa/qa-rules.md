@@ -956,6 +956,7 @@ UI 元素（banner / 入口按钮）的"显示 / 不显示"规则集中在第一
 | --- | --- | --- |
 | Account | `docs/qa/rules/account-rules.md` | 账户模型规则（账户类型、派生路径、助记词管理） |
 | Wallet | `docs/qa/rules/wallet-rules.md` | Wallet 规则（转账、Token、NFT、历史记录） |
+| Transfer | `docs/qa/rules/privacy-transfer-rules.md` | Zcash / Monero HD 转账、隐私恢复与账户同步规则 |
 | Swap | `docs/qa/rules/swap-rules.md` | Swap 规则（报价、构建订单、手续费、历史记录；**渠道/场景 Markdown 用例编写规范**见文内专节） |
 | Swap | `docs/qa/rules/swap-network-features.md` | Swap 网络特性表（网络类型、主币、授权要求） |
 | Market | `docs/qa/rules/market-rules.md` | Market 规则（K 线、行情、Swap Pro Mode） |
