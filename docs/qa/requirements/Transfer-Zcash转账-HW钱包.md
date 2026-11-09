@@ -7,7 +7,7 @@
 - 用户在本批明确确认 Pro2 与 Neo 一起支持，两种型号均执行；Desktop 为本批文档执行基线，不扩大为已验证其他端或其他型号。
 - 用户指定 Jira Test [OK-23820](https://onekeyhq.atlassian.net/browse/OK-23820)，要求 review 后同步，并明确保留 Jira 原有用例名称。
 - 用例：`docs/qa/testcases/cases/transfer/2026-11-05_Transfer-Zcash转账-HW钱包.md`。
-- 可复制版：`docs/qa/testcases/copyable/transfer/2026-11-05_Zcash-转账-HW钱包.html`。
+- 本地可复制版（不提交 Git 或 PR）：`docs/qa/testcases/copyable/transfer/2026-11-05_Zcash-转账-HW钱包.html`。
 
 ## 2. 最新确认的验收范围
 

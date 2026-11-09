@@ -6,7 +6,7 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
 ## 手动用例交付与 Jira 同步（所有 AI 必须读取）
 
-新建、补充、修改手动用例时，先读 `docs/qa/qa-rules.md` §7.3 和 `docs/qa/rules/jira-test-sync-rules.md`。必须交付 Markdown 源文件及内容一致的可复制 HTML；复制正文只留前置条件与用例内容，保留真实换行。完成本地验证后，主动询问是否同步 Jira；用户同意本批同步后，按 `docs/qa/jira-test-mapping.json` 已核实的 Test 编号直接更新。无映射时询问用户提供已有 Test 编号或确认创建，用户拒绝则不写 Jira。此询问是交付流程的一部分，不受下文「不要再问」影响；当前会话已明确授权同一批目标时不重复询问。完整步骤、字段范围、回读验证与映射维护以同步规则为准。
+新建、补充、修改手动用例时，先读 `docs/qa/qa-rules.md` §7.3 和 `docs/qa/rules/jira-test-sync-rules.md`。必须交付 Markdown 源文件及内容一致的可复制 HTML；复制正文只留前置条件与用例内容，保留真实换行。Markdown 源文件、规则和 Jira 映射提交仓库；可复制 HTML 仅保存在本地 `docs/qa/testcases/copyable/`，不提交 Git 或 PR，也不使用强制添加绕过忽略。已经跟踪的可复制版应取消 Git 跟踪并保留本地文件。完成本地验证后，主动询问是否同步 Jira；用户同意本批同步后，按 `docs/qa/jira-test-mapping.json` 已核实的 Test 编号直接更新。无映射时询问用户提供已有 Test 编号或确认创建，用户拒绝则不写 Jira。此询问是交付流程的一部分，不受下文「不要再问」影响；当前会话已明确授权同一批目标时不重复询问。完整步骤、字段范围、回读验证与映射维护以同步规则为准。
 
 ## OneKey Desktop App
 - **可执行路径可配置**：通过环境变量 `ONEKEY_BIN` 指定，默认 `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
@@ -482,9 +482,9 @@ node scripts/build-locator-map.mjs --check
 ### 提交内容精简（强制）
 
 - 仓库只保留与用例、实际自动化或其必要维护直接相关的代码、规范和固定测试输入；不复制整份用例生成执行计划，不把计划或样本数量算作脚本覆盖。
-- 报告、截图、录像、运行结果、临时快照与缓存仅保存在本地，默认通过 `.gitignore` 排除。生成和展示报告仍可进行，不能因需要交付报告而将其加入提交。
+- 报告、截图、录像、运行结果、临时快照、缓存和可复制 HTML 仅保存在本地，通过 `.gitignore` 排除。生成、展示和复制仍可进行，交付文件不代表允许将其加入提交。
 - 每次 commit / PR 前检查 `git diff --cached --name-status`。已跟踪文件不受 `.gitignore` 影响；发现暂存的新增或修改执行产物时，自动取消该文件的暂存，保留本地文件，且不连带取消同次提交的用例或脚本。用户明确要求的历史产物删除可提交，不因清理而重新生成。
-- 断言依赖的固定输入（如二维码、边界数据）属于测试源码，保留明确的忽略例外；正式用例及可复制版不按执行报告处理。无关改动不加入本次提交，例外提交产物须有用户明确要求。
+- 断言依赖的固定输入（如二维码、边界数据）属于测试源码，保留明确的忽略例外；正式 Markdown 用例可以提交，可复制 HTML 只在本地交付。无关改动不加入本次提交，例外提交产物须有用户明确要求。
 
 ## Default Workflow（写新用例时必须遵循，不要再问）
 

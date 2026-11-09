@@ -17,7 +17,7 @@
 - `docs/qa/testcases/cases/transfer/2026-11-07_Transfer-Zcash转账-软件钱包.md`：四笔地址组合转账、公开地址隔离、取消后重发、隐私管理与同步；合并维护跨链及同链名额场景。
 - `docs/qa/testcases/cases/transfer/2026-11-07_Transfer-Monero转账-软件钱包.md`：标准路径中间值、Cake Wallet 路径 Max，各一笔；同步恢复、密钥授权取消重试及派生账户隔离。
 - 同步基本流程分别代入本链日期与高度，两份文档可独立阅读。跨链五名额只维护一处；不展开全部路径 × 全部金额组合。
-- 两份可复制 HTML 位于 `docs/qa/testcases/copyable/transfer/`，复制区域只含前置条件、章节及四列用例表，保留真实单元格换行。
+- 两份本地可复制 HTML（不提交 Git 或 PR）位于 `docs/qa/testcases/copyable/transfer/`，复制区域只含前置条件、章节及四列用例表，保留真实单元格换行。
 
 ## 3. 源码核对与未采用项
 
