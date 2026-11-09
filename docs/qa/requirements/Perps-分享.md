@@ -4,7 +4,7 @@
 
 - 对应 Jira Test：[OK-24305](https://onekeyhq.atlassian.net/browse/OK-24305)。覆盖通用分享卡片、图片保存、系统分享、复制链接、X 草稿、邀请码及二维码。
 - 源码基准：2026-10-28，OneKeyHQ/app-monorepo `x@a3c2d6f4e8276733a278289de2c122ffb170fe64`。重点为 `PositionShareModal.tsx`、`ControlPanel.tsx`、`ShareContentRenderer.tsx`、`constants.ts`、`useReferralUrl.ts`、`useShareActions.tsx`、`ShareImageGenerator.native.tsx`、`ShareView.native.tsx`；快照见本批同步报告 source 目录。
-- 历史成交分享资格、反手历史成本及历史 ROE 缺陷回归仍归 `Perps-代码审查补充能力.md` 与现有「历史成交筛选、详情与分享」用例（OK-24059），不能用本文件覆盖该 Test。
+- 历史成交分享资格与反手分享归 `Perps-代码审查补充能力.md` 及现有「历史成交筛选、详情与分享」用例（OK-24059）。2026-11-06 用户确认历史杠杆不可完整还原，不强制历史成本、保证金与精确 ROE，不以当前杠杆变化引起的估算 ROE 变化判缺陷；仍核对真实成交数据与分享功能，不能用本文件覆盖该 Test。
 
 ## 卡片
 
@@ -28,4 +28,8 @@
 ## 交付与跨线路影响
 
 - 手动用例：`docs/qa/testcases/cases/perps/2026-10-28_Perps-分享.md`；规则 §15；映射到 OK-24305 的 description。
-- 本次不发送或发布 X 内容，不增加真实交易。API / UI 后续自动化可复用卡片、模式、权限、链接一致性断言；历史成本计算继续归独立用例，不重复新增。
+- 本次不发送或发布 X 内容，不增加真实交易。API / UI 后续自动化可复用卡片、模式、权限、链接一致性断言；历史分享验收边界继续归独立用例，不重复新增。
+
+## 变更记录
+
+- 2026-11-06：同步用户确认的历史与反手分享验收边界；当前持仓及现货资产的价格、盈亏和分享功能要求保持不变。经本批授权已同步 Jira Test OK-24305 的 description，并与配套 OK-24059 一并完成逐格和换行回读验证；未修改 Bug 状态或 Xray Steps。

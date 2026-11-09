@@ -67,3 +67,9 @@ __pycache__/
 # Synthetic QR fixtures are test inputs, not execution screenshots
 !src/tests/shared/perps/tests/fixtures/qr-dotted.png
 !src/tests/shared/perps/tests/fixtures/qr-share-small.png
+
+# 可复制版本、审查报告及同步证据为临时产物，不提交或上传
+/docs/qa/testcases/copyable/
+**/copyable/
+*可复制版*
+*copyable*.html

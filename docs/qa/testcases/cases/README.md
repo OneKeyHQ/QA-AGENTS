@@ -95,6 +95,10 @@ docs/qa/testcases/
 - 文件内必须可直接渲染为 Markdown 表格（禁止在最外层包裹 ``` 代码块）
 - 表格单元格内多行内容必须使用 `<br>` 分隔
 
+## 历史用例与执行版本
+
+- Perps 条件单只执行 [03-20 新版](perps/2026-03-20_Perps-条件单模式合并测试.md)，对应 Jira Test OK-12145。[03-12 旧版](perps/2026-03-12_Perps-条件单.md) 仅保留历史，不纳入回归执行、不单独同步；替代关系已登记在 `docs/qa/jira-test-mapping.json` 的 `excluded_files`。
+
 ## GitHub 上传规则
 
 - ✅ `docs/qa/testcases/cases/` - 允许上传

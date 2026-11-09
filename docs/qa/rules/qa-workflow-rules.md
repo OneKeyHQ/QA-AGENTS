@@ -97,7 +97,7 @@
 - 业务问题 → 补充 module-rules.md
 - 流程问题 → 补充本文档
 
-**⑦ 询问 Jira 同步**：完成源文件和可复制版验证后，展示本批文件、已映射 Test 编号和差异，主动询问是否同步；已明确授权本批目标时不重复询问。用户同意后更新已记录编号，未映射项询问提供已有 Test 编号或确认创建；用户拒绝则本批不写 Jira。逐项回读验证后才记同步时间。完整规则见 `jira-test-sync-rules.md`，共享映射见 `docs/qa/jira-test-mapping.json`；不因工具缺少 Xray 能力而把描述更新冒称为结构化 Steps 更新。
+**⑦ 询问 Jira 同步**：完成源文件及本地可复制版验证后（HTML 保存在被忽略的 `docs/qa/testcases/copyable/`，不提交 Git 或 PR），展示本批文件、已映射 Test 编号和差异，主动询问是否同步；已明确授权本批目标时不重复询问。用户同意后更新已记录编号，未映射项询问提供已有 Test 编号或确认创建；用户拒绝则本批不写 Jira。逐项回读验证后才记同步时间。完整规则见 `jira-test-sync-rules.md`，共享映射见 `docs/qa/jira-test-mapping.json`；不因工具缺少 Xray 能力而把描述更新冒称为结构化 Steps 更新。
 
 ---
 
