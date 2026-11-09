@@ -34,6 +34,8 @@ superpowers/
 # 测试执行产物（截图、结果 JSON）
 shared/results/
 shared/reports/
+# 可复制 HTML 仅供本地交付；Markdown 源文件和 Jira 映射继续提交
+/docs/qa/testcases/copyable/
 docs/skills/smoke-test/reports/
 screenshots/
 videos/

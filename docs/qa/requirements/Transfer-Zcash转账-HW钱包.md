@@ -7,7 +7,7 @@
 - 用户在本批明确确认 Pro2 与 Neo 一起支持，两种型号均执行；Desktop 为本批文档执行基线，不扩大为已验证其他端或其他型号。
 - 用户指定 Jira Test [OK-23820](https://onekeyhq.atlassian.net/browse/OK-23820)，要求 review 后同步，并明确保留 Jira 原有用例名称。
 - 用例：`docs/qa/testcases/cases/transfer/2026-11-05_Transfer-Zcash转账-HW钱包.md`。
-- 交付 Markdown 源文件；可复制 HTML 仅在用户需要时于仓库外的系统临时目录生成，不纳入提交或上传。
+- 本地可复制版（不提交 Git 或 PR）：`docs/qa/testcases/copyable/transfer/2026-11-05_Zcash-转账-HW钱包.html`。
 
 ## 2. 最新确认的验收范围
 
@@ -25,7 +25,7 @@
 
 ## 4. 三线影响与 Jira
 
-- 手动：新增一份 Markdown；正式表格不加用例 ID。
+- 手动：新增一份 Markdown 与对应可复制 HTML；正式表格不加用例 ID。
 - API：本批无接口契约变更，也未新建或执行 Zcash 接口自动化；未来可围绕金额精度、签名参数一致性、同步就绪及广播恢复设计接口检查，不能以接口结果替代设备签名验证。
 - UI：未查到现有 Zcash 转账专项脚本，本批不改其他链的脚本或断言；未连接 App、刷新固件或执行真实转账。实机执行需另行安排受测端、设备、账户与资金操作范围。
 - Jira：用户授权 review 通过后同步 OK-23820；已核实为 OneKey 项目 Test（id 34560），标题为「Zcash - 转账 - 硬件钱包（Pro2/Neo）」。只更新 description，保留标题、负责人、状态、标签及 Xray Steps；写后回读并记录共享映射。
