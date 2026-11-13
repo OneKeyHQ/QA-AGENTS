@@ -33,6 +33,6 @@ description: Use when the user says “审查 perps” / “审查 模块名”,
 
 ## 确认后维护
 
-只应用用户确认的建议集合，记录确认消息、建议编号、用例基线与具体新预期。用 Test Designer 职责按四列表格维护用例；默认生成内容一致的本地可复制版并验证，保存在被忽略的 `docs/qa/testcases/copyable/`，不提交 Git 或 PR；未确认项仍留在报告。同步检查规则、需求、API / UI 断言的影响，业务变化未确认不写入；Jira 写入按独立授权处理。更新结果回链到原审查报告。
+只应用用户确认的建议集合，记录确认消息、建议编号、用例基线与具体新预期。用 Test Designer 职责按四列表格维护用例；默认只交付 Markdown，不生成或维护可复制版；仅用户明确要求时生成并验证本地版，保存在被忽略的 `docs/qa/testcases/copyable/`，不提交 Git 或 PR；未确认项仍留在报告。同步检查规则、需求、API / UI 断言的影响，业务变化未确认不写入；Jira 写入按独立授权处理。更新结果回链到原审查报告。
 
 本任务不启动 OneKey、CDP、TestFlight、Recorder 或自动化 Runner，不修改产品代码；不统计 TF 通过率。审查和已确认的文档维护交付后结束，**不自动触发 `$onekey-ui-regression`**。

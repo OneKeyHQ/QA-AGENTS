@@ -6,15 +6,15 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
 ## 手动用例交付与 Jira 同步（所有 AI 必须读取）
 
-新建、补充、修改手动用例时，先读 `docs/qa/qa-rules.md` §7.3 和 `docs/qa/rules/jira-test-sync-rules.md`。必须交付 Markdown 源文件及内容一致的可复制 HTML；复制正文只留前置条件与用例内容，保留真实换行。Markdown 源文件、规则和 Jira 映射提交仓库；可复制 HTML 仅保存在本地 `docs/qa/testcases/copyable/`，不提交 Git 或 PR，也不使用强制添加绕过忽略。已经跟踪的可复制版应取消 Git 跟踪并保留本地文件。完成本地验证后，主动询问是否同步 Jira；用户同意本批同步后，按 `docs/qa/jira-test-mapping.json` 已核实的 Test 编号直接更新。无映射时询问用户提供已有 Test 编号或确认创建，用户拒绝则不写 Jira。此询问是交付流程的一部分，不受下文「不要再问」影响；当前会话已明确授权同一批目标时不重复询问。完整步骤、字段范围、回读验证与映射维护以同步规则为准。
+新建、补充、修改手动用例时，先读 `docs/qa/qa-rules.md` §7.3 和 `docs/qa/rules/jira-test-sync-rules.md`。默认只交付 Markdown 源文件，不生成或维护可复制 HTML；仅用户明确要求时才生成本地可复制版。Jira 同步直接从 Markdown 构造富文本，保留表格与真实换行，不生成独立复制页面。Markdown 源文件、规则和 Jira 映射提交仓库；可复制 HTML 仅保存在本地 `docs/qa/testcases/copyable/`，不提交 Git 或 PR，也不使用强制添加绕过忽略。已经跟踪的可复制版应取消 Git 跟踪并保留本地文件。完成本地验证后，主动询问是否同步 Jira；用户同意本批同步后，按 `docs/qa/jira-test-mapping.json` 已核实的 Test 编号直接更新。无映射时询问用户提供已有 Test 编号或确认创建，用户拒绝则不写 Jira。此询问是交付流程的一部分，不受下文「不要再问」影响；当前会话已明确授权同一批目标时不重复询问。完整步骤、字段范围、回读验证与映射维护以同步规则为准。
 
 ## 临时产物与上传规则（2026-11-06，用户确认）
 
 - 手动用例交付维护 Markdown 源文件、需求、规则和必要的 Jira 映射；仓库同时维护实际可执行的自动化脚本、其使用的最小数据、公共工具及 Skills。可复制 HTML、复制页面、审查报告、复现输出及同步证据属于临时产物，不纳入 Git review、commit、PR 或仓库上传，禁止用 `git add -f` 绕过忽略规则。
-- 可复制 HTML 按手动用例交付规则默认生成在被忽略的本地 `docs/qa/testcases/copyable/`，保留复制验证与本地入口；报告和证据仅本地保存，验证结论可直接回复。用户要求清理临时产物时按指定范围执行。
+- 默认不生成或维护可复制 HTML。仅用户明确要求时，在被忽略的本地 `docs/qa/testcases/copyable/` 生成并验证；报告和证据仅本地保存，验证结论可直接回复。用户要求清理临时产物时按指定范围执行。
 - `.gitignore` 忽略 `docs/qa/testcases/copyable/`、`shared/reports/` 及其他 `copyable/`、带“可复制版”名称的文件。已经跟踪的旧产物通过删除变更移出版本控制；不能仅靠忽略规则隐藏。
 - 上传前检查 Git diff 和暂存列表，不包含新增或修改的临时产物；移除已跟踪旧产物的删除记录允许提交。Jira 仍可直接从 Markdown 构造富文本并回读验证，保留映射中的同步时间与哈希；已删除证据路径置空并注明原因。
-- 本规则禁止上传临时产物；不取消默认生成本地可复制版，也不改变 Jira 写入授权流程。
+- 2026-11-11 用户确认默认不再生成可复制版，取代此前默认生成要求；临时产物上传禁令和 Jira 写入授权流程继续生效。
 
 ## OneKey Desktop App
 - **可执行路径可配置**：通过环境变量 `ONEKEY_BIN` 指定，默认 `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
@@ -778,7 +778,7 @@ NODE
 1. 读取需求、执行知识、通用规范及模块规则，对齐 app-monorepo 源码；已知 Bug 按修复后的预期写
 2. 手动用例使用「优先级 / 场景 / 操作步骤 / 预期结果」四列，不分配 Test ID；仅自动化脚本使用 `FEATURE-NNN`
 3. 分析前置条件，去重并检查平台范围，保存到 `docs/qa/testcases/cases/<模块目录>/`
-4. 默认同时生成可复制 HTML，只保留前置条件和用例内容；验证与 Markdown 一致，保留真实换行
+4. 默认只交付 Markdown，不生成或维护可复制 HTML；仅用户明确要求时生成本地可复制版并验证内容、表格与真实换行
 5. 按 `docs/qa/rules/jira-test-sync-rules.md` 询问是否同步 Jira；同意后按共享映射更新，无映射则询问编号或确认创建，拒绝则不写入
 6. 仅明确要求录制或执行自动化时，进入对应平台连接与脚本流程
 
