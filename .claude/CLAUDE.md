@@ -12,7 +12,7 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
 用户说「开始记录 Bug」「提交 Bug」，或要求从对话、Slack 线程整理反馈、生成 Jira Bug 草稿或按编号提交时，先读取 `.agents/skills/slack-feedback-to-jira/SKILL.md`。Codex 从 `.agents/skills/` 发现技能；Claude 使用同名 `.claude/skills/` 镜像；Cursor 使用 `.cursor/rules/slack-feedback-to-jira.mdc`。维护时保持技能正文一致。
 
-「记录」「整理」「先看草稿」只收集材料或输出草稿；用户明确要求「提交 Bug」才创建本批 Jira Bug，缺失字段按技能集中询问。编辑旧单、回帖 Slack 仍需用户明确指定。安装或维护技能本身不视为提交 Bug；本流程与手动 Test 用例同步、回归 Test Execution 创建分别处理，不自动启动 OneKey 或执行测试。使用 Slack/Jira 时需当前 AI 已连接相应工具并具备对应权限；工具或字段不明时发现实际能力，不把固定工具名当成已可用。
+「记录」「整理」「先看草稿」只收集材料或输出草稿；用户明确授权按本技能提交本批或指定条目才创建 Jira Bug（不要求逐字说「Bug」），缺失字段按技能集中询问。本技能只创建当前项目元数据核实的「缺陷 Bug」，不因「建议」「优化」等措辞改成需求；类型不可确认时停止创建，创建后回读类型。编辑旧单、回帖 Slack 仍需用户明确指定。安装或维护技能本身不视为提交 Bug；本流程与手动 Test 用例同步、回归 Test Execution 创建分别处理，不自动启动 OneKey 或执行测试。使用 Slack/Jira 时需当前 AI 已连接相应工具并具备对应权限；工具或字段不明时发现实际能力，不把固定工具名当成已可用。
 
 ## 临时产物与上传规则（2026-11-06，用户确认）
 
