@@ -1,7 +1,7 @@
 ---
 name: onekey-test-designer
 description: >
-  Test Designer - 生成或更新手动用例与可复制版，按用户选择同步 Jira；也支持从 PRD / 录制生成测试脚本。
+  Test Designer - 生成或更新手动用例，按用户选择同步 Jira；可复制版仅按明确要求生成；也支持从 PRD / 录制生成测试脚本。
   Triggers on: /onekey-test-designer, "设计用例", "写用例", "修改用例", "补充用例", "新增测试".
 user-invocable: true
 ---
@@ -20,7 +20,7 @@ user-invocable: true
 
 ## 手动用例交付分支（先判断）
 
-用户要求生成、补充、修改或复核手动用例时，先读取 `docs/qa/qa-rules.md` §7.3、`docs/qa/rules/qa-workflow-rules.md` 和 `docs/qa/rules/jira-test-sync-rules.md`。按模块查规则与知识，交付 Markdown 源文件及内容一致的本地可复制 HTML，核对正文、表格及真实换行；HTML 保存在被忽略的 `docs/qa/testcases/copyable/`，不提交 Git 或 PR。完成验证后主动询问是否同步 Jira；已明确授权本批目标时不重复询问。同意后按 `docs/qa/jira-test-mapping.json` 更新已核实的 Test；无映射时询问提供编号或确认创建，拒绝则跳过。更新后回读验证并维护映射，完整流程以同步规则为准。纯手动用例任务到此结束，不进入下面的录制、自动化 ID 分配或脚本生成流程；手动表格保持四列且不加 ID。
+用户要求生成、补充、修改或复核手动用例时，先读取 `docs/qa/qa-rules.md` §7.3、`docs/qa/rules/qa-workflow-rules.md` 和 `docs/qa/rules/jira-test-sync-rules.md`。按模块查规则与知识，默认只交付 Markdown 源文件，不生成或维护可复制 HTML；仅用户明确要求时生成本地版并核对正文、表格及真实换行，HTML 保存在被忽略的 `docs/qa/testcases/copyable/`，不提交 Git 或 PR。Jira 直接从 Markdown 构造富文本并回读验证，无需独立复制页面。完成验证后主动询问是否同步 Jira；已明确授权本批目标时不重复询问。同意后按 `docs/qa/jira-test-mapping.json` 更新已核实的 Test；无映射时询问提供编号或确认创建，拒绝则跳过。更新后回读验证并维护映射，完整流程以同步规则为准。纯手动用例任务到此结束，不进入下面的录制、自动化 ID 分配或脚本生成流程；手动表格保持四列且不加 ID。
 
 ## Phase 1: 需求分析
 

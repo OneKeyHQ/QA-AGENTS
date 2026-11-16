@@ -7,6 +7,7 @@ OneKey 钱包的 QA 工程仓库，包含两大核心能力：
 | 能力 | 说明 | 入口 |
 |------|------|------|
 | **测试用例生成** | 从 PRD 需求文档生成结构化测试用例 | `docs/qa/requirements/` → `docs/qa/testcases/` |
+| **对话 / Slack 反馈提 Bug** | 分批收集文字、截图、录屏和日志，整理草稿或按明确指令提交 Jira Bug | `.agents/skills/slack-feedback-to-jira/` |
 | **QA 规则库** | 各模块测试规则（Perps、Swap、DeFi、Wallet 等） | `docs/qa/rules/` |
 | **API 用例生成** | Apifox 可导入的 API 测试用例 | `docs/skills/apifox-testcase-generator/` |
 | **UI 自动化测试** | 多平台（Desktop / Extension / Web / Android）CDP 录制 → 生成脚本 → Dashboard 执行 | `src/tests/` + http://localhost:5050 |
@@ -60,9 +61,23 @@ Chrome Profile 会自动扫描并列出可选项。
 根据 <需求链接或文档> 补充 Perps 搜索用例，已知 Bug 按修复后的预期写。
 ```
 
-默认交付 Markdown 用例和可复制 HTML，复制内容只保留前置条件与用例正文，保留真实换行。生成后会询问是否同步 Jira：同意后按共享映射更新；无映射则询问 Test 编号或确认创建；拒绝则不写入。同步需要可用的 Jira 连接及对应权限。
+默认只交付 Markdown 用例，不生成或维护可复制 HTML；仅明确要求时提供本地可复制版。Jira 直接从 Markdown 同步富文本，保留表格与真实换行。生成后会询问是否同步 Jira：同意后按共享映射更新；无映射则询问 Test 编号或确认创建；拒绝则不写入。同步需要可用的 Jira 连接及对应权限。
 
 不必输入特定 Skill 名称；纯手动用例维护无需启动 OneKey 或 CDP。详见 [团队使用指南](docs/qa/用例生成链路介绍.md)；共享对应关系见 [Jira 映射](docs/qa/jira-test-mapping.json)。
+
+### 对话 / Slack 反馈提 Bug
+
+在仓库中使用能读取项目规则的 AI，先连接有权限的 Slack / Jira 工具，再直接对话：
+
+```text
+开始记录 Bug，我会陆续发描述、截图和日志，先不要提交。
+把这个 Slack 线程整理成 Jira Bug 草稿：<线程链接>
+提交 Bug #1、#3，项目 OK，模块 DeFi，影响版本为 <版本>，经办人为 <姓名>。
+```
+
+也可显式使用 `$slack-feedback-to-jira`（Codex）或 `/slack-feedback-to-jira`（Claude）；Cursor 会按相关规则读取同一套流程。只记录或看草稿时不创建 Jira；明确提交后只问缺失字段，默认不查重，只有明确要求才查重。不自动回帖 Slack。
+
+技能源文件位于 [slack-feedback-to-jira](.agents/skills/slack-feedback-to-jira/SKILL.md)，包含展示配置和图标；Claude 镜像位于 `.claude/skills/slack-feedback-to-jira/`，Cursor 镜像位于 `.cursor/rules/slack-feedback-to-jira.mdc`。其他 AI 按仓库 `AGENTS.md` 的入口读取。维护时保持三个入口的正文一致。
 
 ### 2. 运行自动化测试
 
