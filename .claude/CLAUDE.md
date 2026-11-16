@@ -8,6 +8,12 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
 新建、补充、修改手动用例时，先读 `docs/qa/qa-rules.md` §7.3 和 `docs/qa/rules/jira-test-sync-rules.md`。默认只交付 Markdown 源文件，不生成或维护可复制 HTML；仅用户明确要求时才生成本地可复制版。Jira 同步直接从 Markdown 构造富文本，保留表格与真实换行，不生成独立复制页面。Markdown 源文件、规则和 Jira 映射提交仓库；可复制 HTML 仅保存在本地 `docs/qa/testcases/copyable/`，不提交 Git 或 PR，也不使用强制添加绕过忽略。已经跟踪的可复制版应取消 Git 跟踪并保留本地文件。完成本地验证后，主动询问是否同步 Jira；用户同意本批同步后，按 `docs/qa/jira-test-mapping.json` 已核实的 Test 编号直接更新。无映射时询问用户提供已有 Test 编号或确认创建，用户拒绝则不写 Jira。此询问是交付流程的一部分，不受下文「不要再问」影响；当前会话已明确授权同一批目标时不重复询问。完整步骤、字段范围、回读验证与映射维护以同步规则为准。
 
+## 对话与 Slack 反馈提 Bug（共享技能）
+
+用户说「开始记录 Bug」「提交 Bug」，或要求从对话、Slack 线程整理反馈、生成 Jira Bug 草稿或按编号提交时，先读取 `.agents/skills/slack-feedback-to-jira/SKILL.md`。Codex 从 `.agents/skills/` 发现技能；Claude 使用同名 `.claude/skills/` 镜像；Cursor 使用 `.cursor/rules/slack-feedback-to-jira.mdc`。维护时保持技能正文一致。
+
+「记录」「整理」「先看草稿」只收集材料或输出草稿；用户明确要求「提交 Bug」才创建本批 Jira Bug，缺失字段按技能集中询问。编辑旧单、回帖 Slack 仍需用户明确指定。安装或维护技能本身不视为提交 Bug；本流程与手动 Test 用例同步、回归 Test Execution 创建分别处理，不自动启动 OneKey 或执行测试。使用 Slack/Jira 时需当前 AI 已连接相应工具并具备对应权限；工具或字段不明时发现实际能力，不把固定工具名当成已可用。
+
 ## 临时产物与上传规则（2026-11-06，用户确认）
 
 - 手动用例交付维护 Markdown 源文件、需求、规则和必要的 Jira 映射；仓库同时维护实际可执行的自动化脚本、其使用的最小数据、公共工具及 Skills。可复制 HTML、复制页面、审查报告、复现输出及同步证据属于临时产物，不纳入 Git review、commit、PR 或仓库上传，禁止用 `git add -f` 绕过忽略规则。
