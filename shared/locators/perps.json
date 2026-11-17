@@ -1744,6 +1744,2043 @@
       "feature": [
         "perps"
       ]
+    },
+    "perps.chart.engine": {
+      "primary": "[data-testid=\"trading-view-chart-switch-trigger\"]",
+      "source_testid": "trading-view-chart-switch-trigger",
+      "ui_display_name": "图表引擎选择器",
+      "description": "图表引擎选择器",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.chart.controls": {
+      "primary": "[data-testid=\"trading-view-chart-ready-controls\"]",
+      "source_testid": "trading-view-chart-ready-controls",
+      "ui_display_name": "图表已加载控件",
+      "description": "图表已加载控件",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.selector.search_input": {
+      "primary": "[data-testid=\"nav-header-search-perp-token-selector-search\"]",
+      "source_testid": "nav-header-search-perp-token-selector-search",
+      "ui_display_name": "交易对搜索输入框（NavHeader 组合 testID）",
+      "description": "交易对搜索输入框（NavHeader 组合 testID）",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.selector.rows": {
+      "primary": "[data-testid^=\"perp-token-selector-row-\"]",
+      "source_testid": "perp-token-selector-row-*",
+      "ui_display_name": "交易对列表行动态前缀",
+      "description": "交易对列表行动态前缀",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.history.type_filter": {
+      "primary": "[data-testid=\"perps-trade-history-type-filter\"]",
+      "source_testid": "perps-trade-history-type-filter",
+      "ui_display_name": "成交类型筛选",
+      "description": "成交类型筛选",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.history.type_all": {
+      "primary": "[data-testid=\"perps-trade-history-type-all\"]",
+      "source_testid": "perps-trade-history-type-all",
+      "ui_display_name": "全部成交",
+      "description": "全部成交",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.history.type_spot": {
+      "primary": "[data-testid=\"perps-trade-history-type-spot\"]",
+      "source_testid": "perps-trade-history-type-spot",
+      "ui_display_name": "现货成交",
+      "description": "现货成交",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.history.type_perp": {
+      "primary": "[data-testid=\"perps-trade-history-type-perp\"]",
+      "source_testid": "perps-trade-history-type-perp",
+      "ui_display_name": "永续成交",
+      "description": "永续成交",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.history.tab": {
+      "primary": "[data-testid=\"perp-info-panel-tab-Trades History\"]",
+      "source_testid": "perp-info-panel-tab-Trades History",
+      "ui_display_name": "历史成交 Tab",
+      "description": "历史成交 Tab",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.menu.root": {
+      "primary": "[data-testid=\"perp-mobile-menu\"]",
+      "source_testid": "perp-mobile-menu",
+      "description": "合约菜单浮层",
+      "page": "perps-settings",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.menu.preferences": {
+      "primary": "[data-testid=\"perp-mobile-menu-shortcut-settings\"]",
+      "source_testid": "perp-mobile-menu-shortcut-settings",
+      "description": "偏好设置快捷入口",
+      "page": "perps-settings",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.menu.back": {
+      "primary": "[data-testid=\"perp-mobile-menu-back\"]",
+      "source_testid": "perp-mobile-menu-back",
+      "description": "菜单子页返回",
+      "page": "perps-settings",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.settings.dust": {
+      "primary": "[data-testid=\"perp-spot-dusting-opt-out-switch\"]",
+      "source_testid": "perp-spot-dusting-opt-out-switch",
+      "description": "现货碎币自动兑换开关",
+      "page": "perps-settings",
+      "platform": [
+        "desktop",
+        "web",
+        "ext",
+        "android",
+        "ios"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.portfolio.chart_type": {
+      "primary": "[data-testid=\"perp-portfolio-chart-type-selector\"]",
+      "source_testid": "perp-portfolio-chart-type-selector",
+      "description": "投资组合图表类型",
+      "page": "perps-portfolio",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.portfolio.time_period": {
+      "primary": "[data-testid=\"perp-portfolio-time-period-presets\"]",
+      "source_testid": "perp-portfolio-time-period-presets",
+      "description": "投资组合时间维度",
+      "page": "perps-portfolio",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.info.balances": {
+      "primary": "[data-testid=\"perp-info-panel-tab-Balances\"]",
+      "source_testid": "perp-info-panel-tab-Balances",
+      "description": "交易页持有币种 Tab",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.home.tab": {
+      "primary": "[data-testid=\"home-tab-perps\"]",
+      "source_testid": "home-tab-perps",
+      "description": "钱包首页合约 Tab；单网络用例前置选择受支持的 EVM 主网（如 Ethereum），功能配置已开启",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.info.tabs": {
+      "primary": "[data-testid=\"perp-info-panel-tabs-scroll\"]",
+      "source_testid": "perp-info-panel-tabs-scroll",
+      "description": "交易信息区页签滚动容器",
+      "page": "perps-holdings",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.holdings.hide_small": {
+      "primary": "[data-testid=\"perp-hide-small-spot-holdings-checkbox\"]",
+      "source_testid": "perp-hide-small-spot-holdings-checkbox",
+      "description": "隐藏小额现货开关",
+      "page": "perps-holdings",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.chart.indicator_trigger": {
+      "primary": "[data-testid=\"trading-view-native-indicators-trigger\"]",
+      "source_testid": "trading-view-native-indicators-trigger",
+      "description": "共用指标工具栏入口",
+      "page": "perps-chart",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.chart.indicator_items": {
+      "primary": "[data-testid^=\"trading-view-native-indicator-item-\"]",
+      "source_testid": "trading-view-native-indicator-item-",
+      "description": "共用指标选项",
+      "page": "perps-chart",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.chart.interval_more": {
+      "primary": "[data-testid=\"trading-view-native-interval-selector-more-select\"]",
+      "source_testid": "trading-view-native-interval-selector-more-select",
+      "description": "共用更多周期入口",
+      "page": "perps-chart",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.chart.interval_all": {
+      "primary": "[data-testid^=\"trading-view-native-interval-all-\"]",
+      "source_testid": "trading-view-native-interval-all-",
+      "description": "全部周期选项",
+      "page": "perps-chart",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.chart.switches": {
+      "primary": "[data-testid=\"perp-switch\"]",
+      "source_testid": "perp-switch",
+      "description": "图表买卖点及持仓订单开关",
+      "page": "perps-chart",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.chart.skip_confirm": {
+      "primary": "[data-testid=\"perp-intl-switch\"]",
+      "source_testid": "perp-intl-switch",
+      "description": "跳过交易确认开关（只读）",
+      "page": "perps-chart",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.home.manage": {
+      "primary": "[data-testid=\"home-perps-manage-button\"]",
+      "source_testid": "home-perps-manage-button",
+      "description": "钱包首页合约资产管理入口",
+      "page": "wallet-home-perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.home.deposit": {
+      "primary": "[data-testid=\"home-perps-deposit-button\"]",
+      "source_testid": "home-perps-deposit-button",
+      "description": "钱包首页合约存款入口",
+      "page": "wallet-home-perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.home.desktop_deposit": {
+      "primary": "[data-testid=\"home-perps-desktop-deposit-button\"]",
+      "source_testid": "home-perps-desktop-deposit-button",
+      "description": "钱包首页桌面合约存款入口",
+      "page": "wallet-home-perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.chart.layout_separator": {
+      "primary": "#perp-desktop-chart-split .sash-horizontal",
+      "source_testid": "perp-desktop-chart-split",
+      "ui_display_name": "图表与订单面板分隔条",
+      "description": "Allotment id prop 对应图表布局分隔条；先滚动到可视区",
+      "page": "perps-chart",
+      "platform": [
+        "desktop",
+        "web"
+      ],
+      "feature": [
+        "perps",
+        "chart"
+      ],
+      "last_verified": "2026-10-27"
+    },
+    "perps.settings.dusting": {
+      "primary": "[data-testid=\"perp-spot-dusting-opt-out-switch\"]",
+      "description": "现货碎币自动兑换设置",
+      "source": "app-monorepo@71e4ae1",
+      "page": "perps-settings",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-27",
+      "source_testid": "perp-spot-dusting-opt-out-switch"
+    },
+    "perps.form.root": {
+      "primary": "[data-sentry-component=\"PerpTradingForm\"]",
+      "description": "非下单表单验证；TF 缺失新 testID 时按源码组件边界定位",
+      "source": "app-monorepo@71e4ae1",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-27",
+      "source_component": "[data-sentry-component=\"PerpTradingForm\"]"
+    },
+    "perps.form.inputs": {
+      "primary": "[data-sentry-component=\"PerpTradingForm\"] input",
+      "description": "非下单表单验证；TF 缺失新 testID 时按源码组件边界定位",
+      "source": "app-monorepo@71e4ae1",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-27",
+      "source_component": "[data-sentry-component=\"PerpTradingForm\"] input"
+    },
+    "perps.form.size": {
+      "primary": "[data-sentry-component=\"PerpTradingForm\"] [data-sentry-component=\"SizeInput\"] input, [data-sentry-component=\"PerpTradingForm\"] [data-sentry-component=\"BaseInput\"]:has([data-sentry-component=\"SizeInputModeSelector\"]) input",
+      "description": "非下单表单验证；TF 缺失新 testID 时按源码组件边界定位",
+      "source": "app-monorepo@71e4ae1",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-27",
+      "source_component": "[data-sentry-component=\"PerpTradingForm\"] [data-sentry-component=\"SizeInput\"] input, [data-sentry-component=\"PerpTradingForm\"] [data-sentry-component=\"BaseInput\"]:has([data-sentry-component=\"SizeInputModeSelector\"]) input"
+    },
+    "perps.form.base_input": {
+      "primary": "[data-sentry-component=\"BaseInput\"]",
+      "description": "非下单表单验证；TF 缺失新 testID 时按源码组件边界定位",
+      "source": "app-monorepo@71e4ae1",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-27",
+      "source_component": "[data-sentry-component=\"BaseInput\"]"
+    },
+    "perps.form.unit": {
+      "primary": "[data-sentry-component=\"PerpTradingForm\"] [data-sentry-component=\"SizeInputModeSelector\"]",
+      "description": "非下单表单验证；TF 缺失新 testID 时按源码组件边界定位",
+      "source": "app-monorepo@71e4ae1",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-27",
+      "source_component": "[data-sentry-component=\"PerpTradingForm\"] [data-sentry-component=\"SizeInputModeSelector\"]"
+    },
+    "perps.form.advanced": {
+      "primary": "[data-sentry-component=\"PerpTradingForm\"] [data-sentry-component=\"SelectTrigger\"]",
+      "description": "非下单表单验证；TF 缺失新 testID 时按源码组件边界定位",
+      "source": "app-monorepo@71e4ae1",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-27",
+      "source_component": "[data-sentry-component=\"PerpTradingForm\"] [data-sentry-component=\"SelectTrigger\"]"
+    },
+    "perps.form.twap_hours": {
+      "primary": "[data-testid=\"perp-twap-duration-hours-input\"]",
+      "description": "非下单表单验证；TF 缺失新 testID 时按源码组件边界定位",
+      "source": "app-monorepo@71e4ae1",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-27",
+      "source_testid": "perp-twap-duration-hours-input"
+    },
+    "perps.form.twap_minutes": {
+      "primary": "[data-testid=\"perp-twap-duration-minutes-input\"]",
+      "description": "非下单表单验证；TF 缺失新 testID 时按源码组件边界定位",
+      "source": "app-monorepo@71e4ae1",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-27",
+      "source_testid": "perp-twap-duration-minutes-input"
+    },
+    "perps.position.add": {
+      "primary": "[data-testid=\"perp-position-add-button\"]",
+      "source_testid": "perp-position-add-button",
+      "ui_display_name": "持仓加仓/反手弹窗",
+      "description": "已有持仓只读弹窗与输入校验，不提交",
+      "page": "perps-position",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.position.add_amount": {
+      "primary": "[data-testid=\"perp-add-position-amount-input\"]",
+      "source_testid": "perp-add-position-amount-input",
+      "ui_display_name": "持仓加仓/反手弹窗",
+      "description": "已有持仓只读弹窗与输入校验，不提交",
+      "page": "perps-position",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.position.add_type": {
+      "primary": "[data-testid=\"perp-add-position-type-toggle\"]",
+      "source_testid": "perp-add-position-type-toggle",
+      "ui_display_name": "持仓加仓/反手弹窗",
+      "description": "已有持仓只读弹窗与输入校验，不提交",
+      "page": "perps-position",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.position.reverse": {
+      "primary": "[data-testid=\"perp-position-reverse-button\"]",
+      "source_testid": "perp-position-reverse-button",
+      "ui_display_name": "持仓加仓/反手弹窗",
+      "description": "已有持仓只读弹窗与输入校验，不提交",
+      "page": "perps-position",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.overlay.popover": {
+      "primary": "[data-testid=\"TMPopover-ScrollView\"]",
+      "source_testid": "TMPopover-ScrollView",
+      "description": "可见浮层内容（设置、选择器）",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.overlay.dialog_close": {
+      "primary": "[data-testid=\"dialog-header-close\"]",
+      "source_testid": "dialog-header-close",
+      "description": "弹窗标题关闭按钮",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.form.bbo_selector": {
+      "primary": "[data-sentry-component=\"PerpTradingForm\"] [data-testid=\"select-trigger\"]:has-text(\"价格\")",
+      "source_testid": "select-trigger",
+      "description": "最优价启用后替代手动价格输入的四选项选择器",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "bbo"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.overlay.select_items": {
+      "primary": "[data-testid=\"TMPopover-ScrollView\"] [data-testid^=\"select-item-\"]",
+      "source_testid": "select-item-${value}",
+      "description": "Select 浮层选项列表，按真实 Select 的动态 testID 定位",
+      "page": "perps-overlay",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.position.table_body": {
+      "primary": "[data-testid=\"perp-desktop-table-body\"]",
+      "source_testid": "perp-desktop-table-body",
+      "ui_display_name": "持仓表格内容",
+      "description": "桌面持仓表格数据列，按可见行与右侧固定操作列纵向位置对账，不按首行猜资产",
+      "page": "perps-home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "position"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.account.boundary": {
+      "primary": "[data-testid=\"perp-desktop-account-boundary\"]",
+      "source_testid": "perp-desktop-account-boundary",
+      "ui_display_name": "合约账户概览",
+      "description": "合约账户概览，用于设置写入/恢复前比对可见账户地址指纹",
+      "page": "perps-home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "account"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.position.tab": {
+      "primary": "[data-testid=\"perp-info-panel-tab-Positions\"]",
+      "source_testid": "perp-info-panel-tab-Positions",
+      "ui_display_name": "当前持仓",
+      "description": "桌面底部信息面板当前持仓tab；不同于移动端perp-positions-tab",
+      "page": "perps-home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "position"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.selector.primary_tabs": {
+      "primary": "[data-testid=\"TMPopover-ScrollView\"] div:has(> div > span:text-is(\"永续合约\")):has(> div > span:text-is(\"现货\"))",
+      "ui_display_name": "合约资产分类",
+      "description": "币种选择器顶级三分类容器，排除底部快捷键提示中的同名自选文字",
+      "page": "perps-home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "selector"
+      ],
+      "last_verified": "2026-10-28",
+      "source_testid": "TMPopover-ScrollView"
+    },
+    "perps.selector.secondary_tabs": {
+      "primary": "[data-testid=\"TMPopover-ScrollView\"] div:has(> div > span:text-is(\"全部\")):has(> div > span:text-is(\"热门\")):has(> div > span:text-is(\"新上架\"))",
+      "source_testid": "TMPopover-ScrollView",
+      "ui_display_name": "永续资产分类",
+      "description": "永续合约动态子分类容器，直接枚举其分类按钮，包含服务端新增的ETFs等分类",
+      "page": "perps-home",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "selector"
+      ],
+      "last_verified": "2026-10-28"
+    },
+    "perps.form.twap_reduce": {
+      "primary": "[data-testid=\"perp-twap-reduce-only-checkbox\"]",
+      "source_testid": "perp-twap-reduce-only-checkbox",
+      "ui_display_name": "分时只减仓",
+      "description": "分时只减仓",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.form.twap_random": {
+      "primary": "[data-testid=\"perp-twap-randomize-checkbox\"]",
+      "source_testid": "perp-twap-randomize-checkbox",
+      "ui_display_name": "分时随机执行",
+      "description": "分时随机执行",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.form.twap_advanced": {
+      "primary": "[data-testid=\"perp-twap-advanced-settings-checkbox\"]",
+      "source_testid": "perp-twap-advanced-settings-checkbox",
+      "ui_display_name": "分时进阶设置",
+      "description": "分时进阶设置",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.form.scale_reduce": {
+      "primary": "[data-testid=\"perp-scale-reduce-only-checkbox\"]",
+      "source_testid": "perp-scale-reduce-only-checkbox",
+      "ui_display_name": "分段只减仓",
+      "description": "分段只减仓",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.form.scale_tif": {
+      "primary": "[data-testid=\"perp-scale-tif-selector\"]",
+      "source_testid": "perp-scale-tif-selector",
+      "ui_display_name": "分段有效期",
+      "description": "分段有效期",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.form.scale_tif_options": {
+      "primary": "[data-testid^=\"perp-scale-tif-selector-option-\"]",
+      "source_testid": "perp-scale-tif-selector-option-*",
+      "description": "分段委托有效期选项",
+      "page": "perps-trading-form",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.footer.loop": {
+      "primary": "[data-testid=\"perp-footer-ticker-loop\"]",
+      "source_testid": "perp-footer-ticker-loop",
+      "ui_display_name": "底部行情轮播主列表",
+      "description": "底部行情轮播主列表，排除重复动画循环",
+      "page": "perps-home",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "footer"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.footer.track": {
+      "primary": "[data-testid=\"perp-footer-ticker-track\"]",
+      "source_testid": "perp-footer-ticker-track",
+      "ui_display_name": "底部行情轮播轨道",
+      "description": "底部行情轮播轨道，排除重复动画循环",
+      "page": "perps-home",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "footer"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.layout.root": {
+      "primary": "[data-testid=\"perp-desktop-split-root\"]",
+      "source_testid": "perp-desktop-split-root",
+      "description": "Desktop可滚动分屏根",
+      "page": "perps-desktop-layout",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "layout"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.layout.panes": {
+      "primary": "#perp-desktop-chart-split > .split-view-container > .split-view-view",
+      "source_testid": "perp-desktop-chart-split",
+      "description": "Allotment图表与信息两个面板",
+      "page": "perps-desktop-layout",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "layout"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.layout.drag_shield": {
+      "primary": "[data-testid=\"perp-desktop-chart-drag-shield\"]",
+      "source_testid": "perp-desktop-chart-drag-shield",
+      "description": "拖动中图表输入遮罩",
+      "page": "perps-desktop-layout",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "layout"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.layout.reset": {
+      "primary": "[data-testid=\"perp-reset-layout-button\"]",
+      "source_testid": "perp-reset-layout-button",
+      "description": "重置为默认布局",
+      "page": "perps-desktop-layout",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "layout"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.funds.token_selector": {
+      "primary": "[data-testid=\"perp-deposit-token-selector\"]",
+      "source_testid": "perp-deposit-token-selector",
+      "ui_display_name": "钱包存款资产选择",
+      "description": "钱包存款资产选择；源 DepositWithdrawModal.tsx / DepositTokenSelectionContent.tsx @6fe766b",
+      "page": "perps-funds",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "funds"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.funds.token_row": {
+      "primary": "[data-testid=\"perp-deposit-token-item\"]",
+      "source_testid": "perp-deposit-token-item",
+      "ui_display_name": "钱包存款资产行",
+      "description": "钱包存款资产行；源 DepositWithdrawModal.tsx / DepositTokenSelectionContent.tsx @6fe766b",
+      "page": "perps-funds",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "funds"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.funds.token_max": {
+      "primary": "[data-testid=\"perp-deposit-token-max\"]",
+      "source_testid": "perp-deposit-token-max",
+      "ui_display_name": "钱包存款最大值",
+      "description": "钱包存款最大值；源 DepositWithdrawModal.tsx / DepositTokenSelectionContent.tsx @6fe766b",
+      "page": "perps-funds",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "funds"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.funds.submit": {
+      "primary": "[data-testid=\"perp-btn\"]",
+      "source_testid": "perp-btn",
+      "ui_display_name": "存提现提交按钮（仅断言状态）",
+      "description": "存提现提交按钮（仅断言状态）；源 DepositWithdrawModal.tsx / DepositTokenSelectionContent.tsx @6fe766b",
+      "page": "perps-funds",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "funds"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.funds.withdraw_max": {
+      "primary": "[data-testid=\"perp-withdraw-max\"]",
+      "source_testid": "perp-withdraw-max",
+      "ui_display_name": "提现最大值",
+      "description": "提现最大值；源 DepositWithdrawModal.tsx / DepositTokenSelectionContent.tsx @6fe766b",
+      "page": "perps-funds",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "funds"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.funds.withdraw_network": {
+      "primary": "[data-testid=\"select-trigger\"]",
+      "source_testid": "perp-withdraw-destination-select",
+      "ui_display_name": "提现网络",
+      "description": "提现网络：Select自定义renderTrigger未转发testID，需限定当前提现弹窗、按“至 网络”筛选；TF DOM实测select-trigger",
+      "page": "perps-funds",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "funds"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.portfolio.pnl_type": {
+      "primary": "[data-testid=\"perp-portfolio-pnl-type-selector\"]",
+      "source_testid": "perp-portfolio-pnl-type-selector",
+      "ui_display_name": "盈亏资产类型",
+      "description": "投资组合盈亏资产类型下拉；PerpPortfolioContent.tsx @6fe766b",
+      "page": "perps-portfolio",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "portfolio"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.footer.settings": {
+      "primary": "[data-sentry-component=\"BasicPage\"] svg[data-sentry-component=\"SvgSliderVer\"]",
+      "description": "底部行情预览设置图标；none 模式返回新容器，不能依赖 PerpFooterTicker DOM 祖先",
+      "ui_display_name": "底部预览设置",
+      "page": "perps-home",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "footer"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.history.side_filter": {
+      "primary": "[data-testid=\"perps-funding-history-side-filter\"]",
+      "source_testid": "perps-funding-history-side-filter",
+      "description": "历史成交/资金费side_filter",
+      "page": "perps-history",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "history"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.history.market_filter": {
+      "primary": "[data-testid=\"perps-funding-history-market-filter\"]",
+      "source_testid": "perps-funding-history-market-filter",
+      "description": "历史成交/资金费market_filter",
+      "page": "perps-history",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "history"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.history.market_search": {
+      "primary": "input[data-testid=\"nav-header-search-perps-funding-history-market-search\"]",
+      "source_testid": "nav-header-search-perps-funding-history-market-search",
+      "description": "历史成交/资金费市场搜索框；SearchBar运行时增加nav-header-search前缀",
+      "page": "perps-history",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "history"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.history.side_options": {
+      "primary": "[data-testid^=\"perps-funding-history-side-\"]",
+      "source_testid": "perps-funding-history-side-*",
+      "description": "历史筛选动态选项，需要完整值唯一匹配",
+      "page": "perps-history",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "history"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.history.market_options": {
+      "primary": "[data-testid^=\"perps-funding-history-market-\"]:not([data-testid=\"perps-funding-history-market-search\"]):not([data-testid=\"perps-funding-history-market-search-clear\"])",
+      "source_testid": "perps-funding-history-market-*",
+      "description": "资金费市场选项；排除 SearchBar 输入和清空按钮，再按完整市场值唯一匹配",
+      "page": "perps-history",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "history"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.menu_wallet": {
+      "primary": "[data-testid=\"perps-deposit-menu-connected-wallet\"]",
+      "source_testid": "perps-deposit-menu-connected-wallet",
+      "description": "链上收款 menu_wallet",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.menu_transfer": {
+      "primary": "[data-testid=\"perps-deposit-menu-transfer-crypto\"]",
+      "source_testid": "perps-deposit-menu-transfer-crypto",
+      "description": "链上收款 menu_transfer",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.menu_tracker": {
+      "primary": "[data-testid=\"perps-deposit-menu-tracker\"]",
+      "source_testid": "perps-deposit-menu-tracker",
+      "description": "链上收款 menu_tracker",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.card": {
+      "primary": "[data-testid=\"perps-unifold-deposit-qr-card\"]",
+      "source_testid": "perps-unifold-deposit-qr-card",
+      "description": "链上收款 card",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.qr": {
+      "primary": "[data-testid=\"perps-unifold-qr-visual\"]",
+      "source_testid": "perps-unifold-qr-visual",
+      "description": "链上收款 qr",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.route": {
+      "primary": "[data-testid=\"perps-unifold-conversion-route\"], [data-sentry-component=\"DepositRouteRow\"]",
+      "source_testid": "perps-unifold-conversion-route",
+      "description": "存款路径：新源码QR卡片内testid，当前TF仍在DepositRouteRow；以可见DOM实际路径字段断言",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.address": {
+      "primary": "[data-testid=\"perps-unifold-copy-deposit-address\"]",
+      "source_testid": "perps-unifold-copy-deposit-address",
+      "description": "链上收款 address",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.token": {
+      "primary": "[data-testid=\"perps-unifold-token-selector\"]",
+      "source_testid": "perps-unifold-token-selector",
+      "description": "链上收款 token",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.network": {
+      "primary": "[data-testid=\"perps-unifold-network-selector\"]",
+      "source_testid": "perps-unifold-network-selector",
+      "description": "链上收款 network",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.history": {
+      "primary": "[data-testid=\"perps-unifold-deposit-history-card\"]",
+      "source_testid": "perps-unifold-deposit-history-card",
+      "description": "链上收款 history",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.tracker_deposit": {
+      "primary": "[data-testid=\"perps-unifold-tracker-deposit\"]",
+      "source_testid": "perps-unifold-tracker-deposit",
+      "description": "链上收款 tracker_deposit",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.terms": {
+      "primary": "[data-testid=\"perps-unifold-terms\"]",
+      "source_testid": "perps-unifold-terms",
+      "description": "链上收款 terms",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.help": {
+      "primary": "[data-testid=\"perps-unifold-help\"]",
+      "source_testid": "perps-unifold-help",
+      "description": "链上收款 help",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.token_options": {
+      "primary": "[data-testid^=\"perps-unifold-token-option-\"]",
+      "source_testid": "perps-unifold-token-option-",
+      "description": "链上收款 token_options",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.network_options": {
+      "primary": "[data-testid^=\"perps-unifold-network-option-\"]",
+      "source_testid": "perps-unifold-network-option-",
+      "description": "链上收款 network_options",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.tracker_rows": {
+      "primary": "[data-testid^=\"perps-unifold-tracker-row-\"]",
+      "source_testid": "perps-unifold-tracker-row-",
+      "description": "链上收款 tracker_rows",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.details": {
+      "primary": "[data-testid^=\"perps-unifold-execution-detail-\"]",
+      "source_testid": "perps-unifold-execution-detail-",
+      "description": "链上收款 details",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.account_tracker": {
+      "primary": "[data-testid=\"perps-account-history-deposit-tracker\"]",
+      "source_testid": "perps-account-history-deposit-tracker",
+      "description": "账户历史链上存款记录入口",
+      "page": "perps-order-history",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.form.minimum_action": {
+      "primary": "[data-testid=\"perp-minimum-order-toast-action\"]",
+      "source_testid": "perp-minimum-order-toast-action",
+      "description": "最小金额Toast快捷填入按钮",
+      "page": "perps-trading-toast",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "minimum"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart.fullscreen": {
+      "primary": "[data-testid=\"trading-view-native-fullscreen-toggle\"]",
+      "source_testid": "trading-view-native-fullscreen-toggle",
+      "description": "图表全屏及退出控件（TV与原生共同工具栏）",
+      "page": "perps-chart",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "chart"
+      ],
+      "source": "packages/kit/src/components/TradingView/TradingViewChartControls/TradingViewChartControls.tsx:418",
+      "last_verified": "2026-10-29"
+    },
+    "perps.account.history_tab": {
+      "primary": "[data-testid=\"perp-info-panel-tab-Account\"]",
+      "source_testid": "perp-info-panel-tab-Account",
+      "description": "Desktop订单信息区账户历史标签；与移动端perp-account-tab分开",
+      "page": "perps-info-panel",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "history"
+      ],
+      "source": "packages/kit/src/views/Perp/components/OrderInfoPanel/PerpOrderInfoPanel.tsx:TabBarItem",
+      "last_verified": "2026-10-29"
+    },
+    "perps.unifold.network_hint_logo": {
+      "primary": "[data-sentry-component=\"Token\"]",
+      "description": "链上收款菜单的网络提示图标，限定menu_transfer作用域；异步Image未创建img前Token可见",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "source": "showUnifoldDepositModals.tsx:DepositNetworkHintLogos；TF DOM实测",
+      "last_verified": "2026-10-29"
+    },
+    "perps.info.tab_items": {
+      "primary": "[data-testid^=\"perp-info-panel-tab-\"]",
+      "description": "Desktop交易信息区所有标签，基于完整运行时name唯一匹配",
+      "page": "perps-info-panel",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "history"
+      ],
+      "source": "PerpOrderInfoPanel.tsx:TabBarItem testID模板；TF DOM七项实测",
+      "last_verified": "2026-10-29"
+    },
+    "perps.funding.tab": {
+      "primary": "[data-testid=\"perp-info-panel-tab-Funding\"]",
+      "source_testid": "perp-info-panel-tab-Funding",
+      "ui_display_name": "Desktop资金费标签",
+      "description": "Desktop资金费标签；由当前可见信息页限定，不复用移动端入口",
+      "page": "perps-history",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "funding"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.funding.export": {
+      "primary": "[data-testid=\"perp-funding-history-export\"]",
+      "source_testid": "perp-funding-history-export",
+      "ui_display_name": "Desktop资金费CSV导出",
+      "description": "Desktop资金费CSV导出；由当前可见信息页限定，不复用移动端入口",
+      "page": "perps-history",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "funding"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.history.empty_state": {
+      "primary": "[data-sentry-component=\"PerpDesktopEmptyState\"]",
+      "source_component": "PerpDesktopEmptyState",
+      "source": "app-monorepo@6fe766b",
+      "description": "Desktop 表格空态为表格正文的替代容器，含插图和标题，无副文案",
+      "page": "perps-history",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "history"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.share.preview": {
+      "primary": "img[src^=\"data:image/png;base64,\"]",
+      "description": "在分享dialog作用域内唯一的900px PNG预览；不得重复嵌套dialog前缀",
+      "source_component": "PositionShare/ShareView.tsx",
+      "page": "positionshare",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "share"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.share.copy": {
+      "primary": "[data-testid=\"perp-icon-btn\"]:has(svg[data-sentry-component=\"SvgLink\"])",
+      "description": "分享操作区复制链接",
+      "source_component": "PositionShare/ControlPanel.tsx",
+      "page": "positionshare",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "share"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.share.save": {
+      "primary": "[data-testid=\"perp-icon-btn\"]:has(svg[data-sentry-component=\"SvgDownload\"])",
+      "description": "分享操作区保存PNG",
+      "source_component": "PositionShare/ControlPanel.tsx",
+      "page": "positionshare",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "share"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.position.reverse_confirm": {
+      "primary": "[data-testid=\"perp-reverse-position-confirm-button\"]",
+      "source_testid": "perp-reverse-position-confirm-button",
+      "ui_display_name": "反手确认按钮（只读）",
+      "description": "仅检查可用状态；非下单脚本禁止点击",
+      "page": "perps-position-reverse",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart.interval_edit": {
+      "primary": "[data-testid=\"trading-view-native-intervals-edit-button\"]",
+      "source_testid": "trading-view-native-intervals-edit-button",
+      "description": "周期偏好编辑入口",
+      "page": "perps-chart-intervals",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "chart"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart.interval_confirm": {
+      "primary": "[data-testid=\"trading-view-native-intervals-confirm-button\"]",
+      "source_testid": "trading-view-native-intervals-confirm-button",
+      "description": "周期偏好确认保存",
+      "page": "perps-chart-intervals",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "chart"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart.interval_edit_items": {
+      "primary": "[data-testid^=\"trading-view-native-interval-edit-\"]",
+      "source_testid": "trading-view-native-interval-edit-",
+      "description": "周期偏好编辑选项",
+      "page": "perps-chart-intervals",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "chart"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart.interval_preferred": {
+      "primary": "[data-testid^=\"trading-view-native-interval-preferred-\"]",
+      "source_testid": "trading-view-native-interval-preferred-",
+      "description": "周期偏好已保存列表",
+      "page": "perps-chart-intervals",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "chart"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart.native_canvas": {
+      "primary": "[data-testid=\"trading-view-native-canvas\"]",
+      "source_testid": "trading-view-native-canvas",
+      "description": "原生版主图实际绘制画布",
+      "page": "perps",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.limit": {
+      "primary": "[data-testid=\"perps-chart-limit-order\"]",
+      "source_testid": "perps-chart-limit-order",
+      "description": "图表菜单限价入口",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.take_profit": {
+      "primary": "[data-testid=\"perps-chart-take-profit\"]",
+      "source_testid": "perps-chart-take-profit",
+      "description": "原生图菜单持仓止盈入口",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.stop_loss": {
+      "primary": "[data-testid=\"perps-chart-stop-loss\"]",
+      "source_testid": "perps-chart-stop-loss",
+      "description": "原生图菜单持仓止损入口",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.price": {
+      "primary": "[role=\"dialog\"] input[placeholder=\"输入价格\"]",
+      "source_component": "LimitOrderForm > PriceInput/SizeInput",
+      "description": "图表限价弹窗价格输入",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.size": {
+      "primary": "[role=\"dialog\"] input[placeholder=\"0.0\"]",
+      "source_component": "LimitOrderForm > PriceInput/SizeInput",
+      "description": "图表限价弹窗数量输入",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.tp_price": {
+      "primary": "[role=\"dialog\"] input[data-testid=\"perp-tpsl-input-with-done-input\"][placeholder=\"止盈价格\"]",
+      "source_testid": "perp-tpsl-input-with-done-input",
+      "description": "图表持仓弹窗止盈价格",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.sl_price": {
+      "primary": "[role=\"dialog\"] input[data-testid=\"perp-tpsl-input-with-done-input\"][placeholder=\"止损价格\"]",
+      "source_testid": "perp-tpsl-input-with-done-input",
+      "description": "图表持仓弹窗止损价格",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart.drawing_toolbar": {
+      "primary": "[data-testid=\"chart-drawing-toolbar\"]",
+      "source_testid": "chart-drawing-toolbar",
+      "description": "原生图绘图工具栏",
+      "page": "perps-chart",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart.drawing_delete": {
+      "primary": "button[aria-label=\"删除绘图\"]",
+      "source_testid": null,
+      "description": "仅删除当前选中的单个绘图",
+      "page": "perps-chart",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart.drawing_properties": {
+      "primary": "[data-testid=\"chart-drawing-properties\"]",
+      "source_testid": "chart-drawing-properties",
+      "description": "原生图浮动绘图属性栏",
+      "page": "perps-chart",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.tp_percent": {
+      "primary": "[role=\"dialog\"] input[data-testid=\"perp-tpsl-input-with-done-input\"][placeholder=\"收益\"]",
+      "source_testid": "perp-tpsl-input-with-done-input",
+      "description": "持仓止盈止损弹窗收益百分比",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.sl_percent": {
+      "primary": "[role=\"dialog\"] input[data-testid=\"perp-tpsl-input-with-done-input\"][placeholder=\"亏损\"]",
+      "source_testid": "perp-tpsl-input-with-done-input",
+      "description": "持仓止盈止损弹窗亏损百分比",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.info": {
+      "primary": "[data-testid=\"perp-order-type-info-button\"]",
+      "source_testid": "perp-order-type-info-button",
+      "description": "订单类型说明图标",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.limit_long": {
+      "primary": "[data-testid=\"chart-limit-long-button\"]",
+      "source_testid": "chart-limit-long-button",
+      "description": "图表限价买入做多",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.limit_short": {
+      "primary": "[data-testid=\"chart-limit-short-button\"]",
+      "source_testid": "chart-limit-short-button",
+      "description": "图表限价卖出做空",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.reduce": {
+      "primary": "[data-testid=\"chart-limit-reduce-only-checkbox\"]",
+      "source_testid": "chart-limit-reduce-only-checkbox",
+      "description": "图表限价只减仓开关",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.chart_order.tpsl": {
+      "primary": "[data-testid=\"chart-limit-tpsl-checkbox\"]",
+      "source_testid": "chart-limit-tpsl-checkbox",
+      "description": "图表限价附带止盈止损开关",
+      "page": "perps-chart-order",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "perps",
+        "chart-order"
+      ],
+      "last_verified": "2026-10-29"
+    },
+    "perps.position.add_tpsl": {
+      "primary": "[data-testid=\"perp-add-position-tpsl-checkbox\"]",
+      "source_testid": "perp-add-position-tpsl-checkbox",
+      "ui_display_name": "加仓止盈止损开关",
+      "description": "源码已核对，Desktop实机待复验；只允许受保护的非法输入校验，不允许提交真实委托。",
+      "page": "perps-add-position",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "source": "app-monorepo@6fe766b8156befd546643446474df613efda0385",
+      "verification_status": "pending-desktop"
+    },
+    "perps.position.add_confirm": {
+      "primary": "[data-testid=\"perp-add-position-confirm-button\"]",
+      "source_testid": "perp-add-position-confirm-button",
+      "ui_display_name": "加仓提交（仅空零数量校验）",
+      "description": "源码已核对，Desktop实机待复验；只允许受保护的非法输入校验，不允许提交真实委托。",
+      "page": "perps-add-position",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "source": "app-monorepo@6fe766b8156befd546643446474df613efda0385",
+      "verification_status": "pending-desktop"
+    },
+    "perps.order.chase_actions": {
+      "primary": "[data-testid^=\"perp-chase-order-\"][data-testid$=\"-button\"]",
+      "source_testid": "perp-chase-order-{orderId}-button",
+      "ui_display_name": "追单",
+      "description": "源代码已核对；Desktop实机待复验。追单点击必须通过明确skipOrderConfirm=false及同步事件捕获门禁。",
+      "page": "perps-open-orders",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "source": "app-monorepo@6fe766b8156befd546643446474df613efda0385",
+      "verification_status": "pending-desktop"
+    },
+    "perps.order.chase_skip": {
+      "primary": "[data-testid=\"perp-chase-order-confirm-checkbox\"]",
+      "source_testid": "perp-chase-order-confirm-checkbox",
+      "ui_display_name": "追单不再显示确认",
+      "description": "源代码已核对；Desktop实机待复验。追单点击必须通过明确skipOrderConfirm=false及同步事件捕获门禁。",
+      "page": "perps-open-orders",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "non-order"
+      ],
+      "source": "app-monorepo@6fe766b8156befd546643446474df613efda0385",
+      "verification_status": "pending-desktop"
+    },
+    "perps.unifold.contract": {
+      "primary": "[data-testid^=\"perps-unifold-token-contract-\"]",
+      "source_testid": "perps-unifold-token-contract-{chainType}-{chainId}",
+      "description": "当前来源链代币合约警示触发器",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "source": "app-monorepo@6fe766b8156befd546643446474df613efda0385 UnifoldSourceSelector.tsx",
+      "verification_status": "pending-desktop"
+    },
+    "perps.unifold.copy_contract": {
+      "primary": "[data-testid^=\"perps-unifold-copy-token-contract-\"]",
+      "source_testid": "perps-unifold-copy-token-contract-{chainType}-{chainId}",
+      "description": "合约警示中的完整地址复制按钮",
+      "page": "perps-unifold",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps",
+        "unifold"
+      ],
+      "source": "app-monorepo@6fe766b8156befd546643446474df613efda0385 UnifoldSourceSelector.tsx",
+      "verification_status": "pending-desktop"
+    },
+    "perps.ticker.dex_badge": {
+      "primary": "[data-testid=\"perp-active-dex-badge\"]",
+      "source_testid": "perp-active-dex-badge",
+      "source": "TF 6.7.0 (20261102200) runtime verified",
+      "description": "Desktop 当前交易对 HIP-3 DEX 标签；原生永续没有此标签",
+      "page": "perp",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "perps"
+      ],
+      "last_verified": "2026-11-02"
     }
   }
 }

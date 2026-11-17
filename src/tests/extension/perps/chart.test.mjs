@@ -1,4 +1,7 @@
-// Perps TV Chart Tests (Extension) — EXT-PERPS-CHART-001 ~ EXT-PERPS-CHART-008
+const connectExtensionCDP = () => connectPlatform('extension');
+import {connectPlatform} from '../../helpers/platform-session.mjs';
+import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
+// Perps TV Chart Tests (Extension) — EXT-PERPS-CHART-001 ~ EXT-PERPS-CHART-009
 // Thin wrapper: test logic lives in src/tests/shared/perps/chart.mjs
 // Connects via CDP port 9224 using connectExtensionCDP.
 //
@@ -9,7 +12,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { sleep } from '../../helpers/constants.mjs';
-import { connectExtensionCDP, getExtensionId } from '../../helpers/extension-cdp.mjs';
+import { getExtensionId } from '../../helpers/extension-cdp.mjs';
 import { createChartTests } from '../../shared/perps/chart.mjs';
 
 const RESULTS_DIR = resolve(import.meta.dirname, '../../../../shared/results');
@@ -102,6 +105,7 @@ async function goToPerps(page) {
 
 // ── Test Cases (from shared module) ──────────────────────────────
 
+export const platform = 'extension';
 export const displayName = '图表';
 
 const { testCases, setup, ALL_TEST_IDS } = createChartTests({
@@ -157,11 +161,12 @@ export async function run() {
       console.log(`>> ${test.id}: ${r.status.toUpperCase()} (${(duration / 1000).toFixed(1)}s)`);
       writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
       results.push(r);
+      if(mustStopAfterResult(r)) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
     } catch (error) {
       const duration = Date.now() - startTime;
       const r = {
         testId: test.id, status: 'failed', duration,
-        error: error.message, timestamp: new Date().toISOString(),
+        error: error.message, fatalRestore: Boolean(error.fatalRestore), timestamp: new Date().toISOString(),
       };
       console.error(`>> ${test.id}: FAILED (${(duration / 1000).toFixed(1)}s) — ${error.message}`);
       if (page && !page?.isClosed?.()) {
@@ -169,6 +174,7 @@ export async function run() {
       }
       writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
       results.push(r);
+      if(mustStopAfterResult(r)) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
     }
 
     await sleep(1000);
@@ -188,10 +194,10 @@ export async function run() {
   const summary = { timestamp: new Date().toISOString(), total: results.length, passed, failed, results };
   writeFileSync(resolve(RESULTS_DIR, 'ext-perps-chart-summary.json'), JSON.stringify(summary, null, 2));
 
-  return { status: failed === 0 ? 'passed' : 'failed', passed, failed, total: results.length };
+  return { fatalRestore: Object.values(results).some(mustStopAfterResult), status: failed === 0 ? 'passed' : 'failed', passed, failed, total: results.length };
 }
 
-const isMain = !process.argv[1] || process.argv[1] === new URL(import.meta.url).pathname;
+const isMain = Boolean(process.argv[1]) && process.argv[1] === new URL(import.meta.url).pathname;
 if (isMain) {
   run().then(r => process.exit(r.status === 'passed' ? 0 : 1))
     .catch(e => { console.error('Fatal:', e); process.exit(2); });

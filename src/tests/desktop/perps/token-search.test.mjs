@@ -1,11 +1,14 @@
-// Token Search Tests (Desktop) — SEARCH-001 ~ SEARCH-004
+const connectCDP = () => connectPlatform('desktop');
+import {connectPlatform} from '../../helpers/platform-session.mjs';
+import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
+// Token Search Tests (Desktop) — SEARCH-001 ~ SEARCH-008
 // Thin wrapper: test logic lives in src/tests/shared/perps/token-search.mjs
 // Connects via CDP port 9222 (OneKey Electron app).
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
-  connectCDP, sleep, screenshot, RESULTS_DIR,
+  sleep, screenshot, RESULTS_DIR,
   unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { PerpsPage } from '../../helpers/pages/index.mjs';
@@ -31,6 +34,7 @@ async function goToPerps(page) {
 
 // ── Test Cases (from shared module) ──────────────────────────
 
+export const platform = 'desktop';
 export const displayName = '代币搜索';
 
 const { testCases, setup, ensurePopoverOpen, dismissPopover, getPreReport } =
@@ -52,10 +56,10 @@ export { testCases, setup };
 // ── Main (CLI) ──────────────────────────────────────────────
 
 export async function run() {
-  const filter = process.argv.slice(2).find(a => a.startsWith('SEARCH-'));
-  const casesToRun = filter
-    ? testCases.filter(c => c.id === filter)
-    : testCases;
+  const filters = process.argv.slice(2).filter(a => a.startsWith('SEARCH-'));
+  const casesToRun = filters.length ? testCases.filter(c => filters.includes(c.id)) : testCases;
+  const filter = filters.join(', ');
+  for (const id of filters) if (!testCases.some(c => c.id === id)) throw Error(`Unknown case ${id}`);
 
   if (casesToRun.length === 0) {
     console.error(`No tests matching "${filter}"`);
@@ -90,6 +94,7 @@ export async function run() {
       console.log(`>> ${test.id}: SKIPPED (precondition)`);
       writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
       results.push(r);
+      if(mustStopAfterResult(r)) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
       continue;
     }
 
@@ -106,16 +111,18 @@ export async function run() {
       console.log(`>> ${test.id}: ${r.status.toUpperCase()} (${(duration / 1000).toFixed(1)}s)`);
       writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
       results.push(r);
+      if(mustStopAfterResult(r)) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
     } catch (error) {
       const duration = Date.now() - startTime;
       const r = {
         testId: test.id, status: 'failed', duration,
-        error: error.message, timestamp: new Date().toISOString(),
+        error: error.message, fatalRestore: Boolean(error.fatalRestore), timestamp: new Date().toISOString(),
       };
       console.error(`>> ${test.id}: FAILED (${(duration / 1000).toFixed(1)}s) — ${error.message}`);
       await screenshot(page, SCREENSHOT_DIR, `${test.id}-error`);
       writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
       results.push(r);
+      if(mustStopAfterResult(r)) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
     }
   }
 
@@ -132,7 +139,7 @@ export async function run() {
   const summary = { timestamp: new Date().toISOString(), total: results.length, passed, failed, skipped, results };
   writeFileSync(resolve(RESULTS_DIR, 'search-summary.json'), JSON.stringify(summary, null, 2));
 
-  return { status: failed === 0 ? 'passed' : 'failed', passed, failed, skipped, total: results.length };
+  return { fatalRestore: Object.values(results).some(mustStopAfterResult), status: failed === 0 ? 'passed' : 'failed', passed, failed, skipped, total: results.length };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

@@ -1,4 +1,7 @@
-// Perps Portfolio & PnL Tests (Extension) — EXT-PERPS-PNL-001 ~ EXT-PERPS-PNL-008
+const connectExtensionCDP = () => connectPlatform('extension');
+import {connectPlatform} from '../../helpers/platform-session.mjs';
+import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
+// Perps Portfolio & PnL Tests (Extension) — EXT-PERPS-PNL-001 ~ EXT-PERPS-PNL-013
 // Thin wrapper: test logic lives in src/tests/shared/perps/portfolio.mjs
 // Connects via CDP port 9224 using connectExtensionCDP.
 
@@ -6,7 +9,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { sleep } from '../../helpers/constants.mjs';
 import { importWatchAddress } from '../../helpers/components.mjs';
-import { connectExtensionCDP, getExtensionId } from '../../helpers/extension-cdp.mjs';
+import { getExtensionId } from '../../helpers/extension-cdp.mjs';
 import { createPortfolioTests, WATCH_ADDRESSES } from '../../shared/perps/portfolio.mjs';
 
 const RESULTS_DIR = resolve(import.meta.dirname, '../../../../shared/results');
@@ -140,90 +143,18 @@ async function switchToAccountExt(page, accountName, walletType) {
  * @returns {true|string} true if switched, skip reason string if "ran" wallet not found
  */
 async function switchToFundedAccount(page) {
-  const current = await page.evaluate(() => {
-    const el = document.querySelector('[data-testid="AccountSelectorTriggerBase"]');
-    return el?.textContent?.trim()?.slice(0, 40) || null;
-  });
-  if (current && current.includes('Account #1')) {
-    console.log('  Already on funded account (ran), skipping switch');
-    return true;
-  }
-
-  await page.evaluate(() => {
-    const el = document.querySelector('[data-testid="wallet"]');
-    if (el) { el.click(); return; }
-    for (const sp of document.querySelectorAll('span')) {
-      if (['钱包', 'Wallet'].includes(sp.textContent?.trim())) {
-        const r = sp.getBoundingClientRect();
-        if (r.width > 0) { sp.click(); return; }
-      }
-    }
-  });
-  await sleep(2000);
-
-  await page.evaluate(() => {
-    document.querySelector('[data-testid="AccountSelectorTriggerBase"]')?.click();
-  });
-  await sleep(2000);
-  const found = await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    if (!modal) return false;
-    for (const el of modal.querySelectorAll('[data-testid^="wallet-hd-"]')) {
-      if (el.textContent?.trim() === 'ran') {
-        el.scrollIntoView({ behavior: 'instant' });
-        el.click();
-        return true;
-      }
-    }
-    return false;
-  });
-
-  if (!found) {
-    await page.keyboard.press('Escape');
-    await sleep(500);
-    return 'SKIP: "ran" wallet not found on this device';
-  }
-
-  await sleep(1500);
-
-  await page.evaluate(() => {
-    const modal = document.querySelector('[data-testid="APP-Modal-Screen"]');
-    if (!modal) return;
-    modal.querySelector('[data-testid="account-item-index-0"]')?.click();
-  });
-  await sleep(2000);
-  return true;
+  await unlockWalletIfNeeded(page);
+  await goToPerps(page);
+  const text=await page.getByTestId('perp-portfolio-button').innerText();
+  if(!/[1-9]/.test(text)) return 'SKIP: 当前账户缺少有资产的投资组合测试数据';
 }
-
-/**
- * Switch to a watch wallet account on Extension.
- * Maps label → known account names in this device's 观察钱包 list.
- * Auto-imports if not found.
- */
-async function switchToWatchAccount(page, address, label) {
-  // Account name mapping for this device's extension wallet
-  const nameMap = {
-    '高胜率': '高胜率',
-    '低胜率': '低胜率',
-    '空账户': 'Account #2',
-  };
-  const accountName = nameMap[label] || label;
-
-  try {
-    await switchToAccountExt(page, accountName, '观察钱包');
-  } catch (e) {
-    if (address) {
-      console.log(`  [AUTO] "${accountName}" not found, importing ${address.slice(0, 10)}...`);
-      await importWatchAddress(page, address, { name: label !== '空账户' ? label : undefined });
-      await switchToAccountExt(page, accountName, '观察钱包');
-    } else {
-      throw e;
-    }
-  }
+async function switchToWatchAccount() {
+  return 'SKIP: 需配置并验证观察账户地址；禁止按名称兜底或自动导入';
 }
 
 // ── Test Cases (from shared module) ──────────────────────────
 
+export const platform = 'extension';
 export const displayName = '投资组合';
 
 const { testCases, setup, ALL_TEST_IDS } = createPortfolioTests({
@@ -233,6 +164,7 @@ const { testCases, setup, ALL_TEST_IDS } = createPortfolioTests({
   goToPerps,
   switchToFundedAccount,
   switchToWatchAccount,
+  accounts:[{label:'当前账户',isFunded:true}],
 });
 
 export { testCases, setup, ALL_TEST_IDS };
@@ -279,11 +211,12 @@ export async function run() {
       console.log(`>> ${test.id}: ${r.status.toUpperCase()} (${(duration / 1000).toFixed(1)}s)`);
       writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
       results.push(r);
+      if(mustStopAfterResult(r)) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
     } catch (error) {
       const duration = Date.now() - startTime;
       const r = {
         testId: test.id, status: 'failed', duration,
-        error: error.message, timestamp: new Date().toISOString(),
+        error: error.message, fatalRestore: Boolean(error.fatalRestore), timestamp: new Date().toISOString(),
       };
       console.error(`>> ${test.id}: FAILED (${(duration / 1000).toFixed(1)}s) — ${error.message}`);
       if (page && !page?.isClosed?.()) {
@@ -291,6 +224,7 @@ export async function run() {
       }
       writeFileSync(resolve(RESULTS_DIR, `${test.id}.json`), JSON.stringify(r, null, 2));
       results.push(r);
+      if(mustStopAfterResult(r)) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
     }
 
     await sleep(1000);
@@ -310,10 +244,10 @@ export async function run() {
   const summary = { timestamp: new Date().toISOString(), total: results.length, passed, failed, results };
   writeFileSync(resolve(RESULTS_DIR, 'ext-perps-portfolio-summary.json'), JSON.stringify(summary, null, 2));
 
-  return { status: failed === 0 ? 'passed' : 'failed', passed, failed, total: results.length };
+  return { fatalRestore: Object.values(results).some(mustStopAfterResult), status: failed === 0 ? 'passed' : 'failed', passed, failed, total: results.length };
 }
 
-const isMain = !process.argv[1] || process.argv[1] === new URL(import.meta.url).pathname;
+const isMain = Boolean(process.argv[1]) && process.argv[1] === new URL(import.meta.url).pathname;
 if (isMain) {
   run().then(r => process.exit(r.status === 'passed' ? 0 : 1))
     .catch(e => { console.error('Fatal:', e); process.exit(2); });

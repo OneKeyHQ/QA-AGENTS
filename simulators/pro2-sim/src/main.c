@@ -13,13 +13,16 @@
 //                                       落盘 <dir>/<id>.png 后退出（0=成功）。也可手动单页截图用
 //   ./onekey-sim --click-test-all <dir> 全页点击测试编排器：逐页子进程点每个可点控件，
 //                                       点击引发弹层/结构变化时截交互态 PNG（--clickNN.png）
+//   ./onekey-sim --scenario <json> [--out <dir>]
+//                                       场景模式：JSON 触摸序列 + 虚拟时钟，逐帧 PNG + 帧间差异报告，
+//                                       用于复现/回归"滚动中组件闪烁"类问题（见 scenarios/README.md）
 //   ./onekey-sim --lang <code>          启动即切到指定语言（BCP-47 码 = resroot/resource/i18n/ 的
 //                                       文件名，如 zh-Hans-CN / ja-Jpan-JP）。对所有模式生效；
 //                                       --snapshot 经 SIM_LANG 环境变量透传给逐页子进程，
 //                                       可直接做「指定语言全量截图」多语言回归。传错码列出可用语言。
 #include <lvgl.h>
-#include <ui_font_manager.h>
-#include <ui_language_translations.h>   // i18n 初始化（文案来自 A:/resource/i18n）
+#include <font_manager.h>   // dev 2026-08 起由 ui_font_manager.h 改名，API 前缀 ui_font_manager_* 未变
+#include <language_translations.h>   // i18n 初始化（文案来自 A:/resource/i18n；dev 2026-08 由 ui_language_translations.h 改名）
 #include <i18n_tags.h>                  // I18N_M_SIGNING__* 等文案宏（--demo-catalog 用真机文案）
 #include "page_registry.h"
 #include "snapshot.h"
@@ -29,6 +32,25 @@
 #include "my_address_display.h"          // 真实地址展示页 PAGE_ID_ADDRESS_DISPLAY（--demo-myaddress）
 #include "my_address_session.h"          // my_address_session_init（sim 桩在 sim_stubs_pages.c）
 #include "page_manager/page_manager.h"  // shadow 拷贝
+// ── compositor 接线（同真机 task_foreground.c）──
+#include <compositor.h>                      // 固件 tasks/task_foreground/compositor（原样编入）
+#include <lv_port_indev.h>                   // 固件 ui/lvgl_port/lv_port_indev.c（原样编入，触摸源在 sim_hw_shims.c）
+#include "sim_disp_compose.h"                // sim 合成层（lv_port_disp.c 合成段抽取 + host 送显）
+#include "scenario.h"                        // --scenario 场景执行器
+#include <cache/component_cache.h>
+// button_input.h 与 ui_button_set_input_blocked_callback 是 e2aca352 (#232) 随 OK-64012 修复一起加的
+// （滚动中屏蔽按钮输入）；修复前基线（tools/regress_scenario.sh）没有，按存在性接线
+#if __has_include(<button/button_input.h>)
+  #include <button/button_input.h>
+  #define SIM_HAS_BUTTON_INPUT_BLOCK 1
+#else
+  #define SIM_HAS_BUTTON_INPUT_BLOCK 0
+#endif
+#include <button/button_group.h>
+#include <list/list_group.h>
+#include <navigation_bar/navigation_bar.h>
+#include <page_sheet/page_sheet.h>
+#include <status_bar/status_bar.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <dirent.h>
@@ -489,11 +511,11 @@ static int  build_sign_page(const char* title, const char* num, const char* symb
 #include <keyboard/keyboard_mnemonic.h>
 #include <keyboard/keyboard_passphrase.h>
 #include <keyboard/keyboard_number.h>
-#include <loading/loading.h>
+#include <loading_window/loading_window.h>   // main 2026-10：loading → loading_window（API 前缀 ui_loading_window_*）
 #include <stepper/stepper.h>
 #include <list/list_group.h>
 #include <page_template/page_template.h>
-#include "view_sign_page_details.h" // 真机 Details 分组（纯查表，直接编入）
+#include "sign_view_page_details.h" // 真机 Details 分组（纯查表，直接编入；dev 2026-08 由 view_sign_page_details.h 改名，API 名未变）
 
 // 同 view_sign_page.c 的折叠参数/逻辑（该文件依赖 protobuf 不能编入，此处复刻）
 #define SIM_DATA_CHARS_PER_LINE 32
@@ -593,6 +615,8 @@ static int build_demo_catalog(const char* id)
     static char        dt_previews[VIEW_SIGN_PAGE_DETAILS_MAX_FIELDS][SIM_DATA_PREVIEW_MAX];
     static ViewSignPageDetailsGroups_t dt_groups;
     uint16_t           ov_n = 0, dt_n = 0;
+    const char*        data_card_title = NULL; // 超长 Data 行 → 页级预览卡
+    const char*        data_card_text  = NULL;
     for ( uint16_t i = 0; i < p->row_count; i++ )
     {
         const demo_row_t* r = &p->rows[i];
@@ -622,15 +646,15 @@ static int build_demo_catalog(const char* id)
         if ( dt_n < VIEW_SIGN_PAGE_DETAILS_MAX_FIELDS )
         {
             SignField_t df = f;
-            // Data 行超 5 行折叠成预览 + View Data 按钮（同 data_field_from_detail）
+            // Data 行超 5 行：main 2026-10 起不再是行内 TEXT_FIELD，而是页级预览卡
+            // （SignPageConfig_t.card_*，挂 Details tab），行本身不进列表
             if ( r->key == TXDETAILS_KEY_DATA &&
                  sim_estimate_data_lines(r->value) > SIM_DATA_VISIBLE_LINES )
             {
                 sim_make_data_preview(dt_previews[dt_n], SIM_DATA_PREVIEW_MAX, r->value);
-                df.variant         = SIGN_FIELD_VARIANT_TEXT_FIELD;
-                df.value_text      = dt_previews[dt_n];
-                df.full_value_text = r->value;
-                df.action_text     = I18N_M_SIGNING__I_VIEWDATA;
+                data_card_title = df.label;
+                data_card_text  = dt_previews[dt_n];
+                continue;
             }
             // Details 里 icon 行降级为纯文本（同 view_sign_page_build）
             if ( df.variant == SIGN_FIELD_VARIANT_ICON_TEXT )
@@ -816,8 +840,12 @@ static int build_demo_catalog(const char* id)
                              .on_confirm      = demo_tx_slide_confirm_cb,
                              // slide=False 的中间页（EIP-712 walkthrough 等）渲染 Continue 按钮
                              .bottom_kind     = p->continue_btn ? SIGN_BOTTOM_BUTTON : SIGN_BOTTOM_SLIDER,
-                             .raw_initial_data = raw,
-                             .on_view_data    = NULL, // demo：点 View Data 无后续页
+                             // 页级 Data 预览卡（main 2026-10：raw_initial_data/on_view_data → card_*）
+                             .card_title      = raw ? txdetails_key_to_label(TXDETAILS_KEY_DATA) : data_card_title,
+                             .card_text       = raw ? raw : data_card_text,
+                             .card_action     = I18N_M_SIGNING__I_VIEWDATA,
+                             .on_card_action  = NULL, // demo：点 View Data 无后续页
+                             .card_details_only = tab_count == 2,
                              .on_destroyed    = NULL};
     page_manager_init();
     page_manager_push(PAGE_ID_SIGN_PAGE, &cfg);
@@ -941,6 +969,78 @@ static uint32_t sim_tick_ms(void)
     return (uint32_t)((uint64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
 }
 
+// ── compositor 接线：照抄固件 task_foreground.c 的三个 content_scroll 包装 + sheet 转场 ──
+// 真机滚动/翻页/转场时冻结 LVGL 刷新，用快照覆盖层逐帧合成（tasks/task_foreground/compositor）。
+// sim 原样编入 compositor，这里把它接到 page_template / 组件缓存 / 按钮输入阻塞 / 页面 sheet 上，
+// 一处不接就会退回在线渲染，复现不出真机的"滚动中快照 vs 静止实时绘制"差异。
+static void content_scroll_attach(const PageTemplate_t* page)
+{
+    lv_obj_t* compact_slot = ui_navigation_bar_find_compact_right_slot(page->screen);
+    compositor_content_scroll_attach(
+        ui_page_template_get_scroll_obj(page), page->content, page->screen, page->top_bar, compact_slot, page->button_group,
+        ui_page_template_get_toast_overlay(page)
+    );
+}
+
+static bool sheet_transition_begin(lv_obj_t* sheet_p, bool push)
+{
+    if ( !page_manager_navigation_idle() )
+    {
+        return false;
+    }
+    return compositor_page_transition_begin(&(CompositorPageTransitionConfig_t){
+        .axis = COMPOSITOR_AXIS_VERTICAL,
+        .operation = push ? COMPOSITOR_OPERATION_PUSH : COMPOSITOR_OPERATION_POP,
+        .moving_p = sheet_p,
+        .from_page_p = push ? lv_screen_active() : sheet_p,
+        .to_page_p = push ? sheet_p : lv_screen_active(),
+        .sheet = true,
+    });
+}
+
+static void content_scroll_invalidate(lv_obj_t* screen)
+{
+    compositor_content_scroll_invalidate(screen);
+}
+
+static void content_scroll_titles_update(lv_obj_t* nav_title_p, lv_obj_t* lead_title_p, lv_opa_t nav_opa)
+{
+    compositor_content_scroll_titles_update(nav_title_p, lead_title_p, nav_opa);
+}
+
+// 主循环一步：同真机 task_foreground 顺序（compositor_content_scroll_drive → page_manager_run → LVGL）。
+// 返回 LVGL 建议的下一次调用间隔（ms）。scenario.c 的虚拟时钟循环也用它。
+uint32_t sim_loop_step(void)
+{
+    compositor_content_scroll_drive();
+    page_manager_run();
+    return lv_timer_handler();
+}
+
+// 真机：compositor 活跃时主循环周期 1ms，否则 5ms（task_foreground.c lvgl_period_ms）。
+static uint32_t sim_loop_period_ms(uint32_t lvgl_delay)
+{
+    const bool compositor_active
+        = compositor_pager_is_active() || compositor_content_scroll_is_active() || compositor_page_transition_is_active();
+    if ( compositor_active )
+        return 1;
+    if ( lvgl_delay == LV_NO_TIMER_READY )
+        lvgl_delay = 5;
+    if ( lvgl_delay > 33 )
+        lvgl_delay = 33; // clamp，保持帧率/输入响应
+    return lvgl_delay;
+}
+
+// 交互循环（GUI / --frames 无头自检）：墙钟驱动
+static void sim_run_interactive_loop(long max_frames)
+{
+    for ( long frame = 0; max_frames < 0 || frame < max_frames; frame++ )
+    {
+        uint32_t delay = sim_loop_period_ms(sim_loop_step());
+        usleep(delay * 1000);
+    }
+}
+
 int main(int argc, char** argv)
 {
     long        max_frames    = -1;   // -1 = 无限（交互模式）
@@ -959,10 +1059,30 @@ int main(int argc, char** argv)
     const char* click_shots   = NULL;  // --click-test 的落图目录（可选）
     const char* click_all_dir = NULL;  // 非 NULL = 全页点击测试编排器（--click-test-all）
     const char* lang_code     = NULL;  // 非 NULL = 启动即切语言（--lang，BCP-47 码）
+    const char* scenario_path = NULL;  // 非 NULL = 场景模式（--scenario，见 scenario.h / scenarios/README.md）
+    const char* scenario_out  = NULL;  // --out：场景产物目录（默认 out/scenario/<文件名>）
 
     for ( int i = 1; i < argc; i++ )
     {
-        if ( strcmp(argv[i], "--frames") == 0 )
+        if ( strcmp(argv[i], "--scenario") == 0 )
+        {
+            if ( i + 1 >= argc )
+            {
+                fprintf(stderr, "sim: --scenario 缺少场景 JSON 路径\n");
+                return 2;
+            }
+            scenario_path = argv[++i];
+        }
+        else if ( strcmp(argv[i], "--out") == 0 )
+        {
+            if ( i + 1 >= argc )
+            {
+                fprintf(stderr, "sim: --out 缺少目录\n");
+                return 2;
+            }
+            scenario_out = argv[++i];
+        }
+        else if ( strcmp(argv[i], "--frames") == 0 )
         {
             if ( i + 1 >= argc )
             {
@@ -1104,19 +1224,36 @@ int main(int argc, char** argv)
 
     lv_display_t* disp = lv_sdl_window_create(SIM_HRES, SIM_VRES);
     lv_sdl_window_set_title(disp, "OneKey Pro 2 Simulator");
-    lv_sdl_mouse_create();
+    // 合成层：接管 SDL 驱动 flush（整帧落扫描池再上屏），compositor present 推 SDL 纹理
+    if ( !sim_disp_compose_init(disp) )
+    {
+        fprintf(stderr, "sim: 合成层初始化失败\n");
+        return 1;
+    }
+    // 触摸：固件 lv_port_indev.c 原样编入（5ms 读周期 / scroll_limit / 阻塞逻辑同真机），
+    // 事件源 = SDL 鼠标 + 场景注入队列（sim_hw_shims.c）。不再用 lv_sdl_mouse（会绕过阻塞逻辑）。
+    lv_port_indev_init();
 
     // 同真机 task_foreground.c register_ui_components()（01bfae6e 起：重量级组件
     // 改为 app 启动注册，bootloader 不注册则渲染为空——sim 必须照抄注册，
     // 否则 list 行/键盘/loading/stepper 全部空白）。
     ui_page_template_register_keyboards(ui_create_mnemonicKeyboard, ui_create_passphraseKeyboard,
                                         ui_create_numberKeyboard);
-    ui_page_template_register_loading(ui_loading_create, ui_loading_close, ui_loading_set_text);
+    ui_page_template_register_loading_window(ui_loading_window_create, ui_loading_window_close, ui_loading_window_set_text);
     ui_page_template_register_stepper(ui_create_stepper);
+    ui_page_template_register_content_scroll(content_scroll_attach, content_scroll_invalidate, content_scroll_titles_update);
+    ui_component_cache_set_invalidate_callback(compositor_invalidate_pixels);
+    ui_component_cache_set_layout_invalidate_callback(compositor_invalidate_layout);
     ui_list_item_register_portfolio_renderer(ui_list_item_render_portfolio);
     ui_list_item_register_text_left_aligned_renderer(ui_list_item_render_text_left_aligned);
     ui_list_item_register_private_key_renderer(ui_list_item_render_private_key);
     ui_list_item_register_text_field_renderer(ui_list_item_render_text_field);
+    ui_list_item_register_default_trailing_renderer(ui_list_item_render_default_trailing);
+    ui_button_group_register_layout_handler(ui_button_group_apply_overflow_layout);
+#if SIM_HAS_BUTTON_INPUT_BLOCK
+    ui_button_set_input_blocked_callback(compositor_content_scroll_is_active);
+#endif
+    ui_page_sheet_set_transition_callbacks(sheet_transition_begin, compositor_page_transition_end);
 
     if ( !ui_font_manager_init() )
     {
@@ -1126,8 +1263,10 @@ int main(int argc, char** argv)
 
     // 同真机 task_foreground 初始化顺序：字体就绪后加载 i18n 翻译
     // （A:/resource/i18n/en-Latn-US.json，缺文件时容忍降级为空串文案）
-    if ( !ui_language_translations_init() )
-        fprintf(stderr, "sim: i18n 初始化失败 — 检查 resroot/resource/i18n/，页面文案将为空\n");
+    // main 2026-10：返回值改为 UiLanguageTranslationsLoad_e（OK=0），KEY_SET_MISMATCH 表示资源 i18n JSON
+    // 与固件 i18n_tags.h 不同步——在固件目录重跑 resource_pkg.py font --only json 后重新 cmake
+    if ( ui_language_translations_init() != UI_LANGUAGE_TRANSLATIONS_LOAD_OK )
+        fprintf(stderr, "sim: i18n 初始化失败 — 检查 resroot/resource/i18n/（资源过期请重跑 resource_pkg.py font --only json），页面文案将为空\n");
 
     // --lang / SIM_LANG：init 加载默认英文后按真机语言切换链路换语言，顺序对齐
     // ui_language.c：字体 prepare → 逐步加载 noto（仅非拉丁语言）→ 文案 prepare/apply
@@ -1178,6 +1317,28 @@ int main(int argc, char** argv)
         }
     }
 
+    // 同真机 task_foreground.c create_page()（字体/i18n 就绪后）：根屏黑底；状态栏创建一次挂 lv_layer_sys，
+    // 作为 compositor 系统覆盖层（滚动/转场时它在合成帧里实时重绘）。字体未就绪前创建会卡死在字体加载。
+    lv_obj_set_style_bg_color(lv_scr_act(), lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(lv_scr_act(), LV_OPA_COVER, 0);
+    compositor_system_overlay_set(ui_create_status_bar(NULL));
+
+    // 场景模式：JSON 触摸序列 → 虚拟时钟 → 逐帧 PNG + 差异报告（退出码 0/1/2，见 scenario.h）
+    if ( scenario_path != NULL )
+    {
+        char default_out[512];
+        if ( scenario_out == NULL )
+        {
+            const char* base = strrchr(scenario_path, '/');
+            base = base != NULL ? base + 1 : scenario_path;
+            snprintf(default_out, sizeof(default_out), "out/scenario/%.*s", (int)(strrchr(base, '.') != NULL ? strrchr(base, '.') - base : (long)strlen(base)),
+                     base);
+            scenario_out = default_out;
+        }
+        // 固件 commit 由 bootstrap / regress 脚本经环境变量传入，写进报告便于复现
+        return sim_scenario_run(scenario_path, scenario_out, getenv("SIM_FIRMWARE_COMMIT"));
+    }
+
     // 单页截图模式（--snapshot 编排器的子进程入口；也可手动调用）
     if ( snap_page_id != NULL )
         return sim_snapshot_page(snap_page_id, snap_page_dir);
@@ -1222,15 +1383,7 @@ int main(int argc, char** argv)
             return rc == 0 ? 0 : 1;
         }
         // 否则进入交互循环（GUI 窗口展示）
-        for ( long frame = 0; max_frames < 0 || frame < max_frames; frame++ )
-        {
-            uint32_t delay = lv_timer_handler();
-            if ( delay == LV_NO_TIMER_READY )
-                delay = 5;
-            if ( delay > 33 )
-                delay = 33;
-            usleep(delay * 1000);
-        }
+        sim_run_interactive_loop(max_frames);
         return 0;
     }
 
@@ -1245,15 +1398,7 @@ int main(int argc, char** argv)
     }
     sim_page_open(p);
 
-    for ( long frame = 0; max_frames < 0 || frame < max_frames; frame++ )
-    {
-        uint32_t delay = lv_timer_handler();
-        if ( delay == LV_NO_TIMER_READY )
-            delay = 5;
-        if ( delay > 33 )
-            delay = 33; // clamp，保持帧率/输入响应
-        usleep(delay * 1000);
-    }
+    sim_run_interactive_loop(max_frames);
     printf("sim: exit after %ld frames\n", max_frames);
     return 0;
 }

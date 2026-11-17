@@ -1,3 +1,11 @@
+import {runPreconditions} from '../../helpers/preconditions.mjs';
+import {waitForFavoriteSync} from './favorite-sync.mjs';
+import {snapshotNonOrderForm,restoreNonOrderForm} from './non-order-ui.mjs';
+import {markRestoreFailure} from './runtime.mjs';
+import {writeFileSync,mkdirSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {RESULTS_DIR} from '../../helpers/constants.mjs';
+import {currentPair,openPairs,searchPairs,pairPopover,closePairs,clickPairTab,favoriteSnapshot,restoreFavorites,clearFavorites,setFavorite,restorePair} from '../../helpers/perps-ui.mjs';
 // Perps Favorites — shared test logic (Desktop / Web / Extension)
 //
 // Wrapper files at:
@@ -32,13 +40,14 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   // ── Helpers (all element-based, no coordinates) ───────────
 
   async function clickText(page, text) {
+    if(['自选','永续合约','现货'].includes(text)) return clickPairTab(page,text);
     const clicked = await page.evaluate((txt) => {
       const visiblePopover = () => {
         for (const p of document.querySelectorAll('[data-testid="TMPopover-ScrollView"]')) {
           const text = p.textContent || '';
           if (
             p.getBoundingClientRect().width > 0
-            && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]')
+            && (p.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]')
               || (text.includes('自选') && text.includes('永续合约')))
           ) return p;
         }
@@ -55,7 +64,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       for (const p of pops) {
         const popText = p.textContent || '';
-        if (p.getBoundingClientRect().width === 0 || !(p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
+        if (p.getBoundingClientRect().width === 0 || !(p.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
         for (const sp of p.querySelectorAll('span')) {
           if (sp.textContent?.trim() === txt && sp.getBoundingClientRect().width > 0) {
             sp.click(); return true;
@@ -105,66 +114,14 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     }
   }
 
-  async function getCurrentPair(page) {
-    return page.evaluate(() => {
-      for (const sp of document.querySelectorAll('span')) {
-        const text = sp.textContent?.trim();
-        if (text && /^[A-Z]{2,10}USDC$/.test(text) && sp.children.length === 0) {
-          const r = sp.getBoundingClientRect();
-          if (r.width > 50 && r.height > 20) return text;
-        }
-      }
-      return null;
-    });
-  }
+  async function getCurrentPair(page) { return currentPair(page); }
 
-  async function openPairSelector(page) {
-    const alreadyOpen = await page.evaluate(() => {
-      for (const p of document.querySelectorAll('[data-testid="TMPopover-ScrollView"]')) {
-        const text = p.textContent || '';
-        if (
-          p.getBoundingClientRect().width > 0
-          && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]')
-            || (text.includes('自选') && text.includes('永续合约')))
-        ) return true;
-      }
-      return false;
-    });
-    if (alreadyOpen) return;
-    await dismissPopover(page);
-    const pair = await getCurrentPair(page);
-    if (!pair) throw new Error('Cannot detect current pair');
-    await page.evaluate((p) => {
-      for (const sp of document.querySelectorAll('span')) {
-        if (sp.textContent?.trim() === p && sp.getBoundingClientRect().width > 50) {
-          sp.click(); return;
-        }
-      }
-    }, pair);
-    await sleep(2000);
-  }
+  async function openPairSelector(page) { await openPairs(page); }
 
   async function getFavoritesListTokens(page) {
-    return page.evaluate(() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let pop = null;
-      for (const p of pops) {
-        const text = p.textContent || '';
-        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
-      }
-      if (!pop) return [];
-      const tokens = [];
-      const ignore = new Set(['自选','永续合约','加密货币','股票','贵金属','指数','大宗商品','外汇','预上线',
-        '现货','全部','热门','新上架','Pre-IPO',
-        '资产','最新价格','24小时涨跌','资金费率','成交量','成交额','合约持仓量','市值','搜索资产','PERPS']);
-      for (const sp of pop.querySelectorAll('span')) {
-        const t = sp.textContent?.trim();
-        if (!t || sp.children.length !== 0 || sp.getBoundingClientRect().width === 0) continue;
-        if (ignore.has(t)) continue;
-        if (/^[A-Z]{2,8}$/.test(t)) tokens.push(t);
-      }
-      return [...new Set(tokens)];
-    });
+    // Count actual asset rows only. Empty favorites render recommendation cards,
+    // whose uppercase ticker labels must never count as already saved assets.
+    return pairPopover(page).locator('[data-testid^="perp-token-selector-row-"]').evaluateAll(rows=>rows.map(e=>e.innerText.split('\n')[0].trim()));
   }
 
   async function waitForFavoritesListTokens(page, { min = 1, timeoutMs = 8000 } = {}) {
@@ -189,39 +146,9 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   }
 
   async function clearAllFavorites(page) {
-    let total = 0;
-    for (let i = 0; i < 20; i++) {
-      const btnPos = await page.evaluate(() => {
-        const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-        let pop = null;
-        for (const p of pops) {
-          const text = p.textContent || '';
-          if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
-        }
-        if (!pop) return null;
-        const testIdButtons = [];
-        for (const btn of pop.querySelectorAll('[data-testid="perp-already-favorite-icon-btn"]')) {
-          const r = btn.getBoundingClientRect();
-          if (r.width > 0 && r.height > 0) {
-            testIdButtons.push({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
-          }
-        }
-        if (testIdButtons.length > 0) return testIdButtons[0];
-        for (const btn of pop.querySelectorAll('button')) {
-          const r = btn.getBoundingClientRect();
-          if (r.width >= 18 && r.width <= 28 && r.height >= 18 && r.height <= 28
-              && r.x < 130 && r.y > 290) {
-            return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
-          }
-        }
-        return null;
-      });
-      if (!btnPos) break;
-      await page.mouse.click(btnPos.x, btnPos.y);
-      total++;
-      await sleep(600);
-    }
-    return total;
+    const count=await pairPopover(page).locator('[data-testid^="perp-token-selector-row-"]').count();
+    await clearFavorites(page);
+    return count;
   }
 
   async function clearAndTriggerRecommendation(page) {
@@ -240,7 +167,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       for (const pop of pops) {
         const popText = pop.textContent || '';
-        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
+        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
         for (const sp of pop.querySelectorAll('span')) {
           if (sp.textContent?.trim() === '添加到自选' && sp.getBoundingClientRect().width > 0) return true;
         }
@@ -255,7 +182,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       let pop = null;
       for (const p of pops) {
         const text = p.textContent || '';
-        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
       }
       if (!pop) return [];
       const tokens = [];
@@ -288,7 +215,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       let pop = null;
       for (const p of pops) {
         const text = p.textContent || '';
-        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
       }
       if (!pop) return { found: false, selected: false, pos: null, available: [] };
       const available = [];
@@ -337,7 +264,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       let pop = null;
       for (const p of pops) {
         const text = p.textContent || '';
-        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
       }
       if (!pop) return { clicked: false, available: [] };
       const available = [];
@@ -380,71 +307,16 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     }
   }
 
-  async function searchAsset(page, query) {
-    await page.evaluate((q) => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let input = null;
-      for (const pop of pops) {
-        const popText = pop.textContent || '';
-        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
-        const inp = pop.querySelector('input[data-testid="nav-header-search"]')
-          || pop.querySelector('input[placeholder*="搜索"]');
-        if (inp && inp.getBoundingClientRect().width > 0) { input = inp; break; }
-      }
-      if (!input) {
-        for (const inp of document.querySelectorAll('input[data-testid="nav-header-search"], input[placeholder*="搜索"]')) {
-          if (inp.getBoundingClientRect().width > 0 && inp.getBoundingClientRect().height > 0) {
-            input = inp; break;
-          }
-        }
-      }
-      if (!input) throw new Error('Search input not found');
-      input.focus();
-      const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-      if (nativeSet) {
-        nativeSet.call(input, q);
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        input.dispatchEvent(new Event('change', { bubbles: true }));
-      }
-    }, query);
-    await sleep(1500);
-  }
+  async function searchAsset(page, query) { await searchPairs(page,query); }
 
-  async function clearSearch(page) {
-    const clearPos = await page.evaluate(() => {
-      for (const el of document.querySelectorAll('[data-testid="-clear"]')) {
-        const r = el.getBoundingClientRect();
-        if (r.width > 0) return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
-      }
-      return null;
-    });
-    if (clearPos) {
-      await page.mouse.click(clearPos.x, clearPos.y);
-      await sleep(500);
-      return;
-    }
-    await page.evaluate(() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const pop of pops) {
-        const popText = pop.textContent || '';
-        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
-        const input = pop.querySelector('input');
-        if (input) {
-          const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-          if (nativeSet) { nativeSet.call(input, ''); input.dispatchEvent(new Event('input', { bubbles: true })); }
-          return;
-        }
-      }
-    });
-    await sleep(500);
-  }
+  async function clearSearch(page) { await searchPairs(page,''); }
 
   async function isSearchEmpty(page) {
     return page.evaluate(() => {
       const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
       for (const pop of pops) {
         const popText = pop.textContent || '';
-        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
+        if (pop.getBoundingClientRect().width === 0 || !(pop.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]') || (popText.includes('自选') && popText.includes('永续合约')))) continue;
         const text = pop.textContent || '';
         if (text.includes('未找到') || text.includes('No results')) return true;
       }
@@ -461,7 +333,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       let pop = null;
       for (const p of pops) {
         const text = p.textContent || '';
-        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
+        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
       }
       if (!pop) return { pos: null, error: 'no popover' };
       const buttons = [];
@@ -479,7 +351,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
         }
       }
       if (idx >= buttons.length) {
-        const input = pop.querySelector('input[data-testid="nav-header-search"], input[placeholder*="搜索"]');
+        const input = pop.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]');
         const text = (pop.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 500);
         return {
           pos: null,
@@ -503,108 +375,46 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     await sleep(1000);
   }
 
-  async function setFavoriteBySearch(page, symbol, desiredFavorite) {
-    const base = symbol.replace(/USDC$/u, '');
-    let lastFavorites = [];
-    for (let attempt = 0; attempt < 2; attempt++) {
-      await clickText(page, '永续合约');
-      await sleep(500);
-      await searchAsset(page, base);
-      await sleep(1000);
-      await clickStarAtIndex(page, 0);
-      await sleep(1500);
-      await clearSearch(page);
-      await clickText(page, '自选');
-      await sleep(1500);
-      lastFavorites = await getFavoritesListTokens(page);
-      if (lastFavorites.includes(base) === desiredFavorite) return lastFavorites;
-    }
-    return lastFavorites;
+  async function setFavoriteBySearch(page,symbol,desiredFavorite) {
+    const base=symbol.replace(/USDC$/u,'');
+    await setFavorite(page,{name:base},desiredFavorite);
+    await clearSearch(page);
+    await clickText(page,'自选');
+    await sleep(300);
+    return getFavoritesListTokens(page);
   }
 
+  const topBar=page=>page.locator('[data-rbd-droppable-id="favorites-bar"]:visible');
+  async function getDisplayMode(page) {
+    const percent=page.getByText('%',{exact:true}).filter({visible:true});
+    if(await percent.count()!==1) throw Error('Favorites display-mode control missing or ambiguous');
+    const state=await percent.evaluate(el=>{
+      const root=el.parentElement?.parentElement;
+      if(root?.textContent.replace(/\s/g,'')!=='$%') return null;
+      return Number(getComputedStyle(el).fontWeight)>=600?'%':'$';
+    });
+    if(!state) throw Error('Cannot read favorites display mode');
+    return state;
+  }
   async function getTopBarTokens(page) {
-    return page.evaluate(() => {
-      const tokens = [];
-      for (const sp of document.querySelectorAll('span')) {
-        const text = sp.textContent?.trim();
-        if (!text || !/^[A-Z]{2,6}$/.test(text) || sp.children.length !== 0) continue;
-        const r = sp.getBoundingClientRect();
-        if (r.width === 0 || r.y > 100) continue;
-        const parent = sp.parentElement;
-        if (!parent) continue;
-        const parentText = parent.textContent?.trim();
-        if (parentText && /^[A-Z]{2,6}[+\-\d,.%]/.test(parentText)) {
-          tokens.push(text);
-        }
-      }
-      return [...new Set(tokens)];
-    });
+    return topBar(page).locator('[data-rbd-draggable-id]').evaluateAll(rows=>rows.map(row=>row.innerText.split('\n')[0].trim()));
   }
-
   async function getTopBarValues(page) {
-    return page.evaluate(() => {
-      const items = [];
-      for (const sp of document.querySelectorAll('span')) {
-        const text = sp.textContent?.trim();
-        if (!text || sp.children.length !== 0) continue;
-        const r = sp.getBoundingClientRect();
-        if (r.width === 0 || r.y > 100) continue;
-        const parent = sp.parentElement;
-        if (!parent) continue;
-        const parentText = parent.textContent?.trim();
-        if (/^[A-Z]{2,6}/.test(parentText) && /[\d,.%+-]/.test(parentText)) {
-          items.push({ text, x: Math.round(r.x) });
-        }
-      }
-      return items.sort((a, b) => a.x - b.x);
-    });
+    return topBar(page).locator('[data-rbd-draggable-id]').evaluateAll(rows=>rows.map(row=>({text:row.innerText,x:row.getBoundingClientRect().x})));
   }
-
-  async function clickToggle(page, mode) {
-    const clicked = await page.evaluate((target) => {
-      for (const el of document.querySelectorAll('button, span, div')) {
-        const text = el.textContent?.trim();
-        if (text !== target || el.children.length !== 0) continue;
-        const r = el.getBoundingClientRect();
-        if (r.width > 0 && r.width < 42 && r.height > 0 && r.height < 42 && r.y < 180) {
-          el.click(); return true;
-        }
-      }
-      return false;
-    }, mode);
-    if (!clicked) throw new Error(`Toggle "${mode}" not found`);
-    await sleep(1000);
+  async function clickToggle(page,mode) {
+    if(await getDisplayMode(page)===mode) return;
+    await page.getByText('%',{exact:true}).filter({visible:true}).click();
+    await page.waitForTimeout(300);
+    if(await getDisplayMode(page)!==mode) throw Error(`Favorites display mode did not change to ${mode}`);
   }
+  async function getTopBarText(page) {return topBar(page).innerText();}
 
-  async function getTopBarText(page) {
-    return page.evaluate(() => {
-      const chunks = [];
-      for (const el of document.querySelectorAll('span, div, button')) {
-        const text = el.textContent?.trim();
-        if (!text || text.length > 80) continue;
-        const r = el.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0 && r.y >= 80 && r.y <= 170) chunks.push(text);
-      }
-      return [...new Set(chunks)].join(' ');
-    });
-  }
-
-  async function clickTopBarToken(page, symbol) {
-    const clicked = await page.evaluate((sym) => {
-      for (const sp of document.querySelectorAll('span')) {
-        const text = sp.textContent?.trim();
-        if (text !== sym || sp.children.length !== 0) continue;
-        const r = sp.getBoundingClientRect();
-        if (r.width === 0 || r.y > 100) continue;
-        const parent = sp.parentElement;
-        if (parent && /^[A-Z]{2,6}[+\-\d,.%]/.test(parent.textContent?.trim())) {
-          parent.click(); return true;
-        }
-      }
-      return false;
-    }, symbol);
-    if (!clicked) throw new Error(`Top bar token "${symbol}" not found`);
-    await sleep(2000);
+  async function clickTopBarToken(page,symbol) {
+    const item=topBar(page).locator('[data-rbd-draggable-id]').filter({has:page.getByText(symbol,{exact:true})});
+    if(await item.count()!==1) throw Error(`Favorite top-bar item not unique: ${symbol}`);
+    await item.click();
+    await page.waitForTimeout(500);
   }
 
   // ── Test Cases ────────────────────────────────────────────
@@ -674,13 +484,15 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
     console.log('\n  Step 1: Search BTC -> favorite');
     await openPairSelector(page);
+    const beforeAdd = await setFavoriteBySearch(page, 'BTC', false);
     const favsAfterAdd = await setFavoriteBySearch(page, 'BTC', true);
-    t.add('搜索 BTC 并收藏', favsAfterAdd.includes('BTC') ? 'passed' : 'failed',
+    t.add('搜索 BTC 从未收藏变为已收藏', favsAfterAdd.includes('BTC') && favsAfterAdd.length === beforeAdd.length + 1 ? 'passed' : 'failed',
       `favorites: ${favsAfterAdd.join(', ')}`);
 
     console.log('  Step 2: Search XRP -> unfavorite');
+    const beforeRemove = await setFavoriteBySearch(page, 'XRP', true);
     const favsAfterRemove = await setFavoriteBySearch(page, 'XRP', false);
-    t.add('搜索 XRP 并取消收藏', !favsAfterRemove.includes('XRP') ? 'passed' : 'failed',
+    t.add('搜索 XRP 从已收藏变为未收藏', !favsAfterRemove.includes('XRP') && favsAfterRemove.length === beforeRemove.length - 1 ? 'passed' : 'failed',
       `favorites: ${favsAfterRemove.join(', ')}`);
 
     console.log('  Step 3: Search non-existent');
@@ -703,10 +515,26 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     return t.result();
   }
 
+  async function ensureFavoriteFixture(page) {
+    let fixture=await favoriteSnapshot(page);
+    if(fixture.length<3) for(const name of ['BTC','ETH','BNB']) {
+      if(!fixture.some(item=>item.name===name)) await setFavorite(page,{name},true);
+      fixture=await favoriteSnapshot(page);
+      if(fixture.length>=3) break;
+    }
+    if(fixture.length<3) throw Error('Favorite removal/navigation fixture requires at least three assets');
+    await closePairs(page);
+    return fixture;
+  }
+
   async function test003(page) {
     const t = createStepTracker(`${prefix}-003`);
 
     await goToPerps(page);
+    // A single original favorite cannot support removing one and selecting a
+    // different remaining asset. Build the required list; outer finally restores it.
+    const fixture = await ensureFavoriteFixture(page);
+    t.add('前置：准备至少三条自选供取消与跳转', 'passed', fixture.map(item=>item.name).join(', '));
 
     console.log('\n  Step 1: View favorites list');
     await openPairSelector(page);
@@ -725,7 +553,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     await clickStarAtIndex(page, 0);
     await sleep(1000);
     const tokensAfter = await getFavoritesListTokens(page);
-    t.add('取消收藏后数量减少', tokensAfter.length < countBefore ? 'passed' : 'failed',
+    t.add('取消收藏后数量减少 1', tokensAfter.length === countBefore - 1 ? 'passed' : 'failed',
       `${countBefore} -> ${tokensAfter.length}`);
 
     console.log('  Step 3: Click token -> navigate');
@@ -767,25 +595,9 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
     await goToPerps(page);
 
-    // Step 0: 如果收藏为空（被上一个测试清空），先恢复默认收藏
-    let topTokens = await getTopBarTokens(page);
-    if (topTokens.length === 0) {
-      console.log('  [info] Top bar empty, restoring defaults via recommendation');
-      await openPairSelector(page);
-      await clearSearch(page);
-      await sleep(300);
-      await clickText(page, '自选');
-      await sleep(1000);
-      const recVisible = await isRecommendationVisible(page);
-      if (recVisible) {
-        await setDefaultRecommendationSelection(page);
-        await clickText(page, '添加到自选');
-        await waitForFavoritesListTokens(page, { min: 1, timeoutMs: 10_000 });
-      }
-      await dismissPopover(page);
-      await sleep(1000);
-      topTokens = await getTopBarTokens(page);
-    }
+    const fixture=await ensureFavoriteFixture(page);
+    t.add('前置：准备至少三条自选供顶部展示与跳转','passed',fixture.map(item=>item.name).join(', '));
+    const topTokens = await getTopBarTokens(page);
 
     console.log('\n  Step 1: Verify top bar');
     t.add('顶部显示收藏代币', topTokens.length >= 3 ? 'passed' : 'failed',
@@ -869,15 +681,14 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     const favsAfter = await getFavoritesListTokens(page);
     const removedTokens = favsBefore.filter(t => !favsAfter.includes(t));
     const tokenRemoved = removedTokens[0] || 'unknown';
-    t.add(`自选取消 ${tokenRemoved}`, favsAfter.length < favsBefore.length ? 'passed' : 'failed',
+    t.add(`自选取消 ${tokenRemoved}`, favsAfter.length === favsBefore.length - 1 && removedTokens.length === 1 ? 'passed' : 'failed',
       `${favsBefore.length} -> ${favsAfter.length}`);
 
     console.log('  Step 4: Verify sync');
-    t.add(`自选同步（${tokenRemoved} 已移除）`,
-      !favsAfter.includes(tokenRemoved) ? 'passed' : 'failed',
-      `favorites: ${favsAfter.join(', ')}`);
-
     await dismissPopover(page);
+    const syncedTop = await waitForFavoriteSync(() => getTopBarTokens(page), favsAfter);
+    t.add(`自选 -> 顶部独立同步（${tokenRemoved} 已移除）`, 'passed',
+      `source: ${favsAfter.join(', ')}; independently read target: ${syncedTop.join(', ')}`);
     return t.result();
   }
 
@@ -891,9 +702,38 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     { id: `${prefix}-005`, name: `${namePrefix}Perps-收藏-跨入口数据一致性`, fn: test005 },
   ];
 
+  for(const tc of testCases) {
+    const run=tc.fn;
+    tc.fn=async page=>{
+      page.setDefaultTimeout(15000);
+      await goToPerps(page);
+      const pairBefore=await currentPair(page);
+      const formBefore=await snapshotNonOrderForm(page);
+      const modeBefore=(await page.getByText('%',{exact:true}).filter({visible:true}).count())?await getDisplayMode(page):null;
+      const before=await favoriteSnapshot(page);
+      mkdirSync(RESULTS_DIR,{recursive:true});
+      writeFileSync(resolve(RESULTS_DIR,`${tc.id}-before.json`),JSON.stringify({pair:pairBefore,form:formBefore,favorites:before},null,2));
+      await closePairs(page);
+      let result;
+      try { result=await run(page); }
+      finally {
+        try {await restoreFavorites(page,before);await restorePair(page,pairBefore);if(modeBefore) await clickToggle(page,modeBefore);await restoreNonOrderForm(page,formBefore);}
+        catch(error) {
+          const failure=markRestoreFailure(result,error,'恢复用户收藏及表单');
+          if(!result) throw failure;
+        }
+      }
+      return result;
+    };
+  }
+
+  let _preReport = null;
   async function setup(page) {
     await goToPerps(page);
     await sleep(2000);
+    _preReport ??= await runPreconditions(page, testCases.map(tc => tc.id));
+    if (!_preReport.canRun) throw new Error('Perps 前置检查未通过');
+    return _preReport;
   }
 
   return { testCases, setup };

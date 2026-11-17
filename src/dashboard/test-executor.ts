@@ -37,6 +37,9 @@ interface QueueItem {
   status: 'pending' | 'running' | 'passed' | 'failed' | 'skipped';
   duration?: number;
   error?: string;
+  fatalRestore?: boolean;
+  rowResults?: { ids: string[]; status: string; detail: string; complete: boolean; missing: string }[];
+  partial?: boolean;
   // Step-level results — accumulated during execution for SSE and state recovery
   steps?: { name: string; status: string; detail: string; time?: string }[];
   summary?: { passed: number; failed: number; skipped: number; total: number };
@@ -187,7 +190,8 @@ async function ensureNoEvalSafeEvaluate(page: any) {
 
 async function executeQueue() {
   // Lazy session handles — only the platforms actually used get initialized.
-  let desktopPage: any = null;
+  const browserPages = new Map<string, any>();
+  let platformSessions: any = null;
   let mobileDriver: any = null;
   let appiumModule: any = null;
 
@@ -197,18 +201,22 @@ async function executeQueue() {
   const hasMobile = queue.some(q => isMobileFile(q.file));
 
   if (hasDesktop) {
-    try {
-      const helpers = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'index.mjs')).href}?t=${Date.now()}`);
-      const cdp = await helpers.connectCDP();
-      desktopPage = cdp.page;
-      await ensureNoEvalSafeEvaluate(desktopPage);
-      await helpers.unlockWalletIfNeeded(desktopPage);
-    } catch (e: any) {
-      for (const item of queue) {
-        if (!isMobileFile(item.file) && item.status === 'pending') {
-          item.status = 'failed';
-          item.error = 'CDP connection failed: ' + e.message;
-          emit({ event: 'fail', id: item.id, error: item.error, timestamp: new Date().toISOString() });
+    platformSessions = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'platform-session.mjs')).href}?t=${Date.now()}`);
+    const helpers = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'index.mjs')).href}?t=${Date.now()}`);
+    const platforms = [...new Set(queue.filter(q => !isMobileFile(q.file)).map(q => platformSessions.platformFromFile(q.file)))];
+    for (const platform of platforms) {
+      try {
+        const cdp = await platformSessions.connectPlatform(platform);
+        await ensureNoEvalSafeEvaluate(cdp.page);
+        await helpers.unlockWalletIfNeeded(cdp.page);
+        browserPages.set(platform, cdp.page);
+      } catch (e: any) {
+        for (const item of queue) {
+          if (!isMobileFile(item.file) && platformSessions.platformFromFile(item.file) === platform && item.status === 'pending') {
+            item.status = 'failed';
+            item.error = `${platform} CDP connection failed: ${e.message}`;
+            emit({ event: 'fail', id: item.id, error: item.error, timestamp: new Date().toISOString() });
+          }
         }
       }
     }
@@ -231,7 +239,7 @@ async function executeQueue() {
     }
   }
 
-  if (!desktopPage && !mobileDriver) {
+  if (!browserPages.size && !mobileDriver) {
     running = false;
     emit({ event: 'done', ...getSummary(), timestamp: new Date().toISOString() });
     return;
@@ -250,8 +258,12 @@ async function executeQueue() {
     }
 
     const item = queue[currentIndex];
+    if (item.status !== 'pending') { currentIndex++; continue; }
     item.status = 'running';
     item.error = undefined;
+    item.fatalRestore = false;
+    item.rowResults = undefined;
+    item.partial = false;
     item.steps = [];
     item.summary = undefined;
     emit({ event: 'start', id: item.id, name: item.name, timestamp: new Date().toISOString() });
@@ -269,7 +281,9 @@ async function executeQueue() {
       // Strategy 1: testCases has fn property (e.g. perps)
       const tc = mod.testCases?.find((c: any) => c.id === item.id);
 
-      const sessionHandle = isMobileFile(item.file) ? mobileDriver : desktopPage;
+      const platform = isMobileFile(item.file) ? 'mobile' : platformSessions.platformFromFile(item.file);
+      const sessionHandle = isMobileFile(item.file) ? mobileDriver : browserPages.get(platform);
+      if (mod.platform && mod.platform !== platform) throw new Error(`Registered platform mismatch: ${mod.platform} vs ${platform}`);
       if (isMobileFile(item.file) && !mobileDriver) {
         item.status = 'failed';
         item.error = 'Mobile driver not available';
@@ -278,9 +292,9 @@ async function executeQueue() {
         currentIndex++;
         continue;
       }
-      if (!isMobileFile(item.file) && !desktopPage) {
+      if (!isMobileFile(item.file) && !sessionHandle) {
         item.status = 'failed';
-        item.error = 'Desktop page not available';
+        item.error = `${platform} page not available`;
         item.duration = Date.now() - startTime;
         emit({ event: 'fail', id: item.id, error: item.error, timestamp: new Date().toISOString() });
         currentIndex++;
@@ -288,6 +302,7 @@ async function executeQueue() {
       }
 
       if (tc?.fn) {
+        if (!isMobileFile(item.file)) platformSessions.assertTargetPage(sessionHandle, platform);
         // If file changed, run setup (navigate to correct page)
         if (item.file !== lastFile && mod.setup) {
           if (!isMobileFile(item.file)) await ensureNoEvalSafeEvaluate(sessionHandle);
@@ -343,11 +358,14 @@ async function executeQueue() {
             clearStopChecker?.();
           }
           item.duration = Date.now() - startTime;
+          const policy = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'execution-policy.mjs')).href}`);
+          item.fatalRestore = policy.mustStopAfterResult(result);
           if (result?.status === 'failed') {
             item.status = 'failed';
             item.error = result.error || result.errors?.join('; ') || 'Test returned failed';
           } else if (result?.status === 'skipped') {
             item.status = 'skipped';
+            item.error = result.error || undefined;
           } else {
             item.status = 'passed';
           }
@@ -355,6 +373,8 @@ async function executeQueue() {
           // Persist step details and summary into queue item
           if (result?.steps) item.steps = result.steps;
           if (result?.summary) item.summary = result.summary;
+          if (result?.rowResults) item.rowResults = result.rowResults;
+          item.partial = Boolean(result?.partial);
         } finally {
           console.log = origLog;
         }
@@ -362,8 +382,12 @@ async function executeQueue() {
         // Strategy 2: call run() — file-level execution
         const result = await mod.run();
         item.duration = Date.now() - startTime;
-        item.status = result?.status === 'passed' ? 'passed' : 'failed';
+        item.status = result?.status === 'passed' ? 'passed' : result?.status === 'skipped' ? 'skipped' : 'failed';
+        if (result?.rowResults) item.rowResults = result.rowResults;
+        item.partial = Boolean(result?.partial);
         if (result?.error) item.error = result.error;
+        const policy = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'execution-policy.mjs')).href}`);
+        item.fatalRestore = policy.mustStopAfterResult(result);
       } else {
         item.status = 'failed';
         item.error = 'No executable function found';
@@ -386,6 +410,7 @@ async function executeQueue() {
       }
       item.status = 'failed';
       item.error = e.message;
+      item.fatalRestore = Boolean(e.fatalRestore);
     }
 
     emit({
@@ -400,6 +425,20 @@ async function executeQueue() {
     });
 
     currentIndex++;
+    if (item.fatalRestore) {
+      for (let i = currentIndex; i < queue.length; i++) {
+        queue[i].status = 'skipped';
+        queue[i].error = `前序用例 ${item.id} 恢复失败，状态基线不可信，未执行`;
+        emit({ event: 'skip', id: queue[i].id, error: queue[i].error, timestamp: new Date().toISOString() });
+      }
+      currentIndex = queue.length;
+      if (mobileDriver && appiumModule) {
+        try { await appiumModule.disconnectDriver(mobileDriver); } catch {}
+      }
+      running = false;
+      emit({ event: 'stopped', ...getSummary(), timestamp: new Date().toISOString() });
+      return;
+    }
   }
 
   // Tear down mobile session (desktop CDP belongs to the user — leave open).

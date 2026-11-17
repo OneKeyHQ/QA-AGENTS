@@ -4,8 +4,8 @@
 
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { getTestRegistry } from '../dashboard/test-registry.ts';
-import { startRun, onEvent, getState, type RunEvent } from '../dashboard/test-executor.ts';
+import { getTestRegistry } from '../dashboard/test-registry.js';
+import { startRun, onEvent, getState, type RunEvent } from '../dashboard/test-executor.js';
 
 interface CaseResult {
   id: string;

@@ -1,0 +1,4 @@
+interface:
+  display_name: "用例驱动的实机回归"
+  short_description: "基于已确认用例补齐自动化断言，按平台与账户范围执行实机回归"
+  default_prompt: "使用 $onekey-ui-regression，回归 perps。"

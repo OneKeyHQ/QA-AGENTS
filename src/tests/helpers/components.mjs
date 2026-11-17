@@ -57,7 +57,7 @@ export async function safeStep(page, t, name, fn, screenshotFnOrDir) {
       try {
         const { mkdirSync } = await import('node:fs');
         mkdirSync(screenshotFnOrDir, { recursive: true });
-        await page.screenshot({ path: `${screenshotFnOrDir}/${failName}.png` });
+        await page.screenshot({ path: `${screenshotFnOrDir}/${failName}.png`, timeout: 5000 });
       } catch {}
     }
     return false;

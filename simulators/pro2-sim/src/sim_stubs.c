@@ -80,18 +80,21 @@ secbool_t crypto_utils_memzero_explicit(void* buf_p, size_t len)
 // 真机挂载签名 .okpkg 包后经 lv_port_fs 路由；sim 用 LV_USE_FS_STDIO 直接读
 // resroot/resource/ 文件树，等价于"资源包永远已挂载"。仅 ui_language.c 的
 // 语言切换流程引用这几个符号。
-bool resource_manager_pkg_mounted(void)
+bool resource_manager_pkg_mounted(const char* pkg_path)
 {
+    (void)pkg_path;
     return true;
 }
 
-bool resource_manager_pkg_open_async(void)
+bool resource_manager_pkg_open_async(const char* pkg_path)
 {
+    (void)pkg_path;
     return true;
 }
 
-ResourceAsyncResult_t resource_manager_pkg_poll(ResourceAsyncStatus_t* status)
+ResourceAsyncResult_t resource_manager_pkg_poll(const char* pkg_path, ResourceAsyncStatus_t* status)
 {
+    (void)pkg_path;
     if ( status != NULL )
         *status = (ResourceAsyncStatus_t) {0};
     return RESOURCE_ASYNC_DONE;
@@ -101,134 +104,10 @@ void resource_manager_pkg_abort(void)
 {
 }
 
-// ── lv_port_slide_compositor（ui/lvgl_port/lv_port_slide_compositor.c 的 host 替身）──
-// 真机用它冻结 LVGL 刷新、按滚动位置逐帧合成（依赖 framebuffer/DMA2D）；
-// sim 全部返回 false/no-op，等价于"捕获永远未就绪"，滑动/pop 走 LVGL 正常在线渲染路径。
-#include <lv_port_slide_compositor.h>
-
-bool lv_port_slide_compositor_capture(lv_obj_t* tileview_p, lv_obj_t* wallpaper_p)
-{
-    (void)tileview_p;
-    (void)wallpaper_p;
-    return false;
-}
-
-void lv_port_slide_compositor_invalidate(void)
-{
-}
-
-bool lv_port_slide_compositor_is_ready(void)
-{
-    return false;
-}
-
-bool lv_port_slide_compositor_is_active(void)
-{
-    return false;
-}
-
-void lv_port_slide_compositor_slide_begin(lv_obj_t* tileview_p)
-{
-    (void)tileview_p;
-}
-
-void lv_port_slide_compositor_slide_end(void)
-{
-}
-
-bool lv_port_slide_compositor_capture_begin(lv_obj_t* tileview_p, lv_obj_t* wallpaper_p)
-{
-    (void)tileview_p;
-    (void)wallpaper_p;
-    return false;
-}
-
-bool lv_port_slide_compositor_capture_tile(lv_obj_t* tileview_p, uint32_t tile_index)
-{
-    (void)tileview_p;
-    (void)tile_index;
-    return false;
-}
-
-bool lv_port_slide_compositor_recapture_tile(lv_obj_t* tileview_p, uint32_t tile_index)
-{
-    (void)tileview_p;
-    (void)tile_index;
-    return false;
-}
-
-// 页面转场合成器（7b39e210 起替代 pop_begin/pop_end）：sim 返回 false，
-// 转场走 LVGL 常规动画路径。
-bool lv_port_slide_compositor_transition_begin(
-    LvPortPageTransitionType_t type, lv_obj_t* moving_p, lv_obj_t* from_page_p, lv_obj_t* to_page_p, lv_obj_t* overlay_p
-)
-{
-    (void)type;
-    (void)moving_p;
-    (void)from_page_p;
-    (void)to_page_p;
-    (void)overlay_p;
-    return false;
-}
-
-void lv_port_slide_compositor_transition_end(void)
-{
-}
-
-bool lv_port_slide_compositor_transition_is_active(void)
-{
-    return false;
-}
-
-// ── lv_port_disp 静态 backdrop（真机 DMA2D 底图恢复机制）──
-// is_ready 恒 false：homescreen 轮询 40 次后自行 homescreen_backdrop_stop()，
-// 壁纸保持 LVGL 常规渲染，视觉结果一致。
-void lv_port_disp_backdrop_capture_arm(void)
-{
-}
-
-bool lv_port_disp_backdrop_is_ready(void)
-{
-    return false;
-}
-
-void lv_port_disp_backdrop_disable(void)
-{
-}
-
-void lv_port_disp_backdrop_set_fault_cb(void (*fault_cb)(void))
-{
-    (void)fault_cb;
-}
-
-// ── 垂直滚动合成器（1f08264b 折叠导航标题/弹性滚动）：sim 返回 false 走在线渲染 ──
-bool lv_port_slide_compositor_vertical_capture(
-    lv_obj_t* scroll_obj_p, lv_obj_t* moving_content_p, lv_obj_t* page_p, lv_obj_t* fixed_overlay_p,
-    lv_obj_t* system_overlay_p, lv_obj_t* bottom_overlay_p, uint32_t band_y0, uint32_t band_y1
-)
-{
-    (void)scroll_obj_p;
-    (void)moving_content_p;
-    (void)page_p;
-    (void)fixed_overlay_p;
-    (void)system_overlay_p;
-    (void)bottom_overlay_p;
-    (void)band_y0;
-    (void)band_y1;
-    return false;
-}
-
-void lv_port_slide_compositor_vertical_begin(lv_obj_t* scroll_obj_p)
-{
-    (void)scroll_obj_p;
-}
-
-void lv_port_slide_compositor_vertical_release(void)
-{
-}
-
 // ── wallpaper_source（文件系统用户壁纸，sim 恒用内置默认壁纸）──
 #include "utils/wallpaper_source.h"
+// main 2026-10：该宏改为 wallpaper_source.c 文件私有（按机型选色），Pro2 取值照抄
+#define WALLPAPER_LOCK_DEFAULT_PATH "A:/resource/wallpapers/wallpapers_orange_1.bin"
 const char* wallpaper_source_lock_path(void)
 {
     return WALLPAPER_LOCK_DEFAULT_PATH;

@@ -1,0 +1,20 @@
+{
+  "name": "ok-64012-ms-warning-scroll",
+  "description": "OK-64012：Pro2 slip39 创建多重备份警告页，勾选两个复选框启用 Continue 后上下滑动，按钮不应闪烁。根因：按钮启用只切 LV_STATE_DISABLED 未失效 compositor 覆盖层缓存，滚动中显示旧快照（禁用态）、静止显示实时绘制（启用态）。修复 main e2aca352 (#232)。",
+  "page": "settings_ms_warning",
+  "settle_ms": 500,
+  "capture": "all",
+  "tolerance_px": 0,
+  "tolerance_delta": 8,
+  "watch": [
+    { "name": "continue_button", "rect": [32, 880, 540, 106] }
+  ],
+  "steps": [
+    { "tap_text": "I understand this is an advanced feature.", "settle_ms": 300 },
+    { "tap_text": "I understand my current backup can still recover this wallet.", "settle_ms": 500 },
+    { "drag": { "from": [302, 760], "to": [302, 460], "steps": 20, "step_ms": 12 }, "settle_ms": 1200,
+      "expect_compose": true, "assert_static": ["continue_button"] },
+    { "drag": { "from": [302, 460], "to": [302, 760], "steps": 20, "step_ms": 12 }, "settle_ms": 1200,
+      "expect_compose": true, "assert_static": ["continue_button"] }
+  ]
+}

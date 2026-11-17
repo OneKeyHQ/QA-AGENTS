@@ -1,8 +1,8 @@
 import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, extname } from 'node:path';
-import { getTestRegistry } from './test-registry.ts';
-import { startRun, stopRun, resumeRun, restartRun, resetRun, getState, onEvent, type RunEvent } from './test-executor.ts';
+import { getTestRegistry } from './test-registry.js';
+import { startRun, stopRun, resumeRun, restartRun, resetRun, getState, onEvent, type RunEvent } from './test-executor.js';
 
 const PORT = 5050;
 const PROJECT_ROOT = resolve(import.meta.dirname, '..', '..');

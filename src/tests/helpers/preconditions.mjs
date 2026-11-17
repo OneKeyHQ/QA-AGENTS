@@ -10,7 +10,9 @@
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { sleep, WALLET_PASSWORD } from './index.mjs';
+import { sleep } from './constants.mjs';
+import { unlockWalletIfNeeded } from './navigation.mjs';
+import {searchPairs,pairPopover} from './perps-ui.mjs';
 
 const PRECONDITIONS_PATH = resolve(import.meta.dirname, '../../../shared/preconditions.json');
 
@@ -65,35 +67,12 @@ export async function runPreconditions(page, testIds = []) {
 
   // 2. Wallet unlocked
   if (db.environment.wallet.unlocked) {
-    const isLocked = await page.evaluate(() => {
-      const text = document.body?.textContent || '';
-      return text.includes('欢迎回来') || text.includes('输入密码') || text.includes('忘记密码');
-    });
-    if (isLocked) {
-      console.log('  [WARN] 钱包锁定，尝试自动解锁...');
-      // Try auto-unlock
-      try {
-        const pwdInput = page.locator('input[placeholder*="密码"]').first();
-        await pwdInput.fill(WALLET_PASSWORD);
-        await sleep(300);
-        await page.keyboard.press('Enter');
-        await sleep(5000);
-        const stillLocked = await page.evaluate(() => {
-          return (document.body?.textContent || '').includes('欢迎回来');
-        });
-        if (stillLocked) {
-          console.log('  [BLOCK] 自动解锁失败');
-          canRun = false;
-          return buildResult(false, warnings, skipped, probeData);
-        }
-        console.log('  [OK] 自动解锁成功');
-      } catch (e) {
-        console.log(`  [BLOCK] 解锁异常: ${e.message}`);
-        canRun = false;
-        return buildResult(false, warnings, skipped, probeData);
-      }
-    } else {
+    try {
+      await unlockWalletIfNeeded(page);
       console.log('  [OK] 钱包已解锁');
+    } catch (e) {
+      console.log(`  [BLOCK] 解锁异常: ${e.message}`);
+      return buildResult(false, warnings, skipped, probeData);
     }
   }
 
@@ -306,40 +285,10 @@ function getAllRequiredBy(items) {
   return items.flatMap(i => i.required_by || []);
 }
 
-async function probeSearch(page, query) {
-  await page.evaluate((q) => {
-    const inputs = document.querySelectorAll('input[data-testid="nav-header-search"], input[placeholder*="搜索"]');
-    for (const input of inputs) {
-      if (input.getBoundingClientRect().width > 0) {
-        input.focus();
-        const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-        if (nativeSet) {
-          nativeSet.call(input, q);
-          input.dispatchEvent(new Event('input', { bubbles: true }));
-          input.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-        return;
-      }
-    }
-  }, query);
-  await sleep(1500);
-
-  const tokens = await getVisibleTokens(page);
-
-  // Clear
-  await page.evaluate(() => {
-    const btn = document.querySelector('[data-testid="-clear"]');
-    if (btn && btn.getBoundingClientRect().width > 0) { btn.click(); return; }
-    const inputs = document.querySelectorAll('input[data-testid="nav-header-search"], input[placeholder*="搜索"]');
-    for (const input of inputs) {
-      if (input.getBoundingClientRect().width > 0) {
-        const nativeSet = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
-        if (nativeSet) { nativeSet.call(input, ''); input.dispatchEvent(new Event('input', { bubbles: true })); }
-        return;
-      }
-    }
-  });
-  await sleep(800);
+async function probeSearch(page,query) {
+  await searchPairs(page,query);
+  const tokens=await getVisibleTokens(page);
+  await searchPairs(page,'');
   return tokens;
 }
 
@@ -347,7 +296,7 @@ async function probeSectionTabs(page) {
   return page.evaluate(() => {
     const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
     let pop = null;
-    for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
+    for (const p of pops) { if (p.getBoundingClientRect().width > 0 && p.querySelector('input[data-testid*="perp-token-selector-search"]')) { pop = p; break; } }
     if (!pop) return [];
     const tabs = [];
     const known = ['自选','永续合约','加密货币','股票','贵金属','指数','大宗商品','外汇','预上线'];
@@ -376,23 +325,5 @@ async function probeSectionTokens(page, tabName) {
 }
 
 async function getVisibleTokens(page) {
-  return page.evaluate(() => {
-    const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-    let pop = null;
-    for (const p of pops) { if (p.getBoundingClientRect().width > 0) { pop = p; break; } }
-    if (!pop) return [];
-    const tokens = [];
-    const ignore = new Set([
-      '自选','永续合约','加密货币','股票','贵金属','指数','大宗商品','外汇','预上线',
-      '资产','最新价格','24小时涨跌','资金费率','成交量','成交额','合约持仓量',
-      '搜索资产','未找到匹配的代币','添加到自选',
-    ]);
-    for (const sp of pop.querySelectorAll('span')) {
-      const t = sp.textContent?.trim();
-      if (!t || sp.children.length !== 0 || sp.getBoundingClientRect().width === 0) continue;
-      if (ignore.has(t)) continue;
-      if (/^[A-Z][A-Z0-9]{1,9}$/.test(t) && !tokens.includes(t)) tokens.push(t);
-    }
-    return tokens;
-  });
+  return pairPopover(page).locator('[data-testid^="perp-token-selector-row-"]').evaluateAll(rows=>rows.map(e=>e.innerText.split('\n')[0].trim()).filter(Boolean));
 }

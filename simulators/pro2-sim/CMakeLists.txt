@@ -94,6 +94,24 @@ else()
     message(FATAL_ERROR "lv_font_manager_recycle.c 未在 lvgl SOURCES 中匹配到，补丁机制失效，请检查 lvgl 版本")
 endif()
 
+# 同固件 ui/CMakeLists.txt：lv_gif disposal bug 补丁版替换 LVGL 自带 lv_gif.c
+# （main 2026-10 起组件层还用到补丁版独有的 lv_gif_seek_to_frame / lv_gif_set_frame_count_hint）
+get_target_property(lvgl_sources lvgl SOURCES)
+list(LENGTH lvgl_sources _lvgl_src_count_before)
+list(FILTER lvgl_sources EXCLUDE REGEX "widgets/gif/lv_gif\\.c$")
+list(LENGTH lvgl_sources _lvgl_src_count_after)
+if(NOT _lvgl_src_count_after EQUAL _lvgl_src_count_before)
+    set_target_properties(lvgl PROPERTIES SOURCES "${lvgl_sources}")
+    target_sources(lvgl PRIVATE ${FIRMWARE_DIR}/ui/lvgl_port/workarounds/lv_gif.c)
+    set_property(
+        SOURCE ${FIRMWARE_DIR}/ui/lvgl_port/workarounds/lv_gif.c
+        TARGET_DIRECTORY lvgl APPEND
+        PROPERTY INCLUDE_DIRECTORIES ${FIRMWARE_DIR}/modules/lvgl/src/widgets/gif
+    )
+else()
+    message(FATAL_ERROR "widgets/gif/lv_gif.c 未在 lvgl SOURCES 中匹配到，gif 补丁机制失效，请检查 lvgl 版本")
+endif()
+
 # ── Shadow page_manager（Mach-O 适配，固件零改动） ──
 # 固件 dev 分支的页面注册走 ELF 自定义段：
 #   - page_manager.h 的 PAGE_REGISTER_WITH_FLAGS 宏: section(".page_registry")（ELF 单段语法，macOS clang 报错）
@@ -189,9 +207,30 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
     ${PM_SRC_DIR}/page_manager.h ${PM_SRC_DIR}/page_manager.c)
 
+# ── 合成层：固件 lv_port_disp.c 合成段抽取（configure 时生成，见 tools/extract_disp_compose.py）──
+# compositor（tasks/task_foreground/compositor）原样编入 sim，它调用的 lv_port_disp_compose_* 接口
+# 在真机 lv_port_disp.c 里是纯 C 像素合成 + FreeRTOS/DMA2D/LTDC 胶水。合成逻辑决定"滚动时屏幕显示什么"，
+# 必须与固件逐字一致，所以从当前 FIRMWARE_DIR 抽取，src/sim_disp_compose.c 包进 host 替身后 #include。
+# 固件改了结构（标记找不到 / 替换命中数变化）脚本直接报错让 configure 失败。
+set(DISP_COMPOSE_INC ${CMAKE_BINARY_DIR}/generated/lv_port_disp_compose_body.inc)
+execute_process(
+    COMMAND ${PYTHON3} ${CMAKE_CURRENT_LIST_DIR}/tools/extract_disp_compose.py ${FIRMWARE_DIR} ${DISP_COMPOSE_INC}
+    RESULT_VARIABLE _extract_rc
+    OUTPUT_VARIABLE _extract_out
+    ERROR_VARIABLE _extract_err
+)
+if(NOT _extract_rc EQUAL 0)
+    message(FATAL_ERROR "extract_disp_compose.py 失败: ${_extract_out}${_extract_err}")
+endif()
+message(STATUS "${_extract_out}")
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+    ${CMAKE_CURRENT_LIST_DIR}/tools/extract_disp_compose.py
+    ${FIRMWARE_DIR}/ui/lvgl_port/lv_port_disp.c)
+
 # ── 模拟器可执行 ──
 add_executable(onekey-sim
     src/main.c src/demo_catalog.c src/sim_stubs.c src/sim_stubs_pages.c src/page_registry.c src/snapshot.c src/sim_demo_args.c
+    src/sim_disp_compose.c src/sim_hw_shims.c src/scenario.c
     ${SHADOW_DIR}/page_manager/page_manager.c
 )
 target_include_directories(onekey-sim PRIVATE src ${CMAKE_BINARY_DIR}/generated)
@@ -228,8 +267,34 @@ list(FILTER FIRMWARE_PAGE_SOURCES EXCLUDE REGEX "pages/standalone/homescreen\\.c
 foreach(_excl ${SIM_PAGES_UNSUPPORTED})
     list(FILTER FIRMWARE_PAGE_SOURCES EXCLUDE REGEX "${_excl}")
 endforeach()
+# dev 2026-08：nft_gallery.c / nft_storage.c 的 __attribute__((section(".sdram"))) 是 ELF
+# 单段语法，macOS clang 报错（mach-o 需 "segment,section"）。host 无 sdram 概念，
+# 用函数式宏把 section(x) 改写成无害的 aligned(4)（仅 nft 两文件，避免全局副作用）。
+set_source_files_properties(
+    ${FIRMWARE_DIR}/tasks/task_foreground/pages/nft/nft_gallery.c
+    ${FIRMWARE_DIR}/tasks/task_foreground/pages/nft/nft_storage.c
+    ${FIRMWARE_DIR}/tasks/task_foreground/pages/factory/factory_notify_page.c   # main 2026-10 起同样用 .sdram
+    PROPERTIES COMPILE_OPTIONS "-Dsection(x)=aligned(4)")
+
+# ── compositor（固件 tasks/task_foreground/compositor，原样编入）+ 固件 lv_port_indev.c（原样编入）──
+# - section(".sdram") / section(".segments_relocatable...") 同上改写为 aligned(32)（快照池本就要求 32 对齐）
+# - COMPOSITOR_COLD_CODE = __attribute__((optimize("Os"))) clang 不认，只告警，关掉该告警
+# - lv_port_indev.c 以 UI_SNAPSHOT_TEST=1 编译：带上固件自己的测试触摸队列（lv_port_indev_test_touch_*），
+#   sim 场景脚本就靠它注入手势，与固件 ui_perf_runner 同一条注入路径
+file(GLOB FIRMWARE_COMPOSITOR_SOURCES CONFIGURE_DEPENDS ${FIRMWARE_DIR}/tasks/task_foreground/compositor/*.c)
+set(FIRMWARE_INDEV_SOURCE ${FIRMWARE_DIR}/ui/lvgl_port/lv_port_indev.c)
+set_source_files_properties(${FIRMWARE_COMPOSITOR_SOURCES}
+    PROPERTIES COMPILE_OPTIONS "-Dsection(x)=aligned(32);-Wno-unknown-attributes")
+set_source_files_properties(${FIRMWARE_INDEV_SOURCE}
+    PROPERTIES COMPILE_OPTIONS "-Dsection(x)=aligned(32);-DUI_SNAPSHOT_TEST=1")
+# 修复前基线（aea0ae02）的 page_manager.c 还带 section(".segments_relocatable...") / optimize("Os")；
+# shadow 拷贝里页面注册段已改成 Mach-O 写法且只以 __asm 字符串出现，函数式宏改写不会碰到它
+set_source_files_properties(${SHADOW_DIR}/page_manager/page_manager.c
+    PROPERTIES COMPILE_OPTIONS "-Dsection(x)=aligned(4);-Wno-unknown-attributes")
 
 target_sources(onekey-sim PRIVATE
+    ${FIRMWARE_COMPOSITOR_SOURCES}
+    ${FIRMWARE_INDEV_SOURCE}
     ${FIRMWARE_UI_SOURCES}
     ${FIRMWARE_PAGE_SOURCES}
     ${FIRMWARE_DIR}/tasks/task_foreground/pages/standalone/homescreen.c
@@ -238,35 +303,55 @@ target_sources(onekey-sim PRIVATE
     # 依赖 messages_uiview.pb.h；sign_page 本身干净，故白名单回来供 --demo-tx 渲染真实结构。
     ${FIRMWARE_DIR}/tasks/task_foreground/pages/ui_view/sign/sign_page.c
     # sign_data_page（PAGE_ID_SIGN_DATA_VIEW，sign_page "View Data" 按钮跳转目标）与
-    # view_sign_page_details（Details 卡片分组，纯查表）同为纯 UI，无 protobuf/IPC 依赖
+    # sign_view_page_details（Details 卡片分组，纯查表；dev 由 view_sign_page_details 改名）同为纯 UI，无 protobuf/IPC 依赖
     ${FIRMWARE_DIR}/tasks/task_foreground/pages/ui_view/sign/sign_data_page.c
-    ${FIRMWARE_DIR}/tasks/task_foreground/pages/ui_view/sign/view_sign_page_details.c
+    ${FIRMWARE_DIR}/tasks/task_foreground/pages/ui_view/sign/sign_view_page_details.c
     # my_address 真实地址展示页（PAGE_ID_ADDRESS_DISPLAY）：分块地址(LIST_ITEM_PRIVATE_KEY 绿/白
     # recolor) + 派生行 + QR Code。整个 pages/my_address/ 被排除是因 my_address_display.h 依赖生成的
     # legacy/messages_uiview.pb.h（用 tools/sim_shims 占位）且 my_address_session.c 依赖 zbus/channel/
     # nanopb（在 sim_stubs_pages.c 给桩）。其余 UI-only 文件白名单回来供 --demo-myaddress 渲染真实页面。
     ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/my_address_display.c
-    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/addr_format.c
-    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/derive_names.c
-    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/derive_select.c
-    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/address_select_network.c
-    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/address_select_account.c
+    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/my_address_format.c
+    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/my_address_derive_names.c
+    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/my_address_derive_select.c
+    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/my_address_select_network.c
+    ${FIRMWARE_DIR}/tasks/task_foreground/pages/my_address/my_address_select_account.c
     ${FIRMWARE_DIR}/modules/trezor-crypto/bip39_english.c  # 纯词表数据，keyboard_mnemonic 联想用
     ${FIRMWARE_DIR}/hal/utils/cJSON.c        # i18n 翻译 JSON 解析
     ${FIRMWARE_DIR}/tasks/task_foreground/ui_touch_id_indicator.c  # 纯 UI 组件（指纹图标动效）
 )
+# main 2026-10 新增的纯算法/仅依赖 LVGL 的源文件；更早的固件（修复前基线，tools/regress_scenario.sh）没有，按存在性编入
+foreach(_opt
+    ui/dither/ui_dither.c             # compositor/组件的有序抖动像素工具
+    ui/lvgl_port/lvgl_image_cache.c   # compositor 收尾时丢弃大图缓存
+)
+    if(EXISTS ${FIRMWARE_DIR}/${_opt})
+        target_sources(onekey-sim PRIVATE ${FIRMWARE_DIR}/${_opt})
+    endif()
+endforeach()
+
 target_include_directories(onekey-sim PRIVATE
     ${SHADOW_DIR}                              # shadow page_manager/ 必须排在固件 task_foreground 之前
+    ${SHADOW_DIR}/page_manager                 # dev 2026-08 起 sign_page.h 等直接 include <page_manager.h>（不带子目录）
     ${FIRMWARE_DIR}/ui                         # <styles/...> <assets/...> <font/...> <templates/...> <page_template/...>
+    ${FIRMWARE_DIR}/ui/styles                  # dev 2026-08 新目录：<ui_font_map.h> 等（action_sheet.c 直接引）
     ${FIRMWARE_DIR}/ui/components              # <hero_icon/hero_icon.h> 等
+    ${FIRMWARE_DIR}/ui/components/pin_display  # dev 2026-08：keyboard_number.c 直接 include "pin_display.h"
     ${FIRMWARE_DIR}/ui/page_template           # "page_sheet/..." 等（page_template.c 内部相对引用）
     ${FIRMWARE_DIR}/ui/templates               # "menu_page.h" "txdetails_keys.h" 等（templates 内部相对引用）
     ${FIRMWARE_DIR}/ui/font                    # <ui_font_manager.h>（src/main.c 直接引）
     ${FIRMWARE_DIR}/ui/language                # <ui_language.h> <i18n_tags.h>（i18n 运行时）
     ${FIRMWARE_DIR}/ui/resource                # <resource_manager.h>（ui_language.c 引，符号在 sim_stubs）
-    ${FIRMWARE_DIR}/ui/lvgl_port               # <lv_port_slide_compositor.h>（page_manager/homescreen 引，符号在 sim_stubs）
+    ${FIRMWARE_DIR}/ui/lvgl_port               # <lv_port_disp.h> <lv_port_indev.h>（compositor / 组件引；合成实现在 src/sim_disp_compose.c）
+    ${FIRMWARE_DIR}/tasks/task_foreground/compositor  # <compositor.h>（page_manager / page_template / main.c 接线）
     ${FIRMWARE_DIR}/sys/payload_package        # resource_manager.h 传递引用（仅取类型/常量）
     ${FIRMWARE_DIR}/tasks/task_foreground      # "ui_state_cache.h" "ui_msg_queue.h" "page_manager/..." 等
+    ${FIRMWARE_DIR}/tasks/task_foreground/utils          # dev 2026-08：keytag_dotmap/slip39_generate/mnemonic_op_client 等挪入 utils/
+    ${FIRMWARE_DIR}/tasks/task_foreground/passkey        # dev 2026-08：security_keys_detail.c include "passkey_service.h"（符号在 sim_stubs）
+    ${FIRMWARE_DIR}/tasks/task_transport_nfc             # dev 2026-08：backup_manage_card.c 直接 include task_transport_nfc.h（符号在 sim_stubs）
+    ${FIRMWARE_DIR}/sys/communication/manage_card        # dev 2026-08：backup_card_types.h 挪入 sys/communication/
+    ${FIRMWARE_DIR}/sys/filesystem                       # dev 2026-08：nft_storage.c include "filesystem.h"（符号在 sim_stubs）
+    ${FIRMWARE_DIR}/sys/filesystem/fatfs                 # filesystem.h 内嵌 FatFs 类型（FIL 等），只取头文件；FatFs .c 不编入
     ${FIRMWARE_DIR}/tasks/task_foreground/pages          # "factory/pin/set_pin.h" 等跨目录相对引用根
     ${FIRMWARE_DIR}/tasks/task_foreground/pages/common    # "language_loading.h" 等公共页组件
     ${FIRMWARE_DIR}/tasks/task_foreground/pages/backup    # "seedcard_steps.h" 等同目录引用

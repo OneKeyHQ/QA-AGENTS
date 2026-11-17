@@ -1,6 +1,6 @@
 # OneKey Pro 2 固件 UI 模拟器
 
-在 macOS 上直接用 **firmware-pro2 真实 UI 源码**（LVGL 9）渲染设备页面（Pro 2 面板 **604×1024**，SDL 窗口，鼠标=触摸）。固件仓库**零改动**——CMake 通过 `FIRMWARE_DIR` 只读引用 `../firmware-pro2`（dev 分支）的源码与 lvgl submodule。
+在 macOS 上直接用 **firmware-pro2 真实 UI 源码**（LVGL 9）渲染设备页面（Pro 2 面板 **604×1024**，SDL 窗口，鼠标=触摸）。固件仓库**零改动**——CMake 通过 `FIRMWARE_DIR` 只读引用本地 firmware-pro2 clone（2026-10 起 **main** 分支，远端 dev 已删）的源码与 lvgl submodule。
 
 > **dev 分支适配**：dev 分支删除了 `ui/demo`，页面统一由 `tasks/task_foreground` 的 `page_manager` 管理（`PAGE_REGISTER` 宏注册到自定义链接段）。模拟器从固件 `page_id.h` + 各 page `.c` 的 `PAGE_REGISTER` **自动重建全量页面注册表（160 注册页）**。详见下方「dev 分支适配」章节。
 
@@ -71,13 +71,35 @@ SDL_VIDEODRIVER=dummy ./build/onekey-sim --snapshot out
 #   ...（共 160 个）
 ```
 
+## 滚动 / 翻页 / 转场闪烁类问题复现与回归（`--scenario`）
+
+真机滚动、首页翻页、segmented 横滑、页面推入弹出时**不走在线渲染**：`tasks/task_foreground/compositor`
+冻结 LVGL 刷新，用组件快照逐帧合成。"滚动中组件闪烁 / 残影"（如 OK-64012 多重备份警告页 Continue
+按钮）只在这条路径上出现。2026-10 起 compositor **原样编入** sim，真机 `lv_port_disp.c` 的像素合成段在
+configure 时逐字抽取（`tools/extract_disp_compose.py`），触摸走固件 `lv_port_indev.c`，所以 sim 上的
+合成帧与真机同源。
+
+```bash
+# 回放 JSON 场景（虚拟时钟、固件同款手势注入），逐帧 PNG + 帧间差异报告，退出码 0 过 / 1 断言失败 / 2 错误
+SDL_VIDEODRIVER=dummy ./build/onekey-sim --scenario scenarios/ok-64012-ms-warning-scroll.json --out out/ok-64012
+open out/ok-64012/report.md
+
+# 修复前 / 修复后两份固件对照（按 commit 克隆到 ../../.deps/，各自 build-<commit>/）：修复前必须 FAIL，修复后必须 PASS
+tools/regress_scenario.sh scenarios/ok-64012-ms-warning-scroll.json aea0ae02 d7e612e6
+```
+
+场景格式、断言语义、容差说明见 `scenarios/README.md`；设计见 `docs/specs/2026-10-21-compositor-scenario-design.md`。
+GUI 模式下鼠标拖动同样走 compositor（窗口里能直接看到合成帧）。
+
 ## 已知差异 vs 真机
 
 | 差异 | 原因 |
 |------|------|
 | 图片是灰色占位图 | 真实资产不在固件仓库（运行时由设备 EMMC 提供），模拟器用 `tools/gen_placeholder_images.py` 生成同名占位 PNG |
 | 状态栏电量为随机 mock（每次运行 20–99%）| 固件 `status_bar.c` 的 `USE_SIMULATOR` mock：`(lv_tick_get() % 80) + 20` |
-| DMA2D 硬件加速 → LVGL 软件渲染 | host 上无 STM32 DMA2D，视觉结果一致、性能路径不同 |
+| DMA2D → 软件版（`src/sim_hw_shims.c`） | host 上无 STM32 DMA2D；convert/fill/blend 逐像素实现，合成帧与直绘帧在抗锯齿边缘有 ±1 LSB 舍入差（真机 DMA2D 与 LVGL 混合公式本就不同） |
+| present 同步完成、无扫描时序 | 没有 LTDC/DMA2D 异步链；sim 抓"帧内容"类缺陷，抓不到撕裂类时序缺陷 |
+| activity_animation 的前台帧蒙版动效跳过 | `lv_port_disp_active_scan_address_get` 是 32 位地址 API，host 指针放不下，返回 0 走降级 |
 
 ## dev 分支适配
 
@@ -134,11 +156,15 @@ settings_keytag_backup_intro, settings_keytag_backup_chart
 ## 固件更新后
 
 ```bash
-cd ../firmware-pro2 && git pull
-cd ../firmware-pro2-sim && ninja -C build   # CONFIGURE_DEPENDS 会自动重新 glob 固件源文件
+cd <firmware-pro2> && git checkout main && git pull --ff-only origin main   # 2026-10 起跟踪 main（远端 dev 已删）
+python3 utils/resource/resource_pkg.py font --only json && python3 utils/resource/resource_pkg.py image   # 资源产物（gitignored）
+cd <QA-AGENTS>/simulators/pro2-sim && cmake -B build && ninja -C build       # configure 重跑 page_list / 合成段抽取
 ```
 
-编不过通常是固件新增了头文件目录——按报错在 `CMakeLists.txt` 补对应的 `target_include_directories` 即可。若固件新增了 `A:/...` 图片引用，重跑一次 `python3 tools/gen_placeholder_images.py`。
+- i18n JSON 与固件 `i18n_tags.h` 键数不一致时整份翻译作废（启动日志 `Translation key count N, expected M`、页面文案为空）——重跑 `font --only json`。
+- 编不过通常是固件新增了头文件目录 / 业务符号：按报错在 `CMakeLists.txt` 补 `target_include_directories`，在 `src/sim_stubs_pages.c` 末尾按现有风格补最小桩。
+- configure 报 `extract_disp_compose.py` 失败 = 固件 `lv_port_disp.c` 合成段结构变了：核对 `src/sim_disp_compose.c` 前导段的替身是否仍匹配，再调整脚本里的标记 / 替换计数。
+- `PAGE_REGISTER*` 新宏变体无需改 `tools/gen_page_list.py`（任意后缀匹配）。
 
 ## 工程结构
 
@@ -151,12 +177,17 @@ firmware-pro2-sim/
 │   ├── page_registry.c   # 页面注册表：#include build/generated/page_list.inc（160 页）+ open_page(page_id) 统一入口
 │   ├── snapshot.c        # fork+exec 按页子进程编排器：每页独立子进程隔离（单页崩溃不炸整批；退出码=失败页数；必须子进程隔离因固件 static 单例跨页污染单进程无法可靠清理）+ alarm 看门狗防卡死 + layer_top alpha 合成
 │   ├── sim_stubs.c       # Stage A host stub（lvgl_disp / debug_log / ui_state_cache 等）
-│   └── sim_stubs_pages.c # Stage B 业务层符号 stub（op_client / auth / slip39 / crypto，策略 b）
+│   ├── sim_stubs_pages.c # Stage B 业务层符号 stub（op_client / auth / slip39 / crypto / navigation_coordinator，策略 b）
+│   ├── sim_disp_compose.c/.h # 合成层：扫描池 + LVGL flush 包装 + compositor present → SDL；#include 固件抽取的合成段；帧接收器
+│   ├── sim_hw_shims.c/.h # DMA2D 软件版 / DWT / dcache 空实现 / 触摸源（SDL 鼠标）/ RNG / fault handler
+│   ├── scenario.c/.h     # --scenario 场景执行器：JSON 步骤、虚拟时钟、手势注入、逐帧 PNG、差异报告与断言
+│   ├── hal.h framebuffer.h soc_cache.h rng.h fault_handlers.h sys.h   # 遮蔽固件硬件头的 shim（只暴露 host 用到的接口）
+├── scenarios/            # 场景文件（README.md 说明格式；ok-64012-ms-warning-scroll.json 为首个用例）
 ├── tools/
-│   ├── gen_fonts.sh              # Roobert/Montserrat → LVGL bin 字体（dev 字号表）
-│   ├── gen_placeholder_images.py # 扫源码生成占位 PNG（assets/ + res/）
-│   ├── gen_page_list.py          # 解析 page_id.h + PAGE_REGISTER → build/generated/page_list.inc
-│   └── sim_shims/                # <FreeRTOS.h> <task.h> 空头（页面 include 但未用 RTOS 符号）
+│   ├── extract_disp_compose.py   # configure 时从固件 lv_port_disp.c 抽取合成段 → build/generated/（标记/替换计数断言）
+│   ├── regress_scenario.sh       # 同一场景跑两个固件 commit（修复前 FAIL / 修复后 PASS），固件按 commit 克隆到 ../../.deps/
+│   ├── gen_page_list.py          # 解析 page_id.h + PAGE_REGISTER* → build/generated/page_list.inc
+│   └── sim_shims/                # <FreeRTOS.h> <task.h> 空头、nanopb 生成头的占位（latest/ legacy/）
 ├── assets/               # A: 盘内容（字体 bin + 占位/真机图片）
 └── docs/                 # plans / specs
 ```

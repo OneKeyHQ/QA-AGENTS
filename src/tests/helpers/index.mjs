@@ -74,7 +74,7 @@ export async function connectCDP() {
 export async function screenshot(page, dir, name) {
   mkdirSync(dir, { recursive: true });
   const path = `${dir}/${name}.png`;
-  await page.screenshot({ path }).catch(() => {});
+  await page.screenshot({ path, timeout: 5000 }).catch(() => {});
   return path;
 }
 

@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+const load = () => import('../../../helpers/platform-session.mjs');
+const page = url => ({ url: () => url });
+test('F01 严格 origin / extension ID 校验拒绝错平台与相似域名', async () => {
+  const { assertTargetPage, platformFromFile } = await load();
+  const env = { WEB_URL: 'https://app.onekeytest.com', ONEKEY_EXT_ID: 'a'.repeat(32) };
+  assertTargetPage(page('file:///perps'), 'desktop', env);
+  assertTargetPage(page('https://app.onekeytest.com/perps'), 'web', env);
+  assertTargetPage(page(`chrome-extension://${env.ONEKEY_EXT_ID}/ui-expand-tab.html`), 'extension', env);
+  for (const url of ['file:///perps', 'https://app.onekeytest.com.attacker.test', 'https://onekeytest.com', 'chrome-extension://' + env.ONEKEY_EXT_ID + '/x']) assert.throws(() => assertTargetPage(page(url), 'web', env));
+  assert.throws(() => assertTargetPage(page('chrome-extension://' + 'b'.repeat(32) + '/x'), 'extension', env));
+  assert.throws(() => assertTargetPage(page('https://app.onekeytest.com'), 'desktop', env));
+  assert.equal(platformFromFile('web/perps/input-validation.test.mjs'), 'web');
+  assert.equal(platformFromFile('extension\\perps\\chart.test.mjs'), 'extension');
+  assert.equal(platformFromFile('desktop/perps/chart.test.mjs'), 'desktop');
+});
+test('F01 Web/插件只选匹配页面，不调用桌面启动、goto 或 newPage', async () => {
+  const { connectPlatform } = await load();
+  const env = { WEB_URL: 'https://app.onekeytest.com', ONEKEY_EXT_ID: 'a'.repeat(32) };
+  const calls = [];
+  const web = page('https://app.onekeytest.com/perps');
+  const ext = page(`chrome-extension://${env.ONEKEY_EXT_ID}/ui-expand-tab.html`);
+  const browser = { contexts: () => [{ pages: () => [page('file:///perps'), web, ext] }] };
+  const deps = { env, chromium: { connectOverCDP: async endpoint => { calls.push(endpoint); return browser; } }, desktopConnect: async () => { throw Error('Wrong desktop launch'); } };
+  assert.equal((await connectPlatform('web', deps)).page, web);
+  assert.equal((await connectPlatform('extension', deps)).page, ext);
+  assert.deepEqual(calls, ['http://127.0.0.1:9223', 'http://127.0.0.1:9224']);
+  await assert.rejects(connectPlatform('web', { ...deps, chromium: { connectOverCDP: async () => ({ contexts: () => [{ pages: () => [page('file:///perps')] }] }) } }), /matching|target|平台/i);
+});

@@ -57,9 +57,12 @@ for line in body.splitlines():
     idx += 1
 
 # ── 2. 扫描所有 page .c 的 PAGE_REGISTER*，记录 (page_id_enum, create_cb, src_path) ──
-# dev 2026-07 起新增 _NAV/_MENU/_WITH_FLAGS_AND_BACK 变体（page_manager.h），一并匹配
+# dev 2026-07 起新增 _NAV/_MENU/_WITH_FLAGS_AND_BACK 变体，2026-08 又增 *_WITH_RUNTIME /
+# *_AND_RUNTIME 变体（page_manager.h）。所有变体 create_cb 均为第 2 参数，统一匹配后缀组合。
+# main 2026-10 又增 _WITH_FLAGS_AND_RUNTIME 等组合。page_manager.h 所有变体的前两个参数都是
+# (PAGE_ID, create_cb)，直接匹配任意 PAGE_REGISTER[A-Z_]* 后缀，不再逐个枚举（新变体零改动）。
 register_re = re.compile(
-    r"PAGE_REGISTER(?:_WITH_FLAGS(?:_AND_BACK)?|_WITH_REFRESH|_NAV(?:_WITH_BACK)?|_MENU(?:_WITH_BACK)?)?\s*\(\s*"
+    r"\bPAGE_REGISTER[A-Z_]*\s*\(\s*"
     r"(PAGE_ID_[A-Z0-9_]+)\s*,\s*([A-Za-z_][A-Za-z0-9_]*)"
 )
 # tips_tutorials.c 的 X-macro：DEFINE_TIP_TUTORIAL_PAGE(suffix, PAGE_ID_X) 展开成

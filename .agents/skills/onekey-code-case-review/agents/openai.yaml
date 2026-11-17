@@ -1,0 +1,4 @@
+interface:
+  display_name: "代码与用例审查"
+  short_description: "对比最新分支与用例，先交付差异与缺陷建议，确认后再更新用例"
+  default_prompt: "使用 $onekey-code-case-review，审查 perps。"

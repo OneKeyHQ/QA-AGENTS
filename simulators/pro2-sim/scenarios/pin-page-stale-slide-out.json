@@ -1,0 +1,13 @@
+{
+  "name": "pin-page-stale-slide-out",
+  "page": "settings",
+  "capture": "all",
+  "watch": [],
+  "steps": [
+    { "nav": "push", "page": "verify_device_pin", "settle_ms": 800 },
+    { "tap": [107, 485], "settle_ms": 200 },
+    { "tap": [302, 485], "settle_ms": 200 },
+    { "tap": [497, 485], "settle_ms": 400 },
+    { "nav": "pop", "settle_ms": 800, "expect_compose": true }
+  ]
+}

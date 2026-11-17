@@ -2127,6 +2127,40 @@
       "feature": [
         "settings"
       ]
+    },
+    "settings.desktop-more-menu": {
+      "primary": "[data-testid=\"more-action-desktop\"]",
+      "source_testid": "more-action-desktop",
+      "ui_display_name": "菜单",
+      "description": "Desktop侧栏更多菜单；固定源码6fe766b核对，未实机验证",
+      "page": "global-sidebar",
+      "platform": [
+        "desktop"
+      ],
+      "feature": [
+        "settings",
+        "locale"
+      ],
+      "source": "packages/kit/src/components/MoreActionButton/index.tsx@6fe766b",
+      "verification_status": "source-verified-ui-pending"
+    },
+    "settings.language-options": {
+      "primary": "[data-testid^=\"select-item-\"]",
+      "source_testid": "select-item-${value}",
+      "ui_display_name": "语言选项",
+      "description": "Select动态选项；必须经实际语言Select所有权校验，不能全局匹配",
+      "page": "settings-language",
+      "platform": [
+        "desktop",
+        "web",
+        "ext"
+      ],
+      "feature": [
+        "settings",
+        "locale"
+      ],
+      "source": "packages/components/src/forms/Select/index.tsx@6fe766b",
+      "verification_status": "source-verified-ui-pending"
     }
   }
 }

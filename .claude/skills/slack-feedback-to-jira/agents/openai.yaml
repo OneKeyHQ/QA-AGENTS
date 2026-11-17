@@ -1,0 +1,13 @@
+interface:
+  display_name: "对话与 Slack 反馈转 Jira Bug"
+  short_description: "从对话或 Slack 提交 Jira Bug，正文直接粘贴原图、日志定位和日志原文"
+  default_prompt: "使用 $slack-feedback-to-jira 开始记录 Bug。我会陆续发截图和描述，等我说提交时只问缺失字段，直接建单。"
+  icon_small: "assets/icon.svg"
+  icon_large: "assets/icon.svg"
+policy:
+  products:
+    - "chatgpt"
+    - "codex"
+    - "api"
+    - "atlas"
+  allow_implicit_invocation: true

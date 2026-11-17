@@ -4,6 +4,24 @@
 Three-layer multi-agent UI automation testing system for OneKey wallet.
 Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
+## 手动用例交付与 Jira 同步（所有 AI 必须读取）
+
+新建、补充、修改手动用例时，先读 `docs/qa/qa-rules.md` §7.3 和 `docs/qa/rules/jira-test-sync-rules.md`。默认只交付 Markdown 源文件，不生成或维护可复制 HTML；仅用户明确要求时才生成本地可复制版。Jira 同步直接从 Markdown 构造富文本，保留表格与真实换行，不生成独立复制页面。Markdown 源文件、规则和 Jira 映射提交仓库；可复制 HTML 仅保存在本地 `docs/qa/testcases/copyable/`，不提交 Git 或 PR，也不使用强制添加绕过忽略。已经跟踪的可复制版应取消 Git 跟踪并保留本地文件。完成本地验证后，主动询问是否同步 Jira；用户同意本批同步后，按 `docs/qa/jira-test-mapping.json` 已核实的 Test 编号直接更新。无映射时询问用户提供已有 Test 编号或确认创建，用户拒绝则不写 Jira。此询问是交付流程的一部分，不受下文「不要再问」影响；当前会话已明确授权同一批目标时不重复询问。完整步骤、字段范围、回读验证与映射维护以同步规则为准。
+
+## 对话与 Slack 反馈提 Bug（共享技能）
+
+用户说「开始记录 Bug」「提交 Bug」，或要求从对话、Slack 线程整理反馈、生成 Jira Bug 草稿或按编号提交时，先读取 `.agents/skills/slack-feedback-to-jira/SKILL.md`。Codex 从 `.agents/skills/` 发现技能；Claude 使用同名 `.claude/skills/` 镜像；Cursor 使用 `.cursor/rules/slack-feedback-to-jira.mdc`。维护时保持技能正文一致。
+
+「记录」「整理」「先看草稿」只收集材料或输出草稿；用户明确授权按本技能提交本批或指定条目才创建 Jira Bug（不要求逐字说「Bug」），缺失字段按技能集中询问。本技能只创建当前项目元数据核实的「缺陷 Bug」，不因「建议」「优化」等措辞改成需求；类型不可确认时停止创建，创建后回读类型。编辑旧单、回帖 Slack 仍需用户明确指定。安装或维护技能本身不视为提交 Bug；本流程与手动 Test 用例同步、回归 Test Execution 创建分别处理，不自动启动 OneKey 或执行测试。使用 Slack/Jira 时需当前 AI 已连接相应工具并具备对应权限；工具或字段不明时发现实际能力，不把固定工具名当成已可用。
+
+## 临时产物与上传规则（2026-11-06，用户确认）
+
+- 手动用例交付维护 Markdown 源文件、需求、规则和必要的 Jira 映射；仓库同时维护实际可执行的自动化脚本、其使用的最小数据、公共工具及 Skills。可复制 HTML、复制页面、审查报告、复现输出及同步证据属于临时产物，不纳入 Git review、commit、PR 或仓库上传，禁止用 `git add -f` 绕过忽略规则。
+- 默认不生成或维护可复制 HTML。仅用户明确要求时，在被忽略的本地 `docs/qa/testcases/copyable/` 生成并验证；报告和证据仅本地保存，验证结论可直接回复。用户要求清理临时产物时按指定范围执行。
+- `.gitignore` 忽略 `docs/qa/testcases/copyable/`、`shared/reports/` 及其他 `copyable/`、带“可复制版”名称的文件。已经跟踪的旧产物通过删除变更移出版本控制；不能仅靠忽略规则隐藏。
+- 上传前检查 Git diff 和暂存列表，不包含新增或修改的临时产物；移除已跟踪旧产物的删除记录允许提交。Jira 仍可直接从 Markdown 构造富文本并回读验证，保留映射中的同步时间与哈希；已删除证据路径置空并注明原因。
+- 2026-11-11 用户确认默认不再生成可复制版，取代此前默认生成要求；临时产物上传禁令和 Jira 写入授权流程继续生效。
+
 ## OneKey Desktop App
 - **可执行路径可配置**：通过环境变量 `ONEKEY_BIN` 指定，默认 `/Applications/OneKey-3.localized/OneKey.app/Contents/MacOS/OneKey`
 - **CDP URL 可配置**：通过环境变量 `CDP_URL` 指定，默认 `http://127.0.0.1:9222`
@@ -475,6 +493,19 @@ node scripts/build-locator-map.mjs --check
 - **用户纠正自动沉淀（强制）**：当用户纠正了 AI 生成的用例/脚本/规则内容时，AI 必须在任务完成后主动执行：①列出被纠正的具体内容 ②检查是否已写入对应规范文件（qa-rules.md / module-rules.md / CLAUDE.md 等）③对未覆盖的纠正点，**主动询问用户是否写入规范**。详见 `docs/qa/rules/qa-workflow-rules.md` 「用户纠正自动沉淀机制」章节。
 - **提交前 QA 审查**：commit / PR 前自动执行 `/qa-review`（别名 `/onekey-qa-review`，触发词：`审查提交`/`审查用例`/`review 用例`/`检查提交`），检查用例、规则、脚本、Skill 的规范性、一致性和安全性。安全问题硬拦截（不可跳过），其他 block 问题软拦截（可确认跳过）。审查报告保存到 `shared/reports/review-*.md`。Claude Code 加载 `.claude/skills/onekey-qa-review/SKILL.md`；Cursor 加载 `.cursor/rules/onekey-qa-review.mdc`（两份内容保持双写一致）
 
+### 提交内容精简（强制）
+
+- 仓库只保留与用例、实际自动化或其必要维护直接相关的代码、规范和固定测试输入；不复制整份用例生成执行计划，不把计划或样本数量算作脚本覆盖。
+- 报告、截图、录像、运行结果、临时快照、缓存和可复制 HTML 仅保存在本地，通过 `.gitignore` 排除。生成、展示和复制仍可进行，交付文件不代表允许将其加入提交。
+- 每次 commit / PR 前检查 `git diff --cached --name-status`。已跟踪文件不受 `.gitignore` 影响；发现暂存的新增或修改执行产物时，自动取消该文件的暂存，保留本地文件，且不连带取消同次提交的用例或脚本。用户明确要求的历史产物删除可提交，不因清理而重新生成。
+- 断言依赖的固定输入（如二维码、边界数据）属于测试源码，保留明确的忽略例外；正式 Markdown 用例可以提交，可复制 HTML 只在本地交付。无关改动不加入本次提交，例外提交产物须有用户明确要求。
+
+### 自动化交付边界（强制）
+
+- 根据用例生成自动化，默认维护目标平台正式 Runner 可执行的实际操作、前置、业务断言和恢复；“离线补齐”表示先写这些脚本而暂不连设备，不另建执行计划、样本库或产品源码隔离套件代替。缺环境时记录受阻子项，继续完成其余可实现内容。
+- 固定输入、独立期望值及必要生成器默认只保留实际回归脚本或其必要辅助测试使用的最小集合，注明消费者路径和断言用途；只验证样本或生成器自身不算业务消费者。未接入数据、完整执行计划、独立源码套件须有用户对此类交付的明确要求。必要的脚本辅助测试仍可添加，数量不计业务覆盖。
+- 代码审查中的最小源码实验及回归映射、执行证据只在本地保存。完整边界见 `docs/qa/rules/code-review-and-ui-regression.md`；不因本规则自动删除历史资产。
+
 ## Default Workflow（写新用例时必须遵循，不要再问）
 
 ### Phase 0 — 写脚本/用例前必读 knowledge + rules（强制 ⚠️ 不能跳过）
@@ -551,11 +582,15 @@ node scripts/lookup-rules.mjs --keyword "Keyless Wallet,无私钥"
 - 重点查看：**条件渲染**（feature gate / 可见性开关）、**平台差异**（`.ios.tsx` / `.android.tsx` / `.tsx`）、**状态持久化**（atom / `useSettingsPersistAtom` 是否跨端同步）、**枚举值**（`E*` 类型定义）
 - **同时查 git fix 历史**：`gh search prs --repo OneKeyHQ/app-monorepo --match title "fix" | head -20`，每个 OK-XXXXX 修复都对应一个曾经出问题的边界场景，需转化为用例覆盖
 - 用例 / 规则与代码实现冲突时，**优先以产品需求为准**（可主动跟用户确认），不盲目相信代码 ≡ 需求
-- **需求为主、代码推导需标注确认（强制）**：
+- **需求为主、代码推导先提案后确认（强制）**：
   - 用户给的需求生成的用例是主体，预期结果用需求口径描述
-  - 源码反推的场景（常量、内部行为、需求未提的边界）**可以写**，但必须在用例文档**单列一章「代码推导场景（待产品确认）」**，场景列加【代码推导】前缀；混在正式用例里的单个断言也要标【代码推导】。回复中列出全部待确认项；用户确认后并入正式章节
+  - 代码驱动的新增 / 修改场景只先写入独立审查报告，展示旧预期、当前代码事实和具体建议；用户明确确认后才更新原有或新增用例、可复制版、需求 / 业务规则及正式断言。不得以【代码推导】待确认章节提前写入用例库；确认 bug 不等于确认把错误行为写成预期。依据已确认需求生成用例仍按原授权执行，不扩大为其他推导项的确认
   - 规则 / 需求文档中的代码细节放独立的「源码实现参考」小节，不并入需求正文
   - **代码行为与需求不一致 = 疑似 bug**，必须在回复中主动报告（附源码位置 / PR 号），不得写成「需求变更」
+
+**简单口令**：用户明确发起 `审查 <模块>` 时加载 `onekey-code-case-review`；发起 `回归 <模块>` 时加载 `onekey-ui-regression`，如 `审查 perps` / `回归 perps`，忽略模块大小写。Perps 默认 Desktop / 最新 x 审查，或 Desktop TF 只读输入预览与可恢复本地偏好回归。显式范围优先；回归仍须遵守首次平台选择、本批账户与副作用授权，真实交易 / 远端设置 / 资金操作另确认。询问用法、引用示例或修改入口时不启动流程。
+
+**两项独立 QA 流程**：`$onekey-code-case-review` 对比最新分支与用例、交付缺陷和待确认建议，不启动实机；`$onekey-ui-regression` 基于最新已确认用例补脚本、执行实机并维护。A 不自动触发 B；B 发现业务变化同样先提案等确认。详细步骤、报告格式和覆盖率口径见 `docs/qa/rules/code-review-and-ui-regression.md`。Codex / Claude / Cursor 入口按项目 skill 镜像维护。
 
 ### 常规录制流程
 0. （上面 Phase 0 已做）也读 `shared/ui-semantic-map.json` + `shared/generated/app-monorepo-testid-index.json` 找已知定位
@@ -742,16 +777,16 @@ NODE
 5. 汇总结果（PASS/FAIL/SKIP + 通过率 + 总耗时）
 6. 失败自动诊断（见 QA Manager 规则）
 
-### 6. `设计用例` / `写用例` / `新增测试` / `@<需求文档> 生成用例`
+### 6. `设计用例` / `写用例` / `修改用例` / `补充用例` / `新增测试` / `@<需求文档> 生成用例`
 
-**角色**：Test Designer — 从 PRD 到可执行测试。
+**角色**：Test Designer — 生成或维护手动用例；明确要求自动化时再进入脚本流程。
 
-1. 读取 @ 引用需求文档（或 `docs/qa/requirements/` 对应文档）
-2. 读取 `docs/qa/qa-rules.md` + `docs/qa/rules/` 对应模块规则
-3. 提取可测试场景，分配 Test ID (`FEATURE-NNN`)，排优先级
-4. 分析前置条件
-5. 按规范生成用例，保存到 `docs/qa/testcases/cases/<模块目录>/`
-6. 如需录制 → 自动启动 CDP + 录制器
+1. 读取需求、执行知识、通用规范及模块规则，对齐 app-monorepo 源码；已知 Bug 按修复后的预期写
+2. 手动用例使用「优先级 / 场景 / 操作步骤 / 预期结果」四列，不分配 Test ID；仅自动化脚本使用 `FEATURE-NNN`
+3. 分析前置条件，去重并检查平台范围，保存到 `docs/qa/testcases/cases/<模块目录>/`
+4. 默认只交付 Markdown，不生成或维护可复制 HTML；仅用户明确要求时生成本地可复制版并验证内容、表格与真实换行
+5. 按 `docs/qa/rules/jira-test-sync-rules.md` 询问是否同步 Jira；同意后按共享映射更新，无映射则询问编号或确认创建，拒绝则不写入
+6. 仅明确要求录制或执行自动化时，进入对应平台连接与脚本流程
 
 ### 7. `诊断失败` / `分析结果` / `为什么失败`
 
@@ -1112,7 +1147,7 @@ curl -X POST http://localhost:5050/api/run \
 - 通过率保留一位小数（如 `80.0%`）
 - 失败用例必须附带错误信息摘要和截图路径
 - 同一天多次运行覆盖同一报告文件
-- **永远不删除历史报告**
+- 历史报告仅本地保存，不纳入仓库上传；用户明确要求清理时可以删除。
 
 ## QA 工具链扩展（手动 QA 线 / API 自动化线）
 
