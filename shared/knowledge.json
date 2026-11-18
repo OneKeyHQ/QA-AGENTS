@@ -1,11 +1,11 @@
 {
   "version": "2.4.3",
-  "lastUpdated": "2026-11-17",
+  "lastUpdated": "2026-11-18",
   "categoryIndex": {
     "_description": "按类别索引，AI 先看这里快速定位相关条目，不用扫全文",
     "locator": "K-001,K-017,K-047,K-048,K-050,K-051,K-059,K-072,K-074,K-101,K-106,K-111,K-113,K-115,K-130,K-134,K-141,K-142,K-146,K-164,K-170,K-183,K-186,K-190,K-191,K-213,K-217,K-223 — DOM定位/选择器/testid陷阱,K-233,K-235,K-244,K-245,K-258,K-262, K-297,K-300,K-322,K-361",
     "quirk": "K-002,K-003,K-004,K-005,K-011,K-012,K-013,K-014,K-015,K-016,K-018,K-021,K-022,K-023,K-024,K-025,K-026,K-027,K-028,K-029,K-031,K-033,K-034,K-035,K-036,K-037,K-039,K-040,K-041,K-042,K-043,K-044,K-045,K-046,K-049,K-052,K-053,K-054,K-055,K-060,K-065,K-066,K-079,K-129,K-131,K-137,K-138,K-139,K-140,K-162,K-163,K-165,K-169,K-171,K-172,K-173,K-188,K-189,K-195,K-215,K-224 — OneKey/Electron/React行为异常,K-255,K-305",
-    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167,K-168,K-175,K-187,K-192,K-197,K-198,K-199,K-200,K-202,K-203,K-204,K-206,K-207,K-208,K-210,K-214,K-220,K-221,K-222 — 工作流/前置条件/状态恢复,K-231,K-234,K-236,K-238,K-240,K-241,K-242,K-249,K-251,K-252,K-254,K-256, K-296,K-299,K-334,K-341,K-366,K-398,K-409,K-422,K-423,K-425,K-427,K-428,K-429,K-430,K-431,K-436,K-437,K-438,K-440,K-441,K-444,K-439,K-442,K-445,K-446,K-447,K-449,K-450,K-451,K-452,K-453,K-454,K-455,K-456,K-457,K-443,K-458,K-459,K-460,K-461,K-464,K-465",
+    "process": "K-006,K-007,K-032,K-038,K-058,K-061,K-062,K-063,K-068,K-069,K-071,K-073,K-076,K-077,K-078,K-082,K-083,K-086,K-092,K-096,K-097,K-104,K-119,K-121,K-122,K-123,K-124,K-125,K-126,K-127,K-128,K-136,K-143,K-145,K-148,K-157,K-158,K-167,K-168,K-175,K-187,K-192,K-197,K-198,K-199,K-200,K-202,K-203,K-204,K-206,K-207,K-208,K-210,K-214,K-220,K-221,K-222 — 工作流/前置条件/状态恢复,K-231,K-234,K-236,K-238,K-240,K-241,K-242,K-249,K-251,K-252,K-254,K-256, K-296,K-299,K-334,K-341,K-366,K-398,K-409,K-422,K-423,K-425,K-427,K-428,K-429,K-430,K-431,K-436,K-437,K-438,K-440,K-441,K-444,K-439,K-442,K-445,K-446,K-447,K-449,K-450,K-451,K-452,K-453,K-454,K-455,K-456,K-457,K-443,K-458,K-459,K-460,K-461,K-464,K-465,K-468,K-469,K-470,K-471,K-472,K-473,K-474,K-475",
     "assertion": "K-008,K-020,K-030,K-056,K-057,K-064,K-067,K-075,K-080,K-084,K-085,K-087,K-088,K-089,K-090,K-091,K-093,K-094,K-095,K-105,K-120,K-132,K-133,K-135,K-147,K-150,K-151,K-152,K-153,K-154,K-155,K-156,K-159,K-160,K-161,K-177,K-178,K-180,K-181,K-182,K-184,K-185,K-193,K-196,K-205,K-209,K-211,K-212,K-216,K-219,K-225,K-228,K-229,K-230 — 断言策略/校验方法,K-237,K-246,K-247,K-248,K-250,K-253,K-259,K-263,K-264,K-265,K-298,K-301,K-302,K-303,K-319,K-321,K-333,K-335,K-336,K-337,K-338,K-339,K-340,K-342,K-343,K-344,K-345,K-346,K-347,K-348,K-349,K-350,K-351,K-352,K-353,K-354,K-355,K-356,K-357,K-358,K-359,K-360,K-362,K-363,K-364,K-365,K-367,K-368,K-369,K-370,K-371,K-372,K-373,K-374,K-375,K-376,K-377,K-378,K-379, K-380, K-381, K-382, K-383, K-384, K-385, K-386, K-387,K-388, K-389, K-390, K-391, K-392, K-393, K-394,K-395,K-396,K-397,K-399,K-400,K-401,K-402,K-403,K-405,K-407,K-408,K-418,K-420,K-421,K-424,K-426,K-432,K-433,K-434,K-435,K-239,K-448,K-462,K-463,K-466,K-467",
     "recording": "K-009,K-010,K-019,K-098,K-099,K-100,K-102,K-103,K-108,K-109,K-116,K-117,K-118 — 录制器相关,K-419",
     "timing": "K-107,K-110,K-112,K-114,K-144,K-149,K-166,K-174,K-176,K-179,K-201,K-218,K-226,K-227 — 时序/异步/页面状态切换,K-232,K-243,K-257,K-266,K-267, K-268,K-269,K-304,K-318,K-320,K-404,K-406,K-417"
@@ -3804,6 +3804,70 @@
       "confidence": 1,
       "pattern": "ether.fi恢复区分确定未发送与广播未知，赎回切回原币种仍须本次有效报价",
       "details": "2026-11-17用户要求对齐两条正确预期，已补入本地手动用例§4/§5并同步需求和DeFi规则：授权后、存入确认页打开前的重新报价或估费失败，确认未广播时退出重进可重新发起，保留WETH及生效授权；广播未知不能据此清理或重发。liquidUSD取回币种切换及切回后，新请求失败不得恢复旧报价为可提交结果。用户引用373f3f9；核验PR14333最新0780ee3已增加准备失败来源标记和报价成功/失败状态，新增回归测试也包含两条路径。仅静态核对并维护用例，未执行产品测试，不宣称修复通过；随后按用户授权同步OK-23865，38条及全部表格、编号和换行回读一致，原标题保留；共享映射记录2026-11-17的同步时间与哈希。"
+    },
+    {
+      "id": "K-468",
+      "category": "process",
+      "platform": "all",
+      "confidence": 0.97,
+      "pattern": "RocketX build-tx 对齐客户端：rocketXQuoteResultCtx + 换汇单 data，不要求 data.tx",
+      "details": "2026-11-18 Dashboard RocketX ETH native↔USDC 询价命中后构建失败，detail 为 dataKeys=result,changellyOrder,ctx,orderId。用户给出的桌面端成功 curl：GET /swap/v1/quote/events，主币地址空字符串，slippagePercentage=1；POST /swap/v1/build-tx body 含 quoteResultCtx.rocketXQuoteResultCtx（exchangeId、fromTokenId、toTokenId、quoteFromAmount、quoteToAmount）、tradeSource=swapBridge、bindedAccountAddress、bindedNetworkId、rebateAddress、walletType=hd。RocketX 常走换汇/Changelly 包装，成功体是 orderId/result 而不是 unsigned tx。处理口径：extraBuildFields 包 rocketXQuoteResultCtx；buildRequiresTx=false；有 data.tx 或 orderId/result 即通过，不要把 changellyOrder 字段名当失败。"
+    },
+    {
+      "id": "K-469",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "全渠道：toAmount=0、「报价不可用」或「不支持该交易对」跳过 build，不算失败",
+      "details": "2026-11-18 Dashboard RocketX avalanche/optimism 询价命中 toAmount=0.0 后仍 POST build-tx，返回「报价不可用，请刷新后重试。」被记失败。fromAmount 非空时旧 hasQuoteAmount 仍为真。口径适用所有 Swap API 渠道：有效报价必须 toAmount>0；否则不发 build。询价或构建文案含「报价不可用」或「不支持该交易对」一律 SKIP，原因写没有支持的报价结果。"
+    },
+    {
+      "id": "K-470",
+      "category": "process",
+      "platform": "all",
+      "confidence": 0.97,
+      "pattern": "Houdini 本地 quote/build 对齐客户端：询价滑点 2、构建滑点 1、不要求 data.tx",
+      "details": "2026-11-18 用户提供桌面端成功 curl：GET /swap/v1/quote/events，incognito=true，slippagePercentage=2，ETH 主币空地址，金额约 0.03；POST /swap/v1/build-tx 滑点数字 1，houdiQuoteResultCtx.quoteId + quoteFromAmount/quoteToAmount，tradeSource=swapBridge，binded*/rebateAddress，walletType=hd。旧本地套件询价滑点 1、ETH 金额 0.014、构建仍要求 data.tx，批量失败。处理口径：extraQuoteParams 滑点 2；ETH 系 nativeAmounts 0.03；buildRequiresTx=false；构建体 spread houdiQuoteResultCtx。"
+    },
+    {
+      "id": "K-471",
+      "category": "process",
+      "platform": "all",
+      "confidence": 0.97,
+      "pattern": "Swft 本地 quote/build 对齐客户端：SSE + swftQuoteResultCtx，不要求 data.tx",
+      "details": "2026-11-18 Dashboard Swft TRX↔USDT 询价命中后构建失败，dataKeys=result,swftOrder,changellyOrder,ctx,orderId。用户桌面端成功 curl：GET /swap/v1/quote/events（不是 JSON /quote），slippagePercentage=1；POST /swap/v1/build-tx 含 swftQuoteResultCtx.quoteFromAmount/quoteToAmount、tradeSource=swapBridge、bindedAccountAddress/rebateAddress 为 HD EVM 地址、bindedNetworkId=evm--1（即使 from 链是 Tron）。处理口径：quoteMode=sse；buildRequiresTx=false；extraBuildFields 包 swftQuoteResultCtx。SUI 同链 USDT 无 toAmount 仍 SKIP。"
+    },
+    {
+      "id": "K-472",
+      "category": "process",
+      "platform": "all",
+      "confidence": 0.97,
+      "pattern": "ChangeHero / Changelly 本地 quote/build 对齐客户端：SSE + CEX ctx，不支持交易对记 SKIP",
+      "details": "2026-11-18 Dashboard ChangeHero/Changelly TRX→USDT 询价命中后构建失败。用户桌面端 curl：GET /swap/v1/quote/events，slippage=1，主币空地址；POST /swap/v1/build-tx 分别带 changeHeroQuoteResultCtx+changeHeroMode=float+changeHeroNetworkFee、changellyQuoteResultCtx+changellyModel=float+changellyProtocolFee，以及 tradeSource=swapBridge、binded*(EVM HD)+rebateAddress。换汇单不要求 data.tx。构建返回「不支持该交易对」全渠道 SKIP，不算失败。"
+    },
+    {
+      "id": "K-473",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "Binance Web3（SwapBstock）不支持 Tron，渠道矩阵不要生成 tron 用例",
+      "details": "2026-11-18 用户确认 Binance Web3 不支持 Tron。处理口径：CHANNELS.binance.networks 去掉 tron；需求/规则/手工用例支持网络同步删除 Tron 与 CT_195；不要再跑 binance-tron-* 或把询价失败写成产品缺陷。"
+    },
+    {
+      "id": "K-474",
+      "category": "process",
+      "platform": "all",
+      "confidence": 0.97,
+      "pattern": "OKX Solana 本地 quote/build 对齐客户端：SSE + okxQuoteResultCtx",
+      "details": "2026-11-18 Dashboard OKX Solana 失败。用户桌面端成功 curl：GET /swap/v1/quote/events，SOL 主币空地址，fromTokenAmount≈0.42，slippagePercentage=1，autoSlippage=true；POST /swap/v1/build-tx 含 quoteResultCtx.okxQuoteResultCtx.slippageType=UnSupported + quoteFromAmount/quoteToAmount，tradeSource=swapBridge，bindedAccountAddress/rebateAddress 为 HD EVM，bindedNetworkId=evm--1。成功 dataKeys=result,supportRebuildTx,ctx,OKXTxObject,orderId，没有 data.tx。处理口径：Solana 单独 quoteMode=sse、滑点 1、nativeAmount 0.4；extraBuildFields 仅 Solana 包 okxQuoteResultCtx；buildRequiresTx=false。EVM 同链仍用 JSON /quote，不要整渠道改成 SSE。"
+    },
+    {
+      "id": "K-475",
+      "category": "process",
+      "platform": "all",
+      "confidence": 1,
+      "pattern": "LiquidMesh Solana 主币金额用 0.1 SOL，1 SOL 会因网络费不足失败",
+      "details": "2026-11-18 Dashboard liquidmesh-solana-native-usdc 询价命中 toAmount≈74 后构建失败：「没有足够的 SOL 来支付网络费用，请预留少余额后重试。」当时 fromTokenAmount=1。用户要求该渠道 Solana 改为 0.1 SOL。只改 CHANNELS.liquidmesh.nativeAmounts['sol--101']，不要把全局 NATIVE_AMOUNT sol--101 改成 0.1。"
     }
   ]
 }

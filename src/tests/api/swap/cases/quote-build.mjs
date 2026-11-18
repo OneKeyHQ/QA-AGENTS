@@ -1,8 +1,8 @@
 import { CHANNELS, pairCases } from '../data/channels.mjs';
 import { clientHeaders } from '../lib/config.mjs';
 import { evaluateFiatDrop } from '../lib/fiat.mjs';
-import { evaluateBuild, evaluateQuote, fetchBuildTx, fetchQuote } from '../lib/quote.mjs';
-import { formatSkip } from '../lib/skip.mjs';
+import { evaluateBuild, evaluateQuote, fetchBuildTx, fetchQuote, hasUsableToAmount, quoteResultCtxOf, quoteToAmount } from '../lib/quote.mjs';
+import { formatSkip, isSkipBuildMessage } from '../lib/skip.mjs';
 import { runCase } from '../lib/runner.mjs';
 
 export async function runQuoteBuild(results, ctx, channelKey) {
@@ -19,14 +19,15 @@ export async function runQuoteBuild(results, ctx, channelKey) {
 }
 
 export async function runOneQuoteBuild(ctx, channel, testCase, tracker) {
-  const headers = clientHeaders({ sse: channel.quoteMode === 'sse' });
+  const quoteMode = channel.quoteModeByNetwork?.[testCase.network] || channel.quoteMode;
+  const headers = clientHeaders({ sse: quoteMode === 'sse' });
   let quoteRes;
   try {
     quoteRes = await fetchQuote({
       baseUrl: ctx.baseUrl,
       headers,
       timeoutMs: ctx.timeoutMs,
-      mode: channel.quoteMode,
+      mode: quoteMode,
       params: testCase.params,
     });
   } catch (err) {
@@ -72,6 +73,18 @@ export async function runOneQuoteBuild(ctx, channel, testCase, tracker) {
     return { status: 'passed', reason: `${channel.provider} quote only` };
   }
 
+  const toAmount = quoteToAmount(quote.entry);
+  if (!hasUsableToAmount(quote.entry) || isSkipBuildMessage(quote.detail || quote.reason || '')) {
+    const reason = formatSkip(
+      testCase.name,
+      channel.provider,
+      '没有支持的报价结果',
+      `toAmount=${toAmount ?? ''}，报价不可用或不支持该交易对，跳过 build`,
+    );
+    tracker?.skip('构建', reason);
+    return { status: 'skipped', reason };
+  }
+
   const fiat = await evaluateFiatDrop({
     baseUrl: ctx.baseUrl,
     headers: clientHeaders(),
@@ -101,7 +114,7 @@ export async function runOneQuoteBuild(ctx, channel, testCase, tracker) {
     walletType: 'hd',
   };
   if (channel.needsQuoteResultCtx) {
-    buildBody.quoteResultCtx = quote.entry.quoteResultCtx || quote.entry.info?.quoteResultCtx;
+    buildBody.quoteResultCtx = quoteResultCtxOf(quote.entry);
   }
   if (typeof channel.extraBuildFields === 'function') {
     Object.assign(buildBody, channel.extraBuildFields({ params: testCase.params, quote }));
@@ -121,7 +134,11 @@ export async function runOneQuoteBuild(ctx, channel, testCase, tracker) {
     requireTx: channel.buildRequiresTx !== false,
     res: buildRes,
   });
-  if (built.status === 'skipped') tracker?.skip('构建', built.reason);
-  else tracker?.add('构建', built.status === 'passed' ? 'passed' : 'failed', built.detail || built.reason);
+  if (built.status === 'skipped') {
+    const reason = formatSkip(testCase.name, channel.provider, built.reason, built.detail);
+    tracker?.skip('构建', reason);
+    return { ...built, reason };
+  }
+  tracker?.add('构建', built.status === 'passed' ? 'passed' : 'failed', built.detail || built.reason);
   return built;
 }

@@ -6,19 +6,23 @@ Node runner for Swap quote + build-tx. This is **not** an Apifox import collecti
 
 | Case | API | Notes |
 |------|-----|-------|
-| 0x / 1inch / OKX same-chain | `GET /swap/v1/quote` then `POST /swap/v1/build-tx` | JSON quote; build without `quoteResultCtx` |
+| 0x / 1inch same-chain | `GET /swap/v1/quote` then `POST /swap/v1/build-tx` | JSON quote; build without `quoteResultCtx` |
+| OKX | EVM：`GET /swap/v1/quote` JSON，构建可不带 `quoteResultCtx`。Solana：`GET /swap/v1/quote/events` SSE，滑点 `1`，主币 `0.4 SOL`；构建带 `okxQuoteResultCtx.slippageType=UnSupported` + `tradeSource/binded*(EVM)/rebateAddress`。Solana 成功体常为 `orderId` / `OKXTxObject`，**不要求** `data.tx`。 |
 | CowSwap | `GET /swap/v1/quote` only | JSON quote; **no** `build-tx` |
-| LiquidMesh / Swft / Changelly / ChangeHero / Binance Web3 (`SwapBstock`) | `GET /swap/v1/quote` then `POST /swap/v1/build-tx` | JSON quote; build **requires** `quoteResultCtx`. |
+| LiquidMesh / Binance Web3 (`SwapBstock`) | `GET /swap/v1/quote` then `POST /swap/v1/build-tx` | JSON quote; build **requires** `quoteResultCtx`。LiquidMesh Solana 主币 `0.1 SOL`。 |
+| Changelly / ChangeHero | `GET /swap/v1/quote/events` then `POST /swap/v1/build-tx` | SSE；滑点 `1`。Changelly 构建 `changellyQuoteResultCtx` + `changellyModel=float`；ChangeHero 构建 `changeHeroQuoteResultCtx` + `changeHeroMode=float`；均带 `tradeSource/binded*(EVM)/rebateAddress`。换汇单 **不要求** `data.tx`。构建返回「不支持该交易对」记 SKIP。 |
+| Swft | `GET /swap/v1/quote/events` then `POST /swap/v1/build-tx` | SSE；滑点 `1`；build 带 `quoteResultCtx.swftQuoteResultCtx`（`quoteFromAmount` / `quoteToAmount`）+ `tradeSource/binded*/rebateAddress`（binded 用 HD EVM 账户）。换汇单 **不要求** `data.tx`，有 `orderId` / `result` / `swftOrder` 即通过。 |
 | HiFi | `GET /swap/v1/quote` then `POST /swap/v1/build-tx` | JSON quote; build 带 `quoteResultCtx.hifiSwapQuoteResultCtx` + `tradeSource/binded*/rebateAddress`。HiFi 是换汇单，**不要求** `data.tx`，有 `data` 即通过。 |
 | 1inch Fusion | `GET /swap/v1/quote/events` only | SSE quote; **no** `build-tx`. Fusion does not cover native→token. |
-| Jupiter / LiFi / RocketX / Panora | `GET /swap/v1/quote/events` then `POST /swap/v1/build-tx` | SSE quote; build **requires** `quoteResultCtx`. |
-| Houdini | `GET /swap/v1/quote/events` then `POST /swap/v1/build-tx` | SSE + `incognito=true`；build 带 `quoteResultCtx.houdiQuoteResultCtx.quoteId` + `tradeSource/binded*/rebateAddress`；ETH 主币金额 `0.014`。 |
+| Jupiter / LiFi / Panora | `GET /swap/v1/quote/events` then `POST /swap/v1/build-tx` | SSE quote; build **requires** `quoteResultCtx`. |
+| RocketX | `GET /swap/v1/quote/events` then `POST /swap/v1/build-tx` | SSE；滑点 `1`；build 带 `quoteResultCtx.rocketXQuoteResultCtx`（`exchangeId` / `fromTokenId` / `toTokenId` / 金额）+ `tradeSource/binded*/rebateAddress`。RocketX 常走换汇单，**不要求** `data.tx`，有 `data.tx` 或 `orderId` / `result` 即通过。 |
+| Houdini | `GET /swap/v1/quote/events` then `POST /swap/v1/build-tx` | SSE + `incognito=true`；询价滑点 `2`，构建滑点 `1`；build 带 `quoteResultCtx.houdiQuoteResultCtx.quoteId` + `tradeSource/binded*/rebateAddress`。ETH 系主币金额 `0.03`。换汇单 **不要求** `data.tx`，有 `data.tx` 或 `orderId` / `result` 即通过。 |
 
 `--suite smoke` only runs 0x/1inch/OKX ETH native→USDC. Other channels are in Dashboard / `--suite full` / `--channel <key>`.
 
 Addresses and token contracts come from `docs/qa/rules/swap-network-features.md`.
 
-Quote SKIP: HTTP 502/503/504, timeout, empty `data`，以及 **询不到价**（未命中目标 provider、条目 `errorMessage`、缺少 toAmount/fromAmount）。SKIP 原因写 `没有支持的报价结果`，不算失败，不进入 build。命中 provider 但缺 `quoteResultCtx`（依赖上下文的渠道）仍 **FAIL**。
+Quote SKIP: HTTP 502/503/504, timeout, empty `data`，以及 **询不到价**（未命中目标 provider、条目 `errorMessage`、缺少有效 `toAmount`）。`toAmount` 为 `0` / `0.0`，或询价/构建文案含 **报价不可用** / **不支持该交易对**，一律 SKIP 且 **不把构建当失败**。SKIP 原因写 `没有支持的报价结果`。命中 provider 但缺 `quoteResultCtx`（依赖上下文的渠道）仍 **FAIL**。
 
 询价命中后若 **from 法币价值 < to 法币价值**，不再调用 `build-tx`，整单记 SKIP，日志为 `跳过 build：from 法币价值 < to 法币价值`（附 fromFiat/toFiat）。法币优先读报价字段，否则用 `GET /swap/v1/tokens` 的 `price` × amount。读不到价格则不因此跳过，继续 build。
 

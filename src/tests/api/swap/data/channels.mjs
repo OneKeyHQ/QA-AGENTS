@@ -1,4 +1,4 @@
-import { NATIVE_AMOUNT, NETWORKS, STABLE_AMOUNT, quoteParams } from './fixtures.mjs';
+import { ACCOUNTS, NATIVE_AMOUNT, NETWORKS, STABLE_AMOUNT, quoteParams } from './fixtures.mjs';
 
 /**
  * Channel matrix from docs/qa/rules/swap-rules.md.
@@ -8,6 +8,35 @@ import { NATIVE_AMOUNT, NETWORKS, STABLE_AMOUNT, quoteParams } from './fixtures.
 export const SMOKE_CHANNELS = ['0x', '1inch', 'okx'];
 
 /** First-batch cross-chain routes. No BTC/UTXO until wallet-derived addresses exist. */
+function cexBridgeBuildFields(innerKey, defaults = {}, innerDefaults = {}) {
+  return ({ params, quote }) => {
+    const entry = quote.entry || {};
+    const fromAmount = String(params.fromTokenAmount);
+    const toAmount = String(entry.toAmount || entry.info?.toAmount || '0');
+    const rawCtx = entry.quoteResultCtx || entry.info?.quoteResultCtx || {};
+    const inner = rawCtx?.[innerKey] && typeof rawCtx[innerKey] === 'object' ? rawCtx[innerKey] : {};
+    const rest = { ...rawCtx };
+    delete rest[innerKey];
+    return {
+      slippagePercentage: 1,
+      tradeSource: 'swapBridge',
+      bindedAccountAddress: ACCOUNTS.evm,
+      bindedNetworkId: 'evm--1',
+      rebateAddress: ACCOUNTS.evm,
+      quoteResultCtx: {
+        [innerKey]: {
+          ...innerDefaults,
+          ...inner,
+          quoteFromAmount: inner.quoteFromAmount || fromAmount,
+          quoteToAmount: inner.quoteToAmount || toAmount,
+        },
+        ...defaults,
+        ...rest,
+      },
+    };
+  };
+}
+
 export const CROSS_EVM_SOL = [
   ['ethereum', 'arbitrum'],
   ['arbitrum', 'ethereum'],
@@ -33,7 +62,15 @@ export const CHANNELS = {
   okx: {
     provider: 'SwapOKX',
     quoteMode: 'json',
+    quoteModeByNetwork: { solana: 'sse' },
     needsQuoteResultCtx: false,
+    buildRequiresTx: false,
+    extraQuoteParamsByNetwork: { solana: { slippagePercentage: '1' } },
+    nativeAmounts: { 'sol--101': '0.4' },
+    extraBuildFields: (args) => {
+      if (args.params.fromNetworkId !== 'sol--101') return {};
+      return cexBridgeBuildFields('okxQuoteResultCtx', {}, { slippageType: 'UnSupported' })(args);
+    },
     networks: ['ethereum', 'arbitrum', 'optimism', 'bsc', 'polygon', 'avalanche', 'base', 'solana'],
   },
   jupiter: {
@@ -72,6 +109,7 @@ export const CHANNELS = {
     displayName: 'LiquidMesh',
     quoteMode: 'json',
     needsQuoteResultCtx: true,
+    nativeAmounts: { 'sol--101': '0.1' },
     networks: ['ethereum', 'bsc', 'base', 'solana'],
   },
   rocketx: {
@@ -79,6 +117,29 @@ export const CHANNELS = {
     displayName: 'RocketX',
     quoteMode: 'sse',
     needsQuoteResultCtx: true,
+    buildRequiresTx: false,
+    extraQuoteParams: { slippagePercentage: '1' },
+    extraBuildFields: ({ params, quote }) => {
+      const entry = quote.entry || {};
+      const fromAmount = String(params.fromTokenAmount);
+      const toAmount = String(entry.toAmount || entry.info?.toAmount || '0');
+      const rawCtx = entry.quoteResultCtx || entry.info?.quoteResultCtx;
+      const inner = rawCtx?.rocketXQuoteResultCtx || rawCtx || {};
+      return {
+        slippagePercentage: 1,
+        tradeSource: 'swapBridge',
+        bindedAccountAddress: params.userAddress,
+        bindedNetworkId: params.fromNetworkId,
+        rebateAddress: params.userAddress,
+        quoteResultCtx: {
+          rocketXQuoteResultCtx: {
+            ...inner,
+            quoteFromAmount: inner.quoteFromAmount || fromAmount,
+            quoteToAmount: inner.quoteToAmount || toAmount,
+          },
+        },
+      };
+    },
     networks: ['ethereum', 'bsc', 'polygon', 'avalanche', 'arbitrum', 'optimism', 'base', 'solana', 'sui', 'tron'],
     crossRoutes: CROSS_EVM_SOL,
   },
@@ -87,8 +148,14 @@ export const CHANNELS = {
     displayName: 'Houdini',
     quoteMode: 'sse',
     needsQuoteResultCtx: true,
-    extraQuoteParams: { incognito: 'true', slippagePercentage: '1' },
-    nativeAmounts: { 'evm--1': '0.014' },
+    buildRequiresTx: false,
+    extraQuoteParams: { incognito: 'true', slippagePercentage: '2' },
+    nativeAmounts: {
+      'evm--1': '0.03',
+      'evm--42161': '0.03',
+      'evm--10': '0.03',
+      'evm--8453': '0.03',
+    },
     extraBuildFields: ({ params, quote }) => {
       const entry = quote.entry || {};
       const fromAmount = String(params.fromTokenAmount);
@@ -103,7 +170,8 @@ export const CHANNELS = {
         rebateAddress: params.userAddress,
         quoteResultCtx: {
           houdiQuoteResultCtx: {
-            quoteId: inner.quoteId,
+            ...inner,
+            quoteId: inner.quoteId || inner.id,
             quoteFromAmount: inner.quoteFromAmount || fromAmount,
             quoteToAmount: inner.quoteToAmount || toAmount,
           },
@@ -149,23 +217,58 @@ export const CHANNELS = {
   swft: {
     provider: 'SwapSwft',
     displayName: 'Swft',
-    quoteMode: 'json',
+    quoteMode: 'sse',
     needsQuoteResultCtx: true,
+    buildRequiresTx: false,
     stableToken: 'usdt',
+    extraQuoteParams: { slippagePercentage: '1' },
+    extraBuildFields: ({ params, quote }) => {
+      const entry = quote.entry || {};
+      const fromAmount = String(params.fromTokenAmount);
+      const toAmount = String(entry.toAmount || entry.info?.toAmount || '0');
+      const rawCtx = entry.quoteResultCtx || entry.info?.quoteResultCtx;
+      const inner = rawCtx?.swftQuoteResultCtx || rawCtx || {};
+      return {
+        slippagePercentage: 1,
+        tradeSource: 'swapBridge',
+        bindedAccountAddress: ACCOUNTS.evm,
+        bindedNetworkId: 'evm--1',
+        rebateAddress: ACCOUNTS.evm,
+        quoteResultCtx: {
+          swftQuoteResultCtx: {
+            ...inner,
+            quoteFromAmount: inner.quoteFromAmount || fromAmount,
+            quoteToAmount: inner.quoteToAmount || toAmount,
+          },
+        },
+      };
+    },
     networks: ['tron', 'sui', 'ton'],
   },
   changelly: {
     provider: 'SwapChangelly',
     displayName: 'Changelly',
-    quoteMode: 'json',
+    quoteMode: 'sse',
     needsQuoteResultCtx: true,
+    buildRequiresTx: false,
+    extraQuoteParams: { slippagePercentage: '1' },
+    extraBuildFields: cexBridgeBuildFields('changellyQuoteResultCtx', {
+      changellyModel: 'float',
+      changellyProtocolFee: '0.000000',
+    }),
     networks: ['tron', 'solana', 'ton'],
   },
   changehero: {
     provider: 'SwapChangeHero',
     displayName: 'ChangeHero',
-    quoteMode: 'json',
+    quoteMode: 'sse',
     needsQuoteResultCtx: true,
+    buildRequiresTx: false,
+    extraQuoteParams: { slippagePercentage: '1' },
+    extraBuildFields: cexBridgeBuildFields('changeHeroQuoteResultCtx', {
+      changeHeroMode: 'float',
+      changeHeroNetworkFee: '2.0000000000000000000000',
+    }),
     networks: ['tron', 'solana', 'ton'],
   },
   panora: {
@@ -182,7 +285,7 @@ export const CHANNELS = {
     needsQuoteResultCtx: true,
     networks: [
       'bsc', 'ethereum', 'arbitrum', 'base', 'polygon', 'optimism',
-      'linea', 'avalanche', 'scroll', 'sonic', 'solana', 'tron',
+      'linea', 'avalanche', 'scroll', 'sonic', 'solana',
     ],
   },
 };
@@ -196,7 +299,10 @@ function pairDefs(channelKey, networkKey) {
   const nativeLabel = `${nativeAmount} ${network.symbol}`;
   const usdcLabel = `${stableAmount} USDC`;
   const usdtLabel = `${stableAmount} USDT`;
-  const extra = channel.extraQuoteParams || {};
+  const extra = {
+    ...(channel.extraQuoteParams || {}),
+    ...(channel.extraQuoteParamsByNetwork?.[networkKey] || {}),
+  };
   const preferUsdt = channel.stableToken === 'usdt' || !network.usdc;
   const defs = [];
 

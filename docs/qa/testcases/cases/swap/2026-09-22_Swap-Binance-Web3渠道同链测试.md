@@ -10,21 +10,21 @@
 ## 前置条件
 
 - 已登录 HD 或 HW 钱包；各测试网络主币余额与网络费余额充足。
-- 已准备 Binance Web3 当前支持的同链网络样本：`BSC / Ethereum / Arbitrum / Base / Polygon / Optimism / Linea / Blast / Avalanche / Scroll / Sonic / Katana / Monad / Solana / Tron / Robinhood`。
+- 已准备 Binance Web3 当前支持的同链网络样本：`BSC / Ethereum / Arbitrum / Base / Polygon / Optimism / Linea / Blast / Avalanche / Scroll / Sonic / Katana / Monad / Solana / Robinhood`。**不覆盖 Tron**。
 - 账户地址、代币合约地址、主币标识以 `docs/qa/rules/swap-network-features.md` 为准。
-- EVM 网络需准备未授权状态与已授权状态两类账户样本；`Solana` 不需要授权；`Tron` 的 TRC20 作为源币时需要授权。
+- EVM 网络需准备未授权状态与已授权状态两类账户样本；`Solana` 不需要授权。
 - 特殊基线资产需提前准备：
   - `Blast`：稳定币基线使用 `USDB`，不使用未维护的 `USDC / USDT` 占位
   - `Katana`：`USDC`、`KAT`
   - `Monad`：`USDC`、`USDT`
   - `Robinhood`：`USDG`、`USDe`（不使用通用 `USDC / USDT`）
 - 构建必须复用询价返回的 `quoteResultCtx`，不允许直接构建。
-- 接入映射：Solana `binanceChainId=CT_501`；Tron `binanceChainId=CT_195`；其余 EVM 使用十进制 chainId。接入清单备注 `monda` 对应 `evm--143` / **Monad**。
+- 接入映射：Solana `binanceChainId=CT_501`；其余 EVM 使用十进制 chainId。接入清单备注 `monda` 对应 `evm--143` / **Monad**。
 - 不覆盖 `Mode / Metis / Plasma`。
 
 ## 测试范围说明
 
-**Binance Web3 同链支持网络**：BSC、Ethereum、Arbitrum、Base、Polygon、Optimism、Linea、Blast、Avalanche、Scroll、Sonic、Katana、Monad、Solana、Tron、Robinhood
+**Binance Web3 同链支持网络**：BSC、Ethereum、Arbitrum、Base、Polygon、Optimism、Linea、Blast、Avalanche、Scroll、Sonic、Katana、Monad、Solana、Robinhood（**不含 Tron**）
 
 **同链兑换类型覆盖**：
 - 主币→代币（Native → Token）
@@ -35,7 +35,7 @@
 - `Binance Web3` 仅覆盖**同链**，不覆盖跨链；源网络与目标网络不一致时，不应命中 `Binance Web3` 路由。
 - 每个支持网络至少覆盖 1 条同链兑换；整体需覆盖 `Native -> Token`、`Token -> Native`、`Token -> Token` 三类方向。
 - **金额**：最小可识别精度、中间值、`Max`（扣除 Gas / 网络费）并入 §1 表格步骤与预期，不单立边界章节；`Ethereum` 作为最小 + 中间 + `Max` 的完整标杆。
-- **授权**：EVM 网络 ERC20、Tron TRC20 作为源币时，覆盖 `Approve+Swap` 捆绑提交与 `Approve / Swap` 单独提交；`Solana` 不覆盖授权流。
+- **授权**：EVM 网络 ERC20 作为源币时，覆盖 `Approve+Swap` 捆绑提交与 `Approve / Swap` 单独提交；`Solana` 不覆盖授权流。
 - **测试路线**：报价测试、构建订单测试、费用测试、历史记录测试。
 - **渠道标识**：询价页、确认页、历史记录中的渠道商名称为 `Binance Web3` 或产品定义的等价文案。
 - **provider 枚举**：手工用例按 UI 展示名断言；API / 自动化脚本生成前以 quote 或 `/swap/v1/providers/list` 返回值为准，回填 `swap-rules.md`。
@@ -60,15 +60,12 @@
 | P1 | 1. 报价带刷新倒计时或过期机制 | 1. 等待报价失效后点击 `Swap` | 1. 触发重新询价或展示报价失效提示<br>2. 更新后的报价仍可继续进入确认页 |
 | P1 | 1. 页面网络异常或聚合器异常 | 1. 触发询价 | 1. 显示错误提示或重试入口<br>2. 不残留上一笔错误报价 |
 
-### 1.2 异构链同链能力验证（Solana / Tron）
+### 1.2 异构链同链能力验证（Solana）
 
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 | --- | --- | --- | --- |
 | ❗️❗️P0❗️❗️ | 1. 当前网络=`Solana`<br>2. 账户有 `SOL` 余额 | 1. 源=`SOL`，目标=`USDC`<br>2. 输入中间值询价<br>3. 进入确认页 | 1. 返回同链报价<br>2. `Network Fee` 单位为 `SOL`<br>3. 渠道商显示 `Binance Web3`<br>4. 不出现 `Approve` 步骤 |
 | ❗️❗️P0❗️❗️ | 1. 当前网络=`Solana`<br>2. 账户有 `USDC` 余额 | 1. 源=`USDC`，目标=`SOL` 或 `USDT`<br>2. 输入中间值询价 | 1. 返回 `Token -> Native` 或 `Token -> Token` 报价<br>2. 不出现授权入口<br>3. 报价与确认页字段可读取 |
-| ❗️❗️P0❗️❗️ | 1. 当前网络=`Tron`<br>2. 账户有 `TRX` 余额 | 1. 源=`TRX`，目标=`USDT`（Tron）<br>2. 输入中间值询价<br>3. 进入确认页 | 1. 返回同链报价<br>2. `Network Fee` 单位为 `TRX`<br>3. 渠道商显示 `Binance Web3`<br>4. Native `TRX` 作为源币时不出现授权入口 |
-| ❗️❗️P0❗️❗️ | 1. 当前网络=`Tron`<br>2. 源=`USDT`（TRC20）未授权<br>3. 账户有 `USDT` 与 `TRX` 网络费 | 1. 源=`USDT`，目标=`TRX`<br>2. 输入中间值 | 1. 底部主 CTA 为 `Approve` 或等价授权入口<br>2. 不直接进入兑换提交态 |
-| ❗️❗️P0❗️❗️ | 1. `USDT -> TRX` 未授权 | 1. 按 `Approve+Swap` 捆绑或 `Approve` / `Swap` 单独提交完成兑换 | 1. 授权完成后主 CTA 变为可提交兑换态或直接继续兑换<br>2. 订单进入 `Pending` 并可流转至终态 |
 
 ### 1.3 多网络同链可用性冒烟
 
@@ -89,7 +86,7 @@
 | 优先级 | 场景 | 操作步骤 | 预期结果 |
 | --- | --- | --- | --- |
 | ❗️❗️P0❗️❗️ | 1. 已连接 HW 钱包<br>2. 当前网络=`Ethereum`<br>3. 账户有 `ETH` 余额 | 1. 源=`ETH`，目标=`USDC`<br>2. 输入中间值询价<br>3. 点击兑换并在设备上确认 | 1. 设备确认流程完整<br>2. App 确认页与设备展示的网络、币种、数量一致<br>3. `build` 请求依赖 `quoteResultCtx`<br>4. 提交后生成 `Pending` 记录 |
-| P1 | 1. 已连接 HW 钱包<br>2. 当前版本支持对应链签名<br>3. 当前网络=`Solana / Tron / BSC` 之一 | 1. 覆盖 1 条该网络同链路由<br>2. 完成签名提交流程 | 1. Solana 不出现授权步骤<br>2. EVM / Tron 代币源场景按产品定义展示授权流<br>3. 终态后余额与历史记录一致 |
+| P1 | 1. 已连接 HW 钱包<br>2. 当前版本支持对应链签名<br>3. 当前网络=`Solana / BSC` 之一 | 1. 覆盖 1 条该网络同链路由<br>2. 完成签名提交流程 | 1. Solana 不出现授权步骤<br>2. EVM 代币源场景按产品定义展示授权流<br>3. 终态后余额与历史记录一致 |
 
 ---
 
@@ -128,5 +125,6 @@
 
 | 日期 | 版本说明 |
 |------|----------|
+| 2026-11-18 | 去掉 Tron：渠道不支持该链，删除 Tron 同链 / TRC20 授权场景 |
 | 2026-09-22 | 初版：新增 Binance Web3 同链渠道手工测试用例，覆盖 19 条支持网络、EVM / Tron 授权流、Solana 无授权、Blast `USDB` 基线、新网络冒烟、跨链不命中、费用与历史记录 |
 | 2026-09-22 | 构建改为强制依赖 `quoteResultCtx`；去掉 Mode / Metis / Plasma；Katana / Monad / Robinhood 按已回填代币基线覆盖 |

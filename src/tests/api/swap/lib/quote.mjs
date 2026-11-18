@@ -1,5 +1,11 @@
 import { flattenQuoteEntries, parseSseEvents, requestJson } from './http.mjs';
-import { quoteEntryError, quotePayloadSkip, quoteTransportSkip } from './skip.mjs';
+import {
+  collectApiMessage,
+  isSkipBuildMessage,
+  quoteEntryError,
+  quotePayloadSkip,
+  quoteTransportSkip,
+} from './skip.mjs';
 
 export function providerName(entry) {
   return String(entry?.info?.provider || entry?.provider || '').trim();
@@ -25,6 +31,21 @@ export function hasQuoteAmount(entry) {
     || entry?.info?.toAmount
     || entry?.info?.fromAmount,
   );
+}
+
+export function quoteToAmount(entry) {
+  return entry?.toAmount ?? entry?.info?.toAmount;
+}
+
+export function hasUsableToAmount(entry) {
+  const raw = String(quoteToAmount(entry) ?? '').replace(/,/g, '').trim();
+  if (!raw) return false;
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0;
+}
+
+export function quoteResultCtxOf(entry) {
+  return entry?.quoteResultCtx || entry?.info?.quoteResultCtx;
 }
 
 export async function fetchQuote({ baseUrl, headers, timeoutMs, mode, params }) {
@@ -100,7 +121,7 @@ export function evaluateQuote({ caseName, provider, status, entries, needsQuoteR
       entry: target,
     };
   }
-  if (needsQuoteResultCtx && !target.quoteResultCtx) {
+  if (needsQuoteResultCtx && !quoteResultCtxOf(target)) {
     return {
       status: 'failed',
       reason: `${provider} missing quoteResultCtx`,
@@ -132,6 +153,15 @@ export function evaluateBuild({ provider, needsQuoteResultCtx, requireTx = true,
   const transport = quoteTransportSkip(null, res.status);
   if (transport.skip) return { status: 'skipped', reason: transport.reason.replace('quote', 'build'), detail: transport.detail };
 
+  const skipMsg = collectApiMessage(res);
+  if (isSkipBuildMessage(skipMsg)) {
+    return {
+      status: 'skipped',
+      reason: '没有支持的报价结果',
+      detail: skipMsg.trim().slice(0, 300) || '报价不可用 / 不支持该交易对，跳过 build',
+    };
+  }
+
   if (res.status !== 200) {
     return { status: 'failed', reason: `build HTTP ${res.status}`, detail: res.text?.slice(0, 300) };
   }
@@ -147,15 +177,18 @@ export function evaluateBuild({ provider, needsQuoteResultCtx, requireTx = true,
   if (!json.data) {
     return { status: 'failed', reason: `${provider} build empty data` };
   }
+  const dataKeys = json.data && typeof json.data === 'object' ? Object.keys(json.data).join(',') : String(json.data);
   if (requireTx && !json.data.tx) {
-    const dataKeys = json.data && typeof json.data === 'object' ? Object.keys(json.data).join(',') : String(json.data);
     return { status: 'failed', reason: `${provider} build missing data.tx`, detail: `dataKeys=${dataKeys}` };
   }
-  if (needsQuoteResultCtx && !json.data) {
-    return { status: 'failed', reason: `${provider} build empty data` };
+  if (!requireTx && !json.data.tx && !json.data.orderId && !json.data.result) {
+    return { status: 'failed', reason: `${provider} build missing data.tx/orderId/result`, detail: `dataKeys=${dataKeys}` };
   }
   return {
     status: 'passed',
-    reason: requireTx ? `${provider} build returned data.tx` : `${provider} build returned data`,
+    reason: json.data.tx
+      ? `${provider} build returned data.tx`
+      : `${provider} build returned data`,
+    detail: json.data.tx ? undefined : `dataKeys=${dataKeys}`,
   };
 }
