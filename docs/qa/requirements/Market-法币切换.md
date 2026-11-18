@@ -30,12 +30,14 @@ Market 整个页面及所有子模块中，所有价格展示统一固定为美�
 | 交易量（Volume） | 所有 Volume 展示 |
 | 搜索 | 搜索结果中的价格 |
 | 交易记录 | Market 模块内交易记录的价格 |
+| 钱包首页原生资产 Market 价格页 | 移动端从钱包资产详情进入的 Market 主价格与图表 |
 | 其他 | Market 模块内所有价格数据 |
 
 ### 2.2 前端改动
 
 - Market 模块内所有价格展示组件，硬编码使用 USD 计价，不再读取全局货币偏好设置
 - K 线图表保持 USD 数据源不变（修复因货币切换导致的显示 bug）
+- 移动端钱包资产详情继续按全局偏好法币展示；从该页面进入原生资产 Market 价格页后，主价格固定使用 USD 数据与 `$` 格式，禁止将偏好法币价格再次当作 USD 换算或格式化
 
 ### 2.3 后端改动
 
@@ -46,6 +48,8 @@ Market 整个页面及所有子模块中，所有价格展示统一固定为美�
 ## 3. 次级价格展示（Token Details）
 
 > 仅在 Token Details 页面（移动端、桌面端）增加次级价格，其他 Market 页面无任何法币转换。
+>
+> 钱包原生资产 Market 价格页属于 Wallet Home 专用入口。本需求仅确认其主价格固定 USD；该入口是否展示次级法币不由本章节新增或取消。
 
 ### 3.1 规则
 
@@ -85,6 +89,7 @@ Market 整个页面及所有子模块中，所有价格展示统一固定为美�
 | 汇率数据缺失 | 次级价格区域不展示（静默隐藏），不影响主价格 |
 | 极端汇率精度 | 如越南盾等，需合理处理数字格式化 |
 | 用户切换货币设置 | 修改默认货币后，返回 Token Details 时次级价格应实时更新 |
+| 钱包入口切换货币 | 钱包资产详情跟随偏好法币更新；进入原生资产 Market 价格页后主价格仍为 USD |
 | 价格为 0 或无数据 | 代币 USD 价格为 0 或无数据时，次级价格不展示 |
 
 ---
@@ -93,12 +98,21 @@ Market 整个页面及所有子模块中，所有价格展示统一固定为美�
 
 - `docs/qa/rules/market-rules.md`（Market 模块规则）
 - `docs/qa/testcases/cases/market/`（Market 模块用例目录）
+- `docs/qa/requirements/Market-首页.md`（钱包首页 Market 区块与移动端详情入口）
 - 竞品参考：OKX、Binance 的 Token Details 均采用 USD 主价格 + 次级法币价格
 
 ---
 
-## 7. 变更记录
+## 7. 源码实现参考
+
+- 移动端钱包原生资产 Market 价格固定 USD：https://github.com/OneKeyHQ/app-monorepo/pull/14453
+- 实现入口：`packages/kit/src/views/AssetDetails/pages/NativeMarketDetail/index.tsx`
+
+---
+
+## 8. 变更记录
 
 | 日期 | 变更内容 |
 |------|------|
+| 2026-11-11 | 补充移动端钱包首页原生资产 Market 价格页：钱包资产详情跟随偏好法币，Market 主价格固定 USD |
 | 2026-02-28 | 新增 Market 法币切换需求文档（统一 USD 计价 + Token Details 次级价格） |
