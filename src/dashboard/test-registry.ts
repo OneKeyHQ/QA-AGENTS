@@ -15,7 +15,7 @@ interface TestGroup {
   file: string;       // relative path from src/tests/, e.g. "perps/favorites.test.mjs"
   group: string;      // display name (Chinese), e.g. "收藏"
   category: string;   // top-level directory (Chinese), e.g. "合约"
-  platform: string;   // 'desktop' | 'web' | 'extension' (mobile uses a separate framework — see docs/skills/android-recorder/)
+  platform: string;   // 'desktop' | 'web' | 'extension' | 'mobile' | 'api'
   cases: TestCase[];
 }
 
@@ -114,7 +114,7 @@ export async function getTestRegistry(): Promise<TestGroup[]> {
 
       const rel = relative(TESTS_DIR, file);
       const parts = rel.replace(/\.test\.mjs$/, '').split('/');
-      const knownPlatforms = ['desktop', 'web', 'extension', 'mobile'];
+      const knownPlatforms = ['desktop', 'web', 'extension', 'mobile', 'api'];
       const platform = knownPlatforms.includes(parts[0]) ? parts[0] : 'desktop';
 
       // Normalize path: "{platform}/[{wrapper}/]{module}/{feature...}"
@@ -164,6 +164,12 @@ export async function getTestRegistry(): Promise<TestGroup[]> {
           id: c.id,
           name: c.name,
           ...(c.skipSteps?.length > 0 ? { skipSteps: c.skipSteps } : {}),
+          ...(c.channel ? { channel: c.channel } : {}),
+          ...(c.network ? { network: c.network } : {}),
+          ...(c.fromNetwork ? { fromNetwork: c.fromNetwork } : {}),
+          ...(c.toNetwork ? { toNetwork: c.toNetwork } : {}),
+          ...(c.pair ? { pair: c.pair } : {}),
+          ...(c.amount ? { amount: c.amount } : {}),
         })),
       });
     } catch (e) {

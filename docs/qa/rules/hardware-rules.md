@@ -862,6 +862,56 @@ Zcash为设备端三种地址路径，App只支持公开、隐私两种。默认
 4. 第三方钱包出现 Trezor 升级提示只验证取消，再回 OneKey 官方入口升级；内部异型号包的拒绝校验独立覆盖，不把取消提示当作固件拒绝证据。
 5. 本批 37 个 Test 的复用/新增关系及原文差异见 `docs/qa/requirements/Hardware-Pro2专项用例补齐.md`。Lite 卡按 §11 已确认的 SeedCard 名称与恢复规则复用，不重复生成旧交互，也不构造无法写入的 15/21 词卡。
 
+## 21. Wallet Transfer（设备互传）测试规则
+
+> 适用范围：源端 **Pro / Pro2 / Neo**（已有钱包，走 Back Up）；接收端 **Pro2 / Neo**（未设置钱包，走 Restore Wallet）。需求文档：`docs/qa/requirements/Hardware-WalletTransfer设备互传.md`。
+> SeedCard / Keytag 备份 ≠ Wallet Transfer；三者在 Back Up / Restore 入口并列。
+
+### 21.1 能力与兼容
+
+| 规则项 | 规则描述 |
+|--------|---------|
+| 传输内容 | 仅复制 recovery phrase；源设备钱包保留 |
+| 不传输 | Passphrase、Passphrase PIN；互传不得改写源端 Passphrase PIN |
+| 词长 | 每次互传覆盖 12 / 18 / 24 位助记词 |
+| 方向 | 协议与固件兼容时：Pro → Pro2、Pro2 → Pro2（Neo 与 Pro2 同交互） |
+| 不支持 | 型号 / 固件 / 协议不兼容、接收端已有钱包、助记词位数不支持：Toast + 失败原因，不写入接收端 |
+
+### 21.2 入口
+
+| 角色 | 设备状态 | 入口 | 列表项 |
+|------|----------|------|--------|
+| 源端 Pro2 / Neo | 已激活、已有钱包 | Back Up（固件升级后出现 Wallet Transfer） | SeedCard (Lite) / KeyTag / Wallet Transfer；齿轮 → Backup Settings（含 Wallet Transfer 验证方式） |
+| 源端 Pro | 已激活、已有钱包 | Settings / Security → Back Up | OneKey Keytag / OneKey SeedCard (Lite) / Wallet Transfer；进入互传前走 Check Recovery Phrase |
+| 接收端 Pro2 / Neo | 未激活、无 PIN、初始化 / 恢复流程中 | Restore Wallet | Recovery Phrase / SeedCard(Lite) / Wallet Transfer；已有钱包设备不展示导入互传 |
+
+### 21.3 源端主流程（Pro2 / Neo）
+
+说明页 → 输入已有 PIN → Ready to Transfer（背靠背）→ Transferring... → Wallet Transferred（Done 回 Back Up）。Transferring 中 Cancel 回到 Ready to Transfer。
+
+### 21.4 接收端主流程（Pro2 / Neo）
+
+说明页 → 「仅复制助记词 + 对端去 Back Up → Wallet Transfer」（不展示 Passphrase）→ Looking for Device → Transferring... → Wallet Is Ready（Done 结束，无额外「恢复完成」文案）。Looking for Device 的 Cancel 退出搜索回导入入口。
+
+### 21.5 Pro 源端差异
+
+进入 Wallet Transfer 后先走确认助记词（LINK / Check Recovery Phrase），再 Ready to Transfer。失败态仅 Connection Failed / Timeout / Interrupted；无 Wallet Setup Failed（该页仅接收端写入失败）。
+
+### 21.6 失败态按钮
+
+| 状态 | Cancel / Close | Try Again / Restart |
+|------|----------------|---------------------|
+| Transfer Failed | Cancel → 入口 | Try Again → 重新连接 |
+| Transfer Timeout | Cancel → 入口 | Try Again → 仍停留等待连接 |
+| Transfer Interrupted | Close → 入口 | Try Again → 重新连接 |
+| Wallet Setup Failed | 无 | 仅 Restart → 重置本机后再试 |
+
+### 21.7 取消与「接收端未确认」
+
+源端取消、接收端取消、两端同时取消按工程约定落地（见用例）。接收端尚未确认时，源端不得进入 Wallet Transferred；提示寻找另一台设备，不引导源端重试写入。
+
+---
+
 ## 变更记录
 
 - 2026-11-07：按用户确认维护 Pro2 指纹新版分段录入、从头重试、重复指纹及管理确认；统一中文文案并保留1个≤2秒/2个≤4秒与首次 PIN 要求。
@@ -876,6 +926,7 @@ Zcash为设备端三种地址路径，App只支持公开、隐私两种。默认
 | 2026-11-07 | 用户确认§8.9驻留凭证添加Toast及U2F区分；§14收款改纵向列表、同页地址二维码、五链路径弹层、选账户即返回及BTC Account新鲜地址索引，修正旧Title/EVM/独立QR/LTC/Kaspa规则 |
 | 2026-11-07 | 用户确认 §18 Pro2 设备端通用设置：亮度下限 10%、震动范围、新版磁吸及设置保留；要求补回屏幕布局，动画章节纳入 Home Bar 2 秒隐藏与导航手势，动画关闭不禁用手势；同步完善 §17 震动关闭边界 |
 | 2026-11-07 | 根据用户明确需求新增 §17 Pro2 设备端签名手势：三种模式、长按绿色边框与震动、未完成不确认、锁屏/重启保留及设备重置恢复默认；对应 OK-25300 |
+| 2026-10-27 | 新增 §21「Wallet Transfer（设备互传）」：Pro2/Neo 源端 Back Up 导出、未激活 Restore 导入、Pro 源端先核对助记词、失败态按钮与不支持边界。需求 `Hardware-WalletTransfer设备互传.md`，用例 `hardware/2026-10-27_Hardware-WalletTransfer设备互传.md` |
 | 2026-10-19 | §8 新增 8.8「NFC 认证规则」（OK-64379）：贴靠即响应不弹确认页、结果页 2 秒消失、手机选账户分支、锁定/关机/关闭开关/AirGap 禁用并终止等待中请求、NFC/USB/读卡会话互斥、读卡模式与卡模拟监听切换；8.1 标注为 USB 通道行为。用例 `Pro2-安全密钥/2026-10-15_Pro2-安全密钥-NFC安全密钥.md` |
 | 2026-09-09 | 新增 §16「Pro2 Portfolio（资产组合）」规则：数据链路（服务端打包签名、硬件只展示）、图标回退（未内置代币首字母 / 未内置 EVM 网络通用 icon）、自动同步（仅所有网络、1s 防抖、60s 冷却后补传、亮屏未锁定、仅 USB 静默、蓝牙挂起待交互后补传）、固件侧自动锁定不受同步影响、手动同步（按钮入口 / 可见性 / 解锁唤起 / 无冷却无去重 / 单链排除零余额默认代币）。用例 `Pro2-Portfolio/2026-07-27_Pro2-Portfolio-功能测试.md` 同步改版 |
 | 2026-07-31 | 新增 §1.5「未激活设备激活引导规则」：旧流程（Mini / Classic / Classic 1S / Touch / Pro 激活引导页 + 逐设备说明页）与 Pro2 新流程（「设置您的设备」三步时间线引导：完善基础设置 → 创建 PIN 码 → 设置钱包，设备端驱动步骤推进、按创建 / 导入入口区分文案）；原 QR 钱包限制顺延为 §1.6。配套需求文档 `Hardware-创建硬件钱包主流程.md` 与用例 `hardware/2026-07-31_Hardware-创建硬件钱包主流程.md` |

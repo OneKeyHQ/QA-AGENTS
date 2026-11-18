@@ -16,7 +16,9 @@
     "sync:selectors": "node scripts/sync-app-monorepo-selectors.mjs",
     "build:locators": "node scripts/build-locator-map.mjs",
     "build:locators:check": "node scripts/build-locator-map.mjs --check",
-    "clean": "node scripts/clean.mjs"
+    "clean": "node scripts/clean.mjs",
+    "test:api:swap": "node src/tests/api/swap/run.mjs",
+    "test:api:swap:smoke": "node src/tests/api/swap/run.mjs --suite smoke"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.1",
