@@ -3785,6 +3785,9 @@
       "pattern": "1inch Fusion API 询价必须走 /swap/v1/quote/events，不能用 /swap/v1/quote JSON",
       "details": "2026-10-27 Dashboard Fusion 用例 quote HTTP 403（Cloudflare HTML）。客户端可询价 curl 是 GET /swap/v1/quote/events（SSE）。Fusion 必须 sse。切到 events 后仍 403：生产 swap.onekeycn.com 对无 __cf_bm 的 Node/curl 一律拦截，onekeytest.com 则 200。处理口径：quoteMode=sse；.env 设 SWAP_API_COOKIE（浏览器 Cookie 头，含 __cf_bm）；cookie 不入库。失败文案写 Cloudflare 403，不要当成 Fusion 无报价。",
       "confidence": 0.97
+      "confidence": 1,
+      "pattern": "Jira 保留原媒体的局部富文本替换须复核末尾分段与编号",
+      "details": "2026-11-16更新 OK-24313：连接器不可用时使用已登录 Jira 网页；原 4 个正文媒体节点保留，仅替换图片前的正文。替换前核对原 Markdown 与远端逐块、逐格、编号和换行一致；用原生文本选择/复制核对范围不含媒体。富文本最后一个标题可能与后续原段落合并，不能只检查行数后保存。本次在草稿中定位说明文字前插入段落边界，并将说明恢复为正文段落后，完整内容与源文件逐块相等才保存；刷新回读 72 条、18 张表格、标题及 4 个 UUID/名称一致。保存后的 UI 渲染语义哈希须明确记录 basis，不冒充 API 原始正文哈希。不要输出或入库媒体 CDN 带授权参数的链接、整段 DOM 或认证数据。"
     },
     {
       "id": "K-466",

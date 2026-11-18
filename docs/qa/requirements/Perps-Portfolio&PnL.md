@@ -45,7 +45,8 @@
 
 - Total P&L 口径与 Hyperliquid 官方一致，包含 fees 与 funding。
 - API 返回 pnlHistory 与 net deposits 后：净值、PnL、累计收益口径联动。
-- 交易统计（Trading stats）展示字段（示例）：胜率（Win Rate）、盈亏因子（Profit Factor）、平均盈利（Avg Win）、平均亏损（Avg Loss）、手续费（Fees）、最常交易（Most Traded）。
+- 交易统计（Trading stats）展示字段：胜率（Win Rate）、盈亏比（Payoff ratio）、平均盈利（Avg Win）、平均亏损（Avg Loss）、手续费（Fees）、最常交易（Most Traded）。
+- [OK-66606](https://onekeyhq.atlassian.net/browse/OK-66606) 的验收口径于 2026-11-18 确认采用已合入的 [PR #14522](https://github.com/OneKeyHQ/app-monorepo/pull/14522)。盈亏比 = 所选时间及资产范围内的平均盈利 ÷ 平均亏损的绝对值。已实现盈亏为 0 的成交不进入两组均值。保留两位小数，任一组为空时显示 `--`。中文名称为「盈亏比」，英文为「Payoff ratio」，说明按当前语言展示。
 - 统计计算覆盖：
   - 仅盈利成交、仅亏损成交、盈亏混合成交。
   - 无任何成交：Trading stats 为空态/默认态；Win Rate 条形图为灰色。
@@ -103,7 +104,7 @@
 - 筛选影响范围（**不仅图表，统计也联动重算**）：
   - 图表曲线：全部→pnlHistory；合约→perpsPnlHistory；现货→nonPerpsPnlHistory。
   - 总盈亏（Total P&L）：取对应类型曲线的最后一个值。
-  - 交易统计（fillsStats，按类型过滤 fills 重算）：胜率（Win Rate）、盈亏因子（Profit Factor）、平均盈利（Avg Win）、平均亏损（Avg Loss）、已付手续费（Fees）、最多交易（Most Traded）、交易量（volumeUsd）、总交易次数（totalTrades）。
+  - 交易统计（fillsStats，按类型过滤 fills 重算）：胜率（Win Rate）、盈亏比（Payoff ratio）、平均盈利（Avg Win）、平均亏损（Avg Loss）、已付手续费（Fees）、最多交易（Most Traded）、交易量（volumeUsd）、总交易次数（totalTrades）。
 - 不受类型筛选影响（仅随账户 / 时间维度变化）：账户资产、可用、账户健康度（杠杆 / 已用保证金 / MMR）、净入金（netDeposits，仅随时间维度变化）。
 - 时间维度联动：盈亏类型筛选与 1D/1W/1M/All 时间维度叠加生效，二者组合切换时图表与统计同步刷新。
 
@@ -154,6 +155,8 @@
 - 盈亏资产类型筛选：①下拉仅在 PnL 图表类型下出现，切回净值需隐藏并强制 all；②现货/合约拆分口径（isSpotInstrument）正确，现货 = 总盈亏 − 合约盈亏；③切换类型时图表、总盈亏、交易统计需同步联动，无旧数据残留；④无现货/无合约成交时对应类型显示空态/默认态，不出现 NaN/Infinity。
 
 ## 4. 变更记录
+
+- 2026-11-18：按用户确认的平均值口径更新盈亏比名称、说明及验收样本，覆盖盈亏笔数不等、持平成交及任一组为空。
 
 - 2026-10-27：按用户纠正补充钱包首页合约 Tab 的 EVM 网络前置；ETH 切换后验证首页入口，执行结束恢复原网络。
 
