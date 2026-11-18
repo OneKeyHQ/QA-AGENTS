@@ -19,7 +19,7 @@
 | 线路 | 入口规范 | 输出位置 | 沉淀位置 |
 |------|---------|---------|---------|
 | ① 手动 QA 用例 | `docs/qa/qa-rules.md` | `docs/qa/testcases/cases/<module>/` | `docs/qa/rules/<module>-rules.md` |
-| ② API 自动化用例 | `docs/skills/apifox-testcase-generator/SKILL.md` | `docs/skills/apifox-testcase-generator/output/` | `docs/qa/rules/swap-network-features.md` 等 |
+| ② API 自动化用例 | 本地/Jenkins：`src/tests/api/<module>/`；Apifox 导入：`docs/skills/apifox-testcase-generator/SKILL.md` | 本地：`src/tests/api/` + JUnit `shared/results/api/`；Apifox：`docs/skills/apifox-testcase-generator/output/` | `docs/qa/rules/swap-network-features.md` 等 |
 | ③ UI 自动化脚本 | `.claude/CLAUDE.md` §Test Script Rules | `src/tests/<platform>/<module>/` | `shared/knowledge.json`、`shared/ui-map.json` |
 
 ### 三线引用关系
@@ -111,9 +111,16 @@
 
 | 顺序 | 文件 | 读取内容 |
 |------|------|---------|
-| 1 | `docs/skills/apifox-testcase-generator/SKILL.md` | API 用例生成规范、模板结构 |
+| 1 | 本地/Jenkins 跑：`src/tests/api/swap/README.md`；仅当用户要求导入 Apifox 时读 `docs/skills/apifox-testcase-generator/SKILL.md` | 运行方式与输出格式 |
 | 2 | `docs/qa/rules/<module>-rules.md` | 业务规则（如合约地址、网络特性） |
 | 3 | `docs/qa/rules/swap-network-features.md` | Swap 相关的网络特性、代币合约地址（source of truth） |
+
+### 两条产出（不要混用）
+
+| 产出 | 何时用 | 路径 |
+|------|--------|------|
+| **本地 Node 用例（Jenkins / Dashboard）** | 用户要求可本地跑、后续上传 Jenkins、不要导入 Apifox | `src/tests/api/swap/`，CLI `node src/tests/api/swap/run.mjs`；Dashboard 顶栏「接口」勾选执行；JUnit `shared/results/api/swap-junit.xml` |
+| **Apifox Collection** | 用户明确要求导入 Apifox | `docs/skills/apifox-testcase-generator/output/` |
 
 ### 闭环流程
 
@@ -121,11 +128,11 @@
 ①读规范 → ②读接口定义 → ③生成 → ④自检 → ⑤验证 → ⑥沉淀
 ```
 
-**① 读规范**：读 SKILL.md + 模板文件
+**① 读规范**：本地/Jenkins 读 `src/tests/api/swap/README.md` + swap-rules；Apifox 导入才读 SKILL.md + 模板文件
 
-**② 读接口定义**：通过 Apifox MCP 读取 OpenAPI spec
+**② 读接口定义**：通过已有成功口径（swap-rules / 既有 collection）或 Apifox MCP 读取 OpenAPI spec
 
-**③ 生成**：按模板输出 Apifox-compatible JSON
+**③ 生成**：本地/Jenkins 写 `src/tests/api/<module>/` Node 用例；Apifox 路径才输出 Collection JSON
 
 **④ 自检**：
 - 请求参数完整性：必填字段是否都有值，地址格式是否正确（如 EVM 全小写、Cosmos bech32）
@@ -134,7 +141,7 @@
 - 边界值覆盖：涉及金额/数量的接口是否有 0 / 负数 / 超大值 / 精度极限场景
 - 重复检查：同一接口同一参数组合不出现多条用例
 
-**⑤ 验证**：导入 Apifox 执行，确认断言通过
+**⑤ 验证**：本地/Jenkins 用 `node src/tests/api/swap/run.mjs --suite smoke` 实跑；Apifox 路径才导入 Apifox 执行
 
 **⑥ 沉淀**：
 - 新发现的接口行为 → 回写 module-rules.md

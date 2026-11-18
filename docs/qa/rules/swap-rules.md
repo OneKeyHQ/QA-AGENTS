@@ -665,7 +665,7 @@
 | RocketX | `SwapRocketX` |
 | HiFi | `SwapHifiSwap` |
 | SwapKit（ThorChain） | `SwapThor` |
-| Binance Web3 | 待 `/swap/v1/providers/list` 或 quote 返回值回填；手工用例按 UI 展示名 `Binance Web3` 断言 |
+| Binance Web3 | `SwapBstock`（生产 `/swap/v1/providers/list` 回填；手工用例仍可按 UI 展示名 `Binance Web3` 断言） |
 
 **渠道构建依赖规则（quoteResultCtx）**：
 - 部分渠道的构建接口（`POST /swap/v1/build-tx`）**必须依赖询价返回的上下文**（如 `quoteResultCtx` / 内部 quoteId / CowSwap 未签名订单等），不能只靠静态字段拼 body。
@@ -704,14 +704,14 @@
 - 以下情况改记为 **SKIP**，不再按硬失败处理：
   - `quote` 接口返回 `HTTP 502 / 503 / 504`
   - 请求超时（如 `timeout` / `timed out` / `超时`）
-  - 命中目标 provider，但条目 `errorMessage` 为 `Provider error`、`渠道商异常`、`报价不可用`
+  - 命中目标 provider，但条目带 `errorMessage`（含 `Provider error`、`渠道商异常`、`报价不可用`、交易对不支持等）
   - 询价成功返回，但 `data=[]` 或等价空结果（偶发空 data）
+  - **询不到价**：`data` 非空但未命中目标 provider，或命中后缺少有效 `toAmount / fromAmount`。日志原因固定为 **没有支持的报价结果**，不算失败，不进入 build
 - SKIP 输出要求：测试结果中必须显式输出 `[\u7528\u4f8b\u540d] SKIP <provider> <reason>`，让执行结果能直接看出“这条是跳过的用例”以及原因归属。
 - 命中上述 SKIP 条件后，**立即停止当前 case 的 build 阶段**，避免把上游瞬态问题继续放大成二次失败。
+- 本地 Node 套件额外：询价已命中目标 provider，但 **from 法币价值 < to 法币价值** 时 **跳过 build**（不发 `POST /swap/v1/build-tx`），结果记 SKIP，日志必须写明 `跳过 build：from 法币价值 < to 法币价值` 及 fromFiat/toFiat。法币优先用报价返回字段，否则 `GET /swap/v1/tokens` 的 `price × amount`；价格缺失时不因该规则跳过。
 - 以下情况仍按 **failed** 处理，不得降级成 SKIP：
-  - `data` 非空，但目标 provider 根本未命中
-  - 命中 provider 且 `errorMessage` 为空，但缺少有效 `toAmount / fromAmount`
-  - 命中 provider 且 `errorMessage` 为空，但缺少 `quoteResultCtx`（对依赖上下文的渠道）
+  - 命中 provider 且 `errorMessage` 为空、金额有效，但缺少 `quoteResultCtx`（对依赖上下文的渠道）
   - 已确认属于参数、地址大小写、header 口径、networkId、变量未展开等本地脚本问题
 
 > 目的：把“产品/脚本真失败”和“渠道商/网关瞬态波动”分层展示，避免批量回归被上游偶发抖动污染，同时保留清晰的 SKIP 留痕。
@@ -735,7 +735,7 @@
 - 不覆盖 `Mode / Metis / Plasma`
 - 按同链聚合器处理：EVM ERC20、Tron TRC20 作为源币需要授权；Solana 不需要授权
 - 构建强制依赖 `quoteResultCtx`，不允许跳过询价直接 build
-- provider 枚举待客户端 `/swap/v1/providers/list` 或 quote 回填；手工用例按 UI 展示名 `Binance Web3` 断言
+- provider 为 `SwapBstock`（生产 `/swap/v1/providers/list` 回填）；手工用例按 UI 展示名 `Binance Web3` 断言
 - 特殊资产：`Katana` 用 `USDC / KAT`；`Monad` 用 `USDC / USDT`；`Robinhood` 用 `USDG / USDe`；`Blast` 仍用 `USDB`
 - 配套需求：`docs/qa/requirements/Swap-Binance-Web3同链支持网络.md`
 - 配套用例：`docs/qa/testcases/cases/swap/2026-09-22_Swap-Binance-Web3渠道同链测试.md`
@@ -1229,6 +1229,7 @@
 3. **构建依赖 quoteResultCtx**：每条 Houdini API 用例必须按 `quote -> 提取 Houdini quoteResultCtx -> build-tx` 执行，不允许直接 build。
 4. **询价接口**：Houdini API 用例必须调用 `/swap/v1/quote/events` 并按 SSE `data:` 行解析结果；普通 `/swap/v1/quote` 可能返回 `data=[]`，不能据此判定渠道无报价。
 5. **隐私参数**：Houdini 询价请求必须携带 `incognito=true`。
+5.1 **本地 build-tx**：对齐客户端，body 必须含 `quoteResultCtx.houdiQuoteResultCtx.quoteId`（来自询价，不可编造）、`quoteFromAmount` / `quoteToAmount`、`tradeSource=swapBridge`、`bindedAccountAddress` / `bindedNetworkId` / `rebateAddress`、`slippagePercentage` 数字 `1`。Ethereum 主币询价金额用 `0.014`（不要用通用 `0.2`）。
 6. **SUI 主币参数**：Houdini 的 SUI 主币使用 `sui--mainnet` 和 `0x2::sui::SUI`，否则 Solana -> SUI 等主币路径会出现 `providers=[]`。
 7. **Tron 主网参数**：Houdini 的 Tron 使用 `tron--0x2b6653dc`，否则 Tron 作为源链时可能无法匹配到 Houdini provider。
 8. 最低金额基线：源币为主币时 Polygon `2000` MATIC、Solana `10` SOL、Tron `1000` TRX；源币为 USDC / USDT 时统一 `100`。
@@ -1240,7 +1241,7 @@
 2. 网络清单：
    - 同链：Ethereum、BSC、Polygon、Arbitrum、Base、Solana、Tron
    - 跨链：BTC、Ethereum、BSC、Polygon、Arbitrum、Base、Solana、Tron
-3. provider 固定为 `SwapHifiSwap`；生成 API 用例时，请求体和断言均使用该 provider。
+3. provider 固定为 `SwapHifiSwap`；生成 API 用例时，请求体和断言均使用该 provider。本地 `build-tx` 必须对齐客户端：`quoteResultCtx.hifiSwapQuoteResultCtx`（`slippageType=Hardcoded` + quoteFromAmount/quoteToAmount）+ `tradeSource=swapBridge` + `bindedAccountAddress` / `bindedNetworkId` / `rebateAddress` + `slippagePercentage` 数字 `1`。HiFi 是中心化换汇，构建成功看 `code=0` 且 `data` 存在，**不要求** `data.tx`（Apifox 成功集同样只断言 `data`）。
 4. 支持 BTC 网络的 HiFi 跨链场景必须额外覆盖：
    - BTC 作为目标链：接收地址使用当前钱包派生的新鲜地址，不复用历史已收款地址。
    - BTC 作为源链：构建交易包含找零输出，找零地址属于当前钱包，且不等于渠道收款地址 / 跨链目标地址。
@@ -1318,8 +1319,8 @@
 
 1. 1inch Fusion **不支持 from 主币**；支持 `ERC20 -> ERC20` 与 `ERC20 -> Native`。不生成主币→代币、主币→主币场景。
 2. 同链按多网络覆盖（Ethereum / Arbitrum / Optimism / BSC / Polygon / Avalanche）。
-3. 每条 Fusion 用例必须按 `quote -> quoteResultCtx -> build-tx` 流程，缺 `quoteResultCtx` 直接 failed。
-4. 生成前先探测 `/swap/v1/quote` 可用性，仅保留稳定命中 Fusion provider 且可 build 的组合。
+3. 每条 Fusion 用例必须按 `quote/events -> quoteResultCtx -> build-tx` 流程，缺 `quoteResultCtx` 直接 failed。
+4. 生成前先探测 `/swap/v1/quote/events` 可用性（与客户端一致；不要用普通 `/swap/v1/quote` JSON 判断 Fusion，该路径会 Cloudflare 403）。仅保留稳定命中 Fusion provider 且可 build 的组合。
 5. 默认代币金额使用 `100`，若命中不稳定，先做金额阶梯探测再落库（不要先改断言）。
 
 **EVM 兼容链**（Ethereum、BSC、Polygon、Arbitrum、Optimism、Base、Avalanche、zkSync Era、Linea、Mantle、Scroll、Blast、Sonic 等）：
@@ -1486,6 +1487,14 @@ Swap 支持将兑换后的代币发送到**自定义接收地址**（而非当�
 ---
 
 ## 📅 变更记录
+
+### 2026-10-27
+- 1inch Fusion 本地 API 询价改为 `/swap/v1/quote/events` SSE（对齐客户端可询价 curl）。继续走 `/swap/v1/quote` JSON 会 Cloudflare `403`，不能据此判定 Fusion 无报价。
+- HiFi 本地 `build-tx` 对齐客户端：补 `tradeSource=swapBridge`、`bindedAccountAddress`、`bindedNetworkId`、`rebateAddress`，滑点用数字 `1`；缺这些字段会出现 HTTP 200 但 `data.tx` 为空。
+
+### 2026-10-26
+- Binance Web3 provider 回填为 `SwapBstock`（生产 `/swap/v1/providers/list`）。本地 Swap API 套件在 `src/tests/api/swap/` 增加同链渠道：Fusion / CowSwap / LiFi / LiquidMesh / RocketX / Houdini / HiFi / Swft / Changelly / ChangeHero / Panora / Binance Web3。跨链专项（Exodus / Near / Socket / Thor）仍不纳入该同链矩阵。
+- 本地 Swap API 跨链第一批：LiFi / RocketX / Houdini 使用 `crossRoutes`（`ethereum↔arbitrum` / `ethereum↔bsc` / `ethereum↔solana`）覆盖主币→主币、主币→USDC、USDC→主币、USDC→USDC；BTC/UTXO 暂不纳入。
 
 ### 2026-10-16
 - 新增 §3.6 Dust Sweep：钱包内小额代币批量兑成链 gas token；OKX 串行；跳过规则对齐 Review Order 二次确认；完成态分端。配套需求 `docs/qa/requirements/Swap-DustSweep.md`、用例 `docs/qa/testcases/cases/swap/2026-10-16_Swap-DustSweep小币种批量兑换.md`。

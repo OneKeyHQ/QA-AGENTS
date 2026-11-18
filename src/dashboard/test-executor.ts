@@ -167,6 +167,10 @@ function isMobileFile(filePath: string): boolean {
   return /(^|[\\/])mobile[\\/]/.test(filePath);
 }
 
+function isApiFile(filePath: string): boolean {
+  return /(^|[\\/])api[\\/]/.test(filePath);
+}
+
 let noEvalModulePromise: Promise<any> | null = null;
 
 async function getNoEvalModule() {
@@ -197,13 +201,14 @@ async function executeQueue() {
 
   // Pre-decide which platforms appear in this run so connection failures fail
   // only the cases that need them, not the whole queue.
-  const hasDesktop = queue.some(q => !isMobileFile(q.file));
+  const hasDesktop = queue.some(q => !isMobileFile(q.file) && !isApiFile(q.file));
   const hasMobile = queue.some(q => isMobileFile(q.file));
+  const hasApi = queue.some(q => isApiFile(q.file));
 
   if (hasDesktop) {
     platformSessions = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'platform-session.mjs')).href}?t=${Date.now()}`);
     const helpers = await import(`${pathToFileURL(join(TESTS_DIR, 'helpers', 'index.mjs')).href}?t=${Date.now()}`);
-    const platforms = [...new Set(queue.filter(q => !isMobileFile(q.file)).map(q => platformSessions.platformFromFile(q.file)))];
+    const platforms = [...new Set(queue.filter(q => !isMobileFile(q.file) && !isApiFile(q.file)).map(q => platformSessions.platformFromFile(q.file)))];
     for (const platform of platforms) {
       try {
         const cdp = await platformSessions.connectPlatform(platform);
@@ -239,7 +244,7 @@ async function executeQueue() {
     }
   }
 
-  if (!browserPages.size && !mobileDriver) {
+  if (!browserPages.size && !mobileDriver && !hasApi) {
     running = false;
     emit({ event: 'done', ...getSummary(), timestamp: new Date().toISOString() });
     return;
@@ -281,9 +286,10 @@ async function executeQueue() {
       // Strategy 1: testCases has fn property (e.g. perps)
       const tc = mod.testCases?.find((c: any) => c.id === item.id);
 
-      const platform = isMobileFile(item.file) ? 'mobile' : platformSessions.platformFromFile(item.file);
-      const sessionHandle = isMobileFile(item.file) ? mobileDriver : browserPages.get(platform);
-      if (mod.platform && mod.platform !== platform) throw new Error(`Registered platform mismatch: ${mod.platform} vs ${platform}`);
+      const apiCase = isApiFile(item.file);
+      const platform = isMobileFile(item.file) ? 'mobile' : apiCase ? 'api' : platformSessions.platformFromFile(item.file);
+      const sessionHandle = isMobileFile(item.file) ? mobileDriver : apiCase ? null : browserPages.get(platform);
+      if (!apiCase && mod.platform && mod.platform !== platform) throw new Error(`Registered platform mismatch: ${mod.platform} vs ${platform}`);
       if (isMobileFile(item.file) && !mobileDriver) {
         item.status = 'failed';
         item.error = 'Mobile driver not available';
@@ -292,7 +298,7 @@ async function executeQueue() {
         currentIndex++;
         continue;
       }
-      if (!isMobileFile(item.file) && !sessionHandle) {
+      if (!apiCase && !isMobileFile(item.file) && !sessionHandle) {
         item.status = 'failed';
         item.error = `${platform} page not available`;
         item.duration = Date.now() - startTime;
@@ -302,9 +308,9 @@ async function executeQueue() {
       }
 
       if (tc?.fn) {
-        if (!isMobileFile(item.file)) platformSessions.assertTargetPage(sessionHandle, platform);
+        if (!apiCase && !isMobileFile(item.file)) platformSessions.assertTargetPage(sessionHandle, platform);
         // If file changed, run setup (navigate to correct page)
-        if (item.file !== lastFile && mod.setup) {
+        if (!apiCase && item.file !== lastFile && mod.setup) {
           if (!isMobileFile(item.file)) await ensureNoEvalSafeEvaluate(sessionHandle);
           await mod.setup(sessionHandle);
         }
@@ -352,8 +358,8 @@ async function executeQueue() {
           });
           let result: any;
           try {
-            if (!isMobileFile(item.file)) await ensureNoEvalSafeEvaluate(sessionHandle);
-            result = await Promise.race([tc.fn(sessionHandle), stopChecker]);
+            if (!apiCase && !isMobileFile(item.file)) await ensureNoEvalSafeEvaluate(sessionHandle);
+            result = await Promise.race([apiCase ? tc.fn() : tc.fn(sessionHandle), stopChecker]);
           } finally {
             clearStopChecker?.();
           }

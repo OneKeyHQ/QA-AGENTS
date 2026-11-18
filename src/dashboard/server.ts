@@ -1,3 +1,4 @@
+import { config as loadDotenv } from 'dotenv';
 import { createServer } from 'node:http';
 import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve, extname } from 'node:path';
@@ -6,6 +7,7 @@ import { startRun, stopRun, resumeRun, restartRun, resetRun, getState, onEvent, 
 
 const PORT = 5050;
 const PROJECT_ROOT = resolve(import.meta.dirname, '..', '..');
+loadDotenv({ path: join(PROJECT_ROOT, '.env') });
 const SHARED_DIR = join(PROJECT_ROOT, 'shared');
 const RECORDINGS_DIR = join(PROJECT_ROOT, 'midscene_run', 'recordings');
 const HTML_PATH = join(import.meta.dirname, 'index.html');
@@ -72,14 +74,14 @@ type ChecklistItem = { label: string; caseIds: string[] };
 type Checklist = {
   id: string;
   name: string;
-  platform: 'desktop' | 'web' | 'extension';
+  platform: 'desktop' | 'web' | 'extension' | 'api';
   note?: string;
   items: ChecklistItem[];
   createdAt?: string;
   updatedAt?: string;
 };
 
-const VALID_PLATFORMS = new Set(['desktop', 'web', 'extension']);
+const VALID_PLATFORMS = new Set(['desktop', 'web', 'extension', 'api']);
 
 function slugify(s: string): string {
   // ASCII-only kebab-case for stable, URL-safe IDs.

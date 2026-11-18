@@ -35,6 +35,10 @@
   .platform-tab { border: none; border-radius: 4px; padding: 5px 16px; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; background: transparent; color: var(--text2); transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
   .platform-tab:hover { color: var(--text); }
   .platform-tab.active { background: var(--accent); color: #fff; }
+  .api-filter-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 8px 24px; display: none; align-items: flex-start; gap: 16px; flex-shrink: 0; flex-wrap: wrap; }
+  .api-filter-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .api-chip { border: 1px solid var(--border); background: var(--surface2); color: var(--text2); border-radius: 12px; padding: 3px 10px; font-size: 11px; font-family: inherit; cursor: pointer; }
+  .api-chip.active { border-color: var(--cyan); color: var(--cyan); background: rgba(34,211,238,0.12); }
   .panel-header h2 .case-count { font-size: 11px; font-weight: 500; color: var(--text2); margin-left: 6px; }
 
   /* Control Bar */
@@ -108,6 +112,7 @@
   .case-checkbox { accent-color: var(--accent); width: 14px; height: 14px; cursor: pointer; }
   .case-id { font-size: 11px; font-weight: 600; color: var(--cyan); min-width: 80px; }
   .case-name { font-size: 12px; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .amount-badge { font-size: 10px; color: var(--cyan); background: rgba(34,211,238,0.12); padding: 1px 6px; border-radius: 8px; flex-shrink: 0; }
   .skip-badge { font-size: 10px; color: #d29922; background: rgba(210,153,34,0.12); border: 1px solid rgba(210,153,34,0.3); border-radius: 3px; padding: 1px 5px; margin-left: 4px; flex-shrink: 0; cursor: help; }
 
   /* Right Panel - Execution Status */
@@ -155,8 +160,17 @@
   .summary-bar { padding: 10px 16px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12px; color: var(--text2); flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
   .summary-bar .pass-count { color: var(--green); font-weight: 600; }
   .summary-bar .fail-count { color: var(--red); font-weight: 600; }
+  .summary-bar .fail-count.clickable { cursor: pointer; padding: 2px 8px; border-radius: 4px; border: 1px solid transparent; }
+  .summary-bar .fail-count.clickable:hover { background: rgba(248, 113, 113, 0.12); }
+  .summary-bar .fail-count.active { background: rgba(248, 113, 113, 0.16); border-color: rgba(248, 113, 113, 0.35); }
   .summary-bar .total-count { color: var(--text); font-weight: 600; }
   .summary-bar .sep { color: var(--border); }
+  .summary-bar .filter-hint { margin-left: auto; font-size: 11px; color: var(--text2); cursor: pointer; }
+  .summary-bar .filter-hint:hover { color: var(--text); }
+
+  .status-channel-head { display: flex; align-items: center; gap: 8px; padding: 10px 16px 6px; font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.3px; background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1; }
+  .status-channel-head .ch-name { color: var(--text); }
+  .status-channel-head .ch-n { color: var(--red); font-weight: 700; }
 
   /* Failed row clickable */
   .status-row.clickable { cursor: pointer; }
@@ -342,12 +356,26 @@
     <button class="platform-tab" data-platform="mobile" onclick="switchPlatform('mobile')">
       &#9742; 移动端
     </button>
+    <button class="platform-tab" data-platform="api" onclick="switchPlatform('api')">
+      &#9881; 接口
+    </button>
   </div>
   <div id="mobileTargetPicker" data-build="mobile-picker-v2" style="display:flex; margin-left:auto; gap:8px; align-items:center;">
     <span class="platform-label" style="font-size:12px;">移动端目标</span>
     <button class="mt-btn active" id="mtBtnAndroid" data-mt="android" onclick="setMobileTarget('android')">Android</button>
     <button class="mt-btn" id="mtBtnIos" data-mt="ios" onclick="setMobileTarget('ios')">iOS</button>
   </div>
+</div>
+
+<div class="api-filter-bar" id="apiFilterBar">
+  <div class="api-filter-group" id="apiKindFilters">
+    <span class="platform-label">类型</span>
+    <button class="api-chip active" data-api-kind="all" onclick="setApiKindFilter('all')">全部</button>
+    <button class="api-chip" data-api-kind="same" onclick="setApiKindFilter('same')">同链</button>
+    <button class="api-chip" data-api-kind="cross" onclick="setApiKindFilter('cross')">跨链</button>
+  </div>
+  <div class="api-filter-group" id="apiPairFilters"></div>
+  <div class="api-filter-group" id="apiNetworkFilters"></div>
 </div>
 
 <!-- Control Bar -->
@@ -478,6 +506,7 @@
           <option value="desktop">desktop</option>
           <option value="web">web</option>
           <option value="extension">extension</option>
+          <option value="api">api</option>
         </select>
         <label>备注</label>
         <input id="checklistNote" placeholder="可选；负责人 / 范围 / 版本">
@@ -502,10 +531,14 @@ let registryAll = [];  // full registry from /api/tests
 let registry = [];     // filtered by platform
 let selected = new Set();
 let queueItems = []; // { id, name, status, duration, error }
+let statusFilter = 'all'; // all | failed
 let expandedGroups = new Set();
 let allSelected = false;
 let connectedSSE = false;
-let currentPlatform = 'desktop'; // 'desktop' | 'web'
+let currentPlatform = 'desktop'; // 'desktop' | 'web' | 'extension' | 'mobile' | 'api'
+let apiPairFilter = '';
+let apiNetworkFilter = '';
+let apiKindFilter = 'all'; // all | same | cross
 let evtSource = null;
 let runStartTime = null;
 let runElapsed = 0;
@@ -526,6 +559,8 @@ function switchPlatform(platform) {
     picker.style.display = platform === 'mobile' ? 'flex' : 'none';
     console.log('[dashboard] mobile target picker:', platform === 'mobile' ? 'shown' : 'hidden');
   }
+  const apiBar = document.getElementById('apiFilterBar');
+  if (apiBar) apiBar.style.display = platform === 'api' ? 'flex' : 'none';
   // Filter registry and reset selection
   applyPlatformFilter();
   selected.clear();
@@ -558,9 +593,124 @@ async function loadMobileTarget() {
 
 function applyPlatformFilter() {
   registry = registryAll.filter(g => g.platform === currentPlatform);
+  if (currentPlatform === 'api') {
+    rebuildApiFilterChips();
+    registry = registry.map(g => ({
+      ...g,
+      cases: (g.cases || []).filter(c => {
+        if (apiKindFilter === 'same' && isCrossApiCase(c)) return false;
+        if (apiKindFilter === 'cross' && !isCrossApiCase(c)) return false;
+        if (apiPairFilter && apiPairFamily(c.pair) !== apiPairFilter) return false;
+        if (apiNetworkFilter && c.network !== apiNetworkFilter) return false;
+        return true;
+      }),
+    })).filter(g => (g.cases || []).length);
+  }
   expandedGroups.clear();
   registry.forEach(g => expandedGroups.add(g.file || g.group));
   updateCaseCount();
+}
+
+function isCrossApiCase(c) {
+  return String(c.pair || '').startsWith('x-') || String(c.network || '').includes('->');
+}
+
+function apiCasesForKind() {
+  return registryAll
+    .filter(g => g.platform === 'api')
+    .flatMap(g => g.cases || [])
+    .filter(c => {
+      if (apiKindFilter === 'same') return !isCrossApiCase(c);
+      if (apiKindFilter === 'cross') return isCrossApiCase(c);
+      return true;
+    });
+}
+
+const API_PAIR_FAMILY = {
+  'native-usdc': 'native-token',
+  'native-usdt': 'native-token',
+  'x-native-usdc': 'native-token',
+  'usdc-native': 'token-native',
+  'usdt-native': 'token-native',
+  'x-usdc-native': 'token-native',
+  'usdc-usdt': 'token-token',
+  'x-usdc-usdc': 'token-token',
+  'x-native-native': 'native-native',
+};
+
+const API_PAIR_FAMILY_LABELS = {
+  'native-native': 'native token → native token',
+  'native-token': 'native token → token',
+  'token-native': 'token → native token',
+  'token-token': 'token → token',
+};
+
+const API_PAIR_FAMILY_ORDER = ['native-native', 'native-token', 'token-native', 'token-token'];
+
+function apiPairFamily(pair) {
+  return API_PAIR_FAMILY[pair] || pair;
+}
+
+function networkChipLabel(network) {
+  return String(network).includes('->') ? String(network).replace('->', ' - ') : network;
+}
+
+function setApiKindFilter(kind) {
+  apiKindFilter = kind || 'all';
+  document.querySelectorAll('[data-api-kind]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.apiKind === apiKindFilter);
+  });
+  apiPairFilter = '';
+  apiNetworkFilter = '';
+  selected.clear();
+  applyPlatformFilter();
+  renderTree();
+}
+
+function setApiPairFilter(pair) {
+  apiPairFilter = pair;
+  document.querySelectorAll('[data-api-pair]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.apiPair === pair);
+  });
+  selected.clear();
+  applyPlatformFilter();
+  renderTree();
+}
+
+function setApiNetworkFilter(network) {
+  apiNetworkFilter = network;
+  document.querySelectorAll('[data-api-network]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.apiNetwork === network);
+  });
+  selected.clear();
+  applyPlatformFilter();
+  renderTree();
+}
+
+function rebuildApiFilterChips() {
+  rebuildApiPairChips();
+  rebuildApiNetworkChips();
+}
+
+function rebuildApiPairChips() {
+  const host = document.getElementById('apiPairFilters');
+  if (!host) return;
+  const families = [...new Set(apiCasesForKind().map(c => apiPairFamily(c.pair)).filter(Boolean))]
+    .sort((a, b) => API_PAIR_FAMILY_ORDER.indexOf(a) - API_PAIR_FAMILY_ORDER.indexOf(b) || a.localeCompare(b));
+  if (apiPairFilter && !families.includes(apiPairFilter)) apiPairFilter = '';
+  host.innerHTML = '<span class="platform-label">交易对</span>'
+    + `<button class="api-chip${apiPairFilter ? '' : ' active'}" data-api-pair="" onclick="setApiPairFilter('')">全部</button>`
+    + families.map(p => `<button class="api-chip${apiPairFilter === p ? ' active' : ''}" data-api-pair="${escAttr(p)}" onclick="setApiPairFilter('${escAttr(p)}')">${escHtml(API_PAIR_FAMILY_LABELS[p] || p)}</button>`).join('');
+}
+
+function rebuildApiNetworkChips() {
+  const host = document.getElementById('apiNetworkFilters');
+  if (!host) return;
+  const networks = [...new Set(apiCasesForKind().map(c => c.network).filter(Boolean))].sort();
+  if (apiNetworkFilter && !networks.includes(apiNetworkFilter)) apiNetworkFilter = '';
+  host.innerHTML = '<span class="platform-label">网络</span>'
+    + `<button class="api-chip${apiNetworkFilter ? '' : ' active'}" data-api-network="" onclick="setApiNetworkFilter('')">全部</button>`
+    + networks.map(n => `<button class="api-chip${apiNetworkFilter === n ? ' active' : ''}" data-api-network="${escAttr(n)}" onclick="setApiNetworkFilter('${escAttr(n)}')">${escHtml(networkChipLabel(n))}</button>`).join('');
 }
 
 function updateCaseCount() {
@@ -583,6 +733,8 @@ async function fetchRegistry() {
     // Initial visibility — hide picker if landing on a non-mobile tab.
     const picker = document.getElementById('mobileTargetPicker');
     if (picker) picker.style.display = currentPlatform === 'mobile' ? 'flex' : 'none';
+    const apiBar = document.getElementById('apiFilterBar');
+    if (apiBar) apiBar.style.display = currentPlatform === 'api' ? 'flex' : 'none';
   } catch (e) {
     document.getElementById('treeContainer').innerHTML =
       '<div class="empty-state" style="color:var(--red)">无法加载用例列表</div>';
@@ -614,6 +766,7 @@ async function fetchRunState() {
       // Server restarted or idle — clear stale results
       state = 'idle';
       queueItems = [];
+      statusFilter = 'all';
       runStartTime = 0;
       renderTree();
       renderControls();
@@ -652,6 +805,13 @@ function renderCdpStatus() {
   if (!dot || !label) return;
 
   // Show status for the currently selected platform
+  if (currentPlatform === 'api') {
+    dot.className = 'conn-dot connected';
+    label.className = 'conn-label connected';
+    label.textContent = 'API swap.onekeytest.com';
+    label.title = 'Swap quote / build-tx 直连 swap.onekeytest.com';
+    return;
+  }
   const platformMap = { desktop: 'desktop', web: 'web', extension: 'extension', mobile: 'mobile' };
   const key = platformMap[currentPlatform] || 'desktop';
   const info = cdpStatus[key];
@@ -735,11 +895,15 @@ function renderTree() {
         const skipBadge = hasSkip
           ? `<span class="skip-badge" title="${escAttr(c.skipSteps.join(', '))}">${c.skipSteps.length} skip</span>`
           : '';
+        const amountBadge = c.amount
+          ? `<span class="amount-badge" title="fromTokenAmount">${escHtml(c.amount)}</span>`
+          : '';
         html += `<div class="case-item" onclick="toggleCase('${c.id}')">
           <input type="checkbox" class="case-checkbox" ${isSelected ? 'checked' : ''}
             onclick="event.stopPropagation(); toggleCase('${c.id}')" />
           <span class="case-id">${escHtml(c.id)}</span>
           <span class="case-name">${escHtml(c.name || c.title || '')}</span>
+          ${amountBadge}
           ${skipBadge}
         </div>`;
       });
@@ -987,45 +1151,36 @@ function renderStatus() {
   const summaryBar = document.getElementById('summaryBar');
 
   if (queueItems.length === 0) {
+    statusFilter = 'all';
     container.innerHTML = '<div class="empty-state" id="emptyStatus">选择用例后点击开始执行</div>';
     summaryBar.style.display = 'none';
     return;
   }
 
+  const visibleItems = statusFilter === 'failed'
+    ? queueItems.filter(q => q.status === 'failed')
+    : queueItems;
+
   let html = '';
-  queueItems.forEach(item => {
-    const iconMap = {
-      pending: '<span class="status-icon pending">&#9675;</span>',
-      running: '<span class="status-icon running">&#9673;</span>',
-      passed: '<span class="status-icon passed">&#9679;</span>',
-      failed: '<span class="status-icon failed">&#9679;</span>',
-    };
-    const icon = iconMap[item.status] || iconMap.pending;
-    const duration = formatDuration(item.duration);
-
-    const isExpanded = item.status === 'running' || item.status === 'failed' || item.steps?.length > 0;
-    const summaryText = item.summary
-      ? `${item.summary.passed}✓ ${item.summary.failed}✗ ${item.summary.skipped}⊘`
-      : '';
-
-    html += `<div class="status-row ${item.status === 'failed' ? 'clickable' : ''}" ${item.status === 'failed' ? `onclick="showFailDetail('${escAttr(item.id)}')"` : ''}>
-      <div class="status-row-main">
-        ${icon}
-        <span class="status-case-id">${escHtml(item.id)}</span>
-        <span class="status-case-name">${escHtml(item.name)}</span>
-        ${summaryText ? `<span class="status-summary">${summaryText}</span>` : ''}
-        <span class="status-duration">${duration}</span>
-      </div>
-      ${item.error ? `<div class="status-error">${escHtml(item.error)}</div>` : ''}
-      ${isExpanded && item.steps?.length > 0 ? `<div class="step-log">${item.steps.map((s, i) => {
-        const stepIcon = s.status === 'passed' ? '<span class="step-ok">✓</span>'
-          : s.status === 'skipped' ? '<span class="step-skip">⊘</span>'
-          : '<span class="step-fail">✗</span>';
-        const detail = s.detail ? `<span class="step-detail">${escHtml(s.detail)}</span>` : '';
-        return `<div class="step-line step-${s.status}">${stepIcon} <span class="step-name">${escHtml(s.name)}</span> ${detail}</div>`;
-      }).join('')}</div>` : ''}
-    </div>`;
-  });
+  if (statusFilter === 'failed') {
+    const groups = new Map();
+    visibleItems.forEach(item => {
+      const ch = caseChannel(item);
+      if (!groups.has(ch)) groups.set(ch, []);
+      groups.get(ch).push(item);
+    });
+    const ordered = [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+    if (!ordered.length) {
+      html = '<div class="empty-state">当前没有失败用例</div>';
+    } else {
+      ordered.forEach(([channel, items]) => {
+        html += `<div class="status-channel-head"><span class="ch-name">${escHtml(channel)}</span><span class="ch-n">${items.length}</span></div>`;
+        items.forEach(item => { html += renderStatusRow(item); });
+      });
+    }
+  } else {
+    visibleItems.forEach(item => { html += renderStatusRow(item); });
+  }
 
   container.innerHTML = html;
 
@@ -1040,15 +1195,21 @@ function renderStatus() {
 
   if (state === 'finished' || done > 0) {
     const elapsed = formatDuration(runElapsed);
+    const failCls = failed > 0
+      ? `fail-count clickable${statusFilter === 'failed' ? ' active' : ''}`
+      : 'fail-count';
     summaryBar.innerHTML =
       `<span class="pass-count">${passed} 通过</span>` +
       `<span class="sep">|</span>` +
-      `<span class="fail-count">${failed} 失败</span>` +
+      `<span class="${failCls}" ${failed > 0 ? 'onclick="toggleFailFilter()"' : ''}>${failed} 失败</span>` +
       (totalSkippedSteps > 0 ? `<span class="sep">|</span><span class="skip-count">${totalSkippedSteps} 跳过</span>` : '') +
       `<span class="sep">|</span>` +
       `<span class="total-count">${total} 总计</span>` +
       `<span class="sep">&mdash;</span>` +
-      `<span>耗时 ${elapsed}</span>`;
+      `<span>耗时 ${elapsed}</span>` +
+      (statusFilter === 'failed'
+        ? `<span class="filter-hint" onclick="toggleFailFilter()">按渠道汇总失败 · 点击返回全部</span>`
+        : (failed > 0 ? `<span class="filter-hint" onclick="toggleFailFilter()">点击失败按渠道查看</span>` : ''));
     summaryBar.style.display = 'flex';
   } else {
     summaryBar.style.display = 'none';
@@ -1095,6 +1256,7 @@ async function startRun() {
     });
     if (res.ok) {
       state = 'running';
+      statusFilter = 'all';
       queueItems = [...selected].map(id => {
         const c = findCase(id);
         return { id, name: c ? (c.name || c.title || '') : '', status: 'pending', duration: null, error: null };
@@ -1141,6 +1303,7 @@ async function resetAndNewRun() {
     if (res.ok) {
       state = 'idle';
       queueItems = [];
+      statusFilter = 'all';
       stopTimer();
       renderControls();
       renderStatus();
@@ -1166,11 +1329,79 @@ async function restartRun() {
 }
 
 function findCase(id) {
-  for (const g of registry) {
-    const c = (g.cases || []).find(c => c.id === id);
-    if (c) return c;
+  const pools = [registry, registryAll];
+  for (const list of pools) {
+    for (const g of list || []) {
+      const c = (g.cases || []).find(c => c.id === id);
+      if (c) return c;
+    }
   }
   return null;
+}
+
+const CHANNEL_LABELS = {
+  '0x': '0x',
+  '1inch': '1inch',
+  okx: 'OKX',
+  jupiter: 'Jupiter',
+  fusion: '1inch Fusion',
+  cow: 'CowSwap',
+  lifi: 'LiFi',
+  liquidmesh: 'LiquidMesh',
+  rocketx: 'RocketX',
+  houdini: 'Houdini',
+  hifi: 'HiFi',
+  swft: 'Swft',
+  changelly: 'Changelly',
+  changehero: 'ChangeHero',
+  panora: 'Panora',
+  binance: 'Binance Web3',
+};
+
+function caseChannel(item) {
+  const meta = findCase(item.id);
+  const raw = meta?.channel || String(item.id || '').split('-')[0] || '其他';
+  return CHANNEL_LABELS[raw] || raw;
+}
+
+function toggleFailFilter() {
+  const failed = queueItems.filter(q => q.status === 'failed').length;
+  if (!failed) return;
+  statusFilter = statusFilter === 'failed' ? 'all' : 'failed';
+  renderStatus();
+}
+
+function renderStatusRow(item) {
+  const iconMap = {
+    pending: '<span class="status-icon pending">&#9675;</span>',
+    running: '<span class="status-icon running">&#9673;</span>',
+    passed: '<span class="status-icon passed">&#9679;</span>',
+    failed: '<span class="status-icon failed">&#9679;</span>',
+  };
+  const icon = iconMap[item.status] || iconMap.pending;
+  const duration = formatDuration(item.duration);
+  const isExpanded = item.status === 'running' || item.status === 'failed' || item.steps?.length > 0;
+  const summaryText = item.summary
+    ? `${item.summary.passed}✓ ${item.summary.failed}✗ ${item.summary.skipped}⊘`
+    : '';
+
+  return `<div class="status-row ${item.status === 'failed' ? 'clickable' : ''}" ${item.status === 'failed' ? `onclick="showFailDetail('${escAttr(item.id)}')"` : ''}>
+      <div class="status-row-main">
+        ${icon}
+        <span class="status-case-id">${escHtml(item.id)}</span>
+        <span class="status-case-name">${escHtml(item.name)}</span>
+        ${summaryText ? `<span class="status-summary">${summaryText}</span>` : ''}
+        <span class="status-duration">${duration}</span>
+      </div>
+      ${item.error ? `<div class="status-error">${escHtml(item.error)}</div>` : ''}
+      ${isExpanded && item.steps?.length > 0 ? `<div class="step-log">${item.steps.map((s) => {
+        const stepIcon = s.status === 'passed' ? '<span class="step-ok">✓</span>'
+          : s.status === 'skipped' ? '<span class="step-skip">⊘</span>'
+          : '<span class="step-fail">✗</span>';
+        const detail = s.detail ? `<span class="step-detail">${escHtml(s.detail)}</span>` : '';
+        return `<div class="step-line step-${s.status}">${stepIcon} <span class="step-name">${escHtml(s.name)}</span> ${detail}</div>`;
+      }).join('')}</div>` : ''}
+    </div>`;
 }
 
 // ---- SSE ----
@@ -1293,6 +1524,7 @@ function connectSSE() {
   evtSource.addEventListener('reset', (e) => {
     state = 'idle';
     queueItems = [];
+    statusFilter = 'all';
     stopTimer();
     renderControls();
     renderStatus();
