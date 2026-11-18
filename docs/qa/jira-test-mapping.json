@@ -2673,24 +2673,46 @@
       "remote_summary": "返佣 - 硬件销售奖励",
       "issue_type": "Test",
       "body_field": "description",
-      "identity_verified_on": "2026-11-05",
-      "identity_evidence": "用户截图提供目标编号；逐条读取 Test id、项目、标题和 Description，与同主题独立用例核对；用户已授权本批补充、review 后同步。目录成员及 Xray Steps 未验证。",
-      "remote_updated_at": "2026-11-06T07:53:32.651+0800",
+      "identity_verified_on": "2026-11-16",
+      "identity_evidence": "用户明确指定合并原用例并同步 OK-24313、保留名称；已登录 Jira 网页核实 OneKey 项目 Test、正文媒体 context id 35097、原标题及原 4 个媒体 UUID。仅编辑 description；目录归属及 Xray Steps 未改动、未声称核实。",
+      "remote_updated_at": null,
       "comparison": {
-        "checked_on": "2026-11-06",
-        "local_case_count": 57,
-        "remote_case_count": 57,
+        "checked_on": "2026-11-16",
+        "checked_at": "2026-11-16T15:42:13+08:00",
+        "local_case_count": 72,
+        "remote_case_count": 72,
         "table_text_equal_ignoring_format": true,
         "exact_table_cells_equal": true,
-        "local_file_sha256": "f2b3893572c7daa3546877cdddebe88a0c802f50e81b3873f370563031cb5e52",
-        "checked_at": "2026-11-06T08:09:10.372775+08:00",
         "rendered_headings_numbering_linebreaks_equal": true,
-        "remote_description_sha256": "d1f07485100bed679b4a290ac531e6d7cb627f172028198f40e392ef207656bc",
-        "rendered_description_sha256": "c1fca229a316bac35c26d7cfa2e44bd2e20e2ddf9c29780a2dbe16f9b8fd3ff5"
+        "local_file_sha256": "0c13a6967efdd7ae0141d1d6e5445acb4e17893d62f7993904d243802a765468",
+        "remote_description_sha256": "4937c2835ef8ad89b2cca943703236a8b5b553e1e30b12bad6965d9e609a91b6",
+        "remote_description_hash_basis": "SHA-256 of UTF-8 compact JSON {blocks,media}: visible rendered headings, paragraphs, table cells including numbering and line breaks, plus ordered media UUID/name pairs. Ordered-list top-level items and numbered paragraphs normalize to the same p block. Not an API raw description or HTML hash.",
+        "verification_method": "Logged-in Jira UI description edit; reload and deep compare all rendered blocks and 18 tables, 72 cases against Markdown-derived rich text; 4 original media UUIDs/names and title unchanged.",
+        "original_title_preserved": true,
+        "original_media_preserved": true,
+        "original_media": [
+          {
+            "id": "e17a1ee3-82e0-426f-9f3c-cef3c45646bc",
+            "name": "Pasted Graphic 10-20250410-094025.png"
+          },
+          {
+            "id": "6b5d5e3e-ed2d-4c6c-a25b-122845f4d551",
+            "name": "Pasted Graphic 7-20250410-074446.png"
+          },
+          {
+            "id": "7f25bf8c-3229-4155-ab13-053fdb9b1c3f",
+            "name": "Pasted Graphic 8-20250410-074850.png"
+          },
+          {
+            "id": "adabc54f-219c-4330-8959-af269bb56e95",
+            "name": "Pasted Graphic 9-20250410-080020.png"
+          }
+        ]
       },
-      "last_synced_at": "2026-11-06T08:09:10.372775+08:00",
-      "last_synced_source_sha256": "f2b3893572c7daa3546877cdddebe88a0c802f50e81b3873f370563031cb5e52",
-      "last_synced_remote_description_sha256": "d1f07485100bed679b4a290ac531e6d7cb627f172028198f40e392ef207656bc"
+      "last_synced_at": "2026-11-16T15:42:13+08:00",
+      "last_synced_source_sha256": "0c13a6967efdd7ae0141d1d6e5445acb4e17893d62f7993904d243802a765468",
+      "last_synced_remote_description_sha256": "4937c2835ef8ad89b2cca943703236a8b5b553e1e30b12bad6965d9e609a91b6",
+      "remote_updated_at_note": "连接器不可用；网页刷新回读核实已保存，但未获得精确 updated 时间，故不沿用旧值。"
     },
     {
       "file": "docs/qa/testcases/cases/referral/2026-05-09_Referral-钱包绑定邀请码.md",
