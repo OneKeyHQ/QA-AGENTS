@@ -137,6 +137,7 @@
   .status-icon.running { color: var(--blue); animation: pulse 1.2s infinite; }
   .status-icon.passed { color: var(--green); }
   .status-icon.failed { color: var(--red); }
+  .status-icon.skipped { color: #d29922; }
   .status-case-id { font-size: 11px; font-weight: 600; color: var(--cyan); min-width: 80px; }
   .status-case-name { flex: 1; font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .status-duration { font-size: 11px; color: var(--text2); min-width: 50px; text-align: right; }
@@ -155,6 +156,9 @@
   .step-name { color: var(--text1); }
   .step-detail { color: var(--text2); font-size: 10px; }
   .skip-count { color: #d29922; font-weight: 600; }
+  .summary-bar .skip-count.clickable { cursor: pointer; padding: 2px 8px; border-radius: 4px; border: 1px solid transparent; }
+  .summary-bar .skip-count.clickable:hover { background: rgba(210, 153, 34, 0.12); }
+  .summary-bar .skip-count.active { background: rgba(210, 153, 34, 0.16); border-color: rgba(210, 153, 34, 0.35); }
 
   /* Summary Bar */
   .summary-bar { padding: 10px 16px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12px; color: var(--text2); flex-shrink: 0; display: flex; align-items: center; gap: 6px; }
@@ -171,10 +175,13 @@
   .status-channel-head { display: flex; align-items: center; gap: 8px; padding: 10px 16px 6px; font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: 0.3px; background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 1; }
   .status-channel-head .ch-name { color: var(--text); }
   .status-channel-head .ch-n { color: var(--red); font-weight: 700; }
+  .status-channel-head .ch-n.skipped { color: #d29922; }
 
-  /* Failed row clickable */
+  /* Failed / skipped row clickable */
   .status-row.clickable { cursor: pointer; }
-  .status-row.clickable:hover { background: rgba(248, 113, 113, 0.06); }
+  .status-row.clickable.failed:hover { background: rgba(248, 113, 113, 0.06); }
+  .status-row.clickable.skipped:hover { background: rgba(210, 153, 34, 0.08); }
+  .status-error.skipped { background: rgba(210, 153, 34, 0.08); border-color: rgba(210, 153, 34, 0.25); color: #d29922; }
 
   /* Modal Overlay */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
@@ -183,6 +190,8 @@
   .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
   .modal-header h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
   .modal-header h3 .fail-dot { color: var(--red); }
+  .modal-header h3 .skip-dot { color: #d29922; }
+  .modal-error-box.skipped { background: rgba(210, 153, 34, 0.08); border-color: rgba(210, 153, 34, 0.25); color: #d29922; }
   .modal-close { background: none; border: none; color: var(--text2); font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.15s; }
   .modal-close:hover { background: var(--surface2); color: var(--text); }
   .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
@@ -432,7 +441,7 @@
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
-      <h3><span class="fail-dot">&#9679;</span> <span id="modalTitle">失败详情</span></h3>
+      <h3><span class="fail-dot" id="modalDot">&#9679;</span> <span id="modalTitle">失败详情</span></h3>
       <button class="modal-close" onclick="closeModal()">&times;</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
@@ -531,7 +540,7 @@ let registryAll = [];  // full registry from /api/tests
 let registry = [];     // filtered by platform
 let selected = new Set();
 let queueItems = []; // { id, name, status, duration, error }
-let statusFilter = 'all'; // all | failed
+let statusFilter = 'all'; // all | failed | skipped
 let expandedGroups = new Set();
 let allSelected = false;
 let connectedSSE = false;
@@ -607,7 +616,9 @@ function applyPlatformFilter() {
     })).filter(g => (g.cases || []).length);
   }
   expandedGroups.clear();
-  registry.forEach(g => expandedGroups.add(g.file || g.group));
+  new Set(registry.map((g) => g.category || g.group)).forEach((cat) => {
+    expandedGroups.add('cat_' + cat);
+  });
   updateCaseCount();
 }
 
@@ -970,17 +981,30 @@ function escAttr(s) {
   return (s || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
-// ---- Fail Detail Modal ----
+// ---- Fail / Skip Detail Modal ----
+function caseSkipReason(item) {
+  if (item.error) return item.error;
+  const skipped = (item.steps || []).filter((s) => s.status === 'skipped');
+  if (skipped.length) {
+    return skipped.map((s) => (s.detail ? `${s.name} — ${s.detail}` : s.name)).join('\n');
+  }
+  return '';
+}
+
 function showFailDetail(id) {
   const item = queueItems.find(q => q.id === id);
   if (!item) return;
+  const skipped = item.status === 'skipped';
   const duration = item.duration != null ? formatDuration(item.duration) : '-';
-  document.getElementById('modalTitle').textContent = '失败详情 — ' + item.id;
+  const reason = skipped ? (caseSkipReason(item) || '无跳过原因') : (item.error || '无错误信息');
+  const dot = document.getElementById('modalDot');
+  dot.className = skipped ? 'skip-dot' : 'fail-dot';
+  document.getElementById('modalTitle').textContent = (skipped ? '跳过详情 — ' : '失败详情 — ') + item.id;
   document.getElementById('modalBody').innerHTML =
     `<div class="modal-field"><div class="modal-label">用例 ID</div><div class="modal-value mono">${escHtml(item.id)}</div></div>` +
     `<div class="modal-field"><div class="modal-label">用例名称</div><div class="modal-value">${escHtml(item.name)}</div></div>` +
     `<div class="modal-field"><div class="modal-label">执行耗时</div><div class="modal-value">${duration}</div></div>` +
-    `<div class="modal-field"><div class="modal-label">错误信息</div><div class="modal-error-box">${escHtml(item.error || '无错误信息')}</div></div>`;
+    `<div class="modal-field"><div class="modal-label">${skipped ? '跳过原因' : '错误信息'}</div><div class="modal-error-box${skipped ? ' skipped' : ''}">${escHtml(reason)}</div></div>`;
   document.getElementById('modalOverlay').classList.add('visible');
 }
 
@@ -1144,8 +1168,22 @@ function updateProgressBar() {
   document.getElementById('progressText').textContent = `${passed + failed}/${total}`;
 }
 
+function recoverSkippedStatus() {
+  if (state !== 'finished' && state !== 'paused') return;
+  for (const item of queueItems) {
+    if (item.status !== 'running' && item.status !== 'pending') continue;
+    const hasSkipStep = item.steps?.some((s) => s.status === 'skipped');
+    const hasFailStep = item.steps?.some((s) => s.status === 'failed');
+    if (hasSkipStep && !hasFailStep) {
+      item.status = 'skipped';
+      if (!item.error) item.error = caseSkipReason(item);
+    }
+  }
+}
+
 // ---- Render Status Panel ----
 function renderStatus() {
+  recoverSkippedStatus();
   const container = document.getElementById('statusContainer');
   const emptyEl = document.getElementById('emptyStatus');
   const summaryBar = document.getElementById('summaryBar');
@@ -1159,10 +1197,13 @@ function renderStatus() {
 
   const visibleItems = statusFilter === 'failed'
     ? queueItems.filter(q => q.status === 'failed')
-    : queueItems;
+    : statusFilter === 'skipped'
+      ? queueItems.filter(q => q.status === 'skipped')
+      : queueItems;
 
   let html = '';
-  if (statusFilter === 'failed') {
+  if (statusFilter === 'failed' || statusFilter === 'skipped') {
+    const emptyLabel = statusFilter === 'failed' ? '当前没有失败用例' : '当前没有跳过用例';
     const groups = new Map();
     visibleItems.forEach(item => {
       const ch = caseChannel(item);
@@ -1171,10 +1212,10 @@ function renderStatus() {
     });
     const ordered = [...groups.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
     if (!ordered.length) {
-      html = '<div class="empty-state">当前没有失败用例</div>';
+      html = `<div class="empty-state">${emptyLabel}</div>`;
     } else {
       ordered.forEach(([channel, items]) => {
-        html += `<div class="status-channel-head"><span class="ch-name">${escHtml(channel)}</span><span class="ch-n">${items.length}</span></div>`;
+        html += `<div class="status-channel-head"><span class="ch-name">${escHtml(channel)}</span><span class="ch-n ${statusFilter}">${items.length}</span></div>`;
         items.forEach(item => { html += renderStatusRow(item); });
       });
     }
@@ -1187,29 +1228,36 @@ function renderStatus() {
   // Summary
   const passed = queueItems.filter(q => q.status === 'passed').length;
   const failed = queueItems.filter(q => q.status === 'failed').length;
+  const skipped = queueItems.filter(q => q.status === 'skipped').length;
   const total = queueItems.length;
-  const done = passed + failed;
-
-  // Count total skipped steps across all test cases
-  const totalSkippedSteps = queueItems.reduce((sum, q) => sum + (q.summary?.skipped || q.steps?.filter(s => s.status === 'skipped').length || 0), 0);
+  const done = passed + failed + skipped;
 
   if (state === 'finished' || done > 0) {
     const elapsed = formatDuration(runElapsed);
     const failCls = failed > 0
       ? `fail-count clickable${statusFilter === 'failed' ? ' active' : ''}`
       : 'fail-count';
+    const skipCls = skipped > 0
+      ? `skip-count clickable${statusFilter === 'skipped' ? ' active' : ''}`
+      : 'skip-count';
+    let hint = '';
+    if (statusFilter === 'failed') {
+      hint = `<span class="filter-hint" onclick="toggleFailFilter()">按渠道汇总失败 · 点击返回全部</span>`;
+    } else if (statusFilter === 'skipped') {
+      hint = `<span class="filter-hint" onclick="toggleSkipFilter()">按渠道汇总跳过 · 点击返回全部</span>`;
+    } else if (failed > 0 || skipped > 0) {
+      hint = `<span class="filter-hint">${failed > 0 ? '点击失败 / ' : ''}${skipped > 0 ? '点击跳过 ' : ''}按渠道查看</span>`;
+    }
     summaryBar.innerHTML =
       `<span class="pass-count">${passed} 通过</span>` +
       `<span class="sep">|</span>` +
       `<span class="${failCls}" ${failed > 0 ? 'onclick="toggleFailFilter()"' : ''}>${failed} 失败</span>` +
-      (totalSkippedSteps > 0 ? `<span class="sep">|</span><span class="skip-count">${totalSkippedSteps} 跳过</span>` : '') +
+      (skipped > 0 ? `<span class="sep">|</span><span class="${skipCls}" onclick="toggleSkipFilter()">${skipped} 跳过</span>` : '') +
       `<span class="sep">|</span>` +
       `<span class="total-count">${total} 总计</span>` +
       `<span class="sep">&mdash;</span>` +
       `<span>耗时 ${elapsed}</span>` +
-      (statusFilter === 'failed'
-        ? `<span class="filter-hint" onclick="toggleFailFilter()">按渠道汇总失败 · 点击返回全部</span>`
-        : (failed > 0 ? `<span class="filter-hint" onclick="toggleFailFilter()">点击失败按渠道查看</span>` : ''));
+      hint;
     summaryBar.style.display = 'flex';
   } else {
     summaryBar.style.display = 'none';
@@ -1371,21 +1419,32 @@ function toggleFailFilter() {
   renderStatus();
 }
 
+function toggleSkipFilter() {
+  const skipped = queueItems.filter(q => q.status === 'skipped').length;
+  if (!skipped) return;
+  statusFilter = statusFilter === 'skipped' ? 'all' : 'skipped';
+  renderStatus();
+}
+
 function renderStatusRow(item) {
   const iconMap = {
     pending: '<span class="status-icon pending">&#9675;</span>',
     running: '<span class="status-icon running">&#9673;</span>',
     passed: '<span class="status-icon passed">&#9679;</span>',
     failed: '<span class="status-icon failed">&#9679;</span>',
+    skipped: '<span class="status-icon skipped">&#9679;</span>',
   };
   const icon = iconMap[item.status] || iconMap.pending;
   const duration = formatDuration(item.duration);
-  const isExpanded = item.status === 'running' || item.status === 'failed' || item.steps?.length > 0;
+  const isExpanded = item.status === 'running' || item.status === 'failed' || item.status === 'skipped' || item.steps?.length > 0;
   const summaryText = item.summary
     ? `${item.summary.passed}✓ ${item.summary.failed}✗ ${item.summary.skipped}⊘`
     : '';
+  const clickable = item.status === 'failed' || item.status === 'skipped';
+  const skipReason = item.status === 'skipped' ? caseSkipReason(item) : '';
+  const errorText = item.status === 'skipped' ? skipReason : item.error;
 
-  return `<div class="status-row ${item.status === 'failed' ? 'clickable' : ''}" ${item.status === 'failed' ? `onclick="showFailDetail('${escAttr(item.id)}')"` : ''}>
+  return `<div class="status-row${clickable ? ` clickable ${item.status}` : ''}" ${clickable ? `onclick="showFailDetail('${escAttr(item.id)}')"` : ''}>
       <div class="status-row-main">
         ${icon}
         <span class="status-case-id">${escHtml(item.id)}</span>
@@ -1393,7 +1452,7 @@ function renderStatusRow(item) {
         ${summaryText ? `<span class="status-summary">${summaryText}</span>` : ''}
         <span class="status-duration">${duration}</span>
       </div>
-      ${item.error ? `<div class="status-error">${escHtml(item.error)}</div>` : ''}
+      ${errorText ? `<div class="status-error${item.status === 'skipped' ? ' skipped' : ''}">${escHtml(errorText)}</div>` : ''}
       ${isExpanded && item.steps?.length > 0 ? `<div class="step-log">${item.steps.map((s) => {
         const stepIcon = s.status === 'passed' ? '<span class="step-ok">✓</span>'
           : s.status === 'skipped' ? '<span class="step-skip">⊘</span>'
@@ -1507,6 +1566,20 @@ function connectSSE() {
     renderStatus();
   });
 
+  evtSource.addEventListener('skip', (e) => {
+    const data = JSON.parse(e.data);
+    const item = queueItems.find(q => q.id === data.id);
+    if (item) {
+      item.status = 'skipped';
+      item.duration = data.duration || (item.startedAt ? Date.now() - item.startedAt : null);
+      item.error = data.error || caseSkipReason(item) || 'skipped';
+      if (data.steps) item.steps = data.steps;
+      if (data.summary) item.summary = data.summary;
+    }
+    renderControls();
+    renderStatus();
+  });
+
   evtSource.addEventListener('stopped', (e) => {
     state = 'paused';
     stopTimer();
@@ -1564,6 +1637,15 @@ function handleGenericEvent(data) {
     case 'fail': {
       const item = queueItems.find(q => q.id === data.id);
       if (item) { item.status = 'failed'; item.duration = data.duration || null; item.error = data.error || 'Unknown error'; }
+      break;
+    }
+    case 'skip': {
+      const item = queueItems.find(q => q.id === data.id);
+      if (item) {
+        item.status = 'skipped';
+        item.duration = data.duration || null;
+        item.error = data.error || caseSkipReason(item) || 'skipped';
+      }
       break;
     }
     case 'stopped':

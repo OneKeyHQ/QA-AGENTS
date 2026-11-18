@@ -371,7 +371,7 @@ async function executeQueue() {
             item.error = result.error || result.errors?.join('; ') || 'Test returned failed';
           } else if (result?.status === 'skipped') {
             item.status = 'skipped';
-            item.error = result.error || undefined;
+            item.error = result.error || result.reason || undefined;
           } else {
             item.status = 'passed';
           }

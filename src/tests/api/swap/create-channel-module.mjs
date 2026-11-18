@@ -37,7 +37,8 @@ export function createChannelTestModule(channelKey) {
         };
         return {
           status: outcome.status,
-          error: outcome.status === 'failed' ? (outcome.detail || outcome.reason) : undefined,
+          error: outcome.status === 'passed' ? undefined : (outcome.detail || outcome.reason),
+          reason: outcome.reason,
           steps: t.steps,
           summary,
         };
