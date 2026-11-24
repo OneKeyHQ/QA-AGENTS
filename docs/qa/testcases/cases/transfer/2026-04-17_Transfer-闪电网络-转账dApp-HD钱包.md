@@ -13,6 +13,7 @@
 2. 测试发票：① 已支付 / 已过期发票各一 ② **指定金额发票**须含「最小合法金额」（如 1 sat，≤ 余额 × 99%）一条 ③ 未指定金额发票一条
 3. 闪电网络地址：`shortmen02@walletofsatoshi.com`（LN Address）、`lnurl1dp68gurn8ghj7ampd3kx2ar0veekzar0wd5xjtnrdakj7tnhv4kxctttdehhwm30d3h82unvwqhhx6r0wf6x6etwxqeq3p2554`（LNURL，失效则用 `batchNewUrl` 脚本重新生成）
 4. dApp 测试对象：LNBlackjack（`https://www.lnblackjack.com`）、LNMarkets（`https://lnmarkets.com/en/`）
+5. 生成带前缀的主网测试发票时，选择 Fresh dirt（1 sat），进入 Lightning 收银页，扫描二维码或点击二维码复制带 `lightning:` 前缀的发票。[BTCPay 官方演示店](https://mainnet.demo.btcpayserver.org/apps/87kj5yKay8mB4UUZcJhZH5TqDKMD3CznjwLjiu1oYZXe/pos)
 
 ### LNURL 批量生成脚本（仅地址失效时使用）
 
@@ -39,6 +40,7 @@ curl --location 'https://api.onekeycn.com/api/lightning/lnurl/batchNewUrl' \
 | ❗️❗️P0❗️❗️ | 未指定金额发票 · Max | 粘贴未指定金额发票 → 点「最大值」→「确认发送」 | 1. 金额输入框 = 当前可用余额<br>2. 其余**同上**，历史详情金额 = 该笔实际扣款 sats |
 | ❗️❗️P0❗️❗️ | LN Address · 中间值 | 输入 `shortmen02@walletofsatoshi.com` → 解析进入金额页 → 输入中间值（如 `1000` sats）→ 切换 sats ↔ 法币 →（可选填描述 ≤ 40 字符）→「确认发送」 | 1. 地址解析正确；金额可编辑；`sats = round(法币 ÷ BTC 价 × 1e8)`，误差 ≤ 1 sat<br>2. 其余**同上**，发票描述 = 随填写 / 默认 `OneKey Invoice`；接收方展示与 LN Address 一致 |
 | ❗️❗️P0❗️❗️ | LNURL · 中间值 | 粘贴 `lnurl1dp68gurn8ghj7ampd3kx2ar0veekzar0wd5xjtnrdakj7tnhv4kxctttdehhwm30d3h82unvwqhhx6r0wf6x6etwxqeq3p2554` → 解析进入金额页 → 同「LN Address · 中间值」→「确认发送」 | **同上**，接收方展示与 LNURL 解析结果一致 |
+| ❗️❗️P0❗️❗️ | 自动识别带 `lightning:` 前缀的指定金额发票 | 1. 在已部署修复的测试环境，从闪电网络发送页粘贴同一张 1 sat 发票的 `lightning:lnbc…`、`lightning:LNBC…`、`LIGHTNING:LNBC…` 和裸发票。有扫码入口的端另扫带前缀的二维码，每次查看确认页后返回<br>2. 用一种带前缀的输入确认支付一笔<br>3. 分别粘贴 `lightning:` 和带 `lightning://` 的另一张完整、未支付的发票 | 1. 自动识别并进入支付确认页，收款方与裸发票一致，金额为 1 sat<br>2. 收款端显示这张发票已支付，到账 1 sat<br>3. 显示「地址格式无效」，无法进入支付确认页 |
 
 ---
 
@@ -64,7 +66,7 @@ curl --location 'https://api.onekeycn.com/api/lightning/lnurl/batchNewUrl' \
 | --- | --- | --- | --- |
 | ❗️❗️P0❗️❗️ | 已过期发票 | 粘贴已过期发票 | 1. 显示「地址无效」提示<br>2. 「下一步」禁用 |
 | ❗️❗️P0❗️❗️ | 已支付发票 | 粘贴已支付发票 | 1. 显示「发票已支付」提示<br>2. 「下一步」禁用 |
-| P1 | 非法发票串（缺前缀 / 截断） | 粘贴截断或非法发票串 | 显示「地址无效」提示 |
+| P1 | 非法发票串（截断 / 非法字符） | 粘贴截断或含非法字符的闪电发票 | 显示「地址无效」提示 |
 | P1 | 格式错误 LN Address | 输入 `abc` / `user@` / `user@invalid` | 显示「地址无效」提示 |
 | P1 | 格式错误 LNURL | 粘贴截断 / 含非法字符的 LNURL | 显示「地址无效」提示 |
 

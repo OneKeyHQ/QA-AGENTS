@@ -16,6 +16,7 @@
 
 ### 发送
 - 粘贴或扫码：发票 / LN Address / LNURL
+- 扫码或粘贴时自动识别带 `lightning:` 前缀的 BOLT11 发票，前缀兼容大小写，确认页与同一裸发票的收款方和金额一致。仅有前缀或使用 `lightning://` 时提示格式无效。[OK-67702](https://onekeyhq.atlassian.net/browse/OK-67702)
 - 指定金额发票：金额自动填入不可改
 - 未指定金额发票 / LN Address / LNURL：手动输入，法币 ↔ sats、Max
 - 确认页：发送方、金额、手续费、**发票描述**
@@ -91,6 +92,7 @@ iOS / Android / Desktop / Extension / Web（以产品支持为准）
 - 钱包规则：`docs/qa/rules/wallet-rules.md` — 转账、历史记录、我的账户
 - HD 钱包用例：`docs/qa/testcases/cases/transfer/2026-04-17_Transfer-闪电网络-转账dApp-HD钱包.md`
 - HW 钱包用例：`docs/qa/testcases/cases/transfer/2026-04-17_Transfer-闪电网络-转账dApp-HW钱包.md`
+- 发票专项用例：`docs/qa/testcases/cases/transfer/2026-11-23_Transfer-闪电网络-发票测试.md`（[OK-24250](https://onekeyhq.atlassian.net/browse/OK-24250)）
 - LNURL 批量生成工具：`https://api.onekeycn.com/api/lightning/lnurl/batchNewUrl`
 
 ## 变更记录
