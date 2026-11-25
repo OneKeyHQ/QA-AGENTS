@@ -1,6 +1,7 @@
+import { verifySelectorResults } from '../../shared/perps/desktop-search-boundaries.mjs';
 const connectCDP = () => connectPlatform('desktop');
 import {connectPlatform} from '../../helpers/platform-session.mjs';
-import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
+import {mustStopAfterResult,summarizeCaseResults} from '../../helpers/execution-policy.mjs';
 // Token Search Tests (Desktop) — SEARCH-001 ~ SEARCH-008
 // Thin wrapper: test logic lives in src/tests/shared/perps/token-search.mjs
 // Connects via CDP port 9222 (OneKey Electron app).
@@ -45,6 +46,7 @@ const { testCases, setup, ensurePopoverOpen, dismissPopover, getPreReport } =
     screenshot,
     screenshotDir: SCREENSHOT_DIR,
     tabLayout: 'two-level',
+    validateResults: verifySelectorResults,
     extraTwoLevelChineseSearchCases: [
       { query: '英伟达', expected: 'NVDA' },
       { query: '苹果', expected: 'AAPL' },
@@ -104,7 +106,7 @@ export async function run() {
       const result = await test.fn(page);
       const duration = Date.now() - startTime;
       const r = {
-        testId: test.id, status: result.status, duration,
+        ...result, testId: test.id, status: result.status, duration,
         steps: result.steps, errors: result.errors,
         timestamp: new Date().toISOString(),
       };
@@ -128,18 +130,17 @@ export async function run() {
 
   await dismissPopover(page);
 
-  const passed = results.filter(r => r.status === 'passed').length;
-  const failed = results.filter(r => r.status === 'failed').length;
-  const skipped = results.filter(r => r.status === 'skipped').length;
+  const aggregate = summarizeCaseResults(results, casesToRun.length);
+  const {passed,failed,skipped,notRun} = aggregate;
 
   console.log(`\n${'='.repeat(60)}`);
-  console.log(`SUMMARY: ${passed} passed, ${failed} failed, ${skipped} skipped, ${results.length} total`);
+  console.log(`SUMMARY: ${passed} passed, ${failed} failed, ${skipped} skipped, ${notRun} not run, ${results.length} executed`);
   console.log('='.repeat(60));
 
-  const summary = { timestamp: new Date().toISOString(), total: results.length, passed, failed, skipped, results };
+  const summary = { ...aggregate, timestamp: new Date().toISOString(), skipped, results };
   writeFileSync(resolve(RESULTS_DIR, 'search-summary.json'), JSON.stringify(summary, null, 2));
 
-  return { fatalRestore: Object.values(results).some(mustStopAfterResult), status: failed === 0 ? 'passed' : 'failed', passed, failed, skipped, total: results.length };
+  return aggregate;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

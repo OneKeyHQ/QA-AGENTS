@@ -1,3 +1,7 @@
+import { decoratePerpsCases } from './execution-evidence.mjs';
+import { snapshotSelectorPreferences, restoreSelectorPreferences } from './selector-preferences.mjs';
+import { pollForm } from './non-order-ui.mjs';
+import { markRestoreFailure } from './runtime.mjs';
 import {currentPair,openPairs,searchPairs,pairPopover,closePairs,locator,clickPairTab} from '../../helpers/perps-ui.mjs';
 import {createSelectorKeyboardTests} from './selector-keyboard.mjs';
 // Perps Token Search — shared test logic (Desktop / Web / Extension)
@@ -18,9 +22,9 @@ import {createSelectorKeyboardTests} from './selector-keyboard.mjs';
 //   子级 tab（仅永续合约下）: 全部 / 加密货币 / 股票 / 贵金属 / 指数 / 大宗商品 / 外汇 / 预上线
 //   测试用例：SEARCH-001 ~ SEARCH-004
 
-import { sleep } from '../../helpers/constants.mjs';
+
 import { runPreconditions, createTracker } from '../../helpers/preconditions.mjs';
-import { assertListRendered } from '../../helpers/components.mjs';
+import { assertListRendered, createStepTracker, safeStep } from '../../helpers/components.mjs';
 
 /**
  * Build the Perps Token Search test cases for one platform.
@@ -43,7 +47,21 @@ export function createPerpsTokenSearchTests({
   screenshotDir,
   tabLayout = 'two-level',
   extraTwoLevelChineseSearchCases = [],
+  validateResults,
 }) {
+
+  const runningTrackers = new WeakMap();
+  function tracker(page, id) {
+    const t = createTracker(id, _preReport);
+    runningTrackers.set(page, t);
+    return t;
+  }
+
+  async function verifyResults(page, t, scope) {
+    if (!validateResults) return; // Other platforms inject their own oracle.
+    const evidence = await validateResults(page, scope);
+    t.add(`完整结果集 ${scope.primary}/${scope.secondary ?? '-'} ${JSON.stringify(scope.query)}`, 'passed', JSON.stringify(evidence));
+  }
 
   // ── Helpers (Web-flavored, work on both layouts) ─────────────
 
@@ -51,26 +69,20 @@ export function createPerpsTokenSearchTests({
 
   async function openPairSelector(page) { await openPairs(page); }
 
-  async function ensurePopoverOpen(page) {
-    const open = await page.evaluate(() => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      for (const p of pops) { if (p.getBoundingClientRect().width > 0) return true; }
-      return false;
-    });
-    if (!open) {
-      await openPairSelector(page);
-    }
-  }
+  async function ensurePopoverOpen(page) { await openPairSelector(page); }
 
-  async function dismissPopover(page) {
-    await page.evaluate(() => {
-      const overlay = document.querySelector('[data-testid="ovelay-popover"]');
-      if (overlay) overlay.click();
-    });
-    await sleep(1500);
-  }
+  async function dismissPopover(page) { await closePairs(page); }
 
-  async function searchAsset(page, query) { await searchPairs(page,query); }
+  async function searchAsset(page, query) {
+    await searchPairs(page,query);
+    const expected = ({BT:'BTC',BTC:'BTC',HYPE:'HYPE','比特':'BTC','以太':'ETH',
+      ...Object.fromEntries(extraTwoLevelChineseSearchCases.map(c=>[c.query,c.expected]))})[query];
+    if (expected) await pollForm(
+      () => getTokenList(page),
+      tokens => tokens.some(token => baseTicker(token) === expected),
+      `Search ${JSON.stringify(query)} must display ${expected}`,
+    );
+  }
 
   async function clearSearch(page) { await searchPairs(page,''); }
 
@@ -88,7 +100,7 @@ export function createPerpsTokenSearchTests({
       return false;
     }, tabName);
     if (!clicked) throw new Error(`Tab "${tabName}" not found`);
-    await sleep(500);
+    await pairPopover(page).waitFor({state:'visible',timeout:10000});
   }
 
   async function getPopoverTabRows(page) {
@@ -108,7 +120,7 @@ export function createPerpsTokenSearchTests({
    */
   async function clickTopTab(page, tabName) {
     await clickPairTab(page,tabName);
-    await sleep(1200);
+    await pollForm(() => snapshotSelectorPreferences(page), s => s.primary === tabName, `Primary tab ${tabName}`);
   }
 
   /**
@@ -119,7 +131,7 @@ export function createPerpsTokenSearchTests({
     const target=locator(page,'perps.selector.secondary_tabs').getByText(tabName,{exact:true});
     if(await target.count()!==1) throw Error(`Expected one secondary tab: ${tabName}`);
     await target.click();
-    await sleep(800);
+    await pollForm(() => snapshotSelectorPreferences(page), s => s.secondary === tabName, `Secondary tab ${tabName}`);
   }
 
   async function isSearchEmpty(page) {
@@ -196,7 +208,7 @@ export function createPerpsTokenSearchTests({
    * SEARCH-001: 英文搜索 + 跨 tab 联动（flat 布局）
    */
   async function testFlat001(page) {
-    const t = createTracker(`${prefix}-001`, _preReport);
+    const t = tracker(page, `${prefix}-001`);
 
     await clickTab(page, '永续合约');
     await searchAsset(page, 'BT');
@@ -243,10 +255,10 @@ export function createPerpsTokenSearchTests({
    * SEARCH-002: 中文关键词搜索（flat 布局）
    */
   async function testFlat002(page) {
-    const t = createTracker(`${prefix}-002`, _preReport);
+    const t = tracker(page, `${prefix}-002`);
 
     await clickTab(page, '永续合约');
-    await sleep(500);
+    await pairPopover(page).waitFor({state:'visible',timeout:10000});
     await searchAsset(page, '比特');
 
     const btTokens = await getTokenList(page);
@@ -272,7 +284,7 @@ export function createPerpsTokenSearchTests({
    * SEARCH-003: 版块 Tab 遍历（flat 布局）
    */
   async function testFlat003(page) {
-    const t = createTracker(`${prefix}-003`, _preReport);
+    const t = tracker(page, `${prefix}-003`);
 
     await clearSearch(page);
     const tabs = await getSectionTabs(page);
@@ -305,7 +317,7 @@ export function createPerpsTokenSearchTests({
   // ── Test Cases (Two-level layout: Web) ───────────────────────
 
   async function testTwoLevel001(page) {
-    const t = createTracker(`${prefix}-001`, _preReport);
+    const t = tracker(page, `${prefix}-001`);
 
     await clickTopTab(page, '永续合约');
     const tabRows = await getPopoverTabRows(page);
@@ -315,6 +327,7 @@ export function createPerpsTokenSearchTests({
 
     await searchAsset(page, 'BT');
 
+    await verifyResults(page,t,{primary:'永续合约',secondary:'全部',query:'BT'});
     const perpsTokens = await getTokenList(page);
     t.add('永续合约/全部 搜索 BT 有结果', perpsTokens.length > 0 ? 'passed' : 'failed',
       `results: ${perpsTokens.join(', ') || 'none'}`, { dataKey: 'BT' });
@@ -326,6 +339,7 @@ export function createPerpsTokenSearchTests({
 
     for (const sub of otherSubTabs) {
       await clickSubTab(page, sub);
+      await verifyResults(page,t,{primary:'永续合约',secondary:sub,query:'BT'});
       const tokens = await getTokenList(page);
       const empty = await isSearchEmpty(page);
 
@@ -340,11 +354,12 @@ export function createPerpsTokenSearchTests({
 
     await clearSearch(page);
     await clickSubTab(page, '全部');
+    await verifyResults(page,t,{primary:'永续合约',secondary:'全部',query:''});
     return t.result();
   }
 
   async function testTwoLevel002(page) {
-    const t = createTracker(`${prefix}-002`, _preReport);
+    const t = tracker(page, `${prefix}-002`);
 
     await clickTopTab(page, '永续合约');
     await clickSubTab(page, '全部');
@@ -358,6 +373,7 @@ export function createPerpsTokenSearchTests({
     for (const { query, expected } of searchCases) {
       await clearSearch(page);
       await searchAsset(page, query);
+      await verifyResults(page,t,{primary:'永续合约',secondary:'全部',query});
 
       const tokens = await getTokenList(page);
       t.add(`永续合约/全部 搜索「${query}」有结果`, tokens.length > 0 ? 'passed' : 'failed',
@@ -367,11 +383,12 @@ export function createPerpsTokenSearchTests({
     }
 
     await clearSearch(page);
+    await verifyResults(page,t,{primary:'永续合约',secondary:'全部',query:''});
     return t.result();
   }
 
   async function testTwoLevel003(page) {
-    const t = createTracker(`${prefix}-003`, _preReport);
+    const t = tracker(page, `${prefix}-003`);
 
     await clickTopTab(page, '永续合约');
     await clearSearch(page);
@@ -382,6 +399,7 @@ export function createPerpsTokenSearchTests({
 
     for (const sub of subTabs) {
       await clickSubTab(page, sub);
+      await verifyResults(page,t,{primary:'永续合约',secondary:sub,query:''});
       const tokens = await getTokenList(page);
       const empty = await isSearchEmpty(page);
 
@@ -399,21 +417,24 @@ export function createPerpsTokenSearchTests({
     }
 
     await clickSubTab(page, '全部');
+    await verifyResults(page,t,{primary:'永续合约',secondary:'全部',query:''});
     return t.result();
   }
 
   async function testTwoLevel004(page) {
-    const t = createTracker(`${prefix}-004`, _preReport);
+    const t = tracker(page, `${prefix}-004`);
 
     await clickTopTab(page, '现货');
     await clearSearch(page);
 
+    await verifyResults(page,t,{primary:'现货',secondary:null,query:''});
     const defaultList = await getTokenList(page);
     const hasPair = defaultList.some(x => /\/USDC$/.test(x));
     t.add('现货默认列表展示 pair', hasPair ? 'passed' : 'failed',
       `default: ${defaultList.slice(0, 5).join(', ')}${defaultList.length > 5 ? '...' : ''}`);
 
     await searchAsset(page, 'BTC');
+    await verifyResults(page,t,{primary:'现货',secondary:null,query:'BTC'});
     const btcList = await getTokenList(page);
     const btcBases = btcList.map(baseTicker);
     t.add('现货搜索 BTC 有结果', btcList.length > 0 ? 'passed' : 'failed',
@@ -427,6 +448,7 @@ export function createPerpsTokenSearchTests({
     await clearSearch(page);
 
     await searchAsset(page, 'HYPE');
+    await verifyResults(page,t,{primary:'现货',secondary:null,query:'HYPE'});
     const hypeList = await getTokenList(page);
     const hypeBases = hypeList.map(baseTicker);
     t.add('现货搜索 HYPE 有结果', hypeList.length > 0 ? 'passed' : 'failed',
@@ -435,6 +457,7 @@ export function createPerpsTokenSearchTests({
       `bases: ${hypeBases.join(', ')}`, { dataKey: 'HYPE' });
 
     await clearSearch(page);
+    await verifyResults(page,t,{primary:'现货',secondary:null,query:''});
     return t.result();
   }
 
@@ -454,14 +477,52 @@ export function createPerpsTokenSearchTests({
         { id: `${prefix}-003`, name: `${namePrefix}Perps-搜索-版块Tab遍历`, fn: testFlat003 },
       ];
 
+  for (const tc of testCases) {
+    const run = tc.fn;
+    tc.fn = async page => {
+      await goToPerps(page);
+      const wasOpen = await pairPopover(page).count() > 0;
+      const queryBefore = wasOpen ? await pairPopover(page).locator('input').inputValue() : '';
+      const preferences = tabLayout === 'two-level' ? await snapshotSelectorPreferences(page) : null;
+      let result;
+      runningTrackers.delete(page);
+      try {
+        await ensurePopoverOpen(page);
+        result = await run(page);
+      } catch (error) {
+        const t = runningTrackers.get(page) ?? createStepTracker(tc.id);
+        if (error.code === 'PERPS_SAMPLE_UNAVAILABLE') {
+          t.add('搜索数据样本', 'skipped', error.message);
+        } else {
+          await safeStep(page, t, '搜索流程执行失败', async () => { throw error; }, screenshotDir);
+        }
+        result = t.result();
+      } finally {
+        try {
+          if (preferences) await restoreSelectorPreferences(page, preferences);
+          await searchPairs(page, queryBefore);
+          if (await pairPopover(page).locator('input').inputValue() !== queryBefore)
+            throw Error('Search query restore mismatch');
+          if (!wasOpen) await closePairs(page);
+        } catch (error) {
+          const failure = markRestoreFailure(result, error, '恢复搜索分类、排序与输入');
+          if (!result) throw failure;
+        }
+        runningTrackers.delete(page);
+      }
+      return result;
+    };
+  }
+
   async function setup(page) {
     await goToPerps(page);
     await openPairSelector(page);
 
-    _preReport = await runPreconditions(page, ALL_TEST_IDS);
+    _preReport ??= await runPreconditions(page, ALL_TEST_IDS);
 
     await ensurePopoverOpen(page);
+    return _preReport;
   }
 
-  return { testCases, setup, ensurePopoverOpen, dismissPopover, getPreReport };
+  return { testCases: decoratePerpsCases(testCases,{prefix}), setup, ensurePopoverOpen, dismissPopover, getPreReport };
 }

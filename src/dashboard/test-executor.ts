@@ -4,6 +4,16 @@ import { pathToFileURL } from 'node:url';
 
 const TESTS_DIR = join(import.meta.dirname, '..', 'tests');
 
+interface ExecutionContext {
+  testId: string;
+  platform: string;
+  startedAt: string;
+  endedAt: string;
+  version?: string;
+  build?: string;
+  userAgent?: string;
+}
+
 type EventType = 'queue' | 'start' | 'pass' | 'fail' | 'skip' | 'stopped' | 'done' | 'step' | 'log' | 'reset';
 
 export interface RunEvent {
@@ -26,6 +36,7 @@ export interface RunEvent {
   // result summary (sent with pass/fail)
   steps?: { name: string; status: string; detail: string }[];
   summary?: { passed: number; failed: number; skipped: number; total: number };
+  context?: ExecutionContext;
 }
 
 type EventCallback = (event: RunEvent) => void;
@@ -43,6 +54,7 @@ interface QueueItem {
   // Step-level results — accumulated during execution for SSE and state recovery
   steps?: { name: string; status: string; detail: string; time?: string }[];
   summary?: { passed: number; failed: number; skipped: number; total: number };
+  context?: ExecutionContext;
 }
 
 interface TestGroup {
@@ -146,6 +158,7 @@ export function restartRun() {
     item.error = undefined;
     item.steps = undefined;
     item.summary = undefined;
+    item.context = undefined;
   }
   currentIndex = 0;
   running = true;
@@ -271,6 +284,7 @@ async function executeQueue() {
     item.partial = false;
     item.steps = [];
     item.summary = undefined;
+    item.context = undefined;
     emit({ event: 'start', id: item.id, name: item.name, timestamp: new Date().toISOString() });
 
     const startTime = Date.now();
@@ -379,6 +393,7 @@ async function executeQueue() {
           // Persist step details and summary into queue item
           if (result?.steps) item.steps = result.steps;
           if (result?.summary) item.summary = result.summary;
+          if (result?.context) item.context = result.context;
           if (result?.rowResults) item.rowResults = result.rowResults;
           item.partial = Boolean(result?.partial);
         } finally {
@@ -427,6 +442,7 @@ async function executeQueue() {
       error: item.error,
       steps: item.steps,
       summary: item.summary,
+      context: item.context,
       timestamp: new Date().toISOString(),
     });
 

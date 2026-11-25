@@ -1,6 +1,6 @@
 const connectCDP = () => connectPlatform('desktop');
 import {connectPlatform} from '../../helpers/platform-session.mjs';
-import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
+import {mustStopAfterResult,summarizeCaseResults} from '../../helpers/execution-policy.mjs';
 // Perps TV Chart Tests (Desktop) — PERPS-CHART-001 ~ PERPS-CHART-009
 // Thin wrapper: test logic lives in src/tests/shared/perps/chart.mjs
 // Connects via CDP port 9222 (OneKey Electron app).
@@ -119,17 +119,18 @@ export async function run() {
     console.log();
   }
 
-  const passed = Object.values(results).filter(r => r.status === 'passed').length;
-  const failed = Object.values(results).filter(r => r.status === 'failed').length;
+  const aggregate = summarizeCaseResults(Object.values(results), toRun.length);
+  const {passed,failed,skipped,notRun} = aggregate;
+
   console.log(`${'='.repeat(60)}`);
-  console.log(`SUMMARY: ${passed} passed, ${failed} failed, ${toRun.length} total`);
+  console.log(`SUMMARY: ${passed} passed, ${failed} failed, ${skipped} skipped, ${notRun} not run, ${toRun.length} planned`);
   console.log(`${'='.repeat(60)}`);
 
   const resultPath = resolve(RESULTS_DIR, 'perps-chart/results.json');
   writeFileSync(resultPath, JSON.stringify(results, null, 2));
   console.log(`Results saved to ${resultPath}`);
 
-  return { fatalRestore: Object.values(results).some(mustStopAfterResult), status: failed === 0 ? 'passed' : 'failed', passed, failed, total: Object.keys(results).length, notRun: toRun.length-Object.keys(results).length };
+  return aggregate;
 }
 
 const _isDirectRun = process.argv[1] && process.argv[1].endsWith('chart.test.mjs');

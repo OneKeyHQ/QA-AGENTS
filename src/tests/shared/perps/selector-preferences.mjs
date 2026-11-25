@@ -50,8 +50,10 @@ export async function restoreSelectorPreferences(page,before) {
     const header=pairPopover(page).locator('[data-sentry-component="BaseSortableHeaderCell"]').filter({has:page.getByText(label,{exact:true})});
     assert.equal(await header.count(),1);
     for(let n=0;n<3;n++){
-      if(await header.locator('svg').getAttribute('data-sentry-component')===icon)break;
-      await header.click();await page.waitForTimeout(150);
+      const previous=await header.locator('svg').getAttribute('data-sentry-component');
+      if(previous===icon)break;
+      await header.click();
+      await pollForm(()=>header.locator('svg').getAttribute('data-sentry-component'),value=>value!==previous,'Sort direction advanced');
     }
   }
   await pollForm(()=>snapshotSelectorPreferences(page),state=>JSON.stringify(state)===JSON.stringify(before),'Independent selector preference readback');

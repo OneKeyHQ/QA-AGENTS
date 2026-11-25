@@ -1,3 +1,5 @@
+import { assertSelectorResultSet } from '../search-evidence.mjs';
+import { SampleUnavailable } from '../desktop-row-suite.mjs';
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -100,7 +102,8 @@ test("F04 带词切分类必须仍命中 BTC，空或只返回 ETH 整组失败"
     const fn = vm.runInNewContext(`(${source})`, {
       prefix: "AUDIT",
       _preReport: undefined,
-      createTracker,
+      tracker: (_page,id) => createTracker(id),
+      verifyResults: async()=>{},
       clickTopTab: async () => {},
       getPopoverTabRows: async () => [
         { index: 0, tabs: ["永续合约"] },
@@ -167,7 +170,11 @@ test("F05 收藏切币无论成功/失败都恢复原非空表单，恢复失败
       summary: { passed: 0, failed: 0, skipped: 0, total: 0 },
     };
     const fn = vm.runInNewContext(`(${arrow})`, {
-      tc: { id: "AUDIT-004" },
+      tc: { id: "AUDIT-003" },
+      pairPopover: () => ({count:async()=>0,locator:()=>({inputValue:async()=>''})}),
+      snapshotSelectorPreferences:async()=>({primary:'永续合约'}),
+      restoreSelectorPreferences:async()=>{},
+      searchPairs:async()=>{},
       goToPerps: async () => {},
       currentPair: async () => "BTCUSDC",
       favoriteSnapshot: async () => [],
@@ -308,7 +315,8 @@ test("F05 图表准备失败与正文失败都必须恢复非空草稿，恢复�
         form = "";
         if (failure === "prepare") throw Error("prepare broke");
       },
-      getTimeIntervals: async () => [],
+      getTimeIntervals: async () => [{active:true,aria:"15分"}],
+      clickTimeInterval: async (_page, interval) => assert.equal(interval,"15分"),
       run: async () => {
         form = "";
         if (failure === "case") throw Error("case broke");
@@ -710,4 +718,79 @@ test("D13-73 both actual close paths run inside calibrated request observation, 
   );
   await assert.rejects(execute({ missingClose: true }));
   await assert.rejects(execute({ remainsOpen: true }));
+});
+
+test('basic search runs navigate independently and restore preferences/query even after an action fails', async () => {
+  const arrow = extract('token-search.mjs', (n, ast) =>
+    ts.isArrowFunction(n) && ts.isBinaryExpression(n.parent) && n.parent.left.getText(ast) === 'tc.fn');
+  for (const actionFails of [false, true]) {
+    const calls = [];
+    let query = 'original';
+    const preferences = {primary:'现货',secondary:null,headers:[]};
+    const fn = vm.runInNewContext(`(${arrow})`, {
+      tc:{id:'SEARCH-001'}, tabLayout:'two-level', screenshotDir:'',
+      goToPerps:async()=>calls.push('navigate'),
+      pairPopover:()=>({count:async()=>1,locator:()=>({inputValue:async()=>query})}),
+      snapshotSelectorPreferences:async()=>preferences,
+      restoreSelectorPreferences:async(_page, actual)=>{assert.equal(actual,preferences);calls.push('restore');},
+      ensurePopoverOpen:async()=>calls.push('open'),
+      runningTrackers:new WeakMap(), createStepTracker:()=>({}),
+      safeStep:async(_page,t,_name,check)=>{
+        try {await check();} catch(e){t.result=()=>({status:'failed',error:e.message});}
+      },
+      run:async()=>{query='BTC';calls.push('search');if(actionFails)throw Error('query broke');return {status:'passed'};},
+      searchPairs:async(_page,text)=>{query=text;},closePairs:async()=>{},
+      markRestoreFailure:runtime.markRestoreFailure,
+    });
+    const result = await fn({});
+    assert.deepEqual(calls,['navigate','open','search','restore']);
+    assert.equal(query,'original');
+    assert.equal(result.status,actionFails?'failed':'passed');
+  }
+});
+
+
+test('live full-set checkpoint waits out stale rows and rejects changing data windows', async () => {
+  const source=named('desktop-search-boundaries.mjs','verifySelectorResults').replace(/^export\s+/u,'');
+  const raw=[{coin:'BTC',name:'BTC',spot:false},{coin:'dex:BTC',name:'BTC',spot:false},{coin:'ETH',name:'ETH',spot:false}];
+  const config={tokenSearchAliases:{},tokenSelectorTabs:[],hip3Dexs:['dex']};
+  for(const kind of ['converges','stale','catalog-changed','config-changed','wrong-scope']) {
+    let reads=0,metadataReads=0,configReads=0;
+    const fn=vm.runInNewContext(`(${source})`,{
+      Date,JSON,Set,SampleUnavailable,assertSelectorResultSet,
+      serverConfig:async()=>++configReads===2&&kind==='config-changed'?{...config,hip3Dexs:[]}:config,
+      catalog:async(_page,opts)=>{assert.equal(opts.fresh,true);return ++metadataReads===2&&kind==='catalog-changed'?raw.slice(1):raw;},
+      snapshotSelectorPreferences:async()=>({primary:kind==='wrong-scope'?'现货':'永续合约',secondary:'全部'}),
+      pairPopover:()=>({locator:()=>({inputValue:async()=>'BT'})}),
+      collect:async()=>++reads===1||kind==='stale'?[raw[2]]:raw.slice(0,2),
+      pollForm:(read,matches,description)=>runtime.waitForEvidence(read,matches,description,{interval:1,timeout:250}),
+    });
+    const run=fn({}, {primary:'永续合约',secondary:'全部',query:'BT'});
+    if(kind==='converges') {
+      const result=await run;assert.equal(result.count,2);assert.equal(reads,2);
+      assert.ok(result.window.startedAt&&result.window.endedAt);
+    } else if(kind.endsWith('changed')) await assert.rejects(run,e=>e.code==='PERPS_SAMPLE_UNAVAILABLE');
+    else await assert.rejects(run,e=>e.code==='PERPS_READINESS_TIMEOUT');
+  }
+});
+
+
+test('chart reload readiness compares the exact indicator multiset, including extras and duplicates', async()=>{
+  const source=named('chart.mjs','reloadAndWait');
+  for(const [expected,after,passes] of [
+    [['BB','MACD'],['MACD','BB'],true],
+    [['BB','MACD'],['BB','MACD','RSI'],false],
+    [['BB','BB'],['BB'],false],
+    [[],['RSI'],false],
+  ]) {
+    let reads=0,ticks=0;
+    const fn=vm.runInNewContext(`(${source})`,{
+      Date:{now:()=>ticks++*3000},
+      getCanvasCount:async()=>7,
+      getIndicatorLabels:async()=>++reads===1?expected:after,
+      reloadPerps:async(_page,opts)=>opts.ready(),goToPerps:async()=>{},waitForTVReady:async()=>7,sleep:async()=>{},
+    });
+    if(passes)await fn({});
+    else await assert.rejects(fn({}),e=>e.code==='PERPS_READINESS_TIMEOUT');
+  }
 });

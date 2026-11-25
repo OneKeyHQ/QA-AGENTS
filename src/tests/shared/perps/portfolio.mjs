@@ -1,3 +1,5 @@
+import { decoratePerpsCases } from './execution-evidence.mjs';
+import { pollForm } from './non-order-ui.mjs';
 import { runPreconditions } from "../../helpers/preconditions.mjs";
 import {
   assertHealthFields,
@@ -38,7 +40,6 @@ import { switchNetwork } from "../../helpers/network.mjs";
 //   Measure its inner Content (960px on desktop), not the full-width outer layer.
 //   Entry: click balance ($xx.xx) or 存款 button in Perps header (y < 50)
 
-import { sleep } from "../../helpers/constants.mjs";
 import {
   createStepTracker,
   safeStep,
@@ -212,12 +213,12 @@ export function createPortfolioTests({
     if (!closed) {
       await page.keyboard.press("Escape");
     }
-    await sleep(800);
-
-    const stillVisible = await isPortfolioPopupVisible(page);
-    if (stillVisible) {
-      await page.mouse.click(10, 300);
-      await sleep(500);
+    try {
+      await pollForm(() => isPortfolioPopupVisible(page),visible=>!visible,'Portfolio popup closed',3000);
+    } catch(error) {
+      if(error.code!=='PERPS_READINESS_TIMEOUT') throw error;
+      await page.keyboard.press('Escape');
+      await pollForm(() => isPortfolioPopupVisible(page),visible=>!visible,'Portfolio popup dismissed after Escape',5000);
     }
   }
 
@@ -381,7 +382,7 @@ export function createPortfolioTests({
     }, action);
     if (!clicked)
       throw new Error(`${action} button not found or not clickable`);
-    await sleep(2000);
+    await pollForm(() => getDepositDialogState(page),state=>state.hasModal,`${action} dialog opened`);
   }
 
   async function getDepositDialogState(page) {
@@ -428,7 +429,8 @@ export function createPortfolioTests({
       }
       return false;
     });
-    if (opened) await sleep(1500);
+    if(opened) await pollForm(async()=>({items:await page.locator('[data-testid="perp-deposit-token-item"]:visible').count(),text:await page.locator('[data-testid="APP-Modal-Screen"]:visible').last().innerText()}),
+      state=>state.items>0 || /搜索|Search|暂无数据|No data/.test(state.text),'Deposit token picker ready');
     return opened;
   }
 
@@ -466,7 +468,7 @@ export function createPortfolioTests({
     if ((await selector.count()) !== 1)
       throw Error("Account mode selector missing or ambiguous");
     await selector.click();
-    await page.waitForTimeout(500);
+    await pollForm(() => getAccountModeState(page),state=>state.hasDialog || state.needsEnable,'Account mode dialog or explicit enable gate');
   }
 
   async function getHomePerpsState(page) {
@@ -543,6 +545,20 @@ export function createPortfolioTests({
     });
   }
 
+  async function waitPortfolioSelection(page, key, label, { allowEmptyFunding = false } = {}) {
+    await pollForm(() => locator(page,key).evaluate((root,wanted)=>{
+      const leaves=[...root.querySelectorAll('span')].filter(e=>e.children.length===0 && e.getBoundingClientRect().width>0);
+      const target=leaves.find(e=>e.textContent.trim()===wanted);
+      return !!target && leaves.filter(e=>e!==target).every(e=>getComputedStyle(e).color!==getComputedStyle(target).color);
+    },label),selected=>selected,`Selected portfolio ${label}`);
+    return pollForm(async () => {
+      if ((await getCanvasInfo(page))?.count) return '画布存在';
+      if (allowEmptyFunding && await page.getByText('暂无资金费记录', { exact: true }).first().isVisible())
+        return '显示暂无资金费记录';
+      return null;
+    }, Boolean, `Portfolio chart or empty state for ${label}`);
+  }
+
   async function switchChartType(page, type) {
     const clicked = await page.evaluate((tabText) => {
       const container = document.querySelector(
@@ -562,7 +578,7 @@ export function createPortfolioTests({
       return false;
     }, type);
     if (!clicked) throw new Error(`Chart type tab "${type}" not found`);
-    await sleep(1500);
+    await waitPortfolioSelection(page,"perps.portfolio.chart_type",type);
   }
 
   async function switchTimeDimension(page, dim) {
@@ -584,7 +600,7 @@ export function createPortfolioTests({
       return false;
     }, dim);
     if (!clicked) throw new Error(`Time dimension tab "${dim}" not found`);
-    await sleep(1500);
+    await waitPortfolioSelection(page,"perps.portfolio.time_period",dim);
   }
 
   async function getActiveTabText(page, tabTexts) {
@@ -810,9 +826,8 @@ export function createPortfolioTests({
     if (typeof result === "string" && result) return result;
     if (result === false) return `SKIP: cannot switch to ${account.label}`;
 
-    await sleep(1000);
     await goToPerps(page);
-    await sleep(2000);
+
     await openPortfolioPopup(page);
     return undefined;
   }
@@ -835,7 +850,7 @@ export function createPortfolioTests({
         skipFunded = true;
         return "SKIP: funded wallet not available";
       }
-      await sleep(1000);
+
       await goToPerps(page);
       return "switched to funded account + Perps tab";
     });
@@ -885,7 +900,7 @@ export function createPortfolioTests({
         skipEmpty = true;
         return `SKIP: cannot switch to ${emptyAccount.label}`;
       }
-      await sleep(1000);
+
       await goToPerps(page);
       return `switched to ${emptyAccount.label}`;
     });
@@ -948,7 +963,7 @@ export function createPortfolioTests({
           await closePortfolioPopup(page);
         } else {
           await page.keyboard.press("Escape");
-          await sleep(500);
+          await pollForm(() => isPortfolioPopupVisible(page),visible=>!visible,'Empty account popup closed');
         }
         return "cleaned up";
       });
@@ -966,7 +981,7 @@ export function createPortfolioTests({
         skipBack = true;
         return "SKIP: funded wallet not available";
       }
-      await sleep(1000);
+
       await goToPerps(page);
       return "back to funded";
     });
@@ -979,16 +994,10 @@ export function createPortfolioTests({
         if (!visible)
           throw new Error(`Iteration ${i + 1}: popup not visible after open`);
 
-        const hasContent = await page.evaluate(() => {
-          const c = document.querySelector(
-            '[data-testid="IN_PAGE_TAB_CONTAINER"]',
-          );
-          return c ? c.textContent.trim().length > 20 : false;
-        });
-        if (!hasContent)
-          throw new Error(
-            `Iteration ${i + 1}: popup appears empty (white screen)`,
-          );
+        const data = await getPortfolioData(page);
+        assertPortfolioStats(data);
+        const canvas = await getCanvasInfo(page);
+        if (!canvas?.count) throw Error(`Iteration ${i + 1}: portfolio canvas missing`);
 
         const instanceCount = await page.evaluate(() => {
           return [
@@ -1137,6 +1146,7 @@ export function createPortfolioTests({
       });
       return `${canvas.count} canvases; scoped controls visible`;
     });
+    let chartType;
     for (const [key, labels] of [
       ["perps.portfolio.chart_type", ["净值", "盈亏", "资金费"]],
       ["perps.portfolio.time_period", ["1天", "1周", "1月", "全部"]],
@@ -1145,24 +1155,11 @@ export function createPortfolioTests({
         await _ssStep(page, t, `切换${label}并验证选中态`, async () => {
           const control = locator(page, key);
           await control.getByText(label, { exact: true }).click();
-          await page.waitForTimeout(500);
-          const state = await control.evaluate((root, wanted) => {
-            const leaves = [...root.querySelectorAll("span")].filter(
-              (e) =>
-                e.children.length === 0 && e.getBoundingClientRect().width > 0,
-            );
-            const chosen = leaves.find((e) => e.textContent.trim() === wanted);
-            if (!chosen) return false;
-            const color = getComputedStyle(chosen).color;
-            return leaves
-              .filter((e) => e !== chosen)
-              .every((e) => getComputedStyle(e).color !== color);
-          }, label);
-          if (!state)
-            throw Error(`${label} does not have distinct active text color`);
-          if (!(await getCanvasInfo(page))?.count)
-            throw Error("Chart disappeared after selection");
-          return `已选中${label}，画布存在；不以实时图像 hash 代替选中态`;
+          if (key === "perps.portfolio.chart_type") chartType = label;
+          const evidence = await waitPortfolioSelection(page, key, label, {
+            allowEmptyFunding: chartType === "资金费",
+          });
+          return `已选中${label}，${evidence}`;
         });
     }
     await closePortfolioPopup(page);
@@ -1386,7 +1383,7 @@ export function createPortfolioTests({
         skip = true;
         return "SKIP: funded wallet not available";
       }
-      await sleep(1000);
+
       await goToPerps(page);
       return "ready";
     });
@@ -1448,7 +1445,7 @@ export function createPortfolioTests({
         skip = true;
         return "SKIP: funded wallet not available";
       }
-      await sleep(1000);
+
       await goToPerps(page);
       return "ready";
     });
@@ -1515,8 +1512,7 @@ export function createPortfolioTests({
       const panel = locator(page, "perps.info.tabs")
         .locator("..")
         .locator("..");
-      await page.waitForTimeout(800);
-      const text = await panel.innerText();
+      const text = await pollForm(() => panel.innerText(), text=>/USDC|资产|余额|暂无数据|No data|Deposit/.test(text),'Holdings rows or explicit empty/deposit state');
       if (!/USDC|资产|余额|暂无数据|No data|Deposit/.test(text))
         throw Error("Holdings data or explicit empty state missing");
       return text.slice(0, 180);
@@ -1667,12 +1663,9 @@ export function createPortfolioTests({
         const option = locator(page, `perps.history.type_${type}`);
         const label = await option.innerText();
         await option.click();
-        await page.waitForTimeout(200);
-        if (
-          type !== "all" &&
-          !(await trigger.innerText()).includes(label.trim())
-        )
-          throw Error(`Type selection not applied: ${type}`);
+        const expected = type === "all" ? "类型" : label.trim();
+        await pollForm(() => trigger.innerText(), text => text.trim() === expected,
+          `History filter ${expected}`);
       }
       return "现货、永续、全部控制可用；成交数据与筛选交集另需有样本账户对账";
     });
@@ -1783,7 +1776,7 @@ export function createPortfolioTests({
   let _preReport = null;
   async function setup(page) {
     await goToPerps(page);
-    await sleep(2000);
+
     _preReport ??= await runPreconditions(
       page,
       testCases.map((tc) => tc.id),
@@ -1792,5 +1785,5 @@ export function createPortfolioTests({
     return _preReport;
   }
 
-  return { testCases, setup, ALL_TEST_IDS };
+  return { testCases: decoratePerpsCases(testCases,{prefix}), setup, ALL_TEST_IDS };
 }

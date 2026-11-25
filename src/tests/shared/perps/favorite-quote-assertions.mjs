@@ -120,3 +120,21 @@ export function favoriteTopProjection(f, e) {
     colors,
   };
 }
+
+// Format-only evidence for the basic display flow; raw-quote equality is checked
+// separately by assertFavoriteQuote. Digits in a token name are never a quote.
+export function assertFavoriteValues(rows, mode) {
+  assert.ok(rows.length > 0, 'Favorite quote rows required');
+  assert.ok(mode === '$' || mode === '%', `Unknown display mode ${mode}`);
+  for (const row of rows) {
+    const lines = row.text.split('\n').map(s => s.trim()).filter(Boolean);
+    assert.equal(lines.length, 2, `Name and one quote required: ${row.text}`);
+    const value = lines[1];
+    if (mode === '%') assert.match(value, /^[+-]\d+\.\d{2}%$/u, `${lines[0]} signed percentage`);
+    else {
+      assert.match(value, /^(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?$/u, `${lines[0]} price format`);
+      const price = Number(value.replaceAll(',', ''));
+      assert.ok(Number.isFinite(price) && price > 0, `${lines[0]} positive finite price`);
+    }
+  }
+}

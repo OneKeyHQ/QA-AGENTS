@@ -89,3 +89,26 @@ export function expectedSearchCategories(serverTabs) {
   }
   return categories;
 }
+
+// Manual search §§1/3/6: a keyword searches the whole selected asset type;
+// clearing it restores that category. Compare canonical identities, not labels.
+export function assertSelectorResultSet(catalog, results, {primary, secondary, query, config}) {
+  assert.ok(['永续合约','现货'].includes(primary), `Unsupported search scope ${primary}`);
+  const spot = primary === '现货';
+  const universe = catalog.filter(r => r.spot === spot);
+  assert.ok(universe.length > 0, `Independent ${primary} catalog required`);
+  const q = query.trim().slice(0,64).toLowerCase();
+  let expected = universe;
+  if (q) expected = universe.filter(r => spot
+    ? [r.name, r.base, `${r.base}/${r.quote}`].some(value => value?.toLowerCase().includes(q))
+    : r.coin.toLowerCase().includes(q) || aliasMatches(r.coin,q,config));
+  else if (!spot && secondary !== '全部') {
+    const category = expectedSearchCategories(config.tokenSelectorTabs).find(t => t.name === secondary);
+    assert.ok(category, `Independent configured category required: ${secondary}`);
+    expected = universe.filter(r => category.tokens.includes(r.coin));
+  }
+  assert.ok(results.every(r => r.spot === spot), `${primary} cannot contain another asset type`);
+  assert.deepEqual(results.map(r=>r.coin).sort(), expected.map(r=>r.coin).sort(),
+    `Full ${primary}/${secondary ?? '-'} result set for ${JSON.stringify(query)}`);
+  return expected.map(r=>r.coin);
+}

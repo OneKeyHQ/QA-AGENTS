@@ -74,3 +74,22 @@ test('Dashboard preserves incomplete row evidence without counting a complete pa
   assert.equal(state.queue[0].error, 'incomplete');
   assert.deepEqual(state.queue[0].rowResults, rows);
 });
+
+test('Dashboard carries Perps build evidence in the final event and queue state', async () => {
+  const context = {
+    testId: 'PERPS-FIXTURE', platform: 'desktop', version: '6.7.0', build: '1',
+    startedAt: '2026-11-25T00:00:00Z', endedAt: '2026-11-25T00:00:01Z',
+  };
+  const fixture = await executorFixture([
+    { id: context.testId, fn: async () => ({ status: 'passed', context }) },
+  ]);
+  const events = [];
+  const unsubscribe = fixture.executor.onEvent(event => events.push(event));
+  try {
+    const state = await run(fixture.executor, [context.testId], 'desktop/perps/fixture.test.mjs');
+    assert.deepEqual(state.queue[0].context, context);
+    assert.deepEqual(events.find(event => event.event === 'pass')?.context, context);
+  } finally {
+    unsubscribe();
+  }
+});

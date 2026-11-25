@@ -82,3 +82,13 @@ test("production memo without displayName resolves only the instrumented quote c
     globalThis.getComputedStyle = previous;
   }
 });
+
+test('top-bar format checks cannot accept ticker digits, missing values or mixed modes', async () => {
+  const { assertFavoriteValues } = await import('../favorite-quote-assertions.mjs');
+  assert.equal(typeof assertFavoriteValues, 'function');
+  assertFavoriteValues([{text:'XYZ100\n123.45'}, {text:'ETH\n2,500'}], '$');
+  assertFavoriteValues([{text:'XYZ100\n+1.23%'}, {text:'ETH\n-0.05%'}], '%');
+  for (const rows of [[], [{text:'XYZ100'}], [{text:'XYZ100\n--'}], [{text:'XYZ100\nNaN'}], [{text:'XYZ100\n0'}], [{text:'XYZ100\n+1.23%'}]])
+    assert.throws(() => assertFavoriteValues(rows, '$'));
+  assert.throws(() => assertFavoriteValues([{text:'ETH\n2500'}], '%'));
+});

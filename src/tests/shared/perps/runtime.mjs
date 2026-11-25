@@ -84,3 +84,22 @@ export async function reloadPerps(page, {navigate, ready, unlock=unlockWalletIfN
   await navigate(page);
   await ready(page);
 }
+
+// The interval only paces retries; it is never evidence that the UI is ready.
+// Read errors are preserved so locator/identity failures cannot become PASS.
+export async function waitForEvidence(read, matches, description, {timeout=10000, interval=100}={}) {
+  const deadline=Date.now()+timeout;
+  let actual;
+  do {
+    actual=await read();
+    if(await matches(actual)) return actual;
+    if(Date.now()>=deadline) break;
+    await new Promise(resolve=>setTimeout(resolve,Math.min(interval,Math.max(0,deadline-Date.now()))));
+  } while(true);
+  const error=new Error(`${description}: ${JSON.stringify(actual)}`);
+  error.code='PERPS_READINESS_TIMEOUT';
+  error.failureCategory='readiness';
+  error.expected=description;
+  error.actual=actual;
+  throw error;
+}

@@ -246,11 +246,11 @@ export function createTracker(testId, preReport) {
         if (warned) {
           finalStatus = 'skipped';
           skippedSteps.push(name);
-          console.log(`  [SKIP] ${name} — 数据「${opts.dataKey}」不可用${detail ? ' — ' + detail : ''}`);
-          return;
+          detail = `数据「${opts.dataKey}」前置不可用 — ${detail}`;
         }
       }
 
+      if (finalStatus === 'passed' && /^SKIP:/.test(detail)) finalStatus = 'skipped';
       steps.push({ name, status: finalStatus, detail, time: new Date().toISOString() });
       const icon = finalStatus === 'passed' ? 'OK' : finalStatus === 'skipped' ? 'SKIP' : 'FAIL';
       console.log(`  [${icon}] ${name}${detail ? ' — ' + detail : ''}`);
@@ -258,10 +258,10 @@ export function createTracker(testId, preReport) {
     },
 
     result() {
-      const status = isTestSkipped ? 'skipped'
-        : errors.length === 0 ? 'passed'
-        : 'failed';
-      return { status, steps, errors, skippedSteps };
+      const skipped = steps.filter(s => s.status === 'skipped').length;
+      const status = errors.length ? 'failed'
+        : isTestSkipped || skipped || !steps.length ? 'skipped' : 'passed';
+      return { status, partial: skipped > 0 && steps.some(s => s.status === 'passed'), steps, errors, skippedSteps };
     },
   };
 }

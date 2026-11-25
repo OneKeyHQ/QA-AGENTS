@@ -1,6 +1,8 @@
+import { pollForm } from '../../shared/perps/non-order-ui.mjs';
+import { snapshotFinancialState } from '../../shared/perps/order-observation.mjs';
 const connectCDP = () => connectPlatform('desktop');
 import {connectPlatform} from '../../helpers/platform-session.mjs';
-import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
+import {mustStopAfterResult,summarizeCaseResults} from '../../helpers/execution-policy.mjs';
 // Perps Portfolio & PnL Tests (Desktop) — PERPS-PNL-001 ~ PERPS-PNL-013
 // Thin wrapper: test logic lives in src/tests/shared/perps/portfolio.mjs
 // Connects via CDP port 9222 (OneKey Electron app).
@@ -10,7 +12,7 @@ import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
-  sleep, RESULTS_DIR,
+  RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { clickSidebarTab, importWatchAddress } from '../../helpers/components.mjs';
@@ -41,17 +43,27 @@ async function switchToWatchAccount(page,address,label) {
   await modal.locator('[data-testid="wallet-others-view-tabs-watching"]').click();
   const input=modal.locator('input').first();
   await typeInput(input,address.slice(0,10));
-  await sleep(1200);
+  try {
+    await pollForm(() => modal.locator('[data-testid^="account-item-"]:visible').allTextContents(),
+      rows => rows.some(text => text.toLowerCase().includes(address.slice(0, 8).toLowerCase()) &&
+        text.toLowerCase().includes(address.slice(-4).toLowerCase())),
+      `Configured observation account ${label}`);
+  } catch (error) {
+    if (error.code !== 'PERPS_READINESS_TIMEOUT') throw error;
+  }
   const rows=modal.locator('[data-testid^="account-item-"]:visible');
   for(let i=0;i<await rows.count();i++) {
     const row=rows.nth(i),text=(await row.innerText()).toLowerCase();
     if(text.includes(address.slice(0,8).toLowerCase()) && text.includes(address.slice(-4).toLowerCase())) {
       await row.click();
       await modal.waitFor({state:'hidden',timeout:10000});
+      await goToPerps(page);
+      await pollForm(() => snapshotFinancialState(page),state=>state.account===address.toLowerCase(),'Full selected financial account address');
       return;
     }
   }
   await page.keyboard.press('Escape');
+  await modal.waitFor({ state: 'hidden', timeout: 10000 });
   return `SKIP: ${label} 未配置匹配地址的观察账户；不选择首条兜底，不自动导入钱包`;
 }
 
@@ -92,7 +104,7 @@ export async function run() {
   console.log(`  Perps Portfolio & PnL Tests — ${toRun.length} case(s)`);
   console.log(`${'='.repeat(60)}\n`);
 
-  let { browser, page } = await connectCDP();
+  let { page } = await connectCDP();
   await unlockWalletIfNeeded(page);
   await dismissOverlays(page);
   await setup(page);
@@ -116,8 +128,7 @@ export async function run() {
         result.errors.forEach(e => console.log(`   * ${e}`));
       }
       writeFileSync(resolve(RESULTS_DIR, `${tc.id}.json`), JSON.stringify({
-        testId: tc.id, status: result.status, duration: Date.now() - start,
-        steps: result.steps, errors: result.errors,
+        ...result, testId: tc.id, duration: Date.now() - start,
         timestamp: new Date().toISOString(),
       }, null, 2));
     } catch (e) {
@@ -131,21 +142,27 @@ export async function run() {
         testId: tc.id, status: 'failed', duration: Date.now() - start,
         error: e.message, timestamp: new Date().toISOString(),
       }, null, 2));
-      if (!e.fatalRestore && /timed out|Target page|context or browser has been closed/i.test(e.message || '')) {
-        ({ browser, page } = await connectCDP());
-        await unlockWalletIfNeeded(page).catch(() => {});
-        await dismissOverlays(page).catch(() => {});
-        await setup(page).catch(() => {});
-      }
     }
-    if(mustStopAfterResult(results[tc.id])) { console.error('恢复失败，停止后续用例；剩余条目未执行'); break; }
+    const result = results[tc.id];
+    if (mustStopAfterResult(result)) {
+      console.error('恢复失败，停止后续用例；剩余条目未执行');
+      break;
+    }
+    const sessionError = /timed out|Target page|context or browser has been closed/i;
+    if (result.status === 'failed' && result.errors?.some(message => sessionError.test(message))) {
+      ({ page } = await connectCDP());
+      await unlockWalletIfNeeded(page).catch(() => {});
+      await dismissOverlays(page).catch(() => {});
+      await setup(page).catch(() => {});
+    }
     console.log();
   }
 
-  const passed = Object.values(results).filter(r => r.status === 'passed').length;
-  const failed = Object.values(results).filter(r => r.status === 'failed').length;
+  const aggregate = summarizeCaseResults(Object.values(results), toRun.length);
+  const {passed,failed,skipped,notRun} = aggregate;
+
   console.log(`${'='.repeat(60)}`);
-  console.log(`SUMMARY: ${passed} passed, ${failed} failed, ${toRun.length} total`);
+  console.log(`SUMMARY: ${passed} passed, ${failed} failed, ${skipped} skipped, ${notRun} not run, ${toRun.length} planned`);
   console.log(`${'='.repeat(60)}`);
 
   const resultPath = resolve(RESULTS_DIR, 'perps-portfolio/results.json');
@@ -153,7 +170,7 @@ export async function run() {
   writeFileSync(resultPath, JSON.stringify(results, null, 2));
   console.log(`Results saved to ${resultPath}`);
 
-  return { fatalRestore: Object.values(results).some(mustStopAfterResult), status: failed === 0 ? 'passed' : 'failed', passed, failed, total: Object.keys(results).length, notRun: toRun.length-Object.keys(results).length };
+  return aggregate;
 }
 
 const _thisFile = new URL(import.meta.url).pathname;
