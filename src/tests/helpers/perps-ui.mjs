@@ -1,3 +1,4 @@
+import { waitForFavoriteSync } from '../shared/perps/favorite-sync.mjs';
 // Perps UI actions shared by Page Objects and all three desktop browser platforms.
 import {readFileSync} from 'node:fs';
 import {unlockWalletIfNeeded} from './navigation.mjs';
@@ -36,6 +37,8 @@ export async function openPairs(page) {
 export async function searchPairs(page,text) {
   await openPairs(page);
   await typeInput(pairPopover(page).locator('input'),text);
+  // SearchBar commits the uncontrolled query after a 300 ms debounce.
+  // Keep existing callers past that window before they inspect rendered rows.
   await page.waitForTimeout(500);
 }
 export async function closePairs(page) {
@@ -81,6 +84,11 @@ export async function clickPairTab(page, label) {
   );
   if(await tab.count()!==1) throw Error(`Expected one pair tab: ${label}`);
   await tab.click();
+  const primary=['自选','永续合约','现货'].includes(label);
+  const selected=locator(page,primary?'perps.selector.primary_tabs':'perps.selector.secondary_tabs');
+  await waitForFavoriteSync(() => selected.evaluate((element,primary)=>[...element.children]
+    .filter(n=>primary?n.querySelector('span')?.classList.contains('_col-text'):n.classList.contains('_bg-bgActive'))
+    .map(n=>n.innerText.trim()),primary),[label]);
 }
 export async function favoriteSnapshot(page) {
   await openPairs(page); await searchPairs(page,'');
@@ -103,7 +111,12 @@ export async function clearFavorites(page) {
   for(let i=0;i<1000;i++) {
     const star=pairRows(page).locator('[data-testid="perp-already-favorite-icon-btn"]').first();
     if(!await star.count()) return;
+    const before = await pairRows(page).evaluateAll(es=>es.map(e=>`${e.dataset.testid}:${e.innerText.split('\n')[0].trim()}`));
     await star.click();
+    await waitForFavoriteSync(
+      () => pairRows(page).evaluateAll(es=>es.map(e=>`${e.dataset.testid}:${e.innerText.split('\n')[0].trim()}`)),
+      before.slice(1),
+    );
     // Do not click the departing last row while React replaces it with the
     // recommendation grid, or consume an uncommitted intermediate row.
     await waitFavoriteView(page);
@@ -131,6 +144,7 @@ export async function setFavorite(page, item, enabled) {
   await clickPairTab(page,item.name.includes('/')?'现货':'永续合约');
   await searchPairs(page,item.name);
   const rows=pairRows(page);
+  await rows.filter({has:page.getByText(item.name,{exact:true})}).first().waitFor({state:'visible',timeout:10000});
   const count=await rows.count();
   for(let i=0;i<count;i++) {
     const row=rows.nth(i);
@@ -139,6 +153,10 @@ export async function setFavorite(page, item, enabled) {
     const star=row.locator('[data-testid="perp-already-favorite-icon-btn"]');
     const selected=await star.locator('svg').evaluate(svg=>svg.getAttribute('data-sentry-source-file')?.includes('/solid/')===true);
     if(selected!==enabled) await star.click();
+    await waitForFavoriteSync(
+      async () => [await star.locator('svg').evaluate(svg=>svg.getAttribute('data-sentry-source-file')?.includes('/solid/')===true)],
+      [enabled],
+    );
     return;
   }
   throw Error(`Exact favorite not found: ${item.name} (${item.id??''})`);
@@ -159,6 +177,7 @@ export async function restorePair(page,pair) {
   const name=pair.includes('/')?pair:pair.replace(/USDC$/,'');
   await searchPairs(page,name);
   const row=pairRows(page).filter({has:page.getByText(name,{exact:true})});
+  await row.first().waitFor({state:'visible',timeout:10000});
   if(await row.count()!==1) throw Error(`Cannot uniquely restore selected pair ${pair}`);
   await row.click();
   await pairPopover(page).waitFor({state:'hidden',timeout:10000});

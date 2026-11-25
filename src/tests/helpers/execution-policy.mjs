@@ -1,3 +1,9 @@
+const sensitiveAssignment = /(\b["']?(?:password|walletPassword|mnemonic|seed|privateKey|authorization|accessToken|refreshToken|apiKey)["']?\s*[=:]\s*)(?:Bearer\s+[^\s,;]+|"[^"\r\n]*"|'[^'\r\n]*'|[^\s,;]+)/giu;
+
+export function redactExecutionText(text) {
+  return typeof text === 'string' ? text.replace(sensitiveAssignment, '$1[REDACTED]') : text;
+}
+
 // A failed cleanup invalidates the baseline for every later case in this queue.
 export function mustStopAfterResult(result) {
   return Boolean(result?.fatalRestore || result?.steps?.some(step =>
@@ -34,4 +40,17 @@ export async function runUntilRestoreFailure(items, runItem) {
     if(mustStopAfterResult(result)) break;
   }
   return results;
+}
+
+// Keep module summaries consistent with their actual case results.
+export function summarizeCaseResults(results, planned = results.length) {
+  const passed = results.filter(r => r.status === 'passed' && !mustStopAfterResult(r)).length;
+  const skipped = results.filter(r => r.status === 'skipped' && !mustStopAfterResult(r)).length;
+  const failed = results.length - passed - skipped;
+  const notRun = Math.max(0, planned - results.length);
+  return {
+    status: failed ? 'failed' : skipped || notRun || !results.length ? 'skipped' : 'passed',
+    passed, failed, skipped, notRun, total: results.length, planned,
+    fatalRestore: results.some(mustStopAfterResult),
+  };
 }

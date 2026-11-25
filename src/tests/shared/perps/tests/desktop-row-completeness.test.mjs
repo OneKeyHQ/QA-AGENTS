@@ -1,3 +1,4 @@
+import { decoratePerpsCases } from '../execution-evidence.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -21,6 +22,7 @@ async function runRows(makeRows) {
   const form = { checkboxes: [] };
   const financial = { account: 'offline-fixture', orders: [] };
   const mocks = {
+    './execution-evidence.mjs': {decoratePerpsCases: cases=>decoratePerpsCases(cases,{readMetadata:async()=>({'X-Onekey-Request-Version':'6.7.0','X-Onekey-Request-Build-Number':'1','User-Agent':'OneKeyWallet/6.7.0'})})},
     'node:assert/strict': assert,
     'node:fs': { mkdirSync() {}, writeFileSync() {} },
     'node:path': { resolve: (...parts) => parts.join('/') },

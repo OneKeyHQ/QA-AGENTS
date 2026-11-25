@@ -1,9 +1,10 @@
+import { decoratePerpsCases } from './execution-evidence.mjs';
 // Non-order CDP cases. No Buy/Sell/submit/sign/cancel-order handler is called.
 // Source: docs/qa/rules/perps-rules.md and the confirmed manual Perps cases.
 // fill() deliberately exercises paste/whole-value validation; typed flows use pressSequentially elsewhere.
 import assert from "node:assert/strict";
 import { isDeepStrictEqual } from "node:util";
-import { reloadPerps } from "./runtime.mjs";
+import { reloadPerps, waitForEvidence } from "./runtime.mjs";
 import {waitInstrumentBoundary} from './instrument-readiness.mjs';
 import { mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -33,14 +34,7 @@ const advanced = (p) =>
     .locator('[data-testid="select-trigger"]')
     .filter({ hasText: /^(市价止盈止损|限价止盈止损|分段委托|分时委托)$/u });
 async function poll(read, check, message, timeout = 10000) {
-  const end = Date.now() + timeout;
-  let value;
-  do {
-    value = await read();
-    if (check(value)) return value;
-    await new Promise((r) => setTimeout(r, 100));
-  } while (Date.now() < end);
-  throw Error(`${message}: ${JSON.stringify(value)}`);
+  return waitForEvidence(read,check,message,{timeout});
 }
 async function closeDialog(page) {
   if (!(await dialog(page).count())) return;
@@ -1009,8 +1003,8 @@ export function createNonOrderTests({
     },
   ];
   return {
-    testCases,
-    settings,
+    testCases: decoratePerpsCases(testCases,{platform,prefix}),
+    settings: decoratePerpsCases(settings,{platform,prefix:settingsPrefix}),
     setup: async (page) => {
       assertTargetPage(page,platform);
       await unlockWalletIfNeeded(page);
@@ -1028,7 +1022,7 @@ export function createNonOrderTests({
 export async function runNonOrderCLI({ testCases, setup, platform = 'desktop' }) {
   const { page } = await connectPlatform(platform);
   page.setDefaultTimeout(15000);
-  await page.waitForTimeout(5000);
+  // setup waits for unlock, navigation and the scoped form; connection alone is not readiness.
   const pre = await setup(page);
   const ids = process.argv.slice(2).filter((s) => /\d{3}$/u.test(s));
   const selected = ids.length

@@ -1,3 +1,5 @@
+import { decoratePerpsCases } from './execution-evidence.mjs';
+import { pollForm } from './non-order-ui.mjs';
 import {chartInteractions} from './chart-interactions.mjs';
 import {writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
@@ -82,18 +84,21 @@ export function createChartTests({
 
   async function waitForTVReady(page, minCanvases = 7, timeoutMs = 15000) {
     const start = Date.now();
+    let last;
     while (Date.now() - start < timeoutMs) {
       try {
         const count = await tvEval(page, `return doc.querySelectorAll('canvas').length;`);
+        last={canvases:count,minCanvases};
         if (count >= minCanvases) {
           const controls=locator(page,'perps.chart.controls');
           const enabled=await controls.evaluate(e=>{const s=getComputedStyle(e);return s.opacity==='1' && s.pointerEvents!=='none';});
           if(enabled && await controls.locator('[data-sentry-component="SegmentControlItem"]:visible').count()>0) return count;
         }
-      } catch {}
+      } catch(error) {last={...last,readError:error.message};}
+      // Retry pacing; a canvas/control readiness condition is checked every time.
       await sleep(1000);
     }
-    throw new Error(`TV chart not ready within ${timeoutMs}ms`);
+    throw Object.assign(new Error(`TV chart not ready within ${timeoutMs}ms: ${JSON.stringify(last)}`),{code:'PERPS_READINESS_TIMEOUT',failureCategory:'readiness',actual:last});
   }
 
   async function getCanvasCount(page) {
@@ -116,7 +121,7 @@ export function createChartTests({
     });
   }
 
-  async function clickTimeInterval(page,label,settle=1500) {
+  async function clickTimeInterval(page,label) {
     const text=label.replace(/\s/g,'').replace('分钟','分').replace('小时','时');
     const segment=locator(page,'perps.chart.controls').locator('[data-sentry-component="SegmentControlItem"]').filter({has:page.getByText(text,{exact:true})});
     if(await segment.count()===1) await segment.click();
@@ -126,7 +131,17 @@ export function createChartTests({
       if(await option.count()!==1) throw Error(`Interval option missing or ambiguous: ${label}`);
       await option.click();
     }
-    await sleep(settle);
+    await pollForm(
+      () => getTimeIntervals(page),
+      intervals => intervals.some(i=>i.active && i.text.replace(/\s/g,'') === text),
+      `Chart interval selection ${label}`,
+    );
+    if((await locator(page,'perps.chart.engine').innerText()).includes('TradingView')) {
+      const resolution = {'1分':'1','3分':'3','5分':'5','15分':'15','30分':'30','1时':'60','2时':'120','4时':'240','6时':'360','8时':'480','12时':'720','1日':'1D','3日':'3D','1周':'1W','1月':'1M'}[text];
+      if(!resolution) throw Error(`No TradingView resolution expectation for ${label}`);
+      await pollForm(() => tvEval(page, 'return doc.defaultView.tradingViewApi.activeChart().resolution();'),
+        actual => actual === resolution, `TradingView resolution ${resolution}`);
+    }
   }
 
   async function getOHLC(page) {
@@ -162,7 +177,7 @@ export function createChartTests({
       // The first pointer sequence can lack a click during hover/focus changes.
       // Let the tooltip transition finish before clicking.
       await trigger.hover();
-      await sleep(400);
+      await trigger.click({trial:true});
       await trigger.click();
       await indicatorPanel(page).waitFor({state:'visible'});
     }
@@ -289,10 +304,11 @@ export function createChartTests({
     const deadline=Date.now()+15000;
     while(Date.now()<deadline) {
       const restored=await getIndicatorLabels(page);
-      if(expectedIndicators.every(name=>restored.includes(name))) return;
+      if(JSON.stringify([...expectedIndicators].sort())===JSON.stringify([...restored].sort())) return;
+      // Retry pacing; exact indicator multiset, including duplicates/extras, must match.
       await sleep(250);
     }
-    throw Error(`Indicators not restored after refresh: ${expectedIndicators.join(', ')}`);
+    throw Object.assign(new Error(`Indicators not restored after refresh: ${expectedIndicators.join(', ')}`),{code:'PERPS_READINESS_TIMEOUT',failureCategory:'readiness',expected:expectedIndicators,actual:await getIndicatorLabels(page)});
   }
 
   // ── Test Cases (8 merged) ──────────────────────────────────
@@ -327,7 +343,7 @@ export function createChartTests({
     await _ssStep(page, t, '检查当前指标列表', async () => {
       if (await isIndicatorPanelOpen(page)) {
         await clickIndicatorButton(page);
-        await sleep(500);
+
       }
       const labels = await getIndicatorLabels(page);
       return `Current: ${labels.filter(l => l.length < 25).join(', ')}`;
@@ -336,7 +352,7 @@ export function createChartTests({
     let panelTextBefore;
     await _ssStep(page, t, '当前指标分类与选项', async () => {
       await clickIndicatorButton(page);
-      await sleep(500);
+
       panelTextBefore = await getIndicatorPanelText(page);
       if(!panelTextBefore.includes('MACD') || !panelTextBefore.includes('主图指标')) throw Error('Indicator categories/options missing');
       const macdPos = panelTextBefore.indexOf('MACD');
@@ -356,14 +372,14 @@ export function createChartTests({
         await _ssStep(page,t,'RSI 参数修改持久化',async()=>{
           fixtureId=await interactions.addRsi(page);
           await interactions.editRsi(page,fixtureId,18);
-          await sleep(1500);await reloadAndWait(page);
+          await reloadAndWait(page);
           fixtureId=await interactions.wait(page,`return chart.getAllStudies().find(s=>s.name==='Relative Strength Index')?.id;`);
           const inputs=await interactions.api(page,`return chart.getStudyById(${JSON.stringify(fixtureId)}).getInputValues();`);
           if(inputs.find(i=>i.id==='length')?.value!==18)throw Error('RSI length not restored as 18');
           return 'UI 添加 RSI；TV API 打开参数面板；真实鼠标键盘 14→18；刷新后 length=18';
         });
         if(fixtureId) await _ssStep(page,t,'删除测试指标',async()=>{
-          await interactions.deleteStudy(page,fixtureId);await sleep(2500);fixtureId=null;
+          await interactions.deleteStudy(page,fixtureId);fixtureId=null;
           return '真实点击 RSI 图例移除按钮，模型与图例均移除；原 BB/MACD 保留';
         });
       } finally {
@@ -383,7 +399,6 @@ export function createChartTests({
       if (missing.length > 0) throw new Error(`Indicators lost: ${missing.join(', ')}`);
 
       await clickIndicatorButton(page);
-      await sleep(1000);
       const panelTextAfter = await getIndicatorPanelText(page);
       await clickIndicatorButton(page);
       if(!panelTextAfter.includes('MACD')) throw Error('Indicator options missing after reload');
@@ -660,12 +675,11 @@ export function createChartTests({
       const start = Date.now();
       for (let i = 0; i < 6; i++) {
         const target = available[i % available.length];
-        await clickTimeInterval(page,target.aria,300);
+        await clickTimeInterval(page,target.aria);
       }
       const elapsed = Date.now() - start;
 
-      await sleep(2000);
-
+      await waitForTVReady(page);
       const canvases = await getCanvasCount(page);
       if (canvases < 7) throw new Error(`Chart broken after rapid switching: ${canvases} canvases`);
 
@@ -727,7 +741,7 @@ export function createChartTests({
     const targetSymbol = pair1?.startsWith('BTC') ? 'ETH' : 'BTC';
     await _ssStep(page, t, `切换到交易对 B (${targetSymbol})`, async () => {
       await perps.switchPair(targetSymbol);
-      await sleep(2000);
+
       await waitForTVReady(page);
       const pair2 = await perps.getCurrentPair();
       return `Switched to: ${pair2}`;
@@ -756,7 +770,7 @@ export function createChartTests({
     const switchBackSymbol = pair1?.replace('USDC', '') || 'SOL';
     await _ssStep(page, t, `切回交易对 A (${switchBackSymbol})`, async () => {
       await perps.switchPair(switchBackSymbol);
-      await sleep(2000);
+
       await waitForTVReady(page);
       const sym1 = switchBackSymbol.toLowerCase();
       const keys = await getDrawingKeys(page);
@@ -780,7 +794,7 @@ export function createChartTests({
 
     await _ssStep(page, t, `切换到 ${targetSymbol} 验证指标同步`, async () => {
       await perps.switchPair(targetSymbol);
-      await sleep(2000);
+
       await waitForTVReady(page);
       return `Switched to ${await perps.getCurrentPair()}`;
     });
@@ -808,7 +822,7 @@ export function createChartTests({
     });
 
     await perps.switchPair(switchBackSymbol);
-    await sleep(2000);
+
     await waitForTVReady(page);
 
     let indicatorsBefore016, drawingKeysBefore016, settingsBefore016, intervalsBefore016;
@@ -913,21 +927,21 @@ export function createChartTests({
       const pairBefore=await currentPair(page);
       const formBefore=await snapshotNonOrderForm(page);
       const original=(await locator(page,'perps.chart.engine').innerText()).includes('TradingView')?'tradingView':'native';
-      let intervalBefore;
+      const intervalBefore=(await getTimeIntervals(page)).find(i=>i.active)?.aria;
+      if(!intervalBefore) throw Error('Readable original chart interval required before mutation');
       let result;
       try {
         if(!tc.id.endsWith('-009')) {
           await setChartMode(page,'tradingView');await waitForTVReady(page);
-          intervalBefore=(await getTimeIntervals(page)).find(i=>i.active)?.aria;
         }
         result=await run(page);return result;
       }
       finally {
         try {
           await page.keyboard.press('Escape');
-          if(intervalBefore) await clickTimeInterval(page,intervalBefore);
           await restorePair(page,pairBefore);
           await setChartMode(page,original);
+          await clickTimeInterval(page,intervalBefore);
           await restoreNonOrderForm(page,formBefore);
         } catch(error) {
           const failure=markRestoreFailure(result,error,'恢复图表及原表单');
@@ -940,11 +954,11 @@ export function createChartTests({
   let _preReport = null;
   async function setup(page) {
     await goToPerps(page);
-    await sleep(2000);
+    await locator(page,'perps.form.root').waitFor({state:'visible',timeout:15000});
     _preReport ??= await runPreconditions(page, testCases.map(tc => tc.id));
     if (!_preReport.canRun) throw new Error('Perps 前置检查未通过');
     return _preReport;
   }
 
-  return { testCases, setup, ALL_TEST_IDS };
+  return { testCases: decoratePerpsCases(testCases,{prefix}), setup, ALL_TEST_IDS };
 }

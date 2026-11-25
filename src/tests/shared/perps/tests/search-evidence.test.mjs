@@ -129,3 +129,29 @@ test("category oracle has one fixed All and never fabricates Hot/New; configured
     ["全部", "新上市"],
   );
 });
+
+test('complete selector sets include every alias/DEX/spot match and restore the active category after clearing', async () => {
+  const { assertSelectorResultSet } = await import('../search-evidence.mjs');
+  assert.equal(typeof assertSelectorResultSet, 'function');
+  const raw = [
+    {coin:'BTC',spot:false}, {coin:'dex:BTC',spot:false}, {coin:'ETH',spot:false},
+    {coin:'@1',name:'BTC/USDC',base:'UBTC',quote:'USDC',spot:true},
+    {coin:'@2',name:'BTC/USDH',base:'UBTC',quote:'USDH',spot:true},
+    {coin:'@3',name:'KHYPE/USDH',base:'KHYPE',quote:'USDH',spot:true},
+  ];
+  const config = {tokenSearchAliases:{BTC:{aliases:['比特币']},'dex:BTC':{aliases:['比特合约']}}, tokenSelectorTabs:[{tabId:'stocks',name:'股票',tokens:['ETH','MISSING']}]};
+  const check = (results, primary, query, secondary='股票') => assertSelectorResultSet(raw,results,{primary,query,secondary,config});
+  check(raw.slice(0,2),'永续合约','比特');
+  check([raw[2]],'永续合约','');
+  check(raw.slice(0,3),'永续合约','', '全部');
+  check(raw.slice(3,5),'现货','btc');
+  check(raw.slice(3,5),'现货','UBTC');
+  check([raw[5]],'现货','hype');
+  check([raw[3]],'现货','BTC/USDC');
+  check([],'现货','XYZZZ999');
+  for (const bad of [[raw[0]], [raw[0],raw[0]], raw.slice(0,3), raw.slice(3,5)])
+    assert.throws(()=>check(bad,'永续合约','比特'));
+  assert.throws(()=>check([raw[3]],'现货','btc'));
+  assert.throws(()=>check([raw[0]],'永续合约',''));
+  assert.throws(()=>check([],'永续合约','','未配置分类'));
+});

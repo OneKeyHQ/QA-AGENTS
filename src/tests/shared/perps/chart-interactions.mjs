@@ -30,9 +30,11 @@ export function chartInteractions(tvEval) {
     return {changedKeys:[...new Set([...Object.keys(before),...Object.keys(values)])].filter(k=>before[k]!==values[k]),verifiedKeys:Object.keys(after),normalizations};
   }
   async function wait(page,body,timeout=15000) {
-    const end=Date.now()+timeout;let last;
-    while(Date.now()<end) {try {last=await api(page,body);if(last)return last;}catch{}await page.waitForTimeout(250);}
-    throw Error(`TradingView evidence timeout: ${body.slice(0,100)}; last=${JSON.stringify(last)}`);
+    const end=Date.now()+timeout;let last,lastReadError;
+    // Retry pacing only; success always requires the requested model/DOM condition.
+    while(Date.now()<end) {try {last=await api(page,body);if(last)return last;}catch(error){lastReadError=error;}await page.waitForTimeout(250);}
+    throw Object.assign(new Error(`TradingView evidence timeout: ${body.slice(0,100)}; last=${JSON.stringify(last)}; readError=${lastReadError?.message ?? 'none'}`,{cause:lastReadError}),
+      {code:'PERPS_READINESS_TIMEOUT',failureCategory:'readiness',expected:body,actual:last});
   }
   async function point(page,expression) {
     const host=page.locator('webview').first();
@@ -49,11 +51,21 @@ export function chartInteractions(tvEval) {
       await host.evaluate(async(wv,{x,y,click})=>{wv.focus();await wv.sendInputEvent({type:'mouseMove',x,y});if(click){await wv.sendInputEvent({type:'mouseDown',x,y,button:'left',clickCount:1});await wv.sendInputEvent({type:'mouseUp',x,y,button:'left',clickCount:1});}},{x:Math.round(p.x-b.x),y:Math.round(p.y-b.y),click});
     } else if(click)await page.mouse.click(p.x,p.y);else await page.mouse.move(p.x,p.y);
   }
-  async function click(page,expression) {await move(page,await point(page,expression),true);}
+  async function click(page,expression) {
+    await wait(page,`const e=${expression};if(!e)return false;const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&!e.disabled&&getComputedStyle(e).pointerEvents!=='none'&&!e.getAnimations().some(a=>a.playState==='running');`);
+    await move(page,await point(page,expression),true);
+  }
+  const studyStorage=page=>api(page,`return doc.defaultView.localStorage.getItem('tradingview_study_template_perps');`);
+  async function waitStudyWrite(page,before) {
+    // Read-only observation of the product's autosave. The case still verifies
+    // the exact parameter/deletion independently after the real reload.
+    await wait(page,`const value=doc.defaultView.localStorage.getItem('tradingview_study_template_perps');if(value===${JSON.stringify(before)})return false;if(value!==null)JSON.parse(value);return true;`);
+  }
+  const frame=page=>tvEval(page,`return new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Error('Chart renderer frame unavailable')),5000);doc.defaultView.requestAnimationFrame(()=>doc.defaultView.requestAnimationFrame(()=>{clearTimeout(timer);resolve(true);}));});`);
   async function addRsi(page) {
     const before=await api(page,`return chart.getAllStudies().filter(s=>s.name==='Relative Strength Index').map(s=>s.id);`);
     if(before.length) throw Error('RSI fixture needs RSI absent; preserve existing user RSI');
-    const trigger=locator(page,'perps.chart.indicator_trigger');await trigger.scrollIntoViewIfNeeded();await trigger.hover();await page.waitForTimeout(400);await trigger.click();
+    const trigger=locator(page,'perps.chart.indicator_trigger');await trigger.scrollIntoViewIfNeeded();await trigger.hover();await trigger.click({trial:true});await trigger.click();
     await locator(page,'perps.chart.indicator_items').filter({has:page.getByText('RSI',{exact:true})}).click();
     const panel=page.locator('[data-testid="TMPopover-ScrollView"]:visible').filter({has:locator(page,'perps.chart.indicator_items')});
     await panel.locator('xpath=ancestor::*[@data-onekey-overlay-entry][1]').locator(':scope > [aria-hidden="true"]').click({position:{x:3,y:3}});
@@ -61,9 +73,9 @@ export function chartInteractions(tvEval) {
     return wait(page,`return chart.getAllStudies().find(s=>s.name==='Relative Strength Index')?.id;`);
   }
   async function editRsi(page,id,length) {
+    const before=await studyStorage(page);
     await api(page,`chart.showPropertiesDialog(${JSON.stringify(id)});return true;`);
     await wait(page,`return !!doc.querySelector('input[inputmode="numeric"]');`);
-    await page.waitForTimeout(400);
     await click(page,`doc.querySelector('input[inputmode="numeric"]')`);
     await wait(page,`return doc.activeElement===doc.querySelector('input[inputmode="numeric"]');`);
     const webview=page.locator('webview').first();
@@ -75,15 +87,19 @@ export function chartInteractions(tvEval) {
       await page.keyboard.press(process.platform==='darwin'?'Meta+A':'Control+A');await page.keyboard.type(String(length));
     }
     await wait(page,`return doc.querySelector('input[inputmode="numeric"]')?.value===${JSON.stringify(String(length))};`);
-    await page.keyboard.press('Tab');await page.waitForTimeout(200);
+    await page.keyboard.press('Tab');
+    await wait(page,`return doc.activeElement!==doc.querySelector('input[inputmode="numeric"]');`);
     await click(page,`[...doc.querySelectorAll('button')].find(e=>/^(确认|Ok|OK)$/.test(e.textContent.trim()))`);
     await wait(page,`return chart.getStudyById(${JSON.stringify(id)}).getInputValues().find(i=>i.id==='length')?.value===${Number(length)};`);
+    await waitStudyWrite(page,before);
   }
   async function deleteStudy(page,id) {
+    const before=await studyStorage(page);
     const expression=`doc.querySelector('[data-name="legend-source-item"][data-entity-id="${id}"] [data-name="legend-source-title"]')`;
-    const p=await point(page,expression);await move(page,p);await page.waitForTimeout(300);
+    const p=await point(page,expression);await move(page,p);
     await click(page,`doc.querySelector('[data-name="legend-source-item"][data-entity-id="${id}"] [data-name="legend-delete-action"]')`);
     await wait(page,`return !chart.getAllStudies().some(s=>s.id===${JSON.stringify(id)});`);
+    await waitStudyWrite(page,before);
   }
   async function dragLayout(page) {
     const sash=locator(page,'perps.chart.layout_separator');await sash.scrollIntoViewIfNeeded();const before=await sash.boundingBox();
@@ -110,8 +126,8 @@ export function chartInteractions(tvEval) {
     await wait(page,`return doc.defaultView.tradingViewApi.selectedLineTool()===${JSON.stringify(shape)};`);
     const r=await tvEval(page,`return [...doc.querySelectorAll('canvas')].filter(e=>e.getBoundingClientRect().width>500&&e.getBoundingClientRect().height>100).sort((a,b)=>b.getBoundingClientRect().height-a.getBoundingClientRect().height)[0].getBoundingClientRect().toJSON();`);
     const host=await wv.count()?await wv.boundingBox():await tvEval(page,`return doc.defaultView.frameElement.getBoundingClientRect().toJSON();`);
-    await move(page,{x:host.x+r.x+r.width*.3,y:host.y+r.y+r.height*.3},true);await page.waitForTimeout(300);
-    if(shape!=='horizontal_line'){await move(page,{x:host.x+r.x+r.width*.6,y:host.y+r.y+r.height*.6},true);await page.waitForTimeout(300);}
+    await move(page,{x:host.x+r.x+r.width*.3,y:host.y+r.y+r.height*.3},true);await frame(page);
+    if(shape!=='horizontal_line'){await move(page,{x:host.x+r.x+r.width*.6,y:host.y+r.y+r.height*.6},true);await frame(page);}
     return wait(page,`return chart.getAllShapes().find(s=>s.name===${JSON.stringify(shape)}&&!${JSON.stringify(before)}.includes(s.id))?.id;`);
   }
   async function waitDrawingSaved(page,ids,{removed=[],width}={}) {
@@ -162,14 +178,17 @@ export function chartInteractions(tvEval) {
       await refresh();
       await wait(page,`const studies=chart.getAllStudies();return studies.length===1&&studies[0].name==='Volume';`,30000);
       const trigger=locator(page,'perps.chart.indicator_trigger');
-      await trigger.scrollIntoViewIfNeeded();await trigger.hover();await page.waitForTimeout(500);await trigger.click();
+      await trigger.scrollIntoViewIfNeeded();await trigger.hover();await trigger.click({trial:true});await trigger.click();
       const volume=locator(page,'perps.chart.indicator_items').filter({has:page.getByText('VOL',{exact:true})});
       await volume.click();
       const panel=page.locator('[data-testid="TMPopover-ScrollView"]:visible').filter({has:locator(page,'perps.chart.indicator_items')});
       await panel.locator('xpath=ancestor::*[@data-onekey-overlay-entry][1]').locator(':scope > [aria-hidden="true"]').click({position:{x:3,y:3}});
       await wait(page,`return !chart.getAllStudies().some(s=>s.name==='Volume')&&doc.defaultView.localStorage.getItem('tradingview_default_volume_removed_perps')==='1';`);
-      await page.waitForTimeout(2000);await refresh();await page.waitForTimeout(2000);
-      if(await api(page,`return chart.getAllStudies().some(s=>s.name==='Volume');`))throw Error('Deleted Volume returned after refresh');
+      await refresh();
+      // An empty list alone can be the pre-hydration state of the new widget.
+      await page.waitForTimeout(2000);
+      const removed = await api(page,`return doc.defaultView.localStorage.getItem('tradingview_default_volume_removed_perps')==='1' && !chart.getAllStudies().some(s=>s.name==='Volume');`);
+      if (!removed) throw Error('Volume removal did not persist after refresh');
       return '仅暂存/清除 Perps 指标与图表设置键：初始仅 Volume；UI 取消 VOL 后刷新仍无 Volume；非应用重装验证';
     } finally {
       try {

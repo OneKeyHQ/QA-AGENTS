@@ -53,7 +53,7 @@ async function selected(page, expectedIndex) {
   };
   const list = await poll(
       () => rows(page),
-      (items) => items.filter((item) => item.selected).length === 1,
+      (items) => items.filter((item) => item.selected).length === 1 && (expectedIndex === undefined || items.findIndex(item=>item.selected) === expectedIndex),
       `Exactly one selected row required after list update ${JSON.stringify(context)}`,
     ),
     highlighted = list.filter((e) => e.selected);
@@ -96,7 +96,16 @@ async function prepare(page, tab = "永续合约", query = "") {
       .click();
   await searchPairs(page, query);
   await pairPopover(page).locator("input").focus();
-  await page.waitForTimeout(700);
+  await poll(() => pairPopover(page).locator('input').evaluate(e=>({value:e.value,focused:e===document.activeElement})),
+    state=>state.value===query && state.focused, 'Picker input focused with requested query');
+  await pickerFrame(page);
+}
+async function pickerFrame(page) {
+  // Event dispatch barrier only; callers still assert selection/tab/close state.
+  await page.evaluate(()=>new Promise((resolve,reject)=>{
+    const timer=setTimeout(()=>reject(Error('Picker renderer frame unavailable')),5000);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{clearTimeout(timer);resolve();}));
+  }));
 }
 async function pressInPicker(page, key) {
   assert.equal(
@@ -105,7 +114,7 @@ async function pressInPicker(page, key) {
     "Refusing keyboard action outside asset picker",
   );
   await page.keyboard.press(key);
-  await page.waitForTimeout(200);
+  await pickerFrame(page);
 }
 async function chooseSelected(page, item) {
   await pressInPicker(page, "Enter");

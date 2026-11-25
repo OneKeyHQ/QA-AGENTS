@@ -1,9 +1,11 @@
+import { snapshotSelectorPreferences } from './selector-preferences.mjs';
 // D03 手动用例：docs/qa/testcases/cases/perps/2026-01-20_Perps-收藏功能测试.md
 // D05 手动用例：docs/qa/testcases/cases/perps/2026-02-03_Perps-搜索功能.md
 import assert from "node:assert/strict";
 import { aliasMatches } from "./search-alias-oracle.mjs";
 import {
   assertPerpSearchResultSet,
+  assertSelectorResultSet,
   expectedSearchCategories,
   projectSelectorStringStates,
   withSearchPageErrors,
@@ -40,21 +42,30 @@ import {
   SampleUnavailable,
 } from "./desktop-row-suite.mjs";
 
-async function query(page, text) {
+async function query(page, text, {verify=true}={}) {
   const input = pairPopover(page).locator("input");
   await input.fill(text);
   // The UI intentionally retains raw text; matching normalizes trim + 64 chars.
   assert.equal(await input.inputValue(), text);
-  await page.waitForTimeout(650);
+  if(verify) {
+    const state=await snapshotSelectorPreferences(page);
+    if(['永续合约','现货'].includes(state.primary))
+      await verifySelectorResults(page,{primary:state.primary,secondary:state.secondary,query:text});
+  }
+}
+async function selectCategory(page, name, { verify = true } = {}) {
+  await locator(page,'perps.selector.secondary_tabs').getByText(name,{exact:true}).click();
+  await pollForm(() => snapshotSelectorPreferences(page), state=>state.secondary===name, `Search category ${name}`);
+  if (verify) await verifySelectorResults(page, {
+    primary: '永续合约', secondary: name, query: await pairPopover(page).locator('input').inputValue(),
+  });
 }
 async function prepare(page, tab = "永续合约", text = "") {
   await openPairs(page);
-  await query(page, "");
+  await query(page, "", {verify:false});
   await clickPairTab(page, tab);
   if (tab === "永续合约")
-    await locator(page, "perps.selector.secondary_tabs")
-      .getByText("全部", { exact: true })
-      .click();
+    await selectCategory(page, "全部");
   await pollForm(
     () =>
       locator(page, "perps.selector.primary_tabs").evaluate((e) =>
@@ -70,9 +81,10 @@ async function prepare(page, tab = "永续合约", text = "") {
   await query(page, text);
 }
 const catalogByPage = new WeakMap();
-async function catalog(page) {
+async function catalog(page,{fresh=false,config:providedConfig}={}) {
+  if(fresh) catalogByPage.delete(page);
   return readCachedCatalog(catalogByPage,page,async () => {
-        const config = await serverConfig(page);
+        const config = providedConfig ?? await serverConfig(page);
         const [perps, spots] = await Promise.all([
           perpMarketOracle(config.hip3Dexs ?? []),
           spotMarketOracle(),
@@ -234,6 +246,7 @@ async function collect(page, { reveal } = {}) {
     for (let i = 0; i < 200; i++) {
       await settled();
       const rows = await list(page);
+      assert.equal(new Set(rows.map(key)).size,rows.length,"No duplicate canonical rows in one rendered viewport");
       for (const row of rows) found.set(key(row), row);
       if (
         reveal &&
@@ -257,7 +270,7 @@ async function collect(page, { reveal } = {}) {
       assert.ok(state.top !== priorTop, "Search list scroll made no progress");
       priorTop = state.top;
       await handle.evaluate((e) => (e.scrollTop += e.clientHeight * 0.5));
-      await page.waitForTimeout(100);
+      // The next iteration waits for scroll coverage and two render frames.
       if (i === 199) throw Error("Search list did not reach bottom");
     }
     return [...found.values()];
@@ -356,10 +369,8 @@ export const searchDefinitions = [
           [...e.children].map((c) => c.innerText.trim()).filter(Boolean),
         );
         for (const name of tabs) {
-          await locator(page, "perps.selector.secondary_tabs")
-            .getByText(name, { exact: true })
-            .click();
-          await page.waitForTimeout(400);
+          await selectCategory(page, name);
+
           assert.equal(
             await pairPopover(page).locator("input").inputValue(),
             "BT",
@@ -524,8 +535,8 @@ export const searchDefinitions = [
             for(let attempt=0;attempt<3;attempt++) {
               const serverBefore=(await serverConfig(page)).tokenSelectorTabs;
               const [appliedBefore]=await projectReactAll(pairPopover(page).locator("input"),projectAppliedSearchCategories);
-              await locator(page, "perps.selector.secondary_tabs").getByText(tab.name, { exact: true }).click();
-              await page.waitForTimeout(400);
+              await selectCategory(page, tab.name, { verify: false });
+
               actual=(await collect(page)).map(r=>r.coin).sort();
               const serverAfter=(await serverConfig(page)).tokenSelectorTabs;
               const [appliedAfter]=await projectReactAll(pairPopover(page).locator("input"),projectAppliedSearchCategories);
@@ -535,7 +546,7 @@ export const searchDefinitions = [
               catch(e) {
                 if(!(e instanceof SearchCategoryWindowChanged))throw e;
                 if(attempt===2)throw new SampleUnavailable(e.message+"; three bounded snapshot attempts recorded");
-                await page.waitForTimeout(500);
+
               }
             }
             const expected=stable.tokens.filter(c=>coins.has(c));
@@ -559,10 +570,8 @@ export const searchDefinitions = [
             console.log(
               `    Category ${tab.name}: ${actual.length} raw identities matched`,
             );
-            await locator(page, "perps.selector.secondary_tabs")
-              .getByText("全部", { exact: true })
-              .click();
-            await page.waitForTimeout(300);
+            await selectCategory(page, "全部");
+
             const restored = await list(page);
             assert.ok(
               restored.length > 0 && restored.every((r) => coins.has(r.coin)),
@@ -590,10 +599,8 @@ export const searchDefinitions = [
           throw new SampleUnavailable(
             "服务端当前没有空分类；不能借非空分类循环通过来代表暂无数据分支",
           );
-        await locator(page, "perps.selector.secondary_tabs")
-          .getByText(empty.name, { exact: true })
-          .click();
-        await page.waitForTimeout(400);
+        await selectCategory(page, empty.name);
+
         assert.deepEqual(await collect(page), []);
         assert.equal(await pairRows(page).count(), 0);
         assert.equal(
@@ -624,10 +631,8 @@ export const searchDefinitions = [
         let outsideCategory = false;
         for (const [index, name] of tabs.entries()) {
           const select = async (target) => {
-            await locator(page, "perps.selector.secondary_tabs")
-              .getByText(target, { exact: true })
-              .click();
-            await page.waitForTimeout(400);
+            await selectCategory(page, target);
+
           };
           await select(name);
           await query(page, "");
@@ -759,3 +764,53 @@ export {
   query as querySearch,
   serverConfig as readServerConfig,
 };
+
+// Shared by the Desktop basic-search flow and boundary suite. Metadata/config
+// are independent of the rendered list; never substitute the current rows.
+export async function verifySelectorResults(page, scope) {
+  const startedAt=new Date().toISOString();
+  const config = await serverConfig(page);
+  const raw = await catalog(page,{fresh:true,config});
+  const appliedBefore = scope.primary === '永续合约' && !scope.query.trim()
+    ? (await projectReactAll(pairPopover(page).locator('input'), projectAppliedSearchCategories))[0] : null;
+  let comparisonError;
+  const outcome = await pollForm(async () => {
+    const state = await snapshotSelectorPreferences(page);
+    const query = await pairPopover(page).locator('input').inputValue();
+    if(state.primary !== scope.primary || state.secondary !== scope.secondary || query !== scope.query)
+      return {ready:false,state,query,reason:'Selector identity has not committed'};
+    let rows;
+    try {
+      rows = await collect(page);
+      const expected = assertSelectorResultSet(raw, rows, {...scope,config});
+      return {ready:true,rows,expected};
+    } catch(error) {
+      if(error.code !== 'ERR_ASSERTION') throw error;
+      return {ready:false,actual:rows?.map(r=>r.coin),reason:error.message};
+    }
+  }, value => value.ready, `Complete selector set ${JSON.stringify(scope)}`, 15000).catch(error => {
+    if (error.code !== 'PERPS_READINESS_TIMEOUT') throw error;
+    comparisonError = error;
+  });
+  const after = await serverConfig(page);
+  if(JSON.stringify([config.tokenSelectorTabs,config.tokenSearchAliases,config.hip3Dexs]) !==
+     JSON.stringify([after.tokenSelectorTabs,after.tokenSearchAliases,after.hip3Dexs]))
+    throw new SampleUnavailable('Search metadata/config changed during comparison; retry with one coherent window');
+  const rawAfter=await catalog(page,{fresh:true,config:after});
+  const identities=rows=>rows.filter(r=>r.spot===(scope.primary==='现货')).map(r=>`${r.coin}:${r.name}`).sort();
+  if(JSON.stringify(identities(raw))!==JSON.stringify(identities(rawAfter)))
+    throw new SampleUnavailable('Eligible market set changed during comparison (including spot volume threshold); retry in a stable data window');
+  if (comparisonError) throw comparisonError;
+  if(appliedBefore && scope.secondary !== '全部') {
+    const [appliedAfter] = await projectReactAll(pairPopover(page).locator('input'),projectAppliedSearchCategories);
+    try {
+      assertSearchCategoryWindow({serverBefore:config.tokenSelectorTabs, serverAfter:after.tokenSelectorTabs,
+        appliedBefore,appliedAfter,actual:outcome.rows.map(r=>r.coin),
+        coins:new Set(raw.filter(r=>!r.spot).map(r=>r.coin)),name:scope.secondary});
+    } catch(error) {
+      if(error instanceof SearchCategoryWindowChanged) throw new SampleUnavailable(error.message);
+      throw error;
+    }
+  }
+  return {count:outcome.rows.length,expected:outcome.expected,actual:outcome.rows.map(r=>r.coin),window:{startedAt,endedAt:new Date().toISOString(),configVersion:config.configVersion}};
+}

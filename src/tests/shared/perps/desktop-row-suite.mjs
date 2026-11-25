@@ -1,3 +1,4 @@
+import { decoratePerpsCases } from './execution-evidence.mjs';
 // Desktop-only continuous chapter suites with explicit manual-row evidence.
 import assert from "node:assert/strict";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -27,7 +28,7 @@ import {
   closePop,
 } from "./non-order-ui.mjs";
 
-export class SampleUnavailable extends Error {}
+export class SampleUnavailable extends Error { code = 'PERPS_SAMPLE_UNAVAILABLE'; }
 export function createDesktopRowSuite(definitions) {
   let preReport;
   const screenshotDir = resolve(RESULTS_DIR, "perps-desktop-completion");
@@ -262,7 +263,7 @@ export function createDesktopRowSuite(definitions) {
     },
   }));
   return {
-    testCases,
+    testCases: decoratePerpsCases(testCases),
     setup: async (page) => {
       page.setDefaultTimeout(15000);
       assertTargetPage(page, "desktop");

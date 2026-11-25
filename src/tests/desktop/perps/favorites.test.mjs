@@ -1,6 +1,6 @@
 const connectCDP = () => connectPlatform('desktop');
 import {connectPlatform} from '../../helpers/platform-session.mjs';
-import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
+import {mustStopAfterResult,summarizeCaseResults} from '../../helpers/execution-policy.mjs';
 // Perps Favorites Tests (Desktop) — PERPS-001 ~ PERPS-005
 // Thin wrapper: test logic lives in src/tests/shared/perps/favorites.mjs
 // Connects via CDP port 9222 (OneKey Electron app).
@@ -8,7 +8,7 @@ import {mustStopAfterResult} from '../../helpers/execution-policy.mjs';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
-  sleep, screenshot, RESULTS_DIR,
+  screenshot, RESULTS_DIR,
   dismissOverlays, unlockWalletIfNeeded,
 } from '../../helpers/index.mjs';
 import { PerpsPage } from '../../helpers/pages/index.mjs';
@@ -73,7 +73,7 @@ export async function run() {
       const result = await test.fn(page);
       const duration = Date.now() - startTime;
       const r = {
-        testId: test.id, status: result.status, duration,
+        ...result, testId: test.id, status: result.status, duration,
         steps: result.steps, errors: result.errors,
         timestamp: new Date().toISOString(),
       };
@@ -95,24 +95,23 @@ export async function run() {
     }
 
     try { await dismissOverlays(page); } catch {}
-    await sleep(1000);
   }
 
-  const passed = results.filter(r => r.status === 'passed').length;
-  const failed = results.filter(r => r.status !== 'passed').length;
+  const aggregate = summarizeCaseResults(results, toRun.length);
+  const {passed,failed,skipped,notRun} = aggregate;
 
   console.log(`\n${'='.repeat(60)}`);
-  console.log(`SUMMARY: ${passed} passed, ${failed} failed, ${results.length} total`);
+  console.log(`SUMMARY: ${passed} passed, ${failed} failed, ${skipped} skipped, ${notRun} not run, ${results.length} executed`);
   console.log('='.repeat(60));
   results.forEach(r => {
-    const icon = r.status === 'passed' ? 'PASS' : 'FAIL';
+    const icon = r.status === 'passed' ? 'PASS' : r.status === 'skipped' ? 'SKIP' : 'FAIL';
     console.log(`  [${icon}] ${r.testId} (${(r.duration / 1000).toFixed(1)}s)${r.error ? ' — ' + r.error : ''}`);
   });
 
-  const summary = { timestamp: new Date().toISOString(), total: results.length, passed, failed, results };
+  const summary = { ...aggregate, timestamp: new Date().toISOString(), results };
   writeFileSync(resolve(RESULTS_DIR, 'perps-favorites-summary.json'), JSON.stringify(summary, null, 2));
 
-  return { fatalRestore: Object.values(results).some(mustStopAfterResult), status: failed === 0 ? 'passed' : 'failed', passed, failed, total: results.length };
+  return aggregate;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

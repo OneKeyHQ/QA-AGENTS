@@ -5,6 +5,7 @@ import { registry } from './ui-registry.mjs';
 import { sleep } from './constants.mjs';
 import { getWalletPassword } from './runtime-config.mjs';
 import { searchAndSelectChain } from './chain-selector.mjs';
+import { redactExecutionText } from './execution-policy.mjs';
 
 // ── Step Tracker (moved from market-search.mjs + market-chart.mjs) ──
 
@@ -14,6 +15,7 @@ export function createStepTracker(testId) {
   return {
     testId, steps, errors,
     add(name, status, detail = '') {
+      if (status === 'passed' && /^SKIP:/.test(detail)) status = 'skipped';
       steps.push({ name, status, detail, time: new Date().toISOString() });
       const icon = status === 'passed' ? 'OK' : status === 'skipped' ? 'SKIP' : 'FAIL';
       console.log(`  [${icon}] ${name}${detail ? ` — ${detail}` : ''}`);
@@ -28,7 +30,8 @@ export function createStepTracker(testId) {
       const failed = steps.filter(s => s.status === 'failed').length;
       const skipped = steps.filter(s => s.status === 'skipped').length;
       return {
-        status: errors.length === 0 ? 'passed' : 'failed',
+        status: failed ? 'failed' : skipped || !steps.length ? 'skipped' : 'passed',
+        partial: passed > 0 && skipped > 0,
         steps, errors,
         summary: { passed, failed, skipped, total: steps.length },
       };
@@ -48,17 +51,28 @@ export async function safeStep(page, t, name, fn, screenshotFnOrDir) {
     t.add(name, 'passed', detail || '');
     return true;
   } catch (e) {
-    t.add(name, 'failed', e.message || String(e));
+    t.add(name, 'failed', redactExecutionText(e?.message || String(e)));
+    const failure = t.steps?.at(-1);
+    if (failure) {
+      failure.stack = redactExecutionText(e?.stack);
+      // An assertion failure is not automatically a product bug.
+      failure.errorName = e?.name;
+      failure.code = e?.code;
+      failure.failureCategory = e?.failureCategory;
+    }
     const failName = `${t.testId || 'unknown'}-${name.replace(/\s+/g, '-').slice(0, 40)}-fail`;
-    if (typeof screenshotFnOrDir === 'function') {
-      await screenshotFnOrDir(page, failName);
-    } else if (typeof screenshotFnOrDir === 'string') {
-      // Directory string — use inline screenshot
-      try {
+    try {
+      if (typeof screenshotFnOrDir === 'function') {
+        await screenshotFnOrDir(page, failName);
+      } else if (typeof screenshotFnOrDir === 'string') {
         const { mkdirSync } = await import('node:fs');
         mkdirSync(screenshotFnOrDir, { recursive: true });
-        await page.screenshot({ path: `${screenshotFnOrDir}/${failName}.png`, timeout: 5000 });
-      } catch {}
+        const path = `${screenshotFnOrDir}/${failName}.png`;
+        await page.screenshot({ path, timeout: 5000 });
+        if (failure) failure.screenshot = path;
+      }
+    } catch (evidenceError) {
+      if (failure) failure.evidenceError = redactExecutionText(evidenceError?.message || String(evidenceError));
     }
     return false;
   }

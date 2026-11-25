@@ -1,3 +1,8 @@
+import { decoratePerpsCases } from './execution-evidence.mjs';
+import { assertFavoriteValues } from './favorite-quote-assertions.mjs';
+import { snapshotSelectorPreferences, restoreSelectorPreferences } from './selector-preferences.mjs';
+import { pollForm } from './non-order-ui.mjs';
+import { waitInstrumentBoundary } from './instrument-readiness.mjs';
 import {runPreconditions} from '../../helpers/preconditions.mjs';
 import {waitForFavoriteSync} from './favorite-sync.mjs';
 import {snapshotNonOrderForm,restoreNonOrderForm} from './non-order-ui.mjs';
@@ -5,7 +10,7 @@ import {markRestoreFailure} from './runtime.mjs';
 import {writeFileSync,mkdirSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {RESULTS_DIR} from '../../helpers/constants.mjs';
-import {currentPair,openPairs,searchPairs,pairPopover,closePairs,clickPairTab,favoriteSnapshot,restoreFavorites,clearFavorites,setFavorite,restorePair} from '../../helpers/perps-ui.mjs';
+import {locator,currentPair,openPairs,searchPairs,pairPopover,closePairs,clickPairTab,favoriteSnapshot,restoreFavorites,clearFavorites,setFavorite,restorePair} from '../../helpers/perps-ui.mjs';
 // Perps Favorites — shared test logic (Desktop / Web / Extension)
 //
 // Wrapper files at:
@@ -21,7 +26,7 @@ import {currentPair,openPairs,searchPairs,pairPopover,closePairs,clickPairTab,fa
 // Session 4: 行情页顶部（$/% 切换、点击代币跳转）
 // Session 5: 跨入口数据一致性
 
-import { sleep } from '../../helpers/constants.mjs';
+
 import { createStepTracker } from '../../helpers/components.mjs';
 
 export const DEFAULT_TOKENS = ['BTCUSDC', 'ETHUSDC', 'BNBUSDC', 'SOLUSDC', 'HYPEUSDC', 'XRPUSDC'];
@@ -41,6 +46,8 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
   async function clickText(page, text) {
     if(['自选','永续合约','现货'].includes(text)) return clickPairTab(page,text);
+    const expected = text === '添加到自选' ? (await Promise.all(DEFAULT_TOKENS.map(async token => ({token,state:await getRecommendationTokenState(page,token)}))))
+      .filter(item=>item.state.found && item.state.selected).map(item=>item.token.replace(/USDC$/u,'')) : null;
     const clicked = await page.evaluate((txt) => {
       const visiblePopover = () => {
         for (const p of document.querySelectorAll('[data-testid="TMPopover-ScrollView"]')) {
@@ -79,40 +86,10 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       return false;
     }, text);
     if (!clicked) throw new Error(`"${text}" not found`);
-    await sleep(1500);
+    if(expected) await waitForFavoriteSync(() => getFavoritesListTokens(page), expected);
   }
 
-  async function dismissPopover(page) {
-    await page.keyboard.press('Escape').catch(() => {});
-    await sleep(500);
-    await page.evaluate(() => {
-      const selectors = [
-        '[data-testid="overlayPopover"]',
-        '[data-testid="ovelay-popover"]',
-        '[data-testid="modalBackdrop"]',
-      ];
-      for (const selector of selectors) {
-        const el = document.querySelector(selector);
-        const r = el?.getBoundingClientRect();
-        if (el && r && r.width > 0 && r.height > 0) {
-          el.click();
-          return;
-        }
-      }
-    });
-    const deadline = Date.now() + 3000;
-    while (Date.now() < deadline) {
-      const isOpen = await page.evaluate(() => {
-        for (const p of document.querySelectorAll('[data-testid="TMPopover-ScrollView"]')) {
-          if (p.getBoundingClientRect().width > 0) return true;
-        }
-        return false;
-      });
-      if (!isOpen) return;
-      await page.keyboard.press('Escape').catch(() => {});
-      await sleep(300);
-    }
-  }
+  async function dismissPopover(page) { await closePairs(page); }
 
   async function getCurrentPair(page) { return currentPair(page); }
 
@@ -125,24 +102,12 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   }
 
   async function waitForFavoritesListTokens(page, { min = 1, timeoutMs = 8000 } = {}) {
-    const deadline = Date.now() + timeoutMs;
-    let tokens = [];
-    while (Date.now() < deadline) {
-      tokens = await getFavoritesListTokens(page);
-      const recVisible = await isRecommendationVisible(page);
-      if (!recVisible && tokens.length >= min) return tokens;
-      await sleep(500);
-    }
-    return tokens;
+    const state = await pollForm(async () => ({tokens:await getFavoritesListTokens(page),recommended:await isRecommendationVisible(page)}),
+      state=>!state.recommended && state.tokens.length>=min, `At least ${min} saved favorites, not recommendation cards`, timeoutMs);
+    return state.tokens;
   }
-
   async function waitForRecommendationVisible(page, timeoutMs = 8000) {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-      if (await isRecommendationVisible(page)) return true;
-      await sleep(500);
-    }
-    return false;
+    return pollForm(() => isRecommendationVisible(page), visible=>visible, 'Empty favorites recommendation visible',timeoutMs);
   }
 
   async function clearAllFavorites(page) {
@@ -154,11 +119,11 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   async function clearAndTriggerRecommendation(page) {
     const cleared = await clearAllFavorites(page);
     await dismissPopover(page);
-    await sleep(1000);
+
     await openPairSelector(page);
-    await sleep(1500);
+
     await clickText(page, '自选');
-    await sleep(1500);
+
     return cleared;
   }
 
@@ -197,14 +162,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   }
 
   async function waitForRecommendationTokens(page, { min = 1, timeoutMs = 8000 } = {}) {
-    const deadline = Date.now() + timeoutMs;
-    let tokens = [];
-    while (Date.now() < deadline) {
-      tokens = await getRecommendationTokens(page);
-      if (tokens.length >= min) return tokens;
-      await sleep(500);
-    }
-    return tokens;
+    return pollForm(() => getRecommendationTokens(page), tokens=>tokens.length>=min, `At least ${min} recommendation cards`, timeoutMs);
   }
 
   async function getRecommendationTokenState(page, token) {
@@ -244,59 +202,15 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   }
 
   async function setRecommendationTokenSelected(page, token, desiredSelected) {
-    let state = await getRecommendationTokenState(page, token);
-    if (!state.found) throw new Error(`Recommendation token "${token}" not found. Available: ${state.available.join(', ')}`);
-    for (let i = 0; i < 3 && state.selected !== desiredSelected; i++) {
-      await page.mouse.click(state.pos.x, state.pos.y);
-      await sleep(500);
-      state = await getRecommendationTokenState(page, token);
-    }
-    if (state.selected !== desiredSelected) {
-      throw new Error(`Recommendation token "${token}" selected=${state.selected}, expected ${desiredSelected}`);
-    }
+    const state = await pollForm(() => getRecommendationTokenState(page,token), state=>state.found, `Recommendation card ${token}`);
+    if(state.selected!==desiredSelected) await page.mouse.click(state.pos.x,state.pos.y);
+    await pollForm(() => getRecommendationTokenState(page,token), state=>state.found && state.selected===desiredSelected,
+      `Recommendation ${token} selected=${desiredSelected}`);
   }
 
   async function toggleRecommendationToken(page, token) {
-    const result = await page.evaluate((tok) => {
-      const wanted = String(tok || '').toUpperCase();
-      const wantedLabel = wanted.endsWith('USDC') ? wanted : `${wanted}USDC`;
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let pop = null;
-      for (const p of pops) {
-        const text = p.textContent || '';
-        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
-      }
-      if (!pop) return { clicked: false, available: [] };
-      const available = [];
-      const findCardPoint = (el) => {
-        let cur = el;
-        for (let i = 0; i < 6 && cur && cur !== pop; i++, cur = cur.parentElement) {
-          const r = cur.getBoundingClientRect();
-          const text = (cur.textContent || '').replace(/\s+/g, '').trim();
-          if (r.width >= 120 && r.height >= 35 && r.height <= 110 && text.includes(wantedLabel) && text.includes('PERPS')) {
-            return { x: r.x + r.width - 20, y: r.y + r.height / 2, text };
-          }
-        }
-        const r = el.getBoundingClientRect();
-        return { x: r.x + r.width / 2, y: r.y + r.height / 2, text: (el.textContent || '').replace(/\s+/g, '').trim() };
-      };
-      for (const el of pop.querySelectorAll('span, div')) {
-        const t = (el.textContent || '').replace(/\s+/g, '').trim();
-        const r = el.getBoundingClientRect();
-        if (!t || r.width === 0 || r.height === 0) continue;
-        if (/^[A-Z]{2,10}USDCPERPS$/.test(t) && !available.includes(t)) available.push(t);
-        if (t.includes(wantedLabel) && t.includes('PERPS')) {
-          return { clicked: true, available, pos: findCardPoint(el) };
-        }
-        if (t === wantedLabel) {
-          return { clicked: true, available, pos: findCardPoint(el) };
-        }
-      }
-      return { clicked: false, available };
-    }, token);
-    if (!result.clicked) throw new Error(`Recommendation token "${token}" not found. Available: ${result.available.join(', ')}`);
-    await page.mouse.click(result.pos.x, result.pos.y);
-    await sleep(500);
+    const state=await pollForm(() => getRecommendationTokenState(page,token), state=>state.found, `Recommendation card ${token}`);
+    await setRecommendationTokenSelected(page,token,!state.selected);
   }
 
   async function setDefaultRecommendationSelection(page, excluded = []) {
@@ -325,54 +239,17 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   }
 
   async function clickStarAtIndex(page, index = 0) {
-    const deadline = Date.now() + 8000;
-    let result = null;
-    while (Date.now() < deadline) {
-      result = await page.evaluate((idx) => {
-      const pops = document.querySelectorAll('[data-testid="TMPopover-ScrollView"]');
-      let pop = null;
-      for (const p of pops) {
-        const text = p.textContent || '';
-        if (p.getBoundingClientRect().width > 0 && (p.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]') || (text.includes('自选') && text.includes('永续合约')))) { pop = p; break; }
-      }
-      if (!pop) return { pos: null, error: 'no popover' };
-      const buttons = [];
-      for (const btn of pop.querySelectorAll('[data-testid="perp-already-favorite-icon-btn"]')) {
-        const r = btn.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) {
-          buttons.push({ x: r.x + r.width / 2, y: r.y + r.height / 2, text: btn.textContent?.trim() || 'star' });
-        }
-      }
-      for (const btn of pop.querySelectorAll('button')) {
-        const r = btn.getBoundingClientRect();
-        if (r.width >= 18 && r.width <= 28 && r.height >= 18 && r.height <= 28
-            && r.x < 130 && r.y > 290) {
-          buttons.push({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
-        }
-      }
-      if (idx >= buttons.length) {
-        const input = pop.querySelector('input[data-testid*="perp-token-selector-search"], input[placeholder*="搜索"]');
-        const text = (pop.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 500);
-        return {
-          pos: null,
-          error: `only ${buttons.length} star buttons, want index ${idx}`,
-          inputValue: input?.value || '',
-          text,
-        };
-      }
-      return { pos: buttons[idx] };
-      }, index);
-      if (result.pos) break;
-      await sleep(500);
-    }
-    if (!result?.pos) {
-      const detail = [result?.error, result?.inputValue ? `input=${result.inputValue}` : '', result?.text ? `text=${result.text}` : '']
-        .filter(Boolean)
-        .join('; ');
-      throw new Error(`Cannot click star at index ${index}: ${detail || 'unknown state'}`);
-    }
-    await page.mouse.click(result.pos.x, result.pos.y);
-    await sleep(1000);
+    const rows=pairPopover(page).locator('[data-testid^="perp-token-selector-row-"]');
+    const before=await rows.evaluateAll(es=>es.map(e=>({id:e.dataset.testid,name:e.innerText.split('\n')[0].trim()})));
+    const item=before[index];
+    if(!item) throw Error(`Favorite index ${index} unavailable in ${JSON.stringify(before)}`);
+    const row=rows.and(page.getByTestId(item.id)).filter({has:page.getByText(item.name,{exact:true})});
+    if(await row.count()!==1) throw Error(`Favorite target identity ambiguous: ${JSON.stringify(item)}`);
+    await row.locator('[data-testid="perp-already-favorite-icon-btn"]').click();
+    const key=item=>`${item.id}:${item.name}`;
+    await waitForFavoriteSync(() => rows.evaluateAll(es=>es.map(e=>`${e.dataset.testid}:${e.innerText.split('\n')[0].trim()}`)),
+      before.filter((_,i)=>i!==index).map(key));
+    await waitForFavoriteSync(() => getTopBarTokens(page),before.filter((_,i)=>i!==index).map(item=>item.name));
   }
 
   async function setFavoriteBySearch(page,symbol,desiredFavorite) {
@@ -380,8 +257,10 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     await setFavorite(page,{name:base},desiredFavorite);
     await clearSearch(page);
     await clickText(page,'自选');
-    await sleep(300);
-    return getFavoritesListTokens(page);
+
+    const names=(await favoriteSnapshot(page)).map(item=>item.name);
+    await waitForFavoriteSync(() => getTopBarTokens(page),names);
+    return names;
   }
 
   const topBar=page=>page.locator('[data-rbd-droppable-id="favorites-bar"]:visible');
@@ -402,10 +281,15 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   async function getTopBarValues(page) {
     return topBar(page).locator('[data-rbd-draggable-id]').evaluateAll(rows=>rows.map(row=>({text:row.innerText,x:row.getBoundingClientRect().x})));
   }
+  async function waitTopBarValues(page,mode) {
+    return pollForm(() => getTopBarValues(page), values => {
+      try {assertFavoriteValues(values,mode);return true;} catch {return false;}
+    }, `Every favorite value rendered in ${mode} mode`);
+  }
   async function clickToggle(page,mode) {
     if(await getDisplayMode(page)===mode) return;
     await page.getByText('%',{exact:true}).filter({visible:true}).click();
-    await page.waitForTimeout(300);
+    await pollForm(() => getDisplayMode(page), value => value === mode, `Favorite mode ${mode}`);
     if(await getDisplayMode(page)!==mode) throw Error(`Favorites display mode did not change to ${mode}`);
   }
   async function getTopBarText(page) {return topBar(page).innerText();}
@@ -414,7 +298,8 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     const item=topBar(page).locator('[data-rbd-draggable-id]').filter({has:page.getByText(symbol,{exact:true})});
     if(await item.count()!==1) throw Error(`Favorite top-bar item not unique: ${symbol}`);
     await item.click();
-    await page.waitForTimeout(500);
+    const pair=await pollForm(() => currentPair(page), value=>value===symbol || value===`${symbol}USDC`, `Favorite market ${symbol}`);
+    await waitInstrumentBoundary(page,pair,locator(page,'perps.form.root'));
   }
 
   // ── Test Cases ────────────────────────────────────────────
@@ -433,7 +318,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     if (!recAlready) {
       const cleared = await clearAndTriggerRecommendation(page);
       t.add('清空已有自选', 'passed', `removed ${cleared} tokens`);
-      await sleep(1000);
+
     } else {
       t.add('清空已有自选', 'passed', 'already empty');
     }
@@ -460,7 +345,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
     console.log('  Step 6: Click 添加到自选');
     await clickText(page, '添加到自选');
-    await sleep(1000);
+
 
     const favTokens = await waitForFavoritesListTokens(page, { min: 4, timeoutMs: 10_000 });
     t.add('自选列表显示 4 个代币', favTokens.length === 4 ? 'passed' : 'failed',
@@ -468,7 +353,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     t.add('BTC/ETH 不在自选中',
       (!favTokens.includes('BTC') && !favTokens.includes('ETH')) ? 'passed' : 'failed');
 
-    const topTokens = await getTopBarTokens(page);
+    const topTokens = await waitForFavoriteSync(() => getTopBarTokens(page),favTokens);
     t.add('顶部行情栏同步',
       (!topTokens.includes('BTC') && !topTokens.includes('ETH')) ? 'passed' : 'failed',
       `top: ${topTokens.join(', ')}`);
@@ -498,16 +383,16 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     console.log('  Step 3: Search non-existent');
     await clearSearch(page);
     await searchAsset(page, 'ABCDEFG123');
-    await sleep(1000);
-    const isEmpty = await isSearchEmpty(page);
+
+    const isEmpty = await pollForm(() => isSearchEmpty(page), value=>value, 'Unknown token search must show empty state');
     t.add('搜索不存在代币显示空状态', isEmpty ? 'passed' : 'failed');
 
     console.log('  Step 4: Fuzzy search "SU"');
     await clickText(page, '永续合约');
-    await sleep(500);
+
     await searchAsset(page, 'SU');
-    await sleep(1000);
-    const fuzzyTokens = await getFavoritesListTokens(page);
+
+    const fuzzyTokens = await pollForm(() => getFavoritesListTokens(page), rows=>rows.length>1 && rows.every(t=>t.toUpperCase().includes('SU')), 'Fuzzy SU results');
     t.add('模糊搜索返回多个结果', fuzzyTokens.length > 1 ? 'passed' : 'failed',
       `found: ${fuzzyTokens.join(', ')}`);
 
@@ -540,9 +425,9 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     await openPairSelector(page);
     // 先清空搜索框（上一个测试可能残留搜索内容）
     await clearSearch(page);
-    await sleep(500);
+
     await clickText(page, '自选');
-    await sleep(1000);
+
 
     const initialTokens = await getFavoritesListTokens(page);
     t.add('自选列表显示代币', initialTokens.length > 0 ? 'passed' : 'failed',
@@ -551,14 +436,14 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     console.log('  Step 2: Unfavorite one token');
     const countBefore = initialTokens.length;
     await clickStarAtIndex(page, 0);
-    await sleep(1000);
+
     const tokensAfter = await getFavoritesListTokens(page);
     t.add('取消收藏后数量减少 1', tokensAfter.length === countBefore - 1 ? 'passed' : 'failed',
       `${countBefore} -> ${tokensAfter.length}`);
 
     console.log('  Step 3: Click token -> navigate');
     await dismissPopover(page);
-    await sleep(500);
+
     const pairBefore = await getCurrentPair(page);
     const topTokens = await getTopBarTokens(page);
     const target = topTokens.find(tk => tk !== pairBefore?.replace('USDC', ''));
@@ -574,9 +459,9 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     console.log('  Step 4: Clear all -> empty state');
     await openPairSelector(page);
     await clickText(page, '自选');
-    await sleep(1000);
+
     await clearAndTriggerRecommendation(page);
-    await sleep(1000);
+
 
     const recVisible = await isRecommendationVisible(page);
     t.add('清空后显示推荐列表', recVisible ? 'passed' : 'failed');
@@ -584,7 +469,7 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     if (recVisible) {
       await setDefaultRecommendationSelection(page);
       await clickText(page, '添加到自选');
-      await sleep(2000);
+
     }
     await dismissPopover(page);
     return t.result();
@@ -604,20 +489,20 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       `${topTokens.length}: ${topTokens.join(', ')}`);
 
     const topValues = await getTopBarValues(page);
-    const hasPercent = topValues.some(v => v.text.includes('%'));
-    const hasNumeric = topValues.some(v => /\d/.test(v.text));
-    const initialMode = hasPercent ? '%' : '$';
-    // 不强制默认 % 模式；只要顶部能读到数值就 pass，detail 中记录当前模式。
-    t.add('默认显示模式（$ 或 %）', hasNumeric ? 'passed' : 'failed', `default: ${initialMode}`);
+    const initialMode = await getDisplayMode(page);
+    assertFavoriteValues(topValues, initialMode);
+    t.add('当前保存的显示模式及每项数值格式', 'passed', `mode=${initialMode}; values=${JSON.stringify(topValues)}`);
 
     console.log('  Step 2: Click $ toggle');
     await clickToggle(page, '$');
-    const dollarValues = await getTopBarValues(page);
+    const dollarValues = await waitTopBarValues(page, '$');
 
     console.log('  Step 3: Click % toggle');
     await clickToggle(page, '%');
-    const percentValues = await getTopBarValues(page);
+    const percentValues = await waitTopBarValues(page, '%');
 
+    assertFavoriteValues(dollarValues, '$');
+    assertFavoriteValues(percentValues, '%');
     const dollarTexts = dollarValues.map(d => d.text).join(' ');
     const percentTexts = percentValues.map(d => d.text).join(' ');
     const percentTopBarText = await getTopBarText(page);
@@ -631,8 +516,9 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     const target2 = topTokens.find(tk => tk !== pairBefore?.replace('USDC', ''));
     if (target2) {
       await clickTopBarToken(page, target2);
-      const pairAfter = await getCurrentPair(page);
-      t.add('顶部点击代币跳转', pairAfter?.includes(target2) ? 'passed' : 'failed',
+      const pairAfter = await pollForm(() => getCurrentPair(page), value => value === `${target2}USDC` || value === target2, `Top-bar market ${target2}`);
+      await waitInstrumentBoundary(page, pairAfter, locator(page,'perps.form.root'));
+      t.add('顶部点击代币跳转', pairAfter === `${target2}USDC` || pairAfter === target2 ? 'passed' : 'failed',
         `${pairBefore} -> ${pairAfter}`);
     } else {
       t.add('顶部点击代币跳转', 'failed', 'no alternate token');
@@ -649,9 +535,9 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
     console.log('\n  Step 1: Clear -> add without SOL');
     await openPairSelector(page);
     await clearSearch(page);
-    await sleep(300);
+
     await clickText(page, '自选');
-    await sleep(1000);
+
 
     if (!(await isRecommendationVisible(page))) {
       await clearAndTriggerRecommendation(page);
@@ -664,19 +550,20 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
 
     console.log('  Step 2: Verify 永续合约 tab');
     await clickText(page, '永续合约');
-    await sleep(1500);
 
-    const topTokens = await getTopBarTokens(page);
+
+    const expectedTop=DEFAULT_TOKENS.filter(t=>t!=='SOLUSDC').map(t=>t.replace(/USDC$/u,''));
+    const topTokens = await waitForFavoriteSync(() => getTopBarTokens(page),expectedTop);
     t.add('推荐收藏 -> 顶部无 SOL', !topTokens.includes('SOL') ? 'passed' : 'failed',
       `top: ${topTokens.join(', ')}`);
 
     console.log('  Step 3: Unfavorite from 自选');
     await clickText(page, '自选');
-    await sleep(1000);
+
 
     const favsBefore = await getFavoritesListTokens(page);
     await clickStarAtIndex(page, 0);
-    await sleep(1000);
+
 
     const favsAfter = await getFavoritesListTokens(page);
     const removedTokens = favsBefore.filter(t => !favsAfter.includes(t));
@@ -709,15 +596,48 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
       await goToPerps(page);
       const pairBefore=await currentPair(page);
       const formBefore=await snapshotNonOrderForm(page);
-      const modeBefore=(await page.getByText('%',{exact:true}).filter({visible:true}).count())?await getDisplayMode(page):null;
-      const before=await favoriteSnapshot(page);
-      mkdirSync(RESULTS_DIR,{recursive:true});
-      writeFileSync(resolve(RESULTS_DIR,`${tc.id}-before.json`),JSON.stringify({pair:pairBefore,form:formBefore,favorites:before},null,2));
-      await closePairs(page);
-      let result;
-      try { result=await run(page); }
+      const selectorWasOpen=await pairPopover(page).count()>0;
+      const queryBefore=selectorWasOpen?await pairPopover(page).locator('input').inputValue():'';
+      const selectorBefore=await snapshotSelectorPreferences(page);
+      let modeBefore=(await page.getByText('%',{exact:true}).filter({visible:true}).count())?await getDisplayMode(page):null;
+      let before, result;
+      try {
+        before=await favoriteSnapshot(page);
+        mkdirSync(RESULTS_DIR,{recursive:true});
+        writeFileSync(resolve(RESULTS_DIR,`${tc.id}-before.json`),JSON.stringify({pair:pairBefore,form:formBefore,favorites:before},null,2));
+        await closePairs(page);
+        // An empty bar hides the saved mode. Expose it before changing it, then
+        // restore that mode before removing the temporary favorite in finally.
+        if(tc.id.endsWith('-004') && !modeBefore) {
+          await setFavorite(page,{name:'BTC'},true);
+          await closePairs(page);
+          await page.getByText('%',{exact:true}).filter({visible:true}).waitFor({state:'visible'});
+          modeBefore=await getDisplayMode(page);
+        }
+        result=await run(page);
+      }
       finally {
-        try {await restoreFavorites(page,before);await restorePair(page,pairBefore);if(modeBefore) await clickToggle(page,modeBefore);await restoreNonOrderForm(page,formBefore);}
+        try {
+          let modeError;
+          if (modeBefore) {
+            try {
+              if (!await page.getByText('%', { exact: true }).filter({ visible: true }).count()) {
+                await setFavorite(page, { name: 'BTC' }, true);
+                await closePairs(page);
+              }
+              await clickToggle(page, modeBefore);
+            } catch (error) {
+              modeError = error;
+            }
+          }
+          if(before) await restoreFavorites(page,before);
+          await restorePair(page,pairBefore);
+          await restoreNonOrderForm(page,formBefore);
+          await restoreSelectorPreferences(page,selectorBefore);
+          await searchPairs(page,queryBefore);
+          if(!selectorWasOpen) await closePairs(page);
+          if (modeError) throw modeError;
+        }
         catch(error) {
           const failure=markRestoreFailure(result,error,'恢复用户收藏及表单');
           if(!result) throw failure;
@@ -730,11 +650,11 @@ export function createFavoritesTests({ prefix, namePrefix = '', goToPerps }) {
   let _preReport = null;
   async function setup(page) {
     await goToPerps(page);
-    await sleep(2000);
+    await locator(page,'perps.form.root').waitFor({state:'visible',timeout:15000});
     _preReport ??= await runPreconditions(page, testCases.map(tc => tc.id));
     if (!_preReport.canRun) throw new Error('Perps 前置检查未通过');
     return _preReport;
   }
 
-  return { testCases, setup };
+  return { testCases: decoratePerpsCases(testCases,{prefix}), setup };
 }
