@@ -469,6 +469,29 @@
 - 跨链订单记录与链上交易记录关联正确
 - 记录关联准确性
 
+#### 4.5 BTC 交易 Live Activity（灵动岛 / 锁屏）
+
+仅 **iOS 16.1+**；Android 及其他端不实现。覆盖 **转出为 Bitcoin 主网原生 BTC** 的 Swap / Bridge。软件钱包与硬件钱包在广播成功后同样创建，不按钱包类型拆套用例。
+
+| 规则项 | 规则 |
+|--------|------|
+| 创建 | deposit tx 广播成功后立即创建；广播失败、转出非原生 BTC、系统关闭「实时活动」均不创建，且无引导弹窗 |
+| 形态 | 紧凑态 / 展开态 / 最小态；无灵动岛机型走锁屏 / 通知中心 |
+| 紧凑态 | 左叠放双币 icon；出现及每次状态更新后先显示 ETA，3 秒后切换不定量进度环；点按在进度环与剩余时间之间切换；长按展开；完成绿色 ✓，失败/退款红色 ❗ |
+| 展开态 | 双 icon + OneKey logo、币对与箭头、ETA 或终态文案、进度条、步骤文案；完成 / 已退款不显示第四行且高度缩小 |
+| 退款进行中 | 进度条红色；目标币种 50% 透明；箭头朝转出 |
+| ETA | 创建时刻起倒计时；不按步骤重校准；只显示向上取整的分钟；&lt;10s 显示 Almost done；提前完成切 Done；失败/退款停表 |
+| 进度条 | 已用/预估线性推进，上限 95%；Almost done 停在 95%；完成补 100% |
+| 兜底 | 预估时长缺失或 0 时按 10 分钟 |
+| 多单 | 一单一 Activity，默认展示最新一笔；最小态圆环内为转出币 icon |
+| 划掉 | 用户划掉后不重建，终态也不再展示 |
+| 取消 | App 内取消订单（渠道支持时）更新为 Order canceled 并结束 |
+| 创建失败 | 静默，不影响下单 |
+| 跳转 | 点按任意形态进入该笔历史详情 |
+| Ticker | 最多 6 字符，超出 `ABCDEF…` |
+
+配套需求 `docs/qa/requirements/Swap-BTC交易灵动岛.md`，用例 `docs/qa/testcases/cases/swap/2026-11-24_Swap-BTC交易灵动岛.md`。
+
 ---
 
 ### 5. Swap K 线入口测试（K-line Testing）
@@ -1491,6 +1514,9 @@ Swap 支持将兑换后的代币发送到**自定义接收地址**（而非当�
 ---
 
 ## 📅 变更记录
+
+### 2026-11-24
+- 新增 §4.5 BTC 交易 Live Activity：iOS 原生 BTC 订单灵动岛 / 锁屏；广播成功后创建；ETA、95% 进度、Almost done、退款反向箭头与终态图标。配套需求 `docs/qa/requirements/Swap-BTC交易灵动岛.md`、用例 `docs/qa/testcases/cases/swap/2026-11-24_Swap-BTC交易灵动岛.md`。
 
 ### 2026-11-18
 - RocketX 本地 `build-tx` 对齐桌面端成功 curl：询价/构建滑点 `1`；构建体包 `quoteResultCtx.rocketXQuoteResultCtx` 并补 `tradeSource/binded*/rebateAddress`。成功响应常为 `orderId/result` 换汇单（`dataKeys` 可含 `changellyOrder`），不再把缺少 `data.tx` 判失败。
