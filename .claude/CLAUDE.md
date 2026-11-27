@@ -8,6 +8,10 @@ Connected via CDP (`http://127.0.0.1:9222`) using Playwright `connectOverCDP`.
 
 新建、补充、修改手动用例时，先读 `docs/qa/qa-rules.md` §7.3 和 `docs/qa/rules/jira-test-sync-rules.md`。默认只交付 Markdown 源文件，不生成或维护可复制 HTML；仅用户明确要求时才生成本地可复制版。Jira 同步直接从 Markdown 构造富文本，保留表格与真实换行，不生成独立复制页面。Markdown 源文件、规则和 Jira 映射提交仓库；可复制 HTML 仅保存在本地 `docs/qa/testcases/copyable/`，不提交 Git 或 PR，也不使用强制添加绕过忽略。已经跟踪的可复制版应取消 Git 跟踪并保留本地文件。完成本地验证后，主动询问是否同步 Jira；用户同意本批同步后，按 `docs/qa/jira-test-mapping.json` 已核实的 Test 编号直接更新。无映射时询问用户提供已有 Test 编号或确认创建，用户拒绝则不写 Jira。此询问是交付流程的一部分，不受下文「不要再问」影响；当前会话已明确授权同一批目标时不重复询问。完整步骤、字段范围、回读验证与映射维护以同步规则为准。
 
+## PR 预览测试
+
+用户要求执行 `pr + 预览测试`（如 `PR #123 预览测试` 或 `<PR 链接> + 预览测试`）时，读取 `.agents/skills/onekey-pr-preview-qa/SKILL.md`；Claude 和 Cursor 分别使用同名 Skill 和 `.cursor/rules/onekey-pr-preview-qa.mdc`。使用消息中或当前对话明确指向的 PR，目标不明确时先请用户提供链接或编号。进入预览流程后可直接发送下一个 PR 链接。仅引用口令、询问用法或维护技能时，按本次请求处理。
+
 ## 根据 PR 生成回归项
 
 用户要求按 PR 生成回归项（或在该流程中继续发 PR 链接）时，读取 `.agents/skills/onekey-test-designer/SKILL.md` 的 PR 分支及 `docs/qa/rules/pr-regression-rules.md`；Claude / Cursor 使用对应镜像。PR diff 与调用链确定范围，已确认需求确定预期，已有仓库 / Jira Test 用于复用和查漏。回归用例照常交付，回复末尾列出全部有依据的「代码审查发现」，先按用户影响排序，同级按证据强度排序。区分确认问题与需验证风险，每条含严重程度、固定 SHA 下的文件/行号、触发条件和影响。审查不完整必须说明；完整审查无发现写「未发现明确代码问题」。不自动启动实机、全面审查报告或 Jira 写入。

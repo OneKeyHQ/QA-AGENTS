@@ -1,0 +1,83 @@
+:root {
+  color-scheme: light dark;
+  font: 16px/1.5 system-ui, sans-serif;
+  background: Canvas;
+  color: CanvasText;
+}
+
+body {
+  margin: 0;
+}
+
+.preview-toolbar {
+  padding: 1rem;
+  border-block-end: 1px solid GrayText;
+}
+
+h1, h2 {
+  margin-block: 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.preview-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.65rem 1rem;
+}
+
+.preview-controls label {
+  display: grid;
+  gap: 0.15rem;
+}
+
+select, button {
+  min-height: 2rem;
+  padding-inline: 0.45rem;
+  font: inherit;
+}
+
+.preview-help, .preview-evidence p {
+  margin-block: 0.55rem 0;
+  color: GrayText;
+  font-size: 0.875rem;
+}
+
+.preview-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 20rem);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.preview-stage {
+  overflow: auto;
+  border: 1px solid GrayText;
+}
+
+.preview-stage iframe {
+  display: block;
+  border: 0;
+}
+
+.preview-evidence {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+
+.preview-evidence dt {
+  margin-block-start: 0.55rem;
+  font-weight: 600;
+}
+
+.preview-evidence dd {
+  margin-inline-start: 0;
+  white-space: pre-line;
+}
+
+@media (max-width: 50rem) {
+  .preview-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -16,6 +16,8 @@
     "sync:selectors": "node scripts/sync-app-monorepo-selectors.mjs",
     "build:locators": "node scripts/build-locator-map.mjs",
     "build:locators:check": "node scripts/build-locator-map.mjs --check",
+    "test:pr-preview": "node --test scripts/pr-preview/*.test.mjs",
+    "check:pr-preview-skill": "node scripts/pr-preview/check-skill.mjs",
     "clean": "node scripts/clean.mjs",
     "test:api:swap": "node src/tests/api/swap/run.mjs",
     "test:api:swap:smoke": "node src/tests/api/swap/run.mjs --suite smoke"
