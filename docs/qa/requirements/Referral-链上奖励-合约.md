@@ -72,8 +72,7 @@
 | 项目 | 规则 |
 |------|------|
 | 触发 | 点击后导出当前筛选条件下的数据 |
-| 文件名格式 | {Date1} - {Date2} Onchain Reward - Perps Undistributed / {Date1} - {Date2} Onchain Reward - Perps Total |
-| 导出范围 | Undistributed / Total 列表数据（根据用户选择），不隐藏零交易量记录 |
+| 导出范围 | 使用顶部筛选条件（时间范围与邀请码）。「待发放」与「总计」仅切换页面列表；同一筛选下导出内容一致，保留零交易量记录。 |
 | 导出字段 | Address, Invited Time, Referral Code, Referral Code Remark, First Trade, Volume, Fee, Reward |
 
 ### 2. Overview 统计区域
@@ -211,3 +210,4 @@
 | 日期 | 版本 | 变更内容 |
 |------|------|----------|
 | 2026-02-09 | v1.0 | 初始版本，链上奖励：合约详情页 |
+| 2026-11-26 | v1.1 | 用户确认 CSV 按顶部筛选导出，切换下方 Tab 不改变导出范围 |
