@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; media-src data:; frame-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>PR 预览</title>
+  <style><!-- preview-shell-style --></style>
+</head>
+<body>
+  <header class="preview-toolbar" aria-label="预览工具栏">
+    <h1 id="preview-title"></h1>
+    <div class="preview-controls">
+      <label>场景 <select id="preview-scene"></select></label>
+      <label>版本 <select id="preview-version"></select></label>
+      <label>语言 <select id="preview-locale"></select></label>
+      <label>宽度 <select id="preview-width"></select></label>
+      <button id="preview-reset" type="button">重开当前场景</button>
+    </div>
+    <p class="preview-help">切换版本、语言或重开会从场景起点加载。刷新后恢复场景的默认版本、语言和宽度。</p>
+    <p id="preview-execution" class="preview-help"></p>
+  </header>
+  <main class="preview-layout">
+    <div id="preview-stage" class="preview-stage" aria-label="产品预览区域"></div>
+    <aside class="preview-evidence" aria-label="预览证据">
+      <h2>预览证据</h2>
+      <dl id="preview-evidence" aria-live="polite"></dl>
+      <p>实际渲染与来源的一致性需对照。外壳本身不提供完整网络沙箱。</p>
+    </aside>
+  </main>
+  <script id="preview-data" type="application/json"><!-- preview-shell-data --></script>
+  <script><!-- preview-shell-script --></script>
+</body>
+</html>
